@@ -54,7 +54,7 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Copy: NUNCA decir "nadie más la ve" en sentido absoluto: el texto se procesa en el proveedor de IA → decir "no se usa para entrenar IA ni se comparte".
 
 ## Avatar y venta (Sesión 1 — NO cambiar sin validar)
-- FICHA-AVATAR.md: COMPLETA, 17 frases VoC con fuente — aprobación del usuario: PENDIENTE
+- FICHA-AVATAR.md: COMPLETA, 17 frases VoC con fuente — aprobación del usuario: SÍ 2026-09-29
 - Resumen: Carlos, 32, empleado LATAM · dolor #1 hoja en blanco frente a ChatGPT a las 7 PM · deseo #1 "hoy haz esto en 5 min" · consciencia 3 · sofisticación 4-5 → hero por identificación + mecanismo + demo, CERO promesas de ingresos
 - Landing: estructura canónica de 10 secciones (19) — pendiente Sesión 3
 
@@ -105,7 +105,7 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Borrar mis datos: endpoint que borra business_profile + pieces + progress + cuenta (promesa "Tu idea es tuya").
 
 ## Pendientes / ⚠️
-- Aprobación del usuario: FICHA-AVATAR + precio/modelo.
+- (hecho) FICHA-AVATAR aprobada; precio informado sin objeción (2026-09-29).
 - Verificar en Sesión 6: período gratuito Hotmart para app externa · checkout real (medios de pago) · términos de datos del proveedor de IA.
 
 ## Problemas conocidos

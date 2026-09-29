@@ -1,6 +1,6 @@
 # FICHA DE AVATAR — EMPRESAI
 
-- Estado: COMPLETA — PENDIENTE DE APROBACIÓN DEL USUARIO (VoC: 17 frases literales con fuente ✓ ≥10)
+- Estado: APROBADA por el usuario 2026-09-29 (VoC: 17 frases literales con fuente ✓ ≥10)
   ⚠️ VoC de CATEGORÍA (apps de aprender IA, en español); el léxico de "emprender" viene de la Fuente 1
   (PDF del usuario, sin fuente externa) → revalidar vocabulario con los primeros 20 usuarios reales.
 
@@ -70,4 +70,4 @@
 ## Cierre
 - INVENTARIO DE PRUEBA DÍA-1: no hay usuarios aún · activo disponible: demo grabable de la app (misión + pieza generada) · el fundador puede documentar su propio recorrido de 30 días como prueba
 - ¿Hubo entrevistas del 44?: NO
-- Fecha de cierre: 2026-09-29 · Aprobada por el usuario: PENDIENTE
+- Fecha de cierre: 2026-09-29 · Aprobada por el usuario: SÍ (2026-09-29)
