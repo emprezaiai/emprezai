@@ -1,7 +1,7 @@
 # ESTADO — EMPRESAI
 Última actualización: 2026-09-29 | Sesión actual: 0 → B2 (reporte de validación presentado)
 
-⏸️ CHECKPOINT — Última acción completada: usuario aprobó ajuste "IA dentro de la app" (2026-09-29); Constitución redactada y presentada / Siguiente acción exacta: OK de la Constitución → B5 Plan Maestro → Sesión 1
+⏸️ CHECKPOINT — Última acción completada: Constitución APROBADA (2026-09-29) + Plan Maestro presentado / Siguiente acción exacta: OK del usuario → Sesión 1 (FICHA-AVATAR, FICHA-MERCADO, FICHA-MODELO completa, precio con 40, modelo 02C, arquitectura)
 
 ## Qué es esta app (3 líneas máximo)
 App web tipo Duolingo que guía a emprendedores principiantes LATAM a lanzar su negocio/producto digital con IA en 30 días, 5 min/día.
@@ -36,7 +36,7 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Precio: el del usuario (9.99) queda como propuesta; se valida en Sesión 1 con 40-UNIT-ECONOMICS (ahora hay costo de IA por usuario)
   y con Coursiv como techo de referencia (~$40/4 semanas).
 
-## Constitución del Producto (B3 — presentada 2026-09-29, esperando OK)
+## Constitución del Producto (B3 — APROBADA por el usuario 2026-09-29)
 - Ajuste aprobado por el usuario (2026-09-29): la IA ejecuta cada misión DENTRO de la app con el perfil del negocio; el prompt queda como extra copiable.
 1. Usuario: empleado 25-40 LATAM ("Carlos El Estancado"), quiere negocio propio; usa la app en tiempos muertos (bus, almuerzo, antes de dormir) desde el celular.
 2. Problema: parálisis por exceso de info + hoja en blanco frente a ChatGPT; evita otro curso caro que no termina.
@@ -45,6 +45,13 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 4b. Mecanismo: "Método Pieza a Pieza" — cada día la IA arma una pieza nueva usando TODO lo que ya armó (las piezas se encadenan). Elimina la causa del fracaso anterior (prompts sueltos/teoría que no conectan). Falsable: Coursiv/cursos/packs de prompts no pueden afirmarlo.
 5. Flujos: (a) onboarding: idea → primera pieza → paywall; (b) misión diaria: mapa → lección 2 min → IA arma la pieza → guarda en "Mi Empresa" → racha; (c) "Mi Empresa": ver/editar/copiar/exportar todo lo armado.
 6. NUNCA: prometer ingresos garantizados ni inventar cifras/testimonios · cobrar sin aviso previo · dificultar cancelar · usar culpa/amenaza para la racha · compartir o usar la idea de negocio del usuario para otra cosa · inventar datos de mercado en las piezas.
+
+## Privacidad de la idea = argumento de venta (pedido del usuario 2026-09-29)
+- El usuario detectó un miedo real del avatar: "¿me roban la idea?". Se suma como OBJECIÓN #5 a FICHA-AVATAR.
+- Se convierte en garantía visible: "Tu idea es tuya" → solo el dueño ve sus piezas (RLS), borrar todo en 1 toque,
+  proveedor de IA vía API sin uso para entrenamiento (verificar términos del proveedor elegido en Sesión 1/6),
+  declarado en política de privacidad (gate de seguridad). Aparece en landing (FAQ + bloque confianza), onboarding (junto al campo de la idea) y paywall.
+- Copy: NUNCA decir "nadie más la ve" en sentido absoluto: el texto se procesa en el proveedor de IA → decir "no se usa para entrenar IA ni se comparte".
 
 ## Decisiones técnicas (NO re-discutir sin pedirlo el usuario)
 - (pendiente Sesión 1)
