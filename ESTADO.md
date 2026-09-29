@@ -1,7 +1,7 @@
 # ESTADO — EMPRESAI
 Última actualización: 2026-09-29 | Sesión actual: 0 → B2 (reporte de validación presentado)
 
-⏸️ CHECKPOINT — Última acción completada: validación de mercado (B1) + reporte B2 presentado / Siguiente acción exacta: esperar OK del usuario al ajuste "IA ejecuta dentro de la app"; luego B3 (Constitución) → Sesión 1
+⏸️ CHECKPOINT — Última acción completada: usuario aprobó ajuste "IA dentro de la app" (2026-09-29); Constitución redactada y presentada / Siguiente acción exacta: OK de la Constitución → B5 Plan Maestro → Sesión 1
 
 ## Qué es esta app (3 líneas máximo)
 App web tipo Duolingo que guía a emprendedores principiantes LATAM a lanzar su negocio/producto digital con IA en 30 días, 5 min/día.
@@ -35,6 +35,16 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
   suma una pieza a "Mi Empresa" (expediente acumulativo) → pasa gate IA real + retención por acumulación.
 - Precio: el del usuario (9.99) queda como propuesta; se valida en Sesión 1 con 40-UNIT-ECONOMICS (ahora hay costo de IA por usuario)
   y con Coursiv como techo de referencia (~$40/4 semanas).
+
+## Constitución del Producto (B3 — presentada 2026-09-29, esperando OK)
+- Ajuste aprobado por el usuario (2026-09-29): la IA ejecuta cada misión DENTRO de la app con el perfil del negocio; el prompt queda como extra copiable.
+1. Usuario: empleado 25-40 LATAM ("Carlos El Estancado"), quiere negocio propio; usa la app en tiempos muertos (bus, almuerzo, antes de dormir) desde el celular.
+2. Problema: parálisis por exceso de info + hoja en blanco frente a ChatGPT; evita otro curso caro que no termina.
+3. Promesa: "Esta app ayuda a emprendedores principiantes con poco tiempo a lanzar su negocio digital en 30 días sin cursos largos ni la hoja en blanco, mediante misiones de 5 minutos donde la IA arma cada pieza de SU negocio."
+4. Momento aha (<60s, antes del paywall): cuenta su idea en 3-4 toques → la IA le devuelve su primera pieza personalizada (su oferta en una frase + a quién venderle).
+4b. Mecanismo: "Método Pieza a Pieza" — cada día la IA arma una pieza nueva usando TODO lo que ya armó (las piezas se encadenan). Elimina la causa del fracaso anterior (prompts sueltos/teoría que no conectan). Falsable: Coursiv/cursos/packs de prompts no pueden afirmarlo.
+5. Flujos: (a) onboarding: idea → primera pieza → paywall; (b) misión diaria: mapa → lección 2 min → IA arma la pieza → guarda en "Mi Empresa" → racha; (c) "Mi Empresa": ver/editar/copiar/exportar todo lo armado.
+6. NUNCA: prometer ingresos garantizados ni inventar cifras/testimonios · cobrar sin aviso previo · dificultar cancelar · usar culpa/amenaza para la racha · compartir o usar la idea de negocio del usuario para otra cosa · inventar datos de mercado en las piezas.
 
 ## Decisiones técnicas (NO re-discutir sin pedirlo el usuario)
 - (pendiente Sesión 1)
