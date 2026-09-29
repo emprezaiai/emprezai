@@ -1,0 +1,458 @@
+IDEA APP
+RESUMEN EJECUTIVO DE LA IDEA
+GANADORA
+
+1. La Promesa Central (Tu Gancho de Ventas)
+
+"Lanza tu empresa o producto digital con IA en 30 días, dedicando solo 5 minutos al
+día."
+
+2. Por qué este modelo es brillante y genera compras constantes
+
+     Mata la parálisis por análisis: El emprendedor no quiere teoría ni hojas en blanco;
+         quiere un mapa claro de qué hacer hoy.
+
+     Recompensa de valor inmediato: Al terminar cada micro-lección gamificada, el
+         usuario no solo obtiene puntos o rachas, sino un Prompt Maestro listo para copiar
+         y pegar en ChatGPT o Claude que resuelve una tarea real de su negocio (ej. definir
+         su oferta, crear copies de venta, diseñar un guion de video).
+
+     Retención natural: La psicología del mapa por niveles (Día 1 al Día 30) y el
+         contador de rachas hacen que el usuario regrese a diario para no perder su progreso
+         ni sus herramientas desbloqueadas.
+
+3. Estructura de la Ruta (Los 4 Sprints del MVP)
+
+Sprint / Semana   Objetivo del Usuario           Entregables / Prompts
+                                                 Desbloqueados
+
+Semana 1: Idea y  Encontrar un nicho             Prompts de análisis de
+Validación        rentable y validar la oferta.  competencia y validación de
+                                                 dolor.
+
+Semana 2:         Definir el nombre, mensaje     Prompts de branding, copy
+Branding y        y propuesta de valor.          persuasivo y ángulos de
+Propuesta                                        venta.
+
+Semana 3:         Estructurar el MVP             Prompts de temarios,
+Creación del      (e-book, curso, servicio o     metodologías y creación de
+Producto          app).                          contenido.
+Semana 4: Ventas y  Configurar embudo básico  Prompts de guiones para
+Lanzamiento         y lanzar anuncios/redes.  Reels/TikTok, e-mails y
+                                              ManyChat.
+
+4. Modelo de Monetización Recomendado
+
+     Precio Mensual: US$9.99 / mes (Suscripción accesible, impulso de compra muy
+         alto en LATAM).
+
+     Precio Anual: US$59.99 / año (Equivalente a US$4.99/mes, ideal para asegurar
+         liquidez al inicio).
+
+     Estrategia de Prueba: Prueba gratuita de 3 días con acceso al Sprint 1. Para
+         desbloquear los prompts de la Semana 2 en adelante, se activa la suscripción.
+
+5. Estrategia de Contenido Orgánico (TikTok / Reels)
+
+El contenido para vender la app se crea de forma casi automática mostrando la pantalla:
+
+    1. El Hook: "Usa IA para crear tu negocio en 5 minutos al día en lugar de pagar cursos
+         de $500 dólares."
+
+    2. La Demostración: Muestras el mapa de niveles en la app, completas el "Día 4:
+         Crear tu propuesta irresistible", copias el prompt resultante y lo pegas en la IA para
+         mostrar el resultado final.
+
+    3. Llamado a la Acción (CTA): "Descarga EMPRESAI gratis y empieza tu racha hoy."
+CONOCER TU CLIENTE IDEAL
+1 CONOCER TU CLIENTE IDEAL
+
+Perfil de Cliente Ideal
+
+Carlos "El Estancado", 32 años. Se levanta a las 6:30 AM para ir a un trabajo que le paga
+bien pero lo aburre. Pasa el trayecto en autobús o tráfico scrolleando TikTok e Instagram,
+viendo a jóvenes de 23 años "facturando con IA" o creando negocios digitales. Siente una
+mezcla de envidia y motivación. Llega a casa a las 7:00 PM cansado, abre la laptop con la
+idea de "avanzar en su negocio", abre ChatGPT, no sabe qué escribir, se abruma tras 15
+minutos de ver una hoja en blanco y termina cerrando la computadora para ver Netflix
+sintiéndose culpable.
+
+Problema principal
+
+Quiere desesperadamente lanzar un negocio propio para no depender de un empleo, pero
+está paralizado por el exceso de información y la falta de un paso a paso diario, sintiendo
+que la inteligencia artificial avanza a pasos agigantados y él se está quedando atrás por no
+saber cómo usarla para ganar dinero real.
+
+Deseo principal
+
+Superficialmente quiere lanzar un negocio digital que le genere $1,000-$3,000 USD extra al
+mes; profundamente busca recuperar el control de su tiempo, sentir la validación de ser su
+propio jefe y demostrarse a sí mismo (y a su familia) que es capaz de construir algo grande.
+
+Avatar en 1 párrafo
+
+Carlos es un empleado u oprimido profesional de clase media con acceso a internet y
+smartphone, que sabe perfectamente que tiene un problema (quiere emprender y no sabe
+por dónde empezar) y conoce que la IA es la solución, pero se encuentra en un nivel de
+consciencia de solución frustrada: sabe que existen herramientas pero no sabe cómo
+integrarlas en un proceso estructurado. Ha intentado comprar cursos de $300 USD que
+nunca terminó, ha guardado cientos de videos en TikTok con "prompts secretos" y ha
+intentado usar ChatGPT por su cuenta, pero todo le genera más confusión, falta de tiempo y
+cero ingresos.
+
+10 dolores más urgentes e importantes (En sus propias palabras)
+
+    1. "Siento que el tren de la IA me está dejando atrás y me voy a quedar atrapado en mi
+         trabajo para siempre."
+
+    2. "Abro ChatGPT y me quedo en blanco, no sé qué carajos escribirle para que me dé
+         algo útil para un negocio."
+
+    3. "Tengo mil ideas en la cabeza, pero no sé cuál es el paso 1 ni qué hacer hoy al
+         llegar a mi casa."
+
+    4. "Siento que pierdo las pocas 2 horas libres que tengo en la noche buscando
+         tutoriales en lugar de avanzar."
+    5. "Me da pavor gastar mis ahorros en un curso caro para que al final sea pura teoría
+         aburrida que no me sirva de nada."
+
+    6. "Veo a todo el mundo creando negocios con IA en redes y me siento un tonto por no
+         poder descifrarlo."
+
+    7. "Ya me descargué un 'plan de negocios' que me hizo una app y no me sirvió de nada
+         porque no sé cómo vender hoy."
+
+    8. "Me abruma pensar en la parte técnica, en programar o en crear páginas complejas."
+    9. "Tengo miedo de renunciar o invertir tiempo y volver a fracasar frente a mi pareja o
+
+         mi familia."
+    10."Estoy cansado de ver videos de 45 minutos que al final solo me venden otra
+
+         formación carísima."
+
+10 deseos y anhelos más fuertes (En sus propias palabras)
+
+    1. "Quiero una ruta masticada que me diga: 'Hoy haz esto en 5 minutos' y listo."
+    2. "Quiero copiar y pegar prompts que de verdad funcionen para tener mi oferta lista
+
+         hoy mismo."
+    3. "Quiero ver mi primera venta realizada gracias a algo que construí en mi tiempo
+
+         libre."
+    4. "Quiero sentir la tranquilidad de que estoy avanzando todos los días en mi proyecto
+
+         sin quemarme la cabeza."
+    5. "Quiero presumir que lancé mi negocio usando inteligencia artificial sin haber pagado
+
+         miles de dólares."
+    6. "Quiero un sistema divertido que no me fatigue mentalmente después de un día duro
+
+         de trabajo."
+    7. "Quiero tener la estructura de mi empresa armada en 30 días o menos."
+    8. "Quiero dominar la IA antes de que se vuelva obligatoria en todos lados."
+    9. "Quiero dejar de depender 100% de mi sueldo mensual."
+    10."Quiero sentir la satisfacción de ver completada una racha de trabajo real."
+
+Objeciones y desconfianzas (Por qué dudaría en comprar)
+
+    1. "¿No puedo encontrar estos prompts gratis en internet?" (Siente que está
+         pagando por algo que "Googleando" podría armar).
+
+    2. "¿Tengo que pagar la versión paga de ChatGPT Plus o software caro para que
+         esto me sirva?" (Miedo a costos ocultos).
+
+    3. "¿Será otro curso disfrazado de aplicación que me va a dar flojera abrir a los 3
+         días?" (Trauma de compras pasadas no utilizadas).
+
+    4. "¿Sirve si no tengo experiencia previa en negocios ni en tecnología?"
+         (Inseguridad sobre sus habilidades).
+
+Lenguaje del cliente (Frases literales para tu Copy)
+
+     "Tengo parálisis por análisis."
+     "Me quedo en blanco con la hoja vacía."
+     "Siento que me abruma tanta información."
+     "Quiero algo directo al grano, sin tanto rollo."
+     "No tengo tiempo para verme un curso de 10 horas."
+     "Puro humo en redes sociales, nadie te dice el paso a paso real."
+     "Quiero copiar y pegar lo que ya funciona."
+
+Otras soluciones que probó y por qué las odia
+
+     Cursos en video (Hotmart/Udemy): Los odia porque son largos, teóricos,
+         consumen horas de video y a la semana 2 los abandona por falta de tiempo y fatiga.
+
+     Generadores de Plan de Negocios en PDF (Bizplanr/Apps frías): Los odia
+         porque le entregan un archivo de 15 páginas con texto corporativo que no le dice
+         cómo conseguir un cliente hoy.
+
+     Videos de TikTok/YouTube + Guardar Prompts: Los odia porque tiene carpetas
+         llenas de tiktoks guardados con "prompts mágicos" que luego no sabe cómo
+         conectar en una estrategia real.
+
+Ángulo de venta ganador (Tu "Gran Idea")
+
+        "No necesitas más información ni un curso de $500 dólares para
+        emprender. Necesitas una micro-misión de 5 minutos al día que
+        transforme la IA en tu socio de negocios."
+
+     Lo que SÍ quiere escuchar: "Dedica 5 minutos al día desde tu celular, completa el
+         nivel estilo juego, copia el prompt maestro del día y deja que la IA haga el trabajo
+         pesado por ti mientras ves crecer tu empresa en 30 días."
+
+     Lo que NO quiere escuchar: "Estudia este diplomado en negocios", "Aprende
+         ingeniería de prompts avanzada", "Descarga este marco teórico de 50 páginas".
+2. CONOCER A TU COMPETENCIA DIRECTA
+
+Matriz Comparativa vs. EMPRESAI.APP
+
+Competidor        Lo que hacen bien            Su punto débil (Tu
+                                               Oportunidad)
+
+Bizplanr / BIP    Rapidez para generar texto.  Son herramientas frías:
+                                               Generan un PDF o informe
+                                               de un solo uso y el usuario
+                                               las borra porque no hay
+                                               seguimiento diario.
+
+Primer by Google  Microaprendizaje muy         Es puramente teórico: No
+                  cómodo.                      integra Inteligencia Artificial ni
+                                               entrega herramientas
+                                               utilizables (prompts).
+
+Headway /         Adicción y retención por     Es consumo pasivo: El
+Blinkist          gamificación.                usuario lee/escucha
+                                               resúmenes, pero sigue en la
+                                               "hoja en blanco" sin construir
+                                               nada propio.
+
+EMPRESAI.APP      Combina la gamificación      Resuelve el vacío: No lees
+                  diaria (Duolingo) con        sobre negocios, construyes
+                  entregables prácticos        tu negocio en 5 minutos al
+                  inmediatos (Prompts).        día con IA.
+3. DEFINE LAS RAZONES QUE LE IMPORTARAN A TU CLIENTE
+
+Para Carlos "El Estancado" (tu cliente ideal), el valor de EMPRESAI.APP no reside en la
+tecnología o la inteligencia artificial en sí misma, sino en la transformación personal y
+práctica que experimenta al usarla.
+
+Las 6 razones fundamentales que le importan a este perfil y por las cuales toma la decisión
+de comprar y usar la app son:
+
+1. "Me quita la fatiga mental y la parálisis de la hoja en blanco"
+
+     Lo que piensa: "Llego a las 7:00 PM agotado del trabajo. No tengo energía para
+         pensar qué hacer hoy en mi negocio."
+
+     Por qué le importa la app: Le entrega una instrucción cerrada y específica de 5
+         minutos. La app piensa por él, eliminando la incertidumbre de "¿por dónde empiezo
+         hoy?".
+
+2. "No me vende teoría inútil; me da una herramienta utilizable hoy"
+
+     Lo que piensa: "No quiero ver un video de 45 minutos para aprender qué es una
+         propuesta de valor; quiero tener MI propuesta de valor redactada ya."
+
+     Por qué le importa la app: Al finalizar la micro-lección no recibe un diploma ni
+         puntos ficticios: recibe un Prompt Maestro listo para copiar y pegar que le
+         resuelve una tarea real de su negocio en tiempo real.
+
+3. "Me ahorra cientos de dólares en cursos y herramientas costosas"
+
+     Lo que piensa: "No puedo ni quiero gastar $500 dólares en un curso o mentoría
+         para ver si mi idea funciona."
+
+     Por qué le importa la app: Por menos de $10 dólares al mes (el costo de un par de
+         cafés) siente que obtiene un mapa de ruta guiado, equivalente a la consultoría que
+         cobran las grandes agencias.
+
+4. "Me quita el miedo a quedarme obsoleto frente a la IA"
+
+     Lo que piensa: "Veo que todo el mundo habla de IA y siento que si no aprendo a
+         usarla ahora para ganar dinero, me voy a quedar atrasado para siempre."
+
+     Por qué le importa la app: Le enseña a utilizar la inteligencia artificial de forma
+         práctica y sin tecnicismos, dándole la seguridad de que está al día con la tecnología
+         más moderna.
+
+5. "Se adapta a mis tiempos muertos y no requiere horas de estudio"
+
+     Lo que piensa: "Tengo trabajo, familia y compromisos; no dispongo de 2 horas
+         libres por noche."
+
+     Por qué le importa la app: El formato gamificado de 5 minutos al día le permite
+         avanzar en el autobús, en la pausa del almuerzo o antes de dormir sin descuidar sus
+         responsabilidades diarias.
+6. "Me da la satisfacción de ver avances reales y no perder mi racha"
+
+     Lo que piensa: "Siempre empiezo proyectos y los dejo a medias por falta de
+         constancia."
+
+     Por qué le importa la app: El contador de racha diaria (streak) y el mapa por
+         niveles activan la psicología del logro, transformando la creación de su empresa en
+         una rutina diaria ligera, adictiva y gratificante
+
+4. DEFINE LA PROPUESTA DE VALOR DE TU APP
+
+PROPUESTA DE VALOR DE
+EMPRESAI.APP
+
+1. La Frase Central (El Elevador Pitch)
+"La app tipo Duolingo que te guía paso a paso a lanzar tu empresa
+con IA en 30 días, dedicando solo 5 minutos al día."
+
+2. Formulación de la Propuesta de Valor (Fórmula de Steve Blank)
+Ayudamos a emprendedores principiantes e independientes con
+poco tiempo a pasar de una idea a su primera oferta vendible con
+Inteligencia Artificial mediante una ruta gamificada de
+micro-misiones diarias de 5 minutos que entregan prompts listos
+para copiar y ejecutar, sin tener que pagar cursos de $500 dólares,
+leer textos aburridos o quedarse paralizados frente a la hoja en
+blanco.
+
+3. Los 4 Pilares de Valor (Lo que te hace Imbatible)
+
+A. Claridad Absoluta (Adió Parálisis)
+
+    El Problema: El usuario se abruma con tanta información en
+       internet y no sabe cuál es el paso 1.
+
+    El Pilar de Valor: Un mapa de 30 niveles ordenado
+       secuencialmente. El usuario solo abre la app y sabe
+       exactamente qué micro-tarea le toca completar hoy.
+
+B. Ejecución Instantánea (No solo Teoría)
+
+    El Problema: Los cursos teóricos y los resúmenes no entregan
+       resultados aplicables al instante.
+ El Pilar de Valor: Al terminar cada micro-lección de 2 minutos,
+   la recompensa no son solo puntos: es un Prompt Maestro
+   interactivo listo para copiar, pegar en la IA y resolver una
+   tarea real de su negocio en 3 minutos.
+
+C. Hito por Dopamina (Gamificación y Hábitos)
+
+    El Problema: La gente abandona los proyectos de
+       emprendimiento por falta de constancia o aburrimiento.
+
+    El Pilar de Valor: Sistema de rachas diarias (streaks), niveles
+       desbloqueables y vidas estilo Duolingo que convierten el
+       proceso abrumador de crear un negocio en un hábito diario
+       adictivo.
+
+D. Accesibilidad Total
+
+    El Problema: Las consultorías y formaciones tradicionales son
+       costosas y requieren horas de dedicación.
+
+    El Pilar de Valor: Un modelo de suscripción mensual
+       ultra-accesible ($9.99/mes) diseñado para consumir desde el
+       teléfono móvil en tiempos muertos (autobús, descansos,
+       antes de dormir).
+
+4. Matriz de Valor: Antes vs. Después de EMPRESAI.APP
+
+Dimensión  Antes (Formaciones   Después (Con
+           Tradicionales /      EMPRESAI.APP)
+           PDFs)
+
+Tiempo     1 a 2 horas diarias  5 minutos al día de
+requerido  de estudio pasivo.   micro-acción.
+
+Punto de   Hoja en blanco o     Nivel interactivo con el
+inicio     interfaz vacía de    prompt listo.
+           ChatGPT.
+Resultado  Párrafos de teoría en  Un entregable real para
+diario     una libreta.           su negocio (oferta,
+                                  copy, guion).
+
+Costo      Cursos de $300 -       Suscripción de $9.99
+económico  $500 USD o             USD/mes.
+           suscripciones caras.
+
+Sensación  Frustración,           Avance constante, logro
+emocional  cansancio y            diario y control de su
+           parálisis.             proyecto.
+PROPUESTA DE VALOR
+PROPUESTA DE VALOR DE
+EMPRESAI.APP
+
+1. La Frase Central (El Elevador Pitch)
+"La app tipo Duolingo que te guía paso a paso a lanzar tu empresa
+con IA en 30 días, dedicando solo 5 minutos al día."
+
+2. Formulación de la Propuesta de Valor (Fórmula de Steve Blank)
+Ayudamos a emprendedores principiantes e independientes con
+poco tiempo a pasar de una idea a su primera oferta vendible con
+Inteligencia Artificial mediante una ruta gamificada de
+micro-misiones diarias de 5 minutos que entregan prompts listos
+para copiar y ejecutar, sin tener que pagar cursos de $500 dólares,
+leer textos aburridos o quedarse paralizados frente a la hoja en
+blanco.
+
+3. Los 4 Pilares de Valor (Lo que te hace Imbatible)
+
+A. Claridad Absoluta (Adió Parálisis)
+
+    El Problema: El usuario se abruma con tanta información en
+       internet y no sabe cuál es el paso 1.
+
+    El Pilar de Valor: Un mapa de 30 niveles ordenado
+       secuencialmente. El usuario solo abre la app y sabe
+       exactamente qué micro-tarea le toca completar hoy.
+
+B. Ejecución Instantánea (No solo Teoría)
+
+    El Problema: Los cursos teóricos y los resúmenes no entregan
+       resultados aplicables al instante.
+
+    El Pilar de Valor: Al terminar cada micro-lección de 2 minutos,
+       la recompensa no son solo puntos: es un Prompt Maestro
+       interactivo listo para copiar, pegar en la IA y resolver una
+       tarea real de su negocio en 3 minutos.
+
+C. Hito por Dopamina (Gamificación y Hábitos)
+
+    El Problema: La gente abandona los proyectos de
+       emprendimiento por falta de constancia o aburrimiento.
+
+    El Pilar de Valor: Sistema de rachas diarias (streaks), niveles
+       desbloqueables y vidas estilo Duolingo que convierten el
+proceso abrumador de crear un negocio en un hábito diario
+adictivo.
+
+D. Accesibilidad Total
+
+    El Problema: Las consultorías y formaciones tradicionales son
+       costosas y requieren horas de dedicación.
+
+    El Pilar de Valor: Un modelo de suscripción mensual
+       ultra-accesible ($9.99/mes) diseñado para consumir desde el
+       teléfono móvil en tiempos muertos (autobús, descansos,
+       antes de dormir).
+
+4. Matriz de Valor: Antes vs. Después de EMPRESAI.APP
+
+Dimensión  Antes (Formaciones     Después (Con
+           Tradicionales /        EMPRESAI.APP)
+           PDFs)
+
+Tiempo     1 a 2 horas diarias    5 minutos al día de
+requerido  de estudio pasivo.     micro-acción.
+
+Punto de   Hoja en blanco o       Nivel interactivo con el
+inicio     interfaz vacía de      prompt listo.
+           ChatGPT.
+
+Resultado  Párrafos de teoría en  Un entregable real para
+diario     una libreta.           su negocio (oferta,
+                                  copy, guion).
+
+Costo      Cursos de $300 -       Suscripción de $9.99
+económico  $500 USD o             USD/mes.
+           suscripciones caras.
+Sensación  Frustración,  Avance constante, logro
+emocional  cansancio y   diario y control de su
+           parálisis.    proyecto.
+
