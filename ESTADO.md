@@ -91,7 +91,7 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Extracción de la referencia: docs/revisiones/referencia-usuario-1-extraccion.md
 - Comparativa: direcciones-abc.html (copia en docs/revisiones/) · A Cristal Azul (Plus Jakarta Sans) · B Mapa de Juego (Nunito, violeta+ámbar) · C Tablero de Fundador (Bricolage+Instrument Sans, oscuro+dorado)
 - Fuentes verificadas cargadas en navegador (4/4). Screenshots 375: docs/revisiones/direccion-*-375.jpg
-- Elección del usuario: PENDIENTE
+- Elección del usuario (2026-09-29): COMBINAR "la C con el mapa de la B" → renderizada como "Tablero con Mapa" (docs/revisiones/direccion-CB-tablero-con-mapa-375.jpg) — confirmación PENDIENTE. Descartadas: A (réplica de su captura) y B como estilo completo.
 
 ## Secuencia maestra de construcción (NO saltar)
 - Estado: todas pendientes · Ruta: / → /onboarding → /paywall → /login → /app
