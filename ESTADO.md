@@ -41,3 +41,6 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 
 ## Pendientes / ⚠️
 - Ninguno aún.
+
+## Problemas conocidos
+- FICHA-MODELO.md en BORRADOR (modelo: Coursiv). Falta 2ª señal de revenue (Meta Ads Library / TrustMRR) y plano de onboarding → completar en Sesión 1.
