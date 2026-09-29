@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "vista-estatica",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["scripts/servidor-estatico.mjs"],
+      "port": 5500
+    }
+  ]
+}

@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="es" data-kit="abc-v2">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Direcciones de arte A/B/C — EMPRESAI</title>
+<!-- KIT-ABC-V2 tematizado para EMPRESAI (54). A = réplica fiel de la captura del usuario;
+     B y C = propuestas propias (fusiones de líderes). Fuentes vía Google Fonts (VÍA B). -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400..800&family=Nunito:wght@400..900&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet">
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background:
+      radial-gradient(1100px 520px at 12% -6%, #f7f7f9, transparent 62%),
+      radial-gradient(900px 460px at 92% 4%, #e2e2e9, transparent 58%),
+      linear-gradient(180deg, #ededf0, #e4e4e9);
+    color: #1c1c1f;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    padding: 32px 20px 64px;
+  }
+  .cabecera { max-width: 1180px; margin: 0 auto 12px; }
+  .cabecera h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.01em; }
+  .cabecera p.sub { margin-top: 6px; font-size: 14px; color: #55555c; max-width: 70ch; }
+  .salidas { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .salidas span {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid #c9c9cf; border-radius: 999px;
+    padding: 6px 12px; font-size: 12.5px; font-weight: 600; color: #3a3a40;
+    background: #f7f7f8;
+  }
+  .salidas b { color: #1c1c1f; }
+  .aviso-fuentes { max-width: 1180px; margin: 10px auto 28px; font-size: 12.5px; color: #6a6a72; }
+
+  .opciones { max-width: 1180px; margin: 0 auto; display: grid; gap: 40px;
+              grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
+  .opcion { display: flex; flex-direction: column; gap: 18px; }
+
+  .meta { background: #f7f7f8; border: 1px solid #d9d9de; border-radius: 14px; padding: 18px; }
+  .meta .letra {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 8px; font-weight: 800; font-size: 15px;
+    color: #f7f7f8; background: #1c1c1f; margin-right: 8px;
+  }
+  .meta h2 { display: flex; align-items: center; font-size: 17px; font-weight: 700; }
+  .meta .origen { display: inline-block; margin-top: 8px; font-size: 11px; font-weight: 700;
+                  letter-spacing: .05em; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; }
+  .origen.tuya { background: #dbe7ff; color: #1a3a8a; }
+  .origen.mia { background: #efe7d6; color: #6b4a12; }
+  .meta .direccion { margin-top: 6px; font-size: 13px; color: #55555c; line-height: 1.5; }
+  .hipotesis { margin-top: 10px; font-size: 13px; line-height: 1.5; color: #3a3a40; }
+  .meta ul.tokens { margin-top: 10px; list-style: none; font-size: 12px; color: #6a6a72;
+                    font-family: ui-monospace, monospace; line-height: 1.7; }
+  .ref-mini { margin-top: 12px; display: flex; gap: 10px; align-items: center; font-size: 12px; color: #55555c; }
+  .ref-mini img { width: 84px; height: 105px; object-fit: cover; border-radius: 8px;
+                  box-shadow: 0 4px 12px rgb(0 0 0 / .18); }
+  .especimen { margin-top: 12px; border-top: 1px solid #d9d9de; padding-top: 12px; }
+  .especimen .esp-display { font-size: 21px; font-weight: 700; letter-spacing: -0.01em; }
+  .especimen .esp-body { margin-top: 4px; font-size: 13.5px; color: #3a3a40; }
+
+  .telefono {
+    width: 310px; margin: 0 auto; aspect-ratio: 9 / 19.5;
+    border: 10px solid #101014; border-radius: 46px;
+    box-shadow: 0 24px 60px rgb(20 18 24 / 0.28);
+    overflow: hidden; position: relative; display: flex; flex-direction: column;
+  }
+  .statusbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 22px 6px; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums;
+  }
+  .statusbar .der { display: flex; align-items: center; gap: 5px; }
+  .statusbar svg { display: block; }
+  .home-indicator {
+    position: absolute; bottom: 7px; left: 50%; transform: translateX(-50%);
+    width: 116px; height: 5px; border-radius: 999px; opacity: 0.85;
+  }
+  .pantalla { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .chip-icono { display: inline-flex; align-items: center; justify-content: center;
+                width: 40px; height: 40px; flex-shrink: 0; }
+  .cta { display: flex; align-items: center; justify-content: center;
+         height: 48px; font-size: 15px; font-weight: 700; letter-spacing: 0.01em; }
+
+  .tabbar {
+    display: flex; align-items: stretch; justify-content: space-around;
+    margin: 12px -18px 0; padding: 8px 8px 16px;
+    border-top: 1px solid color-mix(in oklab, var(--text-2) 18%, transparent);
+    background: color-mix(in oklab, var(--surface) 88%, transparent);
+  }
+  .tabbar a {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-size: 9.5px; font-weight: 700; color: var(--text-2); text-decoration: none;
+  }
+  .tabbar .tab-chip { display: flex; align-items: center; justify-content: center;
+                      width: 36px; height: 26px; border-radius: 9px; }
+  .tabbar a.activa { color: var(--accent); }
+  .tabbar a.activa .tab-chip { background: color-mix(in oklab, var(--accent) 14%, transparent); }
+
+  .paleta { display: flex; gap: 8px; margin-top: 10px; }
+  .paleta span { width: 26px; height: 26px; border-radius: 999px;
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.10), 0 1px 3px rgb(0 0 0 / 0.12); }
+
+  .rotulo-frame { text-align: center; font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: #85858e; margin-top: 2px; }
+  .hero-landing {
+    width: 310px; margin: 6px auto 0; border-radius: 18px; overflow: hidden;
+    border: 1px solid rgb(0 0 0 / 0.10); box-shadow: 0 16px 40px rgb(20 18 24 / 0.16);
+    background: var(--bg); color: var(--text-1); font-family: var(--font-body); padding: 22px 18px 18px;
+  }
+  .hero-landing .hl-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--accent); background: color-mix(in oklab, var(--accent) 10%, transparent);
+    border: 1px solid color-mix(in oklab, var(--accent) 25%, transparent);
+    border-radius: 999px; padding: 4px 10px;
+  }
+  .hero-landing h4 { font-family: var(--font-display); font-size: 24px; font-weight: 800;
+    line-height: 1.14; letter-spacing: -0.015em; margin-top: 10px; }
+  .hero-landing h4 em { font-style: normal; color: var(--accent); }
+  .hero-landing .hl-sub { margin-top: 8px; font-size: 13px; color: var(--text-2); line-height: 1.5; }
+  .hero-landing .hl-sub b { color: var(--text-1); font-weight: 700; }
+  .hero-landing .hl-cta {
+    margin-top: 14px; display: flex; align-items: center; justify-content: center;
+    height: 46px; border-radius: var(--radius-btn); font-size: 14.5px; font-weight: 800; color: #fff;
+    background: linear-gradient(180deg, color-mix(in oklab, var(--cta) 86%, white), var(--cta));
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35),
+                0 10px 24px -6px color-mix(in oklab, var(--cta) 50%, transparent);
+  }
+  .hero-landing .hl-prueba { margin-top: 10px; font-size: 11.5px; color: var(--text-2); text-align: center; }
+
+  /* ==========================================================================
+     OPCIÓN A — "Cristal Azul" · RÉPLICA FIEL de la captura del usuario
+     (tokens medidos en docs/revisiones/referencia-usuario-1-extraccion.md)
+     ========================================================================== */
+  .op-a {
+    --bg: #ecf2fa; --bg-2: #dfe7f3; --surface: #fcfcfd;
+    --text-1: #13203a; --text-2: #8494ac;
+    --accent: #1f6feb; --glow: #78b8f8; --navy: #1a2b52; --navy-2: #0c1424; --pale: #c8d8ee;
+    --cta: #1a2b52;
+    --radius-card: 22px; --radius-btn: 999px;
+    --font-display: 'Plus Jakarta Sans', monospace;
+    --font-body: 'Plus Jakarta Sans', monospace;
+  }
+  .op-a .especimen .esp-display, .op-a .especimen .esp-body { font-family: var(--font-display); }
+  .op-a .telefono { background:
+      radial-gradient(220px 180px at 85% 8%, rgb(120 184 248 / .35), transparent 70%),
+      radial-gradient(260px 200px at 0% 60%, rgb(255 255 255 / .9), transparent 70%),
+      linear-gradient(180deg, var(--bg), var(--bg-2)); }
+  .op-a .pantalla { font-family: var(--font-body); color: var(--text-1); padding: 0 16px; }
+  .op-a .statusbar { color: var(--text-1); }
+  .op-a .home-indicator { background: var(--text-1); }
+  .op-a .glass {
+    background: linear-gradient(160deg, rgb(255 255 255 / .92), rgb(255 255 255 / .62));
+    border: 1px solid rgb(255 255 255 / .95);
+    box-shadow: 0 1px 0 rgb(255 255 255) inset, 0 2px 4px rgb(26 43 82 / .05), 0 14px 30px -12px rgb(26 43 82 / .22);
+    backdrop-filter: blur(14px);
+  }
+  .op-a .top { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
+  .op-a .circ { width: 36px; height: 36px; border-radius: 999px; display: flex; align-items: center; justify-content: center; }
+  .op-a .top h3 { font-size: 16px; font-weight: 800; letter-spacing: -0.01em; }
+  .op-a .saludo { margin-top: 12px; font-size: 12px; font-weight: 600; color: var(--text-2); }
+  .op-a .saludo b { display: block; font-size: 20px; color: var(--text-1); font-weight: 800; letter-spacing: -0.02em; margin-top: 1px; }
+  .op-a .heroe {
+    margin-top: 12px; border-radius: var(--radius-card); padding: 14px; color: #fff; position: relative; overflow: hidden;
+    background:
+      radial-gradient(160px 120px at 90% 20%, rgb(31 111 235 / .55), transparent 70%),
+      linear-gradient(150deg, #22386b, var(--navy) 55%, var(--navy-2));
+    border: 1px solid rgb(120 184 248 / .25);
+    box-shadow: 0 18px 34px -14px rgb(12 20 36 / .6);
+  }
+  .op-a .heroe .dia { font-size: 11px; font-weight: 700; color: #a9c7f5; letter-spacing: .04em; text-transform: uppercase; }
+  .op-a .heroe h4 { font-size: 16px; font-weight: 800; margin-top: 4px; max-width: 150px; line-height: 1.25; }
+  .op-a .heroe .meta-m { margin-top: 6px; font-size: 11.5px; color: #c7d6f0; max-width: 160px; }
+  .op-a .barra { margin-top: 10px; height: 6px; border-radius: 999px; background: rgb(255 255 255 / .14); max-width: 170px; }
+  .op-a .barra i { display: block; height: 100%; width: 27%; border-radius: 999px;
+    background: linear-gradient(90deg, var(--glow), var(--accent)); box-shadow: 0 0 10px var(--glow); }
+  /* dispositivo ownable de la referencia: cubos de vidrio 3D con resplandor */
+  .op-a .cubos { position: absolute; right: 2px; top: 22px; width: 84px; height: 84px; transform: scale(.82); transform-origin: top right; }
+  .op-a .cubo { position: absolute; width: 50px; height: 50px; border-radius: 14px;
+    background: linear-gradient(145deg, rgb(255 255 255 / .38), rgb(255 255 255 / .06));
+    border: 1px solid rgb(255 255 255 / .45);
+    box-shadow: inset 0 1px 1px rgb(255 255 255 / .6), 0 0 22px rgb(120 184 248 / .55);
+    backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; }
+  .op-a .cubo.c1 { left: 0; top: 18px; transform: rotate(-12deg); }
+  .op-a .cubo.c2 { left: 38px; top: 0; transform: rotate(10deg); }
+  .op-a .cubo span { width: 22px; height: 22px; border-radius: 7px; }
+  .op-a .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+  .op-a .stat { border-radius: 16px; padding: 8px; text-align: left; }
+  .op-a .stat .ic { width: 28px; height: 28px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(145deg, #4f8ff5, var(--accent)); box-shadow: inset 0 1px 1px rgb(255 255 255 / .5), 0 4px 10px rgb(31 111 235 / .35); }
+  .op-a .stat .ic.navy { background: linear-gradient(145deg, #2b4178, var(--navy)); box-shadow: inset 0 1px 1px rgb(255 255 255 / .3), 0 4px 10px rgb(26 43 82 / .3); }
+  .op-a .stat .ic.pale { background: var(--pale); box-shadow: inset 0 1px 1px rgb(255 255 255 / .8); }
+  .op-a .stat b { display: block; margin-top: 6px; font-size: 16px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .op-a .stat small { font-size: 10px; color: var(--text-2); font-weight: 600; }
+  .op-a .pill { margin-top: 8px; border-radius: 999px; padding: 7px 7px 7px 14px; display: flex; align-items: center; justify-content: space-between; }
+  .op-a .pill p { font-size: 12.5px; font-weight: 700; }
+  .op-a .pill p small { display: block; font-size: 10.5px; color: var(--text-2); font-weight: 600; }
+  .op-a .pill .flecha { width: 30px; height: 30px; border-radius: 999px; background: var(--navy); display: flex; align-items: center; justify-content: center; }
+  .op-a .cta { margin-top: auto; border-radius: 999px; color: #fff;
+    background: linear-gradient(180deg, #2b4178, var(--navy));
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / .25), 0 10px 22px -6px rgb(26 43 82 / .55); }
+  .op-a .tabbar { align-items: flex-end; border-top: 0; background: rgb(255 255 255 / .7); backdrop-filter: blur(10px);
+    border-radius: 24px 24px 0 0; margin-inline: -16px; }
+  .op-a .tabbar .centro { width: 50px; height: 50px; border-radius: 999px; margin-top: -22px;
+    background: radial-gradient(circle at 50% 35%, #2b4178, var(--navy-2));
+    border: 3px solid #fff; box-shadow: 0 0 0 1px var(--pale), 0 0 18px rgb(31 111 235 / .6);
+    display: flex; align-items: center; justify-content: center; }
+
+  /* ==========================================================================
+     OPCIÓN B — "Mapa de Juego" · propuesta propia (Duolingo × Headspace)
+     ========================================================================== */
+  .op-b {
+    --bg: #fbf7ee; --surface: #fffdf6; --text-1: #2a2433; --text-2: #8a8194;
+    --accent: #6a4de8; --amber: #e8a014; --cta: #6a4de8;
+    --radius-card: 20px; --radius-btn: 16px;
+    --font-display: 'Nunito', monospace; --font-body: 'Nunito', monospace;
+  }
+  .op-b .especimen .esp-display, .op-b .especimen .esp-body { font-family: var(--font-display); }
+  .op-b .telefono { background:
+      radial-gradient(4px 4px at 20px 20px, rgb(106 77 232 / .10) 50%, transparent 51%) 0 0 / 22px 22px,
+      linear-gradient(180deg, var(--bg), #f6efe0); }
+  .op-b .pantalla { font-family: var(--font-body); color: var(--text-1); padding: 0 18px; }
+  .op-b .statusbar { color: var(--text-1); }
+  .op-b .home-indicator { background: var(--text-1); }
+  .op-b .top { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
+  .op-b .fichas { display: flex; gap: 6px; }
+  .op-b .ficha { display: inline-flex; align-items: center; gap: 4px; padding: 5px 9px; border-radius: 999px;
+    font-size: 12.5px; font-weight: 900; background: var(--surface); border: 1.5px solid #eee4cf; }
+  .op-b .ficha.fuego { color: var(--amber); }
+  .op-b .ficha.gema { color: var(--accent); }
+  .op-b .semana { margin-top: 12px; border-radius: var(--radius-card); padding: 12px 14px; color: #fff;
+    background: linear-gradient(160deg, #7c62f0, var(--accent));
+    box-shadow: 0 4px 0 #4f37c4, 0 14px 24px -10px rgb(106 77 232 / .55); }
+  .op-b .semana small { font-size: 10.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; opacity: .85; }
+  .op-b .semana h3 { font-size: 18px; font-weight: 900; line-height: 1.2; margin-top: 2px; }
+  .op-b .camino { position: relative; height: 212px; margin-top: 8px; }
+  .op-b .camino svg.ruta { position: absolute; inset: 0; }
+  .op-b .nodo { position: absolute; width: 50px; height: 50px; border-radius: 999px;
+    display: flex; align-items: center; justify-content: center; }
+  .op-b .nodo.hecho { background: linear-gradient(160deg, #8a73f3, var(--accent)); box-shadow: 0 4px 0 #4f37c4; }
+  .op-b .nodo.hoy { width: 64px; height: 64px; background: linear-gradient(160deg, #f5b73a, var(--amber));
+    box-shadow: 0 5px 0 #b87a06, 0 0 0 7px rgb(232 160 20 / .18); }
+  .op-b .nodo.cerrado { background: #ece5d6; box-shadow: 0 4px 0 #d6ccb6; }
+  .op-b .sticker { position: absolute; font-size: 10.5px; font-weight: 900; color: #fff; background: var(--text-1);
+    padding: 4px 8px; border-radius: 8px; transform: rotate(-5deg); letter-spacing: .03em; white-space: nowrap; }
+  .op-b .mision { margin-top: auto; background: var(--surface); border-radius: var(--radius-card); padding: 12px;
+    border: 1.5px solid transparent;
+    background: linear-gradient(var(--surface), var(--surface)) padding-box,
+                linear-gradient(135deg, rgb(232 160 20 / .7), rgb(106 77 232 / .25) 70%) border-box;
+    box-shadow: 0 10px 22px -12px rgb(42 36 51 / .25); display: flex; gap: 10px; align-items: center; }
+  .op-b .chip-icono { border-radius: 14px; background: rgb(232 160 20 / .14); }
+  .op-b .mision h4 { font-size: 13.5px; font-weight: 900; line-height: 1.25; }
+  .op-b .mision p { font-size: 11.5px; color: var(--text-2); font-weight: 700; margin-top: 1px; }
+  .op-b .cta { margin-top: 10px; border-radius: var(--radius-btn); color: #fff; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; font-size: 14px;
+    background: linear-gradient(180deg, #7c62f0, var(--accent)); box-shadow: 0 4px 0 #4f37c4; }
+  .op-b .tabbar { border-top: 1.5px solid #eee4cf; background: var(--surface); }
+
+  /* ==========================================================================
+     OPCIÓN C — "Tablero de Fundador" · propuesta propia (Linear × Coursiv, IA creativa)
+     ========================================================================== */
+  .op-c {
+    --bg: #0f0d16; --surface: #1a1622; --text-1: #efeaf5; --text-2: #998fa8;
+    --accent: #ffc23d; --green: #3ddc97; --cta: #e0a41f;
+    --radius-card: 16px; --radius-btn: 12px;
+    --font-display: 'Bricolage Grotesque', monospace; --font-body: 'Instrument Sans', monospace;
+  }
+  .op-c .especimen .esp-display { font-family: var(--font-display); }
+  .op-c .especimen .esp-body { font-family: var(--font-body); }
+  .op-c .telefono { background:
+      radial-gradient(240px 200px at 100% 0%, rgb(255 194 61 / .16), transparent 70%),
+      radial-gradient(200px 220px at 0% 100%, rgb(61 220 151 / .08), transparent 70%),
+      var(--bg); }
+  .op-c .pantalla { font-family: var(--font-body); color: var(--text-1); padding: 0 16px; }
+  .op-c .statusbar { color: var(--text-1); }
+  .op-c .home-indicator { background: var(--text-1); }
+  .op-c .eyebrow { margin-top: 8px; font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-2); }
+  .op-c h3 { font-family: var(--font-display); font-size: 25px; font-weight: 800; letter-spacing: -0.025em; line-height: 1.05; margin-top: 3px; }
+  .op-c h3 em { font-style: normal; color: var(--accent); }
+  .op-c .ticks { display: grid; grid-template-columns: repeat(30, 1fr); gap: 2px; margin-top: 10px; }
+  .op-c .ticks i { height: 14px; border-radius: 2px; background: rgb(255 255 255 / .08); }
+  .op-c .ticks i.ok { background: var(--green); }
+  .op-c .ticks i.hoy { background: var(--accent); box-shadow: 0 0 8px rgb(255 194 61 / .7); }
+  .op-c .ticks-l { display: flex; justify-content: space-between; margin-top: 5px; font-size: 10.5px; color: var(--text-2); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .op-c .bento { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+  .op-c .tile { background: linear-gradient(180deg, rgb(255 255 255 / .04), transparent 40%), var(--surface);
+    border: 1px solid rgb(255 255 255 / .07); border-radius: var(--radius-card); padding: 10px; }
+  .op-c .tile.grande { grid-column: span 2;
+    border: 1px solid transparent;
+    background: linear-gradient(var(--surface), var(--surface)) padding-box,
+                linear-gradient(135deg, rgb(255 194 61 / .6), transparent 55%) border-box;
+    box-shadow: 0 14px 30px -14px rgb(0 0 0 / .8); }
+  .op-c .tile .t-l { display: flex; align-items: center; gap: 6px; font-size: 10.5px; font-weight: 700; color: var(--text-2); text-transform: uppercase; letter-spacing: .05em; }
+  .op-c .tile .t-l .ok { margin-left: auto; color: var(--green); }
+  .op-c .tile q { display: block; margin-top: 6px; font-family: var(--font-display); font-size: 14.5px; font-weight: 700; line-height: 1.3; quotes: none; }
+  .op-c .tile p { margin-top: 5px; font-size: 12px; font-weight: 600; line-height: 1.35; }
+  .op-c .tile.hoy { border: 1px dashed rgb(255 194 61 / .55); background: rgb(255 194 61 / .06); }
+  .op-c .tile.hoy p { color: var(--accent); }
+  .op-c .chip-icono { width: 22px; height: 22px; border-radius: 7px; background: rgb(255 194 61 / .14); }
+  .op-c .cta { margin-top: auto; border-radius: var(--radius-btn); color: #1a1206; font-family: var(--font-body);
+    background: linear-gradient(180deg, #ffd36e, var(--accent));
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / .45), 0 10px 24px -8px rgb(255 194 61 / .55); }
+  .op-c .tabbar { margin-inline: -16px; }
+  .op-c .hero-landing .hl-cta { color: #1a1206; background: linear-gradient(180deg, #ffd36e, var(--accent)); }
+
+  .pie { max-width: 1180px; margin: 40px auto 0; font-size: 12.5px; color: #6a6a72;
+         border-top: 1px solid #d0d0d6; padding-top: 14px; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<header class="cabecera">
+  <h1>Así se podría ver EMPRESAI — 3 estilos para elegir</h1>
+  <p class="sub">
+    La <b>A</b> es tu captura hecha realidad con tu app. La <b>B</b> y la <b>C</b> son mis propuestas.
+    Las tres muestran la misma pantalla: el día 8 de Carlos armando su negocio. Abajo de cada una,
+    cómo se vería la página que vende la app.
+  </p>
+  <div class="salidas" role="list">
+    <span role="listitem"><b>1 · Elegir</b> A, B o C</span>
+    <span role="listitem"><b>2 · Combinar</b> («la A pero con el mapa de la B»)</span>
+    <span role="listitem"><b>3 · Pedir otras 3</b> opciones nuevas</span>
+    <span role="listitem"><b>4 · Ajustar un detalle</b> («la A con el azul más oscuro»)</span>
+  </div>
+</header>
+<p class="aviso-fuentes">Ábrelo con internet para que carguen las letras. Si ves letra de máquina de escribir en algún nombre de fuente, avísame.</p>
+
+<div class="opciones">
+
+  <!-- ═══════════════ OPCIÓN A — RÉPLICA FIEL de la captura ═══════════════ -->
+  <section class="opcion op-a" aria-label="Opción A">
+    <div class="meta">
+      <h2><span class="letra">A</span> Cristal Azul</h2>
+      <span class="origen tuya">Tu captura, replicada</span>
+      <p class="direccion">Vidrio esmerilado sobre azul muy claro, tarjetas azul marino y un brillo azul eléctrico. Se siente tecnológica y premium, como una app de IA de primer nivel.</p>
+      <p class="hipotesis"><strong>Hipótesis de conversión:</strong> Carlos asocia la IA con tecnología seria: este look le dice "esto no es otro curso, es una herramienta de IA de verdad", lo que le da confianza para poner su tarjeta.</p>
+      <ul class="tokens"><li>fondo #ECF2FA · marino #1A2B52 · acento #1F6FEB</li><li>tarjetas 22px · botones en píldora · brillo azul</li></ul>
+      <div class="paleta" aria-hidden="true">
+        <span style="background:#ecf2fa"></span><span style="background:#fcfcfd"></span>
+        <span style="background:#13203a"></span><span style="background:#1a2b52"></span>
+        <span style="background:#1f6feb"></span><span style="background:#78b8f8"></span>
+      </div>
+      <div class="ref-mini"><img src="docs/revisiones/referencia-usuario-1.jpg" alt="Tu captura de referencia"><span>Tu captura (la referencia). Compárala con el teléfono de abajo.</span></div>
+      <div class="especimen">
+        <p class="esp-display">Plus Jakarta Sans — AaBbÑñ 0123</p>
+        <p class="esp-body">Plus Jakarta Sans — El veloz murciélago hindú comía feliz cardillo y kiwi.</p>
+      </div>
+    </div>
+
+    <div class="telefono">
+      <div class="statusbar"><span>9:41</span><span class="der">
+        <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor" aria-hidden="true"><rect x="0" y="7" width="3" height="4" rx="0.8"/><rect x="4.5" y="5" width="3" height="6" rx="0.8"/><rect x="9" y="3" width="3" height="8" rx="0.8"/><rect x="13.5" y="0.5" width="3" height="10.5" rx="0.8"/></svg>
+        <svg width="16" height="11" viewBox="0 0 16 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M1.5 4.2a9.5 9.5 0 0 1 13 0"/><path d="M3.8 6.6a6.2 6.2 0 0 1 8.4 0"/><path d="M6.2 9a2.8 2.8 0 0 1 3.6 0"/></svg>
+        <svg width="25" height="12" viewBox="0 0 25 12" aria-hidden="true"><rect x="0.5" y="0.5" width="21" height="11" rx="3" fill="none" stroke="currentColor" opacity="0.4"/><rect x="2" y="2" width="15" height="8" rx="1.6" fill="currentColor"/><rect x="22.5" y="3.8" width="2" height="4.4" rx="1" fill="currentColor" opacity="0.4"/></svg>
+      </span></div>
+
+      <div class="pantalla">
+        <div class="top">
+          <span class="circ glass"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#13203a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg></span>
+          <h3>EmpresAI</h3>
+          <span class="circ glass"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#13203a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg></span>
+        </div>
+        <p class="saludo">Martes 29 de septiembre<b>Hola, Carlos</b></p>
+
+        <div class="heroe">
+          <div class="cubos" aria-hidden="true">
+            <div class="cubo c1"><span style="background:linear-gradient(145deg,#ffd166,#f59e0b)"></span></div>
+            <div class="cubo c2"><span style="background:linear-gradient(145deg,#8fc1ff,#1f6feb)"></span></div>
+          </div>
+          <p class="dia">Día 8 de 30 · Semana 2</p>
+          <h4>Hoy: crea el nombre de tu negocio</h4>
+          <p class="meta-m">5 minutos · usa tu oferta y tu cliente ideal</p>
+          <div class="barra"><i></i></div>
+        </div>
+
+        <div class="stats">
+          <div class="stat glass"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-3 2-4 2-7 2 1 3 3 3 5"/></svg></span><b>7</b><small>días de racha</small></div>
+          <div class="stat glass"><span class="ic navy"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h4a2 2 0 1 1 4 0h4v4a2 2 0 1 1 0 4v4H4z"/></svg></span><b>7</b><small>piezas listas</small></div>
+          <div class="stat glass"><span class="ic pale"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1a2b52" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><b>34</b><small>min en total</small></div>
+        </div>
+
+        <div class="pill glass"><p>Tu oferta en una frase<small>Día 1 · lista</small></p><span class="flecha"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span></div>
+        <div class="pill glass"><p>Tu cliente ideal<small>Día 2 · lista</small></p><span class="flecha"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span></div>
+
+        <div class="cta" style="margin-top:10px">Empezar la misión de hoy</div>
+
+        <nav class="tabbar" aria-label="Navegación">
+          <a class="activa" href="#"><span class="tab-chip"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></svg></span>Hoy</a>
+          <a href="#"><span class="tab-chip"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 7v13l6-3 6 3 6-3V4l-6 3z"/><path d="M9 4v13M15 7v13"/></svg></span>Mapa</a>
+          <span class="centro" aria-label="Misión"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span>
+          <a href="#"><span class="tab-chip"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>Mi Empresa</a>
+          <a href="#"><span class="tab-chip"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg></span>Perfil</a>
+        </nav>
+      </div>
+      <div class="home-indicator"></div>
+    </div>
+
+    <p class="rotulo-frame">Así se vería la página que vende tu app</p>
+    <div class="hero-landing" style="background:radial-gradient(200px 160px at 90% 0%, rgb(120 184 248 / .35), transparent 70%), linear-gradient(180deg,#ecf2fa,#dfe7f3)">
+      <span class="hl-badge">Método Pieza a Pieza</span>
+      <h4>Tu negocio armado en 30 días, con <em>5 minutos</em> al día</h4>
+      <p class="hl-sub"><b>Sin cursos ni hoja en blanco.</b> Cada día la IA arma una pieza de tu negocio usando todo lo que ya construiste.</p>
+      <div class="hl-cta" style="border-radius:999px">Empezar mi día 1 gratis</div>
+      <p class="hl-prueba">7 días gratis · 15 días de garantía · cancelas en 1 toque</p>
+    </div>
+  </section>
+
+  <!-- ═══════════════ OPCIÓN B — Mapa de Juego (propuesta) ═══════════════ -->
+  <section class="opcion op-b" aria-label="Opción B">
+    <div class="meta">
+      <h2><span class="letra">B</span> Mapa de Juego</h2>
+      <span class="origen mia">Mi propuesta</span>
+      <p class="direccion">Cálida y divertida, como un juego para adultos: tu camino de 30 días en un mapa, con tu racha y la misión de hoy siempre a la vista. Inspirada en Duolingo y Headspace.</p>
+      <p class="hipotesis"><strong>Hipótesis de conversión:</strong> Carlos llega agotado a las 7 PM y quiere que le digan "hoy haz esto": el mapa se lo muestra sin pensar y convierte su negocio en un juego ligero que no lo cansa.</p>
+      <ul class="tokens"><li>fondo #FBF7EE · violeta #6A4DE8 · ámbar #E8A014</li><li>tarjetas 20px · botones con relieve de juego</li></ul>
+      <div class="paleta" aria-hidden="true">
+        <span style="background:#fbf7ee"></span><span style="background:#fffdf6"></span>
+        <span style="background:#2a2433"></span><span style="background:#8a8194"></span>
+        <span style="background:#6a4de8"></span><span style="background:#e8a014"></span>
+      </div>
+      <div class="especimen">
+        <p class="esp-display">Nunito — AaBbÑñ 0123</p>
+        <p class="esp-body">Nunito — El veloz murciélago hindú comía feliz cardillo y kiwi.</p>
+      </div>
+    </div>
+
+    <div class="telefono">
+      <div class="statusbar"><span>9:41</span><span class="der">
+        <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor" aria-hidden="true"><rect x="0" y="7" width="3" height="4" rx="0.8"/><rect x="4.5" y="5" width="3" height="6" rx="0.8"/><rect x="9" y="3" width="3" height="8" rx="0.8"/><rect x="13.5" y="0.5" width="3" height="10.5" rx="0.8"/></svg>
+        <svg width="16" height="11" viewBox="0 0 16 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M1.5 4.2a9.5 9.5 0 0 1 13 0"/><path d="M3.8 6.6a6.2 6.2 0 0 1 8.4 0"/><path d="M6.2 9a2.8 2.8 0 0 1 3.6 0"/></svg>
+        <svg width="25" height="12" viewBox="0 0 25 12" aria-hidden="true"><rect x="0.5" y="0.5" width="21" height="11" rx="3" fill="none" stroke="currentColor" opacity="0.4"/><rect x="2" y="2" width="15" height="8" rx="1.6" fill="currentColor"/><rect x="22.5" y="3.8" width="2" height="4.4" rx="1" fill="currentColor" opacity="0.4"/></svg>
+      </span></div>
+
+      <div class="pantalla">
+        <div class="top">
+          <div class="fichas">
+            <span class="ficha fuego"><svg width="14" height="14" viewBox="0 0 24 24" fill="#e8a014"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 2-5 2-8 2 1 3 3 3 5 1-2 1-6 1-9z"/></svg>7</span>
+            <span class="ficha gema"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6a4de8" stroke-width="2.4" stroke-linejoin="round"><path d="M4 7h4a2 2 0 1 1 4 0h4v4a2 2 0 1 1 0 4v4H4z"/></svg>7/30</span>
+          </div>
+          <span class="ficha" style="color:#2a2433"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a2433" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>Carlos</span>
+        </div>
+
+        <div class="semana"><small>Semana 2 de 4</small><h3>Tu marca: nombre, mensaje y promesa</h3></div>
+
+        <div class="camino" aria-label="Mapa de misiones">
+          <svg class="ruta" viewBox="0 0 274 212" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M60 30 C 160 30, 200 60, 190 90 S 70 120, 90 160 S 190 200, 200 196" fill="none" stroke="#e3d8bf" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 12"/>
+          </svg>
+          <span class="nodo hecho" style="left:36px;top:6px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+          <span class="nodo hoy" style="left:158px;top:58px"><svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span>
+          <span class="sticker" style="left:150px;top:30px">HOY · 5 MIN</span>
+          <span class="nodo cerrado" style="left:62px;top:128px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b3a88f" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
+          <span class="nodo cerrado" style="left:176px;top:164px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b3a88f" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9h12l-1 11H7z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/></svg></span>
+        </div>
+
+        <div class="mision">
+          <span class="chip-icono"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c7860a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>
+          <div><h4>Día 8: crea el nombre de tu negocio</h4><p>La IA usa tu oferta y tu cliente ideal</p></div>
+        </div>
+        <div class="cta">Empezar misión</div>
+
+        <nav class="tabbar" aria-label="Navegación">
+          <a class="activa" href="#"><span class="tab-chip"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 7v13l6-3 6 3 6-3V4l-6 3z"/><path d="M9 4v13M15 7v13"/></svg></span>Mapa</a>
+          <a href="#"><span class="tab-chip"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>Mi Empresa</a>
+          <a href="#"><span class="tab-chip"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg></span>Logros</a>
+          <a href="#"><span class="tab-chip"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg></span>Perfil</a>
+        </nav>
+      </div>
+      <div class="home-indicator"></div>
+    </div>
+
+    <p class="rotulo-frame">Así se vería la página que vende tu app</p>
+    <div class="hero-landing">
+      <span class="hl-badge">Método Pieza a Pieza</span>
+      <h4>Arma tu negocio como un juego: <em>5 minutos</em> al día</h4>
+      <p class="hl-sub"><b>Sin cursos ni hoja en blanco.</b> Abres el mapa, haces la misión de hoy y la IA arma una pieza nueva de tu negocio.</p>
+      <div class="hl-cta" style="box-shadow:0 4px 0 #4f37c4">Empezar mi día 1 gratis</div>
+      <p class="hl-prueba">7 días gratis · 15 días de garantía · cancelas en 1 toque</p>
+    </div>
+  </section>
+
+  <!-- ═══════════════ OPCIÓN C — Tablero de Fundador (propuesta) ═══════════════ -->
+  <section class="opcion op-c" aria-label="Opción C">
+    <div class="meta">
+      <h2><span class="letra">C</span> Tablero de Fundador</h2>
+      <span class="origen mia">Mi propuesta</span>
+      <p class="direccion">Oscura y ambiciosa, con toques dorados: la protagonista es tu empresa armándose pieza a pieza, como el tablero de un emprendedor serio. Inspirada en Linear y Coursiv.</p>
+      <p class="hipotesis"><strong>Hipótesis de conversión:</strong> Carlos ya no le cree a las promesas: aquí ve su negocio real creciendo (su oferta, su cliente, su precio), así que el método se demuestra solo y responde "¿otro curso más?".</p>
+      <ul class="tokens"><li>fondo #0F0D16 · dorado #FFC23D · verde #3DDC97</li><li>tarjetas 16px · mosaico de piezas</li></ul>
+      <div class="paleta" aria-hidden="true">
+        <span style="background:#0f0d16"></span><span style="background:#1a1622"></span>
+        <span style="background:#efeaf5"></span><span style="background:#998fa8"></span>
+        <span style="background:#ffc23d"></span><span style="background:#3ddc97"></span>
+      </div>
+      <div class="especimen">
+        <p class="esp-display">Bricolage Grotesque — AaBbÑñ 0123</p>
+        <p class="esp-body">Instrument Sans — El veloz murciélago hindú comía feliz cardillo y kiwi.</p>
+      </div>
+    </div>
+
+    <div class="telefono">
+      <div class="statusbar"><span>9:41</span><span class="der">
+        <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor" aria-hidden="true"><rect x="0" y="7" width="3" height="4" rx="0.8"/><rect x="4.5" y="5" width="3" height="6" rx="0.8"/><rect x="9" y="3" width="3" height="8" rx="0.8"/><rect x="13.5" y="0.5" width="3" height="10.5" rx="0.8"/></svg>
+        <svg width="16" height="11" viewBox="0 0 16 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M1.5 4.2a9.5 9.5 0 0 1 13 0"/><path d="M3.8 6.6a6.2 6.2 0 0 1 8.4 0"/><path d="M6.2 9a2.8 2.8 0 0 1 3.6 0"/></svg>
+        <svg width="25" height="12" viewBox="0 0 25 12" aria-hidden="true"><rect x="0.5" y="0.5" width="21" height="11" rx="3" fill="none" stroke="currentColor" opacity="0.4"/><rect x="2" y="2" width="15" height="8" rx="1.6" fill="currentColor"/><rect x="22.5" y="3.8" width="2" height="4.4" rx="1" fill="currentColor" opacity="0.4"/></svg>
+      </span></div>
+
+      <div class="pantalla">
+        <p class="eyebrow">Mi Empresa · Día 8</p>
+        <h3>Excel sin Miedo,<br><em>7 de 30</em> piezas</h3>
+
+        <div class="ticks" aria-label="Progreso: 7 de 30 días">
+          <i class="ok"></i><i class="ok"></i><i class="ok"></i><i class="ok"></i><i class="ok"></i><i class="ok"></i><i class="ok"></i><i class="hoy"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        </div>
+        <div class="ticks-l"><span>Racha: 7 días</span><span>Lanzamiento: día 30</span></div>
+
+        <div class="bento">
+          <div class="tile grande">
+            <p class="t-l"><span class="chip-icono"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ffc23d" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 7l9 5 9-5z"/><path d="m3 17 9 5 9-5M3 12l9 5 9-5"/></svg></span>Tu oferta<span class="ok"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3ddc97" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span></p>
+            <q>Mini curso para que emprendedores dominen Excel en 7 días, sin fórmulas raras.</q>
+          </div>
+          <div class="tile">
+            <p class="t-l">Cliente ideal</p>
+            <p>Dueños de negocio que llevan todo en papel</p>
+          </div>
+          <div class="tile">
+            <p class="t-l">Precio</p>
+            <p>$19 · pago único</p>
+          </div>
+          <div class="tile hoy" style="grid-column: span 2">
+            <p class="t-l" style="color:#ffc23d">Pieza de hoy · 5 min</p>
+            <p>Nombre de tu negocio: la IA te propone 5 opciones con tu oferta</p>
+          </div>
+        </div>
+
+        <div class="cta" style="margin-top:10px">Armar la pieza de hoy</div>
+
+        <nav class="tabbar" aria-label="Navegación">
+          <a class="activa" href="#"><span class="tab-chip"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg></span>Mi Empresa</a>
+          <a href="#"><span class="tab-chip"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 7v13l6-3 6 3 6-3V4l-6 3z"/><path d="M9 4v13M15 7v13"/></svg></span>Ruta</a>
+          <a href="#"><span class="tab-chip"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg></span>Progreso</a>
+          <a href="#"><span class="tab-chip"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg></span>Perfil</a>
+        </nav>
+      </div>
+      <div class="home-indicator"></div>
+    </div>
+
+    <p class="rotulo-frame">Así se vería la página que vende tu app</p>
+    <div class="hero-landing" style="background:radial-gradient(220px 160px at 100% 0%, rgb(255 194 61 / .18), transparent 70%), #0f0d16">
+      <span class="hl-badge">Método Pieza a Pieza</span>
+      <h4>No necesitas otro curso. Necesitas <em>tu negocio armado</em>.</h4>
+      <p class="hl-sub"><b>5 minutos al día, 30 días.</b> Cada día la IA arma una pieza de tu negocio con todo lo que ya construiste.</p>
+      <div class="hl-cta">Empezar mi día 1 gratis</div>
+      <p class="hl-prueba">7 días gratis · 15 días de garantía · cancelas en 1 toque</p>
+    </div>
+  </section>
+
+</div>
+
+<footer class="pie">
+  Datos de ejemplo: Carlos, día 8 de 30, armando "Excel sin Miedo". Las 3 opciones y la descartada quedan guardadas
+  como registro de la decisión. Marcador data-kit="abc-v2" intacto (54).
+</footer>
+
+</body>
+</html>

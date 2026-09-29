@@ -1,7 +1,7 @@
 # ESTADO — EMPRESAI
 Última actualización: 2026-09-29 | Sesión actual: 1 (cliente, precio y estrategia)
 
-⏸️ CHECKPOINT — Última acción completada: FICHA-AVATAR + FICHA-MERCADO escritas, precio/modelo/economía decididos (2026-09-29) / Siguiente acción exacta: aprobación del usuario de FICHA-AVATAR y precio → cerrar Sesión 1 → Sesión 2 (identidad visual: PREGUNTA DE REFERENCIA del 54)
+⏸️ CHECKPOINT — Última acción completada: comparativa A/B/C construida y verificada (direcciones-abc.html) / Siguiente acción exacta: usuario elige A/B/C (o combina) → TOUR DE LA APP (vista-previa-app.html) → FICHA-ARTE.md
 
 ## Qué es esta app (3 líneas máximo)
 App web tipo Duolingo que guía a emprendedores principiantes LATAM a lanzar su negocio/producto digital con IA en 30 días, 5 min/día.
@@ -85,6 +85,13 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Test "si borro tu historial, ¿la app de mañana es idéntica?": NO — cada pieza usa las anteriores ✓
 - Primera semana D1-D7 = Sprint 1 (idea y validación) dentro del trial; ritual diario M0 = misión del día
 - "Vidas" estilo Duolingo: EN REVISIÓN — penalizar errores no encaja (no hay respuestas "incorrectas" al armar un negocio); decidir en 24. Racha con "congelador" en vez de castigo (regla NUNCA culpa).
+
+## Dirección de Arte (Sesión 2 — en curso)
+- Ruta de diseño: MIXTA a pedido del usuario (2026-09-29): A = réplica fiel de su captura (referencia-usuario-1.jpg, Pinterest, generada por IA) + B y C = propuestas propias.
+- Extracción de la referencia: docs/revisiones/referencia-usuario-1-extraccion.md
+- Comparativa: direcciones-abc.html (copia en docs/revisiones/) · A Cristal Azul (Plus Jakarta Sans) · B Mapa de Juego (Nunito, violeta+ámbar) · C Tablero de Fundador (Bricolage+Instrument Sans, oscuro+dorado)
+- Fuentes verificadas cargadas en navegador (4/4). Screenshots 375: docs/revisiones/direccion-*-375.jpg
+- Elección del usuario: PENDIENTE
 
 ## Secuencia maestra de construcción (NO saltar)
 - Estado: todas pendientes · Ruta: / → /onboarding → /paywall → /login → /app
