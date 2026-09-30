@@ -1,7 +1,7 @@
 # ESTADO — EMPRESAI
 Última actualización: 2026-09-29 | Sesión actual: 1 (cliente, precio y estrategia)
 
-⏸️ CHECKPOINT — Última acción completada: usuario APROBÓ Hoy(A)+Ruta(B) con colores C ("super excelente"); TOUR construido (vista-previa-app.html, 6 vistas, capturas docs/revisiones/tour-*) / Siguiente acción exacta: respuesta al tour → FICHA-ARTE.md + tokens → cerrar Sesión 2
+⏸️ CHECKPOINT — Última acción completada: TOUR aprobado + FICHA-ARTE.md cerrada (2026-09-30) / Siguiente acción exacta: OK del usuario → Sesión 3: scaffold del proyecto (51) + tokens de FICHA-ARTE en globals.css + página de ventas (19/52/55 + kit plantillas-codigo/landing)
 
 ## Qué es esta app (3 líneas máximo)
 App web tipo Duolingo que guía a emprendedores principiantes LATAM a lanzar su negocio/producto digital con IA en 30 días, 5 min/día.
@@ -86,7 +86,9 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Primera semana D1-D7 = Sprint 1 (idea y validación) dentro del trial; ritual diario M0 = misión del día
 - "Vidas" estilo Duolingo: EN REVISIÓN — penalizar errores no encaja (no hay respuestas "incorrectas" al armar un negocio); decidir en 24. Racha con "congelador" en vez de castigo (regla NUNCA culpa).
 
-## Dirección de Arte (Sesión 2 — en curso)
+## Dirección de Arte (Sesión 2 — CERRADA 2026-09-30, NO cambiar sin justificación)
+- FICHA-ARTE.md: existe y APROBADA 2026-09-30 · Resumen: fondo #0F0D16 · dorado #FFC23D · verde #3DDC97 · Bricolage Grotesque + Instrument Sans · radio 18-22px / píldoras
+- Personalidad: Enérgico + Juguetón + Cálido · REGISTRO ANTI-REPETICIÓN: esa paleta y ese par tipográfico quedan vetados para el próximo proyecto
 - Ruta de diseño: MIXTA a pedido del usuario (2026-09-29): A = réplica fiel de su captura (referencia-usuario-1.jpg, Pinterest, generada por IA) + B y C = propuestas propias.
 - Extracción de la referencia: docs/revisiones/referencia-usuario-1-extraccion.md
 - Comparativa: direcciones-abc.html (copia en docs/revisiones/) · A Cristal Azul (Plus Jakarta Sans) · B Mapa de Juego (Nunito, violeta+ámbar) · C Tablero de Fundador (Bricolage+Instrument Sans, oscuro+dorado)
