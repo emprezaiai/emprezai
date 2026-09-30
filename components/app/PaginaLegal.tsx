@@ -36,7 +36,7 @@ export function PaginaLegal({ titulo, resumen, children }: { titulo: string; res
           <a href={`mailto:${RESPONSABLE.emailContacto}`} className="font-semibold text-gold underline-offset-4 hover:underline">
             {RESPONSABLE.emailContacto}
           </a>
-          . Responsable: {RESPONSABLE.nombre} ({RESPONSABLE.pais}).
+          . Responsable: {RESPONSABLE.nombre} · {RESPONSABLE.pais}.
         </footer>
       </main>
     </div>

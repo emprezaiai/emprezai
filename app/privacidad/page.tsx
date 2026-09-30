@@ -13,7 +13,7 @@ export default function Privacidad() {
       <section>
         <h2>1. Quién es responsable de tus datos</h2>
         <p>
-          El responsable del tratamiento es {RESPONSABLE.nombre}, con operación desde {RESPONSABLE.pais}. Puedes
+          El responsable del tratamiento es {RESPONSABLE.nombre}, persona natural que opera EMPRESAI desde {RESPONSABLE.pais}. Tratamos tus datos conforme a la ley canadiense de protección de datos personales (PIPEDA) y respetamos las leyes de privacidad de tu país en Latinoamérica. Puedes
           contactarnos en {RESPONSABLE.emailContacto} para cualquier consulta o para ejercer tus derechos.
         </p>
       </section>

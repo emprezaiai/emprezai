@@ -122,7 +122,7 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Borrar mis datos: endpoint que borra business_profile + pieces + progress + cuenta (promesa "Tu idea es tuya").
 
 ## Pendientes / ⚠️
-- ⚠️ Datos del RESPONSABLE legal (nombre/razón social, país, email) → lib/legal.ts · email soporte@empresai.app es PROVISIONAL hasta tener dominio.
+- (hecho 2026-09-30) Responsable legal: persona natural (sin empresa registrada), Toronto, Canadá → PIPEDA + leyes LATAM en privacidad. ⚠️ El email de soporte es PERSONAL y queda público en el footer y los legales: reemplazar por soporte@<dominio> al comprar el dominio (Sesión 6). Recomendado confirmar impuestos con un contador en Canadá.
 - ⚠️ Configurar Hotmart con garantía de 15 días ANTES de publicar la promesa (landing/legales) — Sesión 6.
 - ⚠️ Claim "no se usa para entrenar IA" (FAQ 5, privacidad, aviso-ia): confirmar términos vigentes del proveedor y anotar fuente antes de publicar (gate 61).
 - Landing (no bloqueante, revisor): sacar el <span role="status"> de EnlaceCta fuera del Link (hermano) — hacerlo junto con la próxima re-revisión de la landing (al montar capturas reales en Sesión 5) para no caducar el veredicto sin necesidad.

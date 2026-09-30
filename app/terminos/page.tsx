@@ -76,7 +76,7 @@ export default function Terminos() {
       <section>
         <h2>8. Ley aplicable y contacto</h2>
         <p>
-          Estos términos se rigen por las leyes de {RESPONSABLE.pais}. Para cualquier reclamo, escríbenos primero a{' '}
+          Estos términos se rigen por las leyes de {RESPONSABLE.jurisdiccion}. Esto no limita los derechos que te da la ley de protección al consumidor de tu país de residencia. Para cualquier reclamo, escríbenos primero a{' '}
           {RESPONSABLE.emailContacto}: buscamos resolverlo contigo de forma directa.
         </p>
       </section>

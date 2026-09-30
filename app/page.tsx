@@ -19,6 +19,7 @@ import { StickyCtaMobile } from '@/components/landing/ui';
 import { DemoMisionHero } from '@/components/app/DemoMisionHero';
 import { LogoEmpresai } from '@/components/app/LogoEmpresai';
 import { useEventoAlMontar } from '@/lib/eventos';
+import { RESPONSABLE } from '@/lib/legal';
 
 const CTA_HREF = '/onboarding';
 const CTA_ANUAL = '/onboarding?plan=anual';
@@ -179,7 +180,7 @@ export default function PaginaDeVentas() {
       <FooterLegal
         appName="EMPRESAI"
         logo={<LogoEmpresai tamano={24} />}
-        soporteEmail="soporte@empresai.app"
+        soporteEmail={RESPONSABLE.emailContacto}
         enlaces={[
           { label: 'Privacidad', href: '/privacidad' },
           { label: 'Términos', href: '/terminos' },

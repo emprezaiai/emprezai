@@ -1,14 +1,15 @@
 // Datos del RESPONSABLE de EMPRESAI (47: lo único que la IA no puede inventar).
-// ⚠️ PENDIENTE: el dueño debe confirmar nombre/razón social, país y email de contacto antes de publicar.
+// Confirmados por la dueña el 2026-09-30. Opera como persona natural (sin empresa registrada).
 export const RESPONSABLE = {
-  nombre: '[Nombre o razón social del responsable — pendiente]',
-  pais: '[País desde el que opera — pendiente]',
-  emailContacto: 'soporte@empresai.app',
+  nombre: 'Adriana Marcela Chacón Barrantes',
+  pais: 'Canadá (Toronto, Ontario)',
+  jurisdiccion: 'la provincia de Ontario y las leyes federales de Canadá aplicables',
+  emailContacto: 'adrianachacon15@hotmail.com',
   emailEsProvisional: true,
 } as const;
 
 export const VERSION_LEGAL = {
-  version: '1.0',
+  version: '1.1',
   actualizado: '30 de septiembre de 2026',
 } as const;
 
