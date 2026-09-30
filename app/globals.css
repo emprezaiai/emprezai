@@ -1,0 +1,72 @@
+@import "tailwindcss";
+@import "../components/landing/tokens.css";
+
+/* ============================================================================
+   TOKENS DE LA APP — EMPRESAI (FICHA-ARTE.md, aprobada 2026-09-30)
+   La landing consume components/landing/tokens.css; la app interna, onboarding
+   y planes consumen estos (mismos valores, nombres semánticos del 10).
+   ============================================================================ */
+:root {
+  --surface-base: #0f0d16;
+  --surface-raised: #1a1622;
+  --surface-raised-2: #231d2e;
+  --surface-sunken: #0a0910;
+  --line: rgb(255 255 255 / 0.08);
+
+  --ink-1: #efeaf5;
+  --ink-2: #bdb4cb;
+  --ink-3: #998fa8;
+
+  --gold: #ffc23d;
+  --gold-light: #ffd978;
+  --gold-deep: #b8860f;
+  --on-gold: #1a1206;
+  --green: #3ddc97;
+  --green-light: #7ef3be;
+  --green-deep: #1f9c66;
+  --on-green: #0f2a1e;
+
+  --danger: #ff6b6b;
+  --warning: #ff9f43;
+
+  --radius-card: 20px;
+  --radius-pill: 999px;
+  --radius-chip: 12px;
+}
+
+@theme inline {
+  --color-base: var(--surface-base);
+  --color-raised: var(--surface-raised);
+  --color-raised-2: var(--surface-raised-2);
+  --color-sunken: var(--surface-sunken);
+  --color-ink-1: var(--ink-1);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-gold-deep: var(--gold-deep);
+  --color-on-gold: var(--on-gold);
+  --color-green: var(--green);
+  --color-green-light: var(--green-light);
+  --color-green-deep: var(--green-deep);
+  --color-on-green: var(--on-green);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+  --font-display: var(--font-bricolage);
+  --font-sans: var(--font-instrument);
+}
+
+html {
+  color-scheme: dark;
+  background: var(--surface-base);
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}

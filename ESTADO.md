@@ -1,7 +1,7 @@
 # ESTADO — EMPRESAI
 Última actualización: 2026-09-29 | Sesión actual: 1 (cliente, precio y estrategia)
 
-⏸️ CHECKPOINT — Última acción completada: TOUR aprobado + FICHA-ARTE.md cerrada (2026-09-30) / Siguiente acción exacta: OK del usuario → Sesión 3: scaffold del proyecto (51) + tokens de FICHA-ARTE en globals.css + página de ventas (19/52/55 + kit plantillas-codigo/landing)
+⏸️ CHECKPOINT — Última acción completada: landing APROBADA por revisor-visual (5ª pasada, 2026-09-30) + legales creadas / Siguiente acción exacta: pedir al usuario datos del responsable legal (nombre, país, email) → Sesión 4: /onboarding (leer ?plan=), resultado/primera pieza, /paywall, /login
 
 ## Qué es esta app (3 líneas máximo)
 App web tipo Duolingo que guía a emprendedores principiantes LATAM a lanzar su negocio/producto digital con IA en 30 días, 5 min/día.
@@ -96,7 +96,13 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Elección del usuario (2026-09-30, 3ª vuelta): pantalla HOY = composición de la A (réplica de su captura) + pantalla RUTA = mapa de la B, AMBAS con colores/tonos de la C (bg #0F0D16, superficie #1A1622, texto2 #998FA8, dorado #FFC23D, verde #3DDC97, Bricolage Grotesque + Instrument Sans). Capturas: docs/revisiones/eleccion-hoy-A-colores-C-375.jpg + eleccion-ruta-B-colores-C-375.jpg — APROBADA 2026-09-30. Descartadas: fusión A+B+C "Tablero Dorado" (no le gustó), combinación C+B.
 
 ## Secuencia maestra de construcción (NO saltar)
-- Estado: todas pendientes · Ruta: / → /onboarding → /paywall → /login → /app
+- Estado: Landing CONSTRUIDA y APROBADA · Onboarding/Paywall/Login/App interna: pendientes · Ruta: / → /onboarding → /paywall → /login → /app
+- Landing (app/page.tsx, kit components/landing): protagonista = promesa "Hoy, en 5 minutos, la IA arma tu primera oferta" + demo del mecanismo · CTA primario "Armar mi primera pieza gratis" → /onboarding (planes → /onboarding?plan=anual|mensual)
+- Copy marcado y trazado: docs/copy/landing.md (10 variantes de titular puntuadas) · Legales: /privacidad /terminos /reembolsos /aviso-ia (datos del responsable PENDIENTES en lib/legal.ts)
+- Eventos: lib/eventos.ts (landing_vista con atribución UTM/sck y marca ?qa=1), en cola local hasta conectar analítica
+
+## Puertas de etapa
+- Landing: APROBADA por revisor 2026-09-30 — usabilidad 37/40 · craft 18/20 · copy 18/20 · evidencia: tsc ✓ lint ✓ build ✓ · docs/revisiones/landing-375.png (+ parte-0…6) · veredicto docs/revisiones/landing-veredicto.md · aprobación del usuario: PENDIENTE
 
 ## Decisiones técnicas (NO re-discutir sin pedirlo el usuario)
 - Framework: Next.js App Router (landing con SEO + rutas de servidor para la IA) — 2026-09-29
@@ -105,6 +111,8 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Auth: magic link + código de 6 dígitos por email (Hotmart-first, 26); passkey ofrecida tras la primera victoria; sin contraseñas. Rate limit en endpoints de auth.
 - Estado anónimo del onboarding en localStorage versionado ({v, respuestas, primeraPieza}) → migra a la cuenta al primer login (26).
 - IA: Claude vía servidor (BFF), nunca en el navegador. AI_MODEL=claude-sonnet-5-5 (generación de piezas), modelo en env var. Salida estructurada. Prompt caching del sistema. max_tokens limitado. Tabla ai_calls + kill-switch de gasto (30/31). Texto síncrono con streaming.
+- Proyecto: Next.js 16.3.7 + React 19.2.8 + Tailwind v4 + motion + lucide + zod + @playwright/test (capturas: scripts/captura-375.mjs, captura-segmentos.mjs, captura-tour.mjs) — scaffold 2026-09-30 en la raíz, junto al SO (tsconfig/eslint excluyen docs/ y plantillas-codigo/)
+- Kit de landing copiado a components/landing y tematizado SOLO por tokens.css (+ hooks opcionales con fallback: --frame, --inverse-*, --radius-chip, --cta-relieve, --hero-mesh-*). Desvíos del kit, todos por veredicto del revisor: EnlaceCta compartido (prefetch + carga recuperable), microcopyCompra en Oferta, escala tipográfica 40/30/18/16/13/12, hero con stagger y h1/CTA visibles en SSR, dots 44px + teclado, truncado que no cuenta signos como palabras, next/image en carrusel, Link en header.
 - Proveedor IA y privacidad: API de Anthropic — por defecto no entrena con datos de la API (verificar términos vigentes antes de publicar la política de privacidad, Sesión 6).
 - Modelo de datos (25, RLS en TODAS por (select auth.uid()) + índice en user_id):
   profiles(id=auth.uid, nombre, hora_recordatorio, plan, estado_suscripcion) · business_profile(user_id, idea, publico, respuestas jsonb) ·
@@ -114,9 +122,15 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Borrar mis datos: endpoint que borra business_profile + pieces + progress + cuenta (promesa "Tu idea es tuya").
 
 ## Pendientes / ⚠️
+- ⚠️ Datos del RESPONSABLE legal (nombre/razón social, país, email) → lib/legal.ts · email soporte@empresai.app es PROVISIONAL hasta tener dominio.
+- ⚠️ Configurar Hotmart con garantía de 15 días ANTES de publicar la promesa (landing/legales) — Sesión 6.
+- ⚠️ Claim "no se usa para entrenar IA" (FAQ 5, privacidad, aviso-ia): confirmar términos vigentes del proveedor y anotar fuente antes de publicar (gate 61).
+- Paywall debe LEER ?plan=anual|mensual y preseleccionarlo (Sesión 4).
+- "Entrar" del header: se quitó hasta que exista /login — volver a poner loginHref en Hero (Sesión 4).
+- Carrusel y demo del hero = vistas previas del diseño → reemplazar por capturas REALES con datos semilla (Sesión 5) y sumar el recorrido del fundador como prueba social.
 - (hecho) FICHA-AVATAR aprobada; precio informado sin objeción (2026-09-29).
 - Verificar en Sesión 6: período gratuito Hotmart para app externa · checkout real (medios de pago) · términos de datos del proveedor de IA.
 
 ## Problemas conocidos
 - FICHA-MODELO.md en BORRADOR (modelo: Coursiv). Falta 2ª señal de revenue (Meta Ads Library / TrustMRR) y el plano del flujo de entrada de Coursiv (Meta Ads Library y Mobbin requieren navegador; se intentará en Sesión 2 con el navegador integrado). No bloquea diseño/arquitectura.
-- audit-conversion.sh (hook pre-stop) escanea también `plantillas-codigo/` (plantillas de referencia del SO, no son la app) → sus hallazgos ahí son ruido. Al construir, juzgar solo los hallazgos en los archivos de la app.
+- audit-conversion.sh: se excluyó `plantillas-codigo/` en scripts/lib-conversion.mjs (mezclaba tokens de plantilla con los del proyecto → contrastes falsos). Hallazgos restantes son FALSOS POSITIVOS sobre código del kit (cuenta clases/comentarios como copy; no detecta hairline/radial armados con strings concatenados; "animate" como voseo; ✓ en un comentario). Verificado visualmente y por el revisor. Antes: escaneaba `plantillas-codigo/` (plantillas de referencia del SO, no son la app) → sus hallazgos ahí son ruido. Al construir, juzgar solo los hallazgos en los archivos de la app.

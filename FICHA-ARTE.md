@@ -27,12 +27,14 @@
 
 ## Brand kit final (va a globals.css/@theme al crear el proyecto — Sesión 3)
 - Fondo: #0F0D16 · Superficie: #1A1622 · Superficie elevada: #231D2E · Hundido: #0A0910 · Línea: rgb(255 255 255 / .08)
-- Texto 1º/2º: #EFEAF5 / #998FA8 (grises de la C tal cual — el usuario pidió los tonos exactos de la C; si en
-  celular se ven oscuros, subir a #B7AEC6 con su OK)
+- Texto 1º/2º/3º: #EFEAF5 / #BDB4CB / #998FA8 — #998FA8 (tono exacto de la C) para labels y texto de apoyo;
+  #BDB4CB para PÁRRAFOS de lectura larga (landing, legales): mismo neutro, más claro por legibilidad — el usuario
+  pidió grises más claros sobre fondo oscuro (2026-09-30). Tokens: --ink-1/2/3 (app) · --text-primary/secondary/tertiary (landing)
 - Acento: #FFC23D dorado (SOLO en: CTA principal, misión de hoy, nodo "hoy", dato héroe, botón central) ·
   relieve del dorado #B8860F · 2ª nota: #3DDC97 verde (porqué: progreso HECHO — nodos completos, barras, piezas listas)
 - Semánticos: éxito #3DDC97 · error #FF6B6B · aviso #FF9F43
 - Display: Bricolage Grotesque (700/800) · Body: Instrument Sans (400/600/700) · Escala: display 24-28px / title 16-19px / body 13-15px / label 10.5-12px
+- Extensiones de la landing (components/landing/tokens.css): CTA final sobre #231D2E · chips 12px · relieve del CTA 0 4px 0 #B8860F
 - Radio: tarjetas 18-22px · filas/CTA/chips en píldora 999px · chips de ícono 10-14px · Profundidad: superficie con
   degradé sutil + luz en borde superior + sombra negra difusa; hairline dorada degradada SOLO en el elemento clave
 - Espaciado base: escala 4·8·12·16·24·32·48·64

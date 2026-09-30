@@ -36,6 +36,9 @@ const rel = (f) => path.relative(ROOT, f) || path.basename(f);
 const EXCLUDE_DIRS = new Set([
   'node_modules', '.next', '.git', 'dist', 'build', 'out', 'coverage',
   '.vercel', '.turbo', '.cache', 'storybook-static',
+  // Plantillas de referencia del SO (no son la app): mezclar sus tokens con los del proyecto
+  // producía contrastes y hallazgos falsos. La app vive en app/ y components/.
+  'plantillas-codigo',
 ]);
 
 let CRIT = 0;
