@@ -1,7 +1,7 @@
 # ESTADO — EMPRESAI
 Última actualización: 2026-09-29 | Sesión actual: 1 (cliente, precio y estrategia)
 
-⏸️ CHECKPOINT — Última acción completada: comparativa A/B/C construida y verificada (direcciones-abc.html) / Siguiente acción exacta: usuario elige A/B/C (o combina) → TOUR DE LA APP (vista-previa-app.html) → FICHA-ARTE.md
+⏸️ CHECKPOINT — Última acción completada: fusión A+B+C renderizada y verificada (fuentes 4/4, cabe en 375) / Siguiente acción exacta: OK del usuario → TOUR DE LA APP (vista-previa-app.html, 54 sección final) → FICHA-ARTE.md
 
 ## Qué es esta app (3 líneas máximo)
 App web tipo Duolingo que guía a emprendedores principiantes LATAM a lanzar su negocio/producto digital con IA en 30 días, 5 min/día.
@@ -91,7 +91,7 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Extracción de la referencia: docs/revisiones/referencia-usuario-1-extraccion.md
 - Comparativa: direcciones-abc.html (copia en docs/revisiones/) · A Cristal Azul (Plus Jakarta Sans) · B Mapa de Juego (Nunito, violeta+ámbar) · C Tablero de Fundador (Bricolage+Instrument Sans, oscuro+dorado)
 - Fuentes verificadas cargadas en navegador (4/4). Screenshots 375: docs/revisiones/direccion-*-375.jpg
-- Elección del usuario (2026-09-29): COMBINAR "la C con el mapa de la B" → renderizada como "Tablero con Mapa" (docs/revisiones/direccion-CB-tablero-con-mapa-375.jpg) — confirmación PENDIENTE. Descartadas: A (réplica de su captura) y B como estilo completo.
+- Elección del usuario (2026-09-30): FUSIÓN A+B+C "Tablero Dorado" = orden de la pantalla principal de la A + progreso tipo Duolingo (camino de nodos) de la B + colores de la C, con grises aclarados (fondo #16121F, superficie #241E30, texto 2 #B7AEC6). Captura: docs/revisiones/direccion-fusion-ABC-375.jpg — confirmación PENDIENTE. (Antes: combinación C+B, superada.)
 
 ## Secuencia maestra de construcción (NO saltar)
 - Estado: todas pendientes · Ruta: / → /onboarding → /paywall → /login → /app
