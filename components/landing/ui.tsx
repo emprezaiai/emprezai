@@ -32,18 +32,37 @@ export function Kicker({ children }: { children: ReactNode }) {
    tone 'accent' para secciones cálidas · 'muted' para íconos de dolor (§2:
    neutro apagado, nunca checks verdes). La FORMA la decide --radius-button:
    una sola forma de chip por página. */
-export function IconChip({ icon: Icono, tone = 'accent' }: { icon: LucideIcon; tone?: 'accent' | 'muted' }) {
-  const acento = tone === 'accent';
+export type TonoFicha = 'accent' | 'muted' | 'verde';
+const CLASE_TONO: Record<TonoFicha, string> = {
+  accent: 'relieve-oro',
+  muted: 'relieve-piedra',
+  verde: 'relieve-verde',
+};
+const TAMANO_FICHA = {
+  sm: { caja: 'size-9', icono: 18 },
+  md: { caja: 'size-11', icono: 22 },
+  lg: { caja: 'size-16', icono: 30 },
+} as const;
+
+/* Ficha de ícono EN RELIEVE (material de app/globals.css): cara con degradé, luz arriba,
+   canto sólido abajo. El tono tiene significado: oro = acción/beneficio · verde = logro ·
+   piedra (muted) = dolor/neutro. Nunca planas ni del mismo color en toda la página. */
+export function IconChip({
+  icon: Icono,
+  tone = 'accent',
+  size = 'md',
+}: {
+  icon: LucideIcon;
+  tone?: TonoFicha;
+  size?: keyof typeof TAMANO_FICHA;
+}) {
+  const t = TAMANO_FICHA[size];
   return (
     <span
       aria-hidden="true"
-      className={`inline-flex size-11 shrink-0 items-center justify-center rounded-[var(--radius-chip,var(--radius-button))] border ${
-        acento
-          ? 'border-[color-mix(in_oklab,var(--accent)_22%,transparent)] bg-[var(--chip-bg)]'
-          : 'border-[color-mix(in_oklab,var(--text-tertiary)_35%,transparent)] bg-[color-mix(in_oklab,var(--text-tertiary)_12%,transparent)]'
-      }`}
+      className={`inline-flex ${t.caja} shrink-0 items-center justify-center rounded-[var(--radius-chip,var(--radius-button))] ${CLASE_TONO[tone]}`}
     >
-      <Icono size={22} strokeWidth={2} color={acento ? 'var(--accent)' : 'var(--text-secondary)'} aria-hidden="true" />
+      <Icono size={t.icono} strokeWidth={2.2} color="currentColor" aria-hidden="true" />
     </span>
   );
 }
@@ -83,9 +102,9 @@ export function CheckCustom() {
   return (
     <span
       aria-hidden="true"
-      className="mt-0.5 inline-flex size-[22px] shrink-0 items-center justify-center rounded-full bg-[color-mix(in_oklab,var(--accent)_12%,transparent)]"
+      className="mt-0.5 inline-flex size-[22px] shrink-0 items-center justify-center rounded-full bg-[color-mix(in_oklab,var(--accent)_14%,transparent)] shadow-[inset_0_1px_0_rgb(255_255_255/0.12),0_2px_0_rgb(0_0_0/0.35)]"
     >
-      <Check size={13} strokeWidth={2.5} color="var(--accent)" aria-hidden="true" />
+      <Check size={13} strokeWidth={3} color="var(--accent)" aria-hidden="true" />
     </span>
   );
 }
@@ -187,6 +206,7 @@ export function EnlaceCta({
   }
 
   return (
+    <>
     <MotionLink
       whileTap={{ scale: 0.97 }}
       href={href}
@@ -199,13 +219,15 @@ export function EnlaceCta({
       className={`${className} gap-2`}
     >
       {estado === 'lento' ? etiquetaReintento : children}
-      <span role="status" className="sr-only">
-        {estado === 'cargando' ? 'Abriendo…' : estado === 'lento' ? 'La página tarda más de lo normal. Puedes volver a intentarlo.' : ''}
-      </span>
       {estado === 'cargando' && (
         <LoaderCircle size={18} className="animate-spin motion-reduce:animate-none" aria-hidden="true" />
       )}
     </MotionLink>
+    {/* Aviso para lectores de pantalla FUERA del enlace (no se pega al nombre del botón) */}
+    <span role="status" className="sr-only">
+      {estado === 'cargando' ? 'Abriendo…' : estado === 'lento' ? 'La página tarda más de lo normal. Puedes volver a intentarlo.' : ''}
+    </span>
+    </>
   );
 }
 

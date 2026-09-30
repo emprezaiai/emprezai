@@ -48,15 +48,15 @@ export function Problema({ titulo, preguntas, id }: ProblemaProps) {
             {titulo}
           </motion.h2>
         )}
-        <ul className="flex flex-col gap-4">
+        <ul className="tarjeta-relieve-base flex flex-col rounded-[var(--radius-card)] px-4">
           {preguntas.map((p, i) => (
             <motion.li
               key={i}
               variants={item}
-              className="flex items-start gap-4 rounded-[var(--radius-card)] bg-[var(--bg)] p-4 shadow-[var(--shadow-1)]"
+              className="flex items-start gap-4 border-b border-[color-mix(in_oklab,var(--text-tertiary)_18%,transparent)] py-4 last:border-b-0"
             >
-              <IconChip icon={p.icon} tone="muted" />
-              <p className="pt-2 text-[16px] font-medium leading-snug text-[var(--text-primary)]">
+              <IconChip icon={p.icon} tone="muted" size="sm" />
+              <p className="pt-1 text-[16px] font-medium leading-snug text-[var(--text-primary)]">
                 <MarkedCopy text={p.textoMarked} />
               </p>
             </motion.li>

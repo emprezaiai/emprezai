@@ -66,6 +66,60 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ============================================================================
+   MATERIAL EN RELIEVE (pedido de la dueña 2026-09-30: nada plano ni repetitivo)
+   Fichas de ícono con volumen tipo "botón de juego" (cara con degradé + luz arriba +
+   canto sólido abajo + sombra difusa) en 3 tonos con significado:
+     oro = acción / beneficio · verde = logro / progreso · piedra = dolor / neutro
+   Tarjetas con profundidad: luz en el borde superior + canto + sombra lejana.
+   ============================================================================ */
+.relieve-oro,
+.relieve-verde,
+.relieve-piedra {
+  background: linear-gradient(160deg, var(--cara-1), var(--cara-2));
+  color: var(--tinta);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.45),
+    inset 0 -2px 0 rgb(0 0 0 / 0.12),
+    0 3px 0 var(--canto),
+    0 10px 18px -8px rgb(0 0 0 / 0.7);
+}
+.relieve-oro { --cara-1: #ffd978; --cara-2: #ffc23d; --canto: #b8860f; --tinta: #1a1206; }
+.relieve-verde { --cara-1: #7ef3be; --cara-2: #3ddc97; --canto: #1f9c66; --tinta: #0f2a1e; }
+.relieve-piedra {
+  --cara-1: #3f3750; --cara-2: #2a2433; --canto: #15121c; --tinta: #d6cde4;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.14),
+    inset 0 -2px 0 rgb(0 0 0 / 0.2),
+    0 3px 0 var(--canto),
+    0 10px 18px -8px rgb(0 0 0 / 0.7);
+}
+
+.tarjeta-relieve {
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.05), transparent 45%), var(--surface-raised);
+  border: 1px solid rgb(255 255 255 / 0.07);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.07),
+    0 2px 0 rgb(0 0 0 / 0.35),
+    0 18px 32px -18px rgb(0 0 0 / 0.8);
+}
+.tarjeta-relieve-base {
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.04), transparent 45%), var(--surface-base);
+  border: 1px solid rgb(255 255 255 / 0.07);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.06),
+    0 2px 0 rgb(0 0 0 / 0.4),
+    0 18px 32px -18px rgb(0 0 0 / 0.85);
+}
+.tarjeta-relieve-oro {
+  background: linear-gradient(180deg, rgb(255 194 61 / 0.12), rgb(255 194 61 / 0.03) 60%), var(--surface-raised);
+  border: 1px solid rgb(255 194 61 / 0.35);
+  box-shadow:
+    inset 0 1px 0 rgb(255 217 120 / 0.2),
+    0 2px 0 rgb(184 134 15 / 0.5),
+    0 18px 32px -16px rgb(255 194 61 / 0.25);
+}
+
 :focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: 2px;

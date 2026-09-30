@@ -8,10 +8,14 @@
 // escalonados (whileInView + stagger, reduced-motion respetado).
 
 import { motion } from 'motion/react';
-import { Accent, Hairline, Kicker, SectionShell, useReveal, VIEWPORT_ONCE } from './ui';
+import { Check, X } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { Accent, CtaButton, Hairline, IconChip, Kicker, SectionShell, useReveal, VIEWPORT_ONCE } from './ui';
 import { MarkedCopy, warnCopy } from './MarkedCopy';
 
 export interface PasoMecanismo {
+  /** Ícono del paso (se muestra en ficha dorada en relieve con su número). */
+  icon?: LucideIcon;
   /** Título del paso — 16px/600. */
   titulo: string;
   /** UNA línea (warn a las 14 palabras). */
@@ -36,6 +40,8 @@ export interface SolucionProps {
     labelDespues: string;
     despues: string;
   };
+  /** CTA tras el mecanismo (el lector ya convencido compra sin buscar). */
+  cta?: { label: string; href: string };
   id?: string;
 }
 
@@ -46,6 +52,7 @@ export function Solucion({
   bigIdeaMarked,
   pasos,
   antesDespues,
+  cta,
   id,
 }: SolucionProps) {
   warnCopy('Solución → título', tituloMarked, 8);
@@ -85,12 +92,20 @@ export function Solucion({
         {/* 3 pasos: filas apiladas en mobile, 3 columnas en desktop */}
         <ol className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
           {pasos.map((p, i) => (
-            <motion.li key={i} variants={item} className="flex items-start gap-4 md:flex-col">
-              <span
-                aria-hidden="true"
-                className="flex size-11 shrink-0 items-center justify-center rounded-[var(--radius-chip,var(--radius-button))] border border-[color-mix(in_oklab,var(--accent)_22%,transparent)] bg-[var(--chip-bg)] text-[16px] font-bold tabular-nums text-[var(--accent)]"
-              >
-                {String(i + 1).padStart(2, '0')}
+            <motion.li key={i} variants={item} className="tarjeta-relieve flex items-start gap-4 rounded-[var(--radius-card)] p-4 md:flex-col">
+              <span aria-hidden="true" className="relative shrink-0">
+                {p.icon ? (
+                  <IconChip icon={p.icon} tone={i === pasos.length - 1 ? 'verde' : 'accent'} />
+                ) : (
+                  <span className="relieve-oro flex size-11 items-center justify-center rounded-[var(--radius-chip,var(--radius-button))] text-[16px] font-bold">
+                    {i + 1}
+                  </span>
+                )}
+                {p.icon && (
+                  <span className="relieve-piedra absolute -right-2 -top-2 flex size-6 items-center justify-center rounded-full text-[12px] font-bold tabular-nums">
+                    {i + 1}
+                  </span>
+                )}
               </span>
               <div className="pt-1 md:pt-0">
                 <h3 className="text-[16px] font-semibold text-[var(--text-primary)]">{p.titulo}</h3>
@@ -102,21 +117,33 @@ export function Solucion({
 
         {antesDespues && (
           <motion.div variants={item} className="mt-10 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div className="rounded-[var(--radius-card)] bg-[var(--surface-2)] p-5">
+            <div className="tarjeta-relieve flex items-start gap-4 rounded-[var(--radius-card)] p-5">
+              <IconChip icon={X} tone="muted" size="sm" />
+              <div>
               <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]">
                 {antesDespues.labelAntes}
               </p>
               <p className="mt-2 text-[16px] leading-snug text-[var(--text-secondary)]">{antesDespues.antes}</p>
+              </div>
             </div>
-            {/* El "después" con acento sutil de fondo (4-6%) */}
-            <div className="rounded-[var(--radius-card)] bg-[color-mix(in_oklab,var(--accent)_6%,transparent)] p-5">
+            {/* El "después" en tarjeta dorada en relieve */}
+            <div className="tarjeta-relieve-oro flex items-start gap-4 rounded-[var(--radius-card)] p-5">
+              <IconChip icon={Check} tone="verde" size="sm" />
+              <div>
               <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--accent)]">
                 {antesDespues.labelDespues}
               </p>
               <p className="mt-2 text-[16px] font-medium leading-snug text-[var(--text-primary)]">
                 {antesDespues.despues}
               </p>
+              </div>
             </div>
+          </motion.div>
+        )}
+
+        {cta && (
+          <motion.div variants={item} className="mt-10 flex justify-center">
+            <CtaButton href={cta.href}>{cta.label}</CtaButton>
           </motion.div>
         )}
       </motion.div>

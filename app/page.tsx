@@ -4,7 +4,29 @@
 // (components/landing). Todo el copy sale de docs/copy/landing.md (marcado y trazado a FICHA-AVATAR.md).
 // Modelo 2 anónimo (ESTADO.md): todos los CTA llevan a /onboarding; el pago se cierra en la pantalla de planes.
 
-import { BookmarkX, Lightbulb, MessageSquareDashed, TrendingDown, Users } from 'lucide-react';
+import {
+  BookmarkX,
+  BookX,
+  CalendarX2,
+  Coffee,
+  Gift,
+  Hourglass,
+  Lightbulb,
+  Lock,
+  Mail,
+  MessageSquareDashed,
+  MessageSquareText,
+  MousePointerClick,
+  Puzzle,
+  RotateCcw,
+  Search,
+  ShieldCheck,
+  Sprout,
+  TrendingDown,
+  Users,
+  Wallet,
+  Zap,
+} from 'lucide-react';
 import { Hero } from '@/components/landing/Hero';
 import { Problema } from '@/components/landing/Problema';
 import { Agitacion } from '@/components/landing/Agitacion';
@@ -44,7 +66,22 @@ export default function PaginaDeVentas() {
         subtitleMarked="Tu negocio en [b]30 días[/b], pieza a pieza. Sin cursos ni hoja en blanco."
         ctaLabel={CTA_LABEL}
         ctaHref={CTA_HREF}
-        socialProof={<span>7 días gratis · 15 días de garantía · cancelas en 1 toque</span>}
+        socialProof={
+          <ul className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+            {[
+              { icono: Gift, texto: '7 días gratis' },
+              { icono: ShieldCheck, texto: '15 días de garantía' },
+              { icono: MousePointerClick, texto: 'Cancelas en 1 toque' },
+            ].map(({ icono: Icono, texto }) => (
+              <li key={texto} className="flex items-center gap-2">
+                <span className="relieve-piedra flex size-6 items-center justify-center rounded-full">
+                  <Icono size={13} strokeWidth={2.5} aria-hidden="true" />
+                </span>
+                {texto}
+              </li>
+            ))}
+          </ul>
+        }
         visual={<DemoMisionHero />}
       />
 
@@ -62,9 +99,12 @@ export default function PaginaDeVentas() {
       <Agitacion
         frases={[
           'A las 7 de la noche abres ChatGPT, te quedas en blanco y cierras la laptop.',
-          'Dos horas por noche así son [b]40 horas al mes[/b].',
-          'En un año, eso es [acento]otro año atado al sueldo[/acento], sin haber lanzado nada.',
-          'Otro curso de $300 no lo arregla: [b]más información no es más avance[/b].',
+          'Y otro curso no lo arregla: [b]más información no es más avance[/b].',
+        ]}
+        cifras={[
+          { valor: 40, sufijo: 'h', etiqueta: 'al mes buscando por dónde empezar', icon: Hourglass },
+          { valor: 300, prefijo: '$', etiqueta: 'en otro curso que no terminas', icon: BookX },
+          { valor: 12, etiqueta: 'meses más atado al sueldo', icon: CalendarX2 },
         ]}
       />
 
@@ -73,9 +113,9 @@ export default function PaginaDeVentas() {
         mecanismo="el Método Pieza a Pieza"
         bigIdeaMarked="No te falta información: te falta el paso de hoy. Cada día la IA arma [b]una pieza de tu negocio[/b] con las anteriores."
         pasos={[
-          { titulo: 'Cuenta tu idea', detalle: 'En 1 minuto, aunque sea vaga. La IA la entiende.' },
-          { titulo: 'Haz la misión del día', detalle: '5 minutos desde el celular: una mini lección y la IA trabaja.' },
-          { titulo: 'Suma una pieza', detalle: 'Tu oferta, tu nombre, tus textos: todo queda en Mi Empresa.' },
+          { icon: MessageSquareText, titulo: 'Cuenta tu idea', detalle: 'En 1 minuto, aunque sea vaga. La IA la entiende.' },
+          { icon: Zap, titulo: 'Haz la misión del día', detalle: '5 minutos desde el celular: una mini lección y la IA trabaja.' },
+          { icon: Puzzle, titulo: 'Suma una pieza', detalle: 'Tu oferta, tu nombre, tus textos: todo queda en Mi Empresa.' },
         ]}
         antesDespues={{
           labelAntes: 'Antes',
@@ -133,35 +173,47 @@ export default function PaginaDeVentas() {
 
       <Garantia
         nombre="La Garantía de la Primera Oferta"
-        condicionMarked="Tienes 15 días de garantía: si la IA no te entrega [b]tu oferta lista para vender[/b], escribes un correo y te devolvemos todo."
+        condicionMarked="Si la IA no te entrega [b]tu oferta lista para vender[/b], te devolvemos todo."
         pisoLegal="Reembolso gestionado por Hotmart · 15 días"
+        sellos={[
+          { icon: ShieldCheck, texto: '15 días' },
+          { icon: Mail, texto: 'Solo un correo' },
+          { icon: RotateCcw, texto: 'Sin preguntas' },
+        ]}
+        cta={{ label: CTA_LABEL, href: CTA_HREF }}
       />
 
       <Faq
         items={[
           {
+            icon: Search,
             pregunta: '¿No puedo encontrar estos prompts gratis en internet?',
             respuestaMarked:
               'Los prompts sueltos no se conectan. Aquí la IA usa [b]todo lo que ya armaste[/b] para la pieza de hoy.',
           },
           {
+            icon: Wallet,
             pregunta: '¿Tengo que pagar ChatGPT Plus u otra herramienta?',
             respuestaMarked: 'No. La IA ya viene incluida en EMPRESAI: [b]no pagas nada extra[/b].',
           },
           {
+            icon: BookX,
             pregunta: '¿Será otro curso que abandono a los 3 días?',
             respuestaMarked: 'No hay videos ni teoría. Son 5 minutos al día y [b]cada día te llevas algo hecho[/b].',
           },
           {
+            icon: Sprout,
             pregunta: '¿Sirve si no sé nada de negocios ni de tecnología?',
             respuestaMarked: 'Sí. El día 1 solo cuentas tu idea en 1 minuto y la ruta te lleva paso a paso.',
           },
           {
+            icon: Lock,
             pregunta: '¿Me pueden robar la idea?',
             respuestaMarked:
               'Tu idea es tuya: solo tú ves tu negocio, no se usa para entrenar IA y [b]la borras cuando quieras[/b].',
           },
           {
+            icon: Coffee,
             pregunta: '¿Vale la pena pagar $9.99 al mes?',
             respuestaMarked: 'Es menos que dos cafés. Empiezas con [b]7 días gratis[/b] y te avisamos antes del primer cobro.',
           },

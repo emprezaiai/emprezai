@@ -1,7 +1,7 @@
 # ESTADO — EMPRESAI
 Última actualización: 2026-09-29 | Sesión actual: 1 (cliente, precio y estrategia)
 
-⏸️ CHECKPOINT — Última acción completada: landing APROBADA por revisor-visual (5ª pasada, 2026-09-30) + legales creadas / Siguiente acción exacta: pedir al usuario datos del responsable legal (nombre, país, email) → Sesión 4: /onboarding (leer ?plan=), resultado/primera pieza, /paywall, /login
+⏸️ CHECKPOINT — Última acción completada: landing elevada APROBADA por revisor (38/40·19/20·17/20) / Siguiente acción exacta: (1) resolver contradicción de la garantía (condición vs sello "Sin preguntas") eligiendo incondicional o cambiando sello a "Vía Hotmart" + alinear /reembolsos; (2) chips 3 en una fila (hero y sellos); (3) etiquetas de cifras ≤2 líneas y "meses" junto al 12 → re-render + revisor; luego OK de la dueña → Sesión 4
 
 ## Qué es esta app (3 líneas máximo)
 App web tipo Duolingo que guía a emprendedores principiantes LATAM a lanzar su negocio/producto digital con IA en 30 días, 5 min/día.
@@ -102,7 +102,7 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Eventos: lib/eventos.ts (landing_vista con atribución UTM/sck y marca ?qa=1), en cola local hasta conectar analítica
 
 ## Puertas de etapa
-- Landing: APROBADA por revisor 2026-09-30 — usabilidad 37/40 · craft 19/20 · copy 18/20 (re-confirmado tras ajustes menores) · evidencia: tsc ✓ lint ✓ build ✓ · docs/revisiones/landing-375.png (+ parte-0…6) · veredicto docs/revisiones/landing-veredicto.md · aprobación del usuario: PENDIENTE
+- Landing: APROBADA por revisor 2026-09-30 tras ELEVACIÓN (relieve + escaneabilidad) — usabilidad 38/40 · craft 19/20 · copy 17/20 · "no plano / no repetitivo" ✅ · tabla de escaneabilidad en docs/revisiones/landing-veredicto.md · capturas landing-375-parte-0…7.png · aprobación del usuario: PENDIENTE
 
 ## Decisiones técnicas (NO re-discutir sin pedirlo el usuario)
 - Framework: Next.js App Router (landing con SEO + rutas de servidor para la IA) — 2026-09-29
@@ -122,6 +122,7 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Borrar mis datos: endpoint que borra business_profile + pieces + progress + cuenta (promesa "Tu idea es tuya").
 
 ## Pendientes / ⚠️
+- ⚠️ Garantía: la condición ("si la IA no te entrega tu oferta…") contradice el sello "Sin preguntas" — decidir incondicional vs condicional y alinear sellos + /reembolsos (gate 61).
 - (hecho 2026-09-30) Responsable legal: persona natural (sin empresa registrada), Toronto, Canadá → PIPEDA + leyes LATAM en privacidad. ⚠️ El email de soporte es PERSONAL y queda público en el footer y los legales: reemplazar por soporte@<dominio> al comprar el dominio (Sesión 6). Recomendado confirmar impuestos con un contador en Canadá.
 - ⚠️ Configurar Hotmart con garantía de 15 días ANTES de publicar la promesa (landing/legales) — Sesión 6.
 - ⚠️ Claim "no se usa para entrenar IA" (FAQ 5, privacidad, aviso-ia): confirmar términos vigentes del proveedor y anotar fuente antes de publicar (gate 61).
@@ -135,4 +136,3 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 ## Problemas conocidos
 - FICHA-MODELO.md en BORRADOR (modelo: Coursiv). Falta 2ª señal de revenue (Meta Ads Library / TrustMRR) y el plano del flujo de entrada de Coursiv (Meta Ads Library y Mobbin requieren navegador; se intentará en Sesión 2 con el navegador integrado). No bloquea diseño/arquitectura.
 - audit-conversion.sh: se excluyó `plantillas-codigo/` en scripts/lib-conversion.mjs (mezclaba tokens de plantilla con los del proyecto → contrastes falsos). Hallazgos restantes son FALSOS POSITIVOS sobre código del kit (cuenta clases/comentarios como copy; no detecta hairline/radial armados con strings concatenados; "animate" como voseo; ✓ en un comentario). Verificado visualmente y por el revisor. Antes: escaneaba `plantillas-codigo/` (plantillas de referencia del SO, no son la app) → sus hallazgos ahí son ruido. Al construir, juzgar solo los hallazgos en los archivos de la app.
-- landing veredicto caducado a propósito (2026-09-30): solo cambió el email de soporte del footer (dato legal) — la landing entra en la ELEVACIÓN pedida por el usuario (relieve + escaneabilidad, PROMPT-LANDING) apenas apruebe el ángulo; se re-renderiza a 375px y se re-lanza el revisor-visual al cerrarla.

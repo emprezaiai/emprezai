@@ -121,7 +121,7 @@ export function Oferta({
         {stack && (
           <motion.div
             variants={item}
-            className="mx-auto mt-8 max-w-[560px] rounded-[var(--radius-card)] border border-[color-mix(in_oklab,var(--text-tertiary)_25%,transparent)] bg-[var(--surface)] p-6"
+            className="tarjeta-relieve mx-auto mt-8 max-w-[560px] rounded-[var(--radius-card)] p-6"
           >
             <ul className="flex flex-col gap-3">
               {stack.lineas.map((l, i) => (
@@ -179,7 +179,7 @@ export function Oferta({
           {/* ── MENSUAL: card base, CTA outline — menos peso visual ── */}
           <motion.div
             variants={item}
-            className="rounded-[var(--radius-card)] border border-[color-mix(in_oklab,var(--text-tertiary)_28%,transparent)] bg-[var(--surface)] p-6 shadow-[var(--shadow-1)] md:p-7"
+            className="tarjeta-relieve rounded-[var(--radius-card)] p-6 md:p-7"
           >
             <div className="flex items-center justify-between gap-3">
               <h3 className="text-[18px] font-semibold text-[var(--text-primary)]">{mensual.nombre}</h3>

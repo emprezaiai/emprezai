@@ -41,12 +41,13 @@
 - `¿Guardaste cientos de prompts de TikTok que nunca usaste?` — "ya intentó"
 - `¿Sientes que la IA avanza y [b]te estás quedando atrás[/b]?` — dolor #5 (identidad)
 
-## 3. AGITACIÓN (costo de la inacción de la ficha — sin cifras inventadas: 2 h/noche y la escena de 7 PM son del avatar)
-- `A las 7 de la noche abres ChatGPT, te quedas en blanco y cierras la laptop.` (14) — MOMENTO DEL DÍA de la ficha
-- `Dos horas por noche así son [b]40 horas al mes[/b].` (9)
-- `En un año, eso es [acento]otro año atado al sueldo[/acento], sin haber lanzado nada.` (13)
-- `Otro curso de $300 no lo arregla: [b]más información no es más avance[/b].` (13)
-- (sin mini-card de contraste: el revisor detectó que repetía el antes/después de la Solución — 2026-09-30)
+## 3. AGITACIÓN (costo de la inacción de la ficha, en formato ESCANEABLE — elevación 2026-09-30)
+- frase 1 (escena, MOMENTO DEL DÍA): `A las 7 de la noche abres ChatGPT, te quedas en blanco y cierras la laptop.`
+- cifras en tarjetas en relieve (cuentan al entrar en pantalla, número en dorado):
+  - `40 h` · `al mes buscando por dónde empezar` (2 h/noche del avatar × ~20 noches)
+  - `$300` · `por otro curso que no terminas` (lo que ya pagó, ficha "Ya intentó")
+  - `12 meses` · `más atado al sueldo si nada cambia` (costo de la inacción a 1 año)
+- remate: `Y otro curso no lo arregla: [b]más información no es más avance[/b].`
 
 ## 4. SOLUCIÓN (mecanismo bautizado — Constitución 4b)
 - título: `No necesitas otro curso: necesitas [acento]tu negocio armado[/acento]` (8)
@@ -59,6 +60,7 @@
 - título: `Tu negocio, [acento]pieza a pieza[/acento]`
 - frames: `Tu misión de hoy, en 5 minutos` (Hoy) · `Tu ruta de 30 días` (Ruta) · `La IA armando tu pieza` (Misión) · `Tu negocio completo` (Mi Empresa)
 - CTA mid: `Armar mi primera pieza gratis`
+- CTAs adicionales (elevación): tras el mecanismo (§4) y tras la garantía (§7), mismo texto y destino
 
 ## 6. OFERTA (FICHA-MERCADO: $9.99/mes · $79.99/año · trial 7 días)
 - título: `Empieza gratis. Sigue por [acento]$0.22 al día[/acento]` (7)
@@ -75,6 +77,7 @@
 - features mensual: los 4 del anual + `Cancelas en 1 toque, cuando quieras`
 
 ## 7. GARANTÍA
+- sellos: `15 días` · `Solo un correo` · `Te devolvemos todo`
 - nombre: `La Garantía de la Primera Oferta` (título; en medio de frase va en minúscula)
 - condición: `Tienes 15 días de garantía: si la IA no te entrega [b]tu oferta lista para vender[/b], escribes un correo y te devolvemos todo.` (21)
 - piso legal: `Reembolso gestionado por Hotmart · 15 días` (⚠️ configurar Hotmart a 15 días en Sesión 6 ANTES de publicar)

@@ -10,7 +10,8 @@
 import { useId, useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { ChevronDown } from 'lucide-react';
-import { Kicker, SectionShell, useReveal, VIEWPORT_ONCE } from './ui';
+import type { LucideIcon } from 'lucide-react';
+import { IconChip, Kicker, SectionShell, useReveal, VIEWPORT_ONCE } from './ui';
 import { MarkedCopy, warnCopy, warnRango } from './MarkedCopy';
 
 export interface ItemFaq {
@@ -18,6 +19,8 @@ export interface ItemFaq {
   pregunta: string;
   /** Copy MARCADO — corta y honesta, cierra reduciendo riesgo (máx 40 palabras). */
   respuestaMarked: string;
+  /** Ícono de la objeción (ficha piedra en relieve) — ancla visual para escanear. */
+  icon?: LucideIcon;
 }
 
 export interface FaqProps {
@@ -54,16 +57,13 @@ export function Faq({ kicker = 'PREGUNTAS', titulo = 'Lo que quizá te estás pr
           </h2>
         </motion.div>
 
-        <motion.ul variants={item} className="flex flex-col">
+        <motion.ul variants={item} className="flex flex-col gap-3">
           {items.map((it, i) => {
             const estaAbierto = abierto === i;
             const btnId = `${baseId}-faq-btn-${i}`;
             const panelId = `${baseId}-faq-panel-${i}`;
             return (
-              <li
-                key={i}
-                className="border-b border-[color-mix(in_oklab,var(--text-tertiary)_25%,transparent)]"
-              >
+              <li key={i} className={`${estaAbierto ? 'tarjeta-relieve-oro' : 'tarjeta-relieve'} rounded-[var(--radius-card)] px-4 transition-colors duration-200`}>
                 {/* Área táctil = la FILA COMPLETA, ≥56px */}
                 <button
                   type="button"
@@ -73,7 +73,10 @@ export function Faq({ kicker = 'PREGUNTAS', titulo = 'Lo que quizá te estás pr
                   onClick={() => setAbierto(estaAbierto ? null : i)}
                   className="flex min-h-14 w-full items-center justify-between gap-4 py-4 text-left [touch-action:manipulation]"
                 >
-                  <span className="text-[16px] font-semibold text-[var(--text-primary)]">{it.pregunta}</span>
+                  <span className="flex items-center gap-3">
+                    {it.icon && <IconChip icon={it.icon} tone={estaAbierto ? 'accent' : 'muted'} size="sm" />}
+                    <span className="text-[16px] font-semibold text-[var(--text-primary)]">{it.pregunta}</span>
+                  </span>
                   <ChevronDown
                     size={20}
                     aria-hidden="true"
@@ -90,7 +93,7 @@ export function Faq({ kicker = 'PREGUNTAS', titulo = 'Lo que quizá te estás pr
                   transition={{ duration: reduce ? 0 : 0.28, ease: [0.16, 1, 0.3, 1] }}
                   className="overflow-hidden"
                 >
-                  <p className="pb-5 pr-9 text-[16px] leading-relaxed text-[var(--text-secondary)]">
+                  <p className={`pb-5 pr-2 text-pretty text-[16px] leading-relaxed text-[var(--text-secondary)] ${it.icon ? 'pl-12' : ''}`}>
                     <MarkedCopy text={it.respuestaMarked} />
                   </p>
                 </motion.div>
