@@ -1,7 +1,7 @@
 # ESTADO — EMPRESAI
 Última actualización: 2026-09-29 | Sesión actual: 1 (cliente, precio y estrategia)
 
-⏸️ CHECKPOINT — Última acción completada: pantallas Hoy (A+colores C) y Ruta (B+colores C) renderizadas y verificadas / Siguiente acción exacta: OK del usuario → completar TOUR (Mi Empresa, misión en acción, planes) → FICHA-ARTE.md
+⏸️ CHECKPOINT — Última acción completada: usuario APROBÓ Hoy(A)+Ruta(B) con colores C ("super excelente"); TOUR construido (vista-previa-app.html, 6 vistas, capturas docs/revisiones/tour-*) / Siguiente acción exacta: respuesta al tour → FICHA-ARTE.md + tokens → cerrar Sesión 2
 
 ## Qué es esta app (3 líneas máximo)
 App web tipo Duolingo que guía a emprendedores principiantes LATAM a lanzar su negocio/producto digital con IA en 30 días, 5 min/día.
@@ -91,7 +91,7 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Extracción de la referencia: docs/revisiones/referencia-usuario-1-extraccion.md
 - Comparativa: direcciones-abc.html (copia en docs/revisiones/) · A Cristal Azul (Plus Jakarta Sans) · B Mapa de Juego (Nunito, violeta+ámbar) · C Tablero de Fundador (Bricolage+Instrument Sans, oscuro+dorado)
 - Fuentes verificadas cargadas en navegador (4/4). Screenshots 375: docs/revisiones/direccion-*-375.jpg
-- Elección del usuario (2026-09-30, 3ª vuelta): pantalla HOY = composición de la A (réplica de su captura) + pantalla RUTA = mapa de la B, AMBAS con colores/tonos de la C (bg #0F0D16, superficie #1A1622, texto2 #998FA8, dorado #FFC23D, verde #3DDC97, Bricolage Grotesque + Instrument Sans). Capturas: docs/revisiones/eleccion-hoy-A-colores-C-375.jpg + eleccion-ruta-B-colores-C-375.jpg — confirmación PENDIENTE. Descartadas: fusión A+B+C "Tablero Dorado" (no le gustó), combinación C+B.
+- Elección del usuario (2026-09-30, 3ª vuelta): pantalla HOY = composición de la A (réplica de su captura) + pantalla RUTA = mapa de la B, AMBAS con colores/tonos de la C (bg #0F0D16, superficie #1A1622, texto2 #998FA8, dorado #FFC23D, verde #3DDC97, Bricolage Grotesque + Instrument Sans). Capturas: docs/revisiones/eleccion-hoy-A-colores-C-375.jpg + eleccion-ruta-B-colores-C-375.jpg — APROBADA 2026-09-30. Descartadas: fusión A+B+C "Tablero Dorado" (no le gustó), combinación C+B.
 
 ## Secuencia maestra de construcción (NO saltar)
 - Estado: todas pendientes · Ruta: / → /onboarding → /paywall → /login → /app
