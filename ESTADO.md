@@ -102,7 +102,7 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Eventos: lib/eventos.ts (landing_vista con atribución UTM/sck y marca ?qa=1), en cola local hasta conectar analítica
 
 ## Puertas de etapa
-- Landing: APROBADA por revisor 2026-09-30 — usabilidad 37/40 · craft 18/20 · copy 18/20 · evidencia: tsc ✓ lint ✓ build ✓ · docs/revisiones/landing-375.png (+ parte-0…6) · veredicto docs/revisiones/landing-veredicto.md · aprobación del usuario: PENDIENTE
+- Landing: APROBADA por revisor 2026-09-30 — usabilidad 37/40 · craft 19/20 · copy 18/20 (re-confirmado tras ajustes menores) · evidencia: tsc ✓ lint ✓ build ✓ · docs/revisiones/landing-375.png (+ parte-0…6) · veredicto docs/revisiones/landing-veredicto.md · aprobación del usuario: PENDIENTE
 
 ## Decisiones técnicas (NO re-discutir sin pedirlo el usuario)
 - Framework: Next.js App Router (landing con SEO + rutas de servidor para la IA) — 2026-09-29
@@ -125,6 +125,7 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - ⚠️ Datos del RESPONSABLE legal (nombre/razón social, país, email) → lib/legal.ts · email soporte@empresai.app es PROVISIONAL hasta tener dominio.
 - ⚠️ Configurar Hotmart con garantía de 15 días ANTES de publicar la promesa (landing/legales) — Sesión 6.
 - ⚠️ Claim "no se usa para entrenar IA" (FAQ 5, privacidad, aviso-ia): confirmar términos vigentes del proveedor y anotar fuente antes de publicar (gate 61).
+- Landing (no bloqueante, revisor): sacar el <span role="status"> de EnlaceCta fuera del Link (hermano) — hacerlo junto con la próxima re-revisión de la landing (al montar capturas reales en Sesión 5) para no caducar el veredicto sin necesidad.
 - Paywall debe LEER ?plan=anual|mensual y preseleccionarlo (Sesión 4).
 - "Entrar" del header: se quitó hasta que exista /login — volver a poner loginHref en Hero (Sesión 4).
 - Carrusel y demo del hero = vistas previas del diseño → reemplazar por capturas REALES con datos semilla (Sesión 5) y sumar el recorrido del fundador como prueba social.
