@@ -135,7 +135,7 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Verificar en Sesión 6: período gratuito Hotmart para app externa · checkout real (medios de pago) · términos de datos del proveedor de IA.
 
 ## Problemas conocidos
-- landing veredicto caducado por cambios de copy/diseño pedidos por la dueña (2026-10-02): capturas nuevas landing-375-parte-0…7.png (375x7805); re-veredicto del revisor EN CURSO.
+- landing veredicto: 1ª nota tras el nuevo titular = LISTA 36/40·17/20·18/20 con defectos; corregidos (dolores en blanco bold, sin halo, gancho sin borde, subtítulo "Esta noche, en 5 minutos…", §4 "el paso de hoy") y re-capturados (375x7803); re-veredicto EN CURSO (2026-10-02).
 - Garantía: decidida INCONDICIONAL (15 días, "o no es para ti") — coherente con sellos y /reembolsos (2026-10-02).
 - FICHA-MODELO.md en BORRADOR (modelo: Coursiv). Falta 2ª señal de revenue (Meta Ads Library / TrustMRR) y el plano del flujo de entrada de Coursiv (Meta Ads Library y Mobbin requieren navegador; se intentará en Sesión 2 con el navegador integrado). No bloquea diseño/arquitectura.
 - audit-conversion.sh: se excluyó `plantillas-codigo/` en scripts/lib-conversion.mjs (mezclaba tokens de plantilla con los del proyecto → contrastes falsos). Hallazgos restantes son FALSOS POSITIVOS sobre código del kit (cuenta clases/comentarios como copy; no detecta hairline/radial armados con strings concatenados; "animate" como voseo; ✓ en un comentario). Verificado visualmente y por el revisor. Antes: escaneaba `plantillas-codigo/` (plantillas de referencia del SO, no son la app) → sus hallazgos ahí son ruido. Al construir, juzgar solo los hallazgos en los archivos de la app.

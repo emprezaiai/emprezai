@@ -127,7 +127,7 @@ export function Oferta({
             {stack.nota && (
               <>
                 {' · '}
-                <span className="font-semibold text-[var(--text-primary)]">{stack.nota}</span>
+                <span className="font-semibold whitespace-nowrap text-[var(--text-primary)]">{stack.nota}</span>
               </>
             )}
           </motion.p>

@@ -59,7 +59,7 @@ export function Problema({ titulo, preguntas, id }: ProblemaProps) {
               <span aria-hidden="true" className="relieve-noche inline-flex size-11 shrink-0 items-center justify-center rounded-[var(--radius-chip,12px)]">
                 <p.icon size={22} strokeWidth={2.2} />
               </span>
-              <p className="text-pretty text-[18px] font-semibold leading-snug text-[var(--text-primary)] [font-family:var(--font-display)]">
+              <p className="text-pretty text-[18px] font-medium leading-snug text-[var(--text-secondary)] [font-family:var(--font-display)] [&_strong]:font-bold [&_strong]:text-[var(--text-primary)]">
                 <MarkedCopy text={p.textoMarked} />
               </p>
             </motion.li>

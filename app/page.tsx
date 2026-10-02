@@ -15,6 +15,7 @@ import {
   Mail,
   MessageSquareDashed,
   MessageSquareText,
+  MonitorPlay,
   Moon,
   MousePointerClick,
   Puzzle,
@@ -64,15 +65,15 @@ export default function PaginaDeVentas() {
         appName="EMPRESAI"
         logo={<LogoEmpresai />}
         gancho={
-          <span className="inline-flex items-center gap-2 rounded-full border border-[color-mix(in_oklab,var(--gold)_30%,transparent)] bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] py-1.5 pr-4 pl-1.5 text-[13px] font-semibold text-ink-1">
-            <span className="relieve-noche flex size-7 items-center justify-center rounded-full">
+          <span className="inline-flex items-center gap-2 rounded-[var(--radius-chip)] bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] py-1.5 pr-3 pl-1.5 text-[13px] font-semibold text-ink-1">
+            <span className="relieve-noche flex size-7 items-center justify-center rounded-[var(--radius-chip)]">
               <Moon size={14} fill="currentColor" strokeWidth={0} aria-hidden="true" />
             </span>
             ¿Otra noche en blanco frente a ChatGPT?
           </span>
         }
         h1Marked="De la hoja en blanco a [acento]tu negocio armado[/acento] en 30 días"
-        subtitleMarked="[b]5 minutos por noche:[/b] la IA arma cada pieza por ti. Sin cursos."
+        subtitleMarked="[b]Esta noche, en 5 minutos,[/b] la IA arma tu primera pieza. Sin cursos."
         ctaLabel={CTA_LABEL}
         ctaHref={CTA_HREF}
         socialProof={
@@ -97,11 +98,11 @@ export default function PaginaDeVentas() {
       <Problema
         titulo="¿Te suena [acento]alguna de estas noches[/acento]?"
         preguntas={[
-          { icon: MessageSquareDashed, textoMarked: '«Abro ChatGPT y me quedo [acento]en blanco[/acento].»' },
-          { icon: Lightbulb, textoMarked: '«Tengo mil ideas, pero no sé [acento]cuál es el paso 1[/acento].»' },
-          { icon: Hourglass, textoMarked: '«Se me van [acento]mis 2 horas libres[/acento] en tutoriales.»' },
-          { icon: Users, textoMarked: '«Veo a otros facturando con IA y [acento]me siento un tonto[/acento].»' },
-          { icon: TrendingDown, textoMarked: '«Siento que [acento]la IA me deja atrás[/acento] y sigo atado al sueldo.»' },
+          { icon: MessageSquareDashed, textoMarked: '«Abro ChatGPT y me quedo [b]en blanco[/b].»' },
+          { icon: Lightbulb, textoMarked: '«Tengo mil ideas, pero no sé [b]cuál es el paso 1[/b].»' },
+          { icon: MonitorPlay, textoMarked: '«Se me van [b]mis 2 horas libres[/b] en tutoriales.»' },
+          { icon: Users, textoMarked: '«Veo a otros facturando con IA y [b]me siento un tonto[/b].»' },
+          { icon: TrendingDown, textoMarked: '«Siento que [b]la IA me deja atrás[/b] y sigo atado al sueldo.»' },
         ]}
       />
 
@@ -118,9 +119,9 @@ export default function PaginaDeVentas() {
       />
 
       <Solucion
-        tituloMarked="No necesitas otro curso: necesitas [acento]tu negocio armado[/acento]"
+        tituloMarked="No te falta información: te falta [acento]el paso de hoy[/acento]"
         mecanismo="el Método Pieza a Pieza"
-        bigIdeaMarked="No te falta información: te falta el paso de hoy. Cada día la IA arma [b]una pieza de tu negocio[/b] con las anteriores."
+        bigIdeaMarked="Cada día haces una misión de 5 minutos y la IA arma [b]una pieza de tu negocio[/b] usando las anteriores."
         pasos={[
           { icon: MessageSquareText, titulo: 'Cuenta tu idea', detalle: 'En 1 minuto, aunque sea vaga. La IA la entiende.' },
           { icon: Zap, titulo: 'Haz la misión del día', detalle: '5 minutos desde el celular: una mini lección y la IA trabaja.' },
@@ -173,7 +174,7 @@ export default function PaginaDeVentas() {
           ctaHref: CTA_MENSUAL,
           features: FEATURES_MENSUAL,
         }}
-        microcopyCompra="Pagas seguro por Hotmart · te avisamos antes del primer cobro · cancelas en 1 toque"
+        microcopyCompra="Pagas seguro por Hotmart · 15 días de garantía · te avisamos antes del primer cobro"
       />
 
       <Garantia

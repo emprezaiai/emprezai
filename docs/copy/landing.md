@@ -29,19 +29,19 @@
 ## 1. HERO (pulido 2026-10-02 a pedido de la dueña: el titular anterior no nombraba el dolor urgente ni dibujaba una escena)
 - gancho (escena del dolor #1, MOMENTO DEL DÍA — frena el scroll): `¿Otra noche en blanco frente a ChatGPT?` con ficha luna
 - h1: `De la hoja en blanco a [acento]tu negocio armado[/acento] en 30 días` (11 pal. contando "de/la") — imagen antes→después en una línea: dolor #1 (hoja en blanco) → deseo #2 (empresa armada en 30 días). 4 U's: Útil 3 · Urgente 2 (el gancho) · Ultra-específico 3 · Único 2 = 10/12
-- subtítulo: `[b]5 minutos por noche:[/b] la IA arma cada pieza por ti. Sin cursos.` (13) — deseo #1 + mecanismo + objeción "otro curso"
+- subtítulo: `[b]Esta noche, en 5 minutos,[/b] la IA arma tu primera pieza. Sin cursos.` (12) — recupera la victoria concreta de HOY (el H1 da el destino a 30 días)
 - titular anterior (descartado): `Hoy, en 5 minutos, la IA arma tu primera oferta` — "oferta" es jerga de marketer; no tocaba el dolor ni el deseo grande
 - CTA: `Armar mi primera pieza gratis` → /onboarding
 - franja día-1: `7 días gratis · 15 días de garantía · cancelas en 1 toque` (jerarquía día-1: garantía; SIN contador)
 - visual: mini-demo honesto de la misión (nivel 2 de fidelidad del 19) hasta tener captura real
 
-## 2. PROBLEMA (dolores en la VOZ LITERAL de Carlos, ficha §Dolores — rediseño 2026-10-02)
+## 2. PROBLEMA (dolores en la VOZ LITERAL de Carlos, ficha §Dolores — rediseño 2026-10-02; frase clave en BLANCO bold — el dorado queda para la acción)
 - título: `¿Te suena [acento]alguna de estas noches[/acento]?`
-- `«Abro ChatGPT y me quedo [acento]en blanco[/acento].»` — dolor #1
-- `«Tengo mil ideas, pero no sé [acento]cuál es el paso 1[/acento].»` — identidad
-- `«Se me van [acento]mis 2 horas libres[/acento] en tutoriales.»` — dolor #2
-- `«Veo a otros facturando con IA y [acento]me siento un tonto[/acento].»` — dolor #4 (disparador de compra)
-- `«Siento que [acento]la IA me deja atrás[/acento] y sigo atado al sueldo.»` — dolor #5 (identidad)
+- `«Abro ChatGPT y me quedo [b]en blanco[/b].»` — dolor #1
+- `«Tengo mil ideas, pero no sé [b]cuál es el paso 1[/b].»` — identidad
+- `«Se me van [b]mis 2 horas libres[/b] en tutoriales.»` — dolor #2
+- `«Veo a otros facturando con IA y [b]me siento un tonto[/b].»` — dolor #4 (disparador de compra)
+- `«Siento que [b]la IA me deja atrás[/b] y sigo atado al sueldo.»` — dolor #5 (identidad)
 
 ## 3. AGITACIÓN (costo de la inacción de la ficha, en formato ESCANEABLE — elevación 2026-09-30)
 - frase puente (la escena ya vive en el gancho del hero y en §2): `Y cada noche así es [b]tiempo que no vuelve[/b]:`
@@ -52,9 +52,9 @@
 - remate: `Y otro curso no lo arregla: [b]más información no es más avance[/b].`
 
 ## 4. SOLUCIÓN (mecanismo bautizado — Constitución 4b)
-- título: `No necesitas otro curso: necesitas [acento]tu negocio armado[/acento]` (8)
+- título: `No te falta información: te falta [acento]el paso de hoy[/acento]` (8) — el acento del H1 ya es "tu negocio armado"; aquí se nombra la causa (Big Idea)
 - mecanismo: `el Método Pieza a Pieza`
-- big idea: `No te falta información: te falta el paso de hoy. Cada día la IA arma [b]una pieza de tu negocio[/b] con las anteriores.`
+- big idea: `Cada día haces una misión de 5 minutos y la IA arma [b]una pieza de tu negocio[/b] usando las anteriores.`
 - pasos: `Cuenta tu idea` / `En 1 minuto, aunque sea vaga. La IA la entiende.` · `Haz la misión del día` / `5 minutos desde el celular: una mini lección y la IA trabaja.` · `Suma una pieza` / `Tu oferta, tu nombre, tus textos: todo queda en Mi Empresa.`
 - antes: `Hoja en blanco, 40 prompts guardados y ningún paso claro.` · después (día 30): `Oferta, nombre, precio y textos de venta listos para lanzar.`
 
