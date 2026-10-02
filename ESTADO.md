@@ -63,7 +63,7 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Modelo: 2 — onboarding-first ANÓNIMO: / → /onboarding (idea en 3-4 toques) → primera pieza generada (aha) → /paywall → checkout Hotmart → /login (magic link+OTP) → /app
   Justificación: freemium (A) regalaría IA con costo; hard paywall pierde la demo que responde la objeción "¿otro curso más?"; el modelo (Coursiv) usa quiz→paywall. Tie-breaker: nicho manda cobro, el hábito lo sostiene el loop (24).
 - Trial: 7 días gratis (= Sprint 1 completo; aha inmediato pero el valor se acumula). Usuario había propuesto 3 → se sube porque 3 días no completan la semana 1 y trials más largos convierten más (RevenueCat 2026 vía 02C). ⚠️ Verificar que el "período gratuito" de Hotmart aplica a app externa (FICHA-MERCADO §4); plan B: sin trial, pieza gratis + garantía 15 días.
-- Garantía: 15 días (> trial 7 ✓). Copy sin fecha de inicio.
+- Garantía: 15 días desde el primer pago (texto de la dueña 2026-10-02).
 - Pricing: US$9.99/mes (el del usuario, pasa suelo 1) | US$79.99/año mostrado como $6.67/mes (usuario había propuesto 59.99 → PIERDE margen con IA; se sube)
 - Cupo por plan (fórmula 02C): 40 piezas/mes = 30 misiones + 10 "rehacer" (peor caso cubierto)
 - Confianza (queja #1 del modelo): aviso por email 2 días antes de cada cobro + cancelar desde la app en 1 toque.
@@ -123,7 +123,7 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 
 ## Pendientes / ⚠️
 - Landing, retoques no bloqueantes (hacer en la re-revisión de Sesión 5 con capturas reales): ancla de la oferta sin "·" colgando ("Mes a mes: $120/año · Anual: $79.99") · quitar "cancelas en 1 toque" del microcopy bajo planes (aparece 3 veces) · escena/ml-1 ya hechos.
-- ⚠️ Garantía: definir DESDE CUÁNDO cuentan los 15 días (¿desde el primer cobro, tras los 7 de prueba?) según la configuración real de Hotmart y usar el mismo texto en condición, microcopy y /reembolsos (Sesión 6, gate 61).
+- (hecho 2026-10-02) Garantía definida por la dueña: 15 días desde el PRIMER PAGO, devolución del 100% en 1 clic vía Hotmart, sin preguntas — aplicada en landing, microcopy y /reembolsos. ⚠️ Configurar Hotmart con garantía de 15 días (Sesión 6).
 - ⚠️ Garantía: la condición ("si la IA no te entrega tu oferta…") contradice el sello "Sin preguntas" — decidir incondicional vs condicional y alinear sellos + /reembolsos (gate 61).
 - (hecho 2026-09-30) Responsable legal: persona natural (sin empresa registrada), Toronto, Canadá → PIPEDA + leyes LATAM en privacidad. ⚠️ El email de soporte es PERSONAL y queda público en el footer y los legales: reemplazar por soporte@<dominio> al comprar el dominio (Sesión 6). Recomendado confirmar impuestos con un contador en Canadá.
 - ⚠️ Configurar Hotmart con garantía de 15 días ANTES de publicar la promesa (landing/legales) — Sesión 6.
@@ -136,6 +136,7 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Verificar en Sesión 6: período gratuito Hotmart para app externa · checkout real (medios de pago) · términos de datos del proveedor de IA.
 
 ## Problemas conocidos
+- landing veredicto: re-confirmación EN CURSO tras aplicar el texto de garantía de la dueña (2026-10-02, capturas 375x7854).
 - Garantía: decidida INCONDICIONAL (15 días, "o no es para ti") — coherente con sellos y /reembolsos (2026-10-02).
 - FICHA-MODELO.md en BORRADOR (modelo: Coursiv). Falta 2ª señal de revenue (Meta Ads Library / TrustMRR) y el plano del flujo de entrada de Coursiv (Meta Ads Library y Mobbin requieren navegador; se intentará en Sesión 2 con el navegador integrado). No bloquea diseño/arquitectura.
 - audit-conversion.sh: se excluyó `plantillas-codigo/` en scripts/lib-conversion.mjs (mezclaba tokens de plantilla con los del proyecto → contrastes falsos). Hallazgos restantes son FALSOS POSITIVOS sobre código del kit (cuenta clases/comentarios como copy; no detecta hairline/radial armados con strings concatenados; "animate" como voseo; ✓ en un comentario). Verificado visualmente y por el revisor. Antes: escaneaba `plantillas-codigo/` (plantillas de referencia del SO, no son la app) → sus hallazgos ahí son ruido. Al construir, juzgar solo los hallazgos en los archivos de la app.

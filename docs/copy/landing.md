@@ -75,9 +75,9 @@
 - mensual: $9.99/mes · `menos de $0.34 al día`
 
 ## 7. GARANTÍA
-- sellos: `Dinero de vuelta` · `Solo un correo` · `Sin preguntas` ("15 días" vive solo en la condición)
+- sellos: `100% de vuelta` · `Devolución en 1 clic` · `Sin preguntas`
 - nombre: `La Garantía de la Primera Oferta` (título; en medio de frase va en minúscula)
-- condición (INCONDICIONAL, coherente con "Sin preguntas" y /reembolsos — decidido 2026-09-30): `Si en 15 días no tienes [b]tu oferta lista[/b] o no es para ti, te devolvemos todo.`
+- condición (TEXTO DE LA DUEÑA 2026-10-02, cuenta desde el PRIMER PAGO — tras los 7 días gratis): `[b]15 días desde tu primer pago.[/b] Si sientes que la app no es para ti, pides la devolución en 1 clic y Hotmart te regresa el 100%.`
 - piso legal: (quitado a pedido de la dueña 2026-10-02) (⚠️ configurar Hotmart a 15 días en Sesión 6 ANTES de publicar)
 
 ## 8. FAQ (objeciones de la ficha, en orden de fuerza)

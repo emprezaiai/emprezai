@@ -12,7 +12,6 @@ import {
   Hourglass,
   Lightbulb,
   Lock,
-  Mail,
   MessageSquareDashed,
   MessageSquareText,
   MonitorPlay,
@@ -174,15 +173,15 @@ export default function PaginaDeVentas() {
           ctaHref: CTA_MENSUAL,
           features: FEATURES_MENSUAL,
         }}
-        microcopyCompra="Pagas seguro por Hotmart · 15 días de garantía · te avisamos antes del primer cobro"
+        microcopyCompra="Pagas seguro por Hotmart · 15 días de garantía desde tu primer pago · te avisamos antes de cobrar"
       />
 
       <Garantia
         nombre="La Garantía de la Primera Oferta"
-        condicionMarked="Si en 15 días no tienes [b]tu oferta lista[/b] o no es para ti, te devolvemos todo."
+        condicionMarked="[b]15 días desde tu primer pago.[/b] Si sientes que la app no es para ti, pides la devolución en 1 clic y Hotmart te regresa el 100%."
         sellos={[
-          { icon: Wallet, texto: 'Dinero de vuelta' },
-          { icon: Mail, texto: 'Solo un correo' },
+          { icon: Wallet, texto: '100% de vuelta' },
+          { icon: MousePointerClick, texto: 'Devolución en 1 clic' },
           { icon: RotateCcw, texto: 'Sin preguntas' },
         ]}
         cta={{ label: CTA_LABEL, href: CTA_HREF }}

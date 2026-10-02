@@ -8,7 +8,7 @@ export default function Reembolsos() {
   return (
     <PaginaLegal
       titulo="Política de Reembolsos"
-      resumen="La Garantía de la Primera Oferta: si EMPRESAI no te sirve, te devolvemos tu dinero sin preguntas."
+      resumen="La Garantía de la Primera Oferta: 15 días desde tu primer pago para pedir el 100% de tu dinero, sin preguntas."
     >
       <section>
         <h2>1. Prueba gratis</h2>
@@ -21,16 +21,17 @@ export default function Reembolsos() {
       <section>
         <h2>2. La Garantía de la Primera Oferta ({PRECIOS.diasGarantia} días)</h2>
         <p>
-          Tienes {PRECIOS.diasGarantia} días de garantía sobre tu primer pago. Si la IA no te entrega tu oferta lista para
-          vender, o simplemente la app no es para ti, escribes un correo y te devolvemos todo. Sin preguntas.
+          Tienes {PRECIOS.diasGarantia} días de garantía de devolución a partir de tu primer pago. Si durante los primeros{' '}
+          {PRECIOS.diasGarantia} días pagados sientes que la app no es para ti, pides la devolución en 1 clic y Hotmart te
+          regresa el 100% de tu dinero, sin preguntas.
         </p>
       </section>
 
       <section>
         <h2>3. Cómo pedir tu reembolso</h2>
         <ul>
-          <li>Escríbenos a {RESPONSABLE.emailContacto} con el email de tu compra, o</li>
-          <li>Solicítalo directamente desde tu cuenta de Hotmart, en la sección de compras.</li>
+          <li>Desde tu cuenta de Hotmart, en «Mis compras», con el botón de solicitar reembolso, o</li>
+          <li>Escribiéndonos a {RESPONSABLE.emailContacto} con el email de tu compra y lo gestionamos por ti.</li>
         </ul>
         <p className="mt-2">El reembolso lo procesa Hotmart por el mismo medio con el que pagaste.</p>
       </section>
