@@ -118,7 +118,21 @@ export function Oferta({
 
         {/* Stack de valor Hormozi — ARRIBA de los planes; el tachado es del TOTAL
             del stack (nunca un precio mensual falso inflado — 50 C5) */}
-        {stack && (
+        {stack && stack.lineas.length === 1 && (
+          <motion.p
+            variants={item}
+            className="tarjeta-relieve mx-auto mt-8 max-w-[560px] rounded-[var(--radius-card)] px-5 py-4 text-center text-[16px] text-[var(--text-secondary)]"
+          >
+            {stack.lineas[0]?.resultado}: <span className="tabular-nums line-through">{stack.totalTachado}</span> al año
+            {stack.nota && (
+              <>
+                {' · '}
+                <span className="font-semibold text-[var(--text-primary)]">{stack.nota}</span>
+              </>
+            )}
+          </motion.p>
+        )}
+        {stack && stack.lineas.length > 1 && (
           <motion.div
             variants={item}
             className="tarjeta-relieve mx-auto mt-8 max-w-[560px] rounded-[var(--radius-card)] p-6"

@@ -71,7 +71,7 @@ export function Faq({ kicker = 'PREGUNTAS', titulo = 'Lo que quizá te estás pr
                   aria-expanded={estaAbierto}
                   aria-controls={panelId}
                   onClick={() => setAbierto(estaAbierto ? null : i)}
-                  className="flex min-h-14 w-full items-center justify-between gap-4 py-4 text-left [touch-action:manipulation]"
+                  className="flex min-h-14 w-full items-center justify-between gap-4 rounded-[var(--radius-card)] py-4 text-left transition-transform duration-100 active:scale-[0.99] [touch-action:manipulation]"
                 >
                   <span className="flex items-center gap-3">
                     {it.icon && <IconChip icon={it.icon} tone={estaAbierto ? 'accent' : 'muted'} size="sm" />}

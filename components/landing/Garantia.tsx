@@ -60,7 +60,7 @@ export function Garantia({ nombre, condicionMarked, pisoLegal, icon: Icono = Shi
                       key={i}
                       className="flex flex-col items-center gap-2 rounded-[var(--radius-card)] bg-[color-mix(in_oklab,var(--accent)_10%,transparent)] px-2 py-3 shadow-[inset_0_1px_0_rgb(255_255_255/0.08)]"
                     >
-                      <span className="relieve-oro flex size-7 items-center justify-center rounded-full">
+                      <span className="relieve-oro flex size-7 items-center justify-center rounded-[var(--radius-chip,12px)]">
                         <se.icon size={14} strokeWidth={2.5} aria-hidden="true" />
                       </span>
                       <span className="text-[13px] font-semibold leading-tight text-[var(--text-primary)]">{se.texto}</span>

@@ -7,7 +7,7 @@
 // (tupla en el tipo: ni 2 ni 4) + antes/después opcional. Pasos entran
 // escalonados (whileInView + stagger, reduced-motion respetado).
 
-import { motion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import { Check, Puzzle, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Accent, CtaButton, IconChip, Kicker, SectionShell, useReveal, VIEWPORT_ONCE } from './ui';
@@ -55,6 +55,7 @@ export function Solucion({
   cta,
   id,
 }: SolucionProps) {
+  const reduce = useReducedMotion();
   warnCopy('Solución → título', tituloMarked, 8);
   warnCopy('Solución → Big Idea', bigIdeaMarked, 30);
   pasos.forEach((p, i) => warnCopy(`Solución → paso ${i + 1}`, p.detalle, 14));
@@ -91,12 +92,18 @@ export function Solucion({
         {/* 3 pasos: filas apiladas en mobile, 3 columnas en desktop */}
         <ol className="relative mt-10 grid grid-cols-1 gap-8 md:grid-cols-3">
           {/* El camino: línea punteada que une los nodos, como el mapa de la Ruta */}
-          <span
-            aria-hidden="true"
-            className="absolute top-6 bottom-6 left-[21px] border-l-2 border-dashed border-[color-mix(in_oklab,var(--accent)_35%,transparent)] md:hidden"
-          />
           {pasos.map((p, i) => (
             <motion.li key={i} variants={item} className="relative flex items-start gap-4 md:flex-col">
+              {i < pasos.length - 1 && (
+                <motion.span
+                  aria-hidden="true"
+                  initial={{ scaleY: reduce ? 1 : 0 }}
+                  whileInView={{ scaleY: 1 }}
+                  viewport={{ once: true, amount: 0.6 }}
+                  transition={{ duration: reduce ? 0 : 0.6, ease: [0.16, 1, 0.3, 1] }}
+                  className="absolute top-12 -bottom-8 left-[21px] origin-top border-l-2 border-dashed border-[color-mix(in_oklab,var(--accent)_40%,transparent)] md:hidden"
+                />
+              )}
               <span aria-hidden="true" className="relative shrink-0">
                 {p.icon ? (
                   <IconChip icon={p.icon} tone={i === pasos.length - 1 ? 'verde' : 'accent'} />

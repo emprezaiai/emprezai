@@ -64,7 +64,7 @@
 
 ## 6. OFERTA (FICHA-MERCADO: $9.99/mes · $79.99/año · trial 7 días)
 - título: `Empieza gratis. Sigue por [acento]$0.22 al día[/acento]` (7)
-- stack = UNA línea de ancla (revisor 2026-09-30: el stack de 3 líneas repetía las features): `Mes a mes, un año completo te costaría` $120 · tachado $120 · nota `Con el plan anual pagas $79.99 por el año.`
+- ancla de UNA línea (sin check ni "Valor total"): `Mes a mes: ~~$120~~ al año · Con el anual: $79.99`
 - features anual: `El Método Pieza a Pieza: una misión de 5 minutos al día` · `La IA arma cada pieza con tu negocio` · `Todo guardado en Mi Empresa, listo para descargar` · `Nuevas rutas cada mes después del día 30`
 - features mensual: `Todo lo del plan anual` · `Pagas mes a mes` · `Cancelas en 1 toque, cuando quieras`
 - microcopy de compra (objeción #5 + VoC "al mes te sorprenden"): `Pagas seguro por Hotmart · te avisamos antes del primer cobro · cancelas en 1 toque`
@@ -73,10 +73,10 @@
 - mensual: $9.99/mes · `menos de $0.34 al día`
 
 ## 7. GARANTÍA
-- sellos: `15 días` · `Solo un correo` · `Sin preguntas`
+- sellos: `Dinero de vuelta` · `Solo un correo` · `Sin preguntas` ("15 días" vive solo en la condición)
 - nombre: `La Garantía de la Primera Oferta` (título; en medio de frase va en minúscula)
 - condición (INCONDICIONAL, coherente con "Sin preguntas" y /reembolsos — decidido 2026-09-30): `Si en 15 días no tienes [b]tu oferta lista[/b] o no es para ti, te devolvemos todo.`
-- piso legal: `Reembolso gestionado por Hotmart · 15 días` (⚠️ configurar Hotmart a 15 días en Sesión 6 ANTES de publicar)
+- piso legal: `Reembolso gestionado por Hotmart` (⚠️ configurar Hotmart a 15 días en Sesión 6 ANTES de publicar)
 
 ## 8. FAQ (objeciones de la ficha, en orden de fuerza)
 1. `¿No puedo encontrar estos prompts gratis en internet?` → `Los prompts sueltos no se conectan. Aquí la IA usa [b]todo lo que ya armaste[/b] para la pieza de hoy.`

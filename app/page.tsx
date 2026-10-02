@@ -75,7 +75,7 @@ export default function PaginaDeVentas() {
               { icono: MousePointerClick, texto: 'Cancelas en 1 toque' },
             ].map(({ icono: Icono, texto }) => (
               <li key={texto} className="flex flex-col items-center gap-1.5 text-center leading-tight">
-                <span className="relieve-piedra flex size-6 items-center justify-center rounded-full">
+                <span className="relieve-piedra flex size-7 items-center justify-center rounded-[var(--radius-chip)]">
                   <Icono size={13} strokeWidth={2.5} aria-hidden="true" />
                 </span>
                 {texto}
@@ -142,9 +142,9 @@ export default function PaginaDeVentas() {
         tituloMarked="Empieza gratis. Sigue por [acento]$0.22 al día[/acento]"
         trialDias={7}
         stack={{
-          lineas: [{ resultado: 'Mes a mes, un año completo te costaría', valor: '$120' }],
+          lineas: [{ resultado: 'Mes a mes', valor: '$120' }],
           totalTachado: '$120',
-          nota: 'Con el plan anual pagas $79.99 por el año.',
+          nota: 'Con el anual: $79.99',
         }}
         anual={{
           nombre: 'Anual',
@@ -171,9 +171,9 @@ export default function PaginaDeVentas() {
       <Garantia
         nombre="La Garantía de la Primera Oferta"
         condicionMarked="Si en 15 días no tienes [b]tu oferta lista[/b] o no es para ti, te devolvemos todo."
-        pisoLegal="Reembolso gestionado por Hotmart · 15 días"
+        pisoLegal="Reembolso gestionado por Hotmart"
         sellos={[
-          { icon: ShieldCheck, texto: '15 días' },
+          { icon: Wallet, texto: 'Dinero de vuelta' },
           { icon: Mail, texto: 'Solo un correo' },
           { icon: RotateCcw, texto: 'Sin preguntas' },
         ]}
