@@ -122,6 +122,7 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Borrar mis datos: endpoint que borra business_profile + pieces + progress + cuenta (promesa "Tu idea es tuya").
 
 ## Pendientes / ⚠️
+- Garantía: el NOMBRE "Garantía de la Primera Oferta" quedó de la condición vieja → la dueña elige nuevo nombre (pregunta enviada 2026-10-02). Verificar en Hotmart que la devolución sea realmente "1 clic / sin preguntas" antes de publicar (si no, "Devolución con 1 solicitud").
 - Landing, retoques no bloqueantes (hacer en la re-revisión de Sesión 5 con capturas reales): ancla de la oferta sin "·" colgando ("Mes a mes: $120/año · Anual: $79.99") · quitar "cancelas en 1 toque" del microcopy bajo planes (aparece 3 veces) · escena/ml-1 ya hechos.
 - (hecho 2026-10-02) Garantía definida por la dueña: 15 días desde el PRIMER PAGO, devolución del 100% en 1 clic vía Hotmart, sin preguntas — aplicada en landing, microcopy y /reembolsos. ⚠️ Configurar Hotmart con garantía de 15 días (Sesión 6).
 - ⚠️ Garantía: la condición ("si la IA no te entrega tu oferta…") contradice el sello "Sin preguntas" — decidir incondicional vs condicional y alinear sellos + /reembolsos (gate 61).
@@ -136,7 +137,6 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Verificar en Sesión 6: período gratuito Hotmart para app externa · checkout real (medios de pago) · términos de datos del proveedor de IA.
 
 ## Problemas conocidos
-- landing veredicto: re-confirmación EN CURSO tras aplicar el texto de garantía de la dueña (2026-10-02, capturas 375x7854).
 - Garantía: decidida INCONDICIONAL (15 días, "o no es para ti") — coherente con sellos y /reembolsos (2026-10-02).
 - FICHA-MODELO.md en BORRADOR (modelo: Coursiv). Falta 2ª señal de revenue (Meta Ads Library / TrustMRR) y el plano del flujo de entrada de Coursiv (Meta Ads Library y Mobbin requieren navegador; se intentará en Sesión 2 con el navegador integrado). No bloquea diseño/arquitectura.
 - audit-conversion.sh: se excluyó `plantillas-codigo/` en scripts/lib-conversion.mjs (mezclaba tokens de plantilla con los del proyecto → contrastes falsos). Hallazgos restantes son FALSOS POSITIVOS sobre código del kit (cuenta clases/comentarios como copy; no detecta hairline/radial armados con strings concatenados; "animate" como voseo; ✓ en un comentario). Verificado visualmente y por el revisor. Antes: escaneaba `plantillas-codigo/` (plantillas de referencia del SO, no son la app) → sus hallazgos ahí son ruido. Al construir, juzgar solo los hallazgos en los archivos de la app.
