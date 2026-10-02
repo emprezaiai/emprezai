@@ -50,7 +50,7 @@
   --accent-on-inverse: #ffc23d;
   --radius-chip: 12px;          /* chips de ícono y de número (ficha: 10-14px) */
   --cta-relieve: 0 4px 0 #b8860f; /* relieve inferior tipo juego del CTA dorado */
-  --hero-mesh-1: 20%;           /* radial dorado arriba-derecha */
+  --hero-mesh-1: 26%;           /* radial dorado arriba-derecha */
   --hero-mesh-2: 8%;            /* radial verde abajo-izquierda */
 
   /* ── DERIVADOS (no se tocan: se recalculan solos desde --accent) ── */

@@ -5,7 +5,6 @@
 // Modelo 2 anónimo (ESTADO.md): todos los CTA llevan a /onboarding; el pago se cierra en la pantalla de planes.
 
 import {
-  BookmarkX,
   BookX,
   CalendarX2,
   Coffee,
@@ -16,6 +15,7 @@ import {
   Mail,
   MessageSquareDashed,
   MessageSquareText,
+  Moon,
   MousePointerClick,
   Puzzle,
   RotateCcw,
@@ -63,8 +63,16 @@ export default function PaginaDeVentas() {
       <Hero
         appName="EMPRESAI"
         logo={<LogoEmpresai />}
-        h1Marked="Hoy, en [acento]5 minutos[/acento], la IA arma tu primera oferta"
-        subtitleMarked="Tu negocio en [b]30 días[/b], pieza a pieza. Sin cursos ni hoja en blanco."
+        gancho={
+          <span className="inline-flex items-center gap-2 rounded-full border border-[color-mix(in_oklab,var(--gold)_30%,transparent)] bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] py-1.5 pr-4 pl-1.5 text-[13px] font-semibold text-ink-1">
+            <span className="relieve-noche flex size-7 items-center justify-center rounded-full">
+              <Moon size={14} fill="currentColor" strokeWidth={0} aria-hidden="true" />
+            </span>
+            ¿Otra noche en blanco frente a ChatGPT?
+          </span>
+        }
+        h1Marked="De la hoja en blanco a [acento]tu negocio armado[/acento] en 30 días"
+        subtitleMarked="[b]5 minutos por noche:[/b] la IA arma cada pieza por ti. Sin cursos."
         ctaLabel={CTA_LABEL}
         ctaHref={CTA_HREF}
         socialProof={
@@ -87,19 +95,19 @@ export default function PaginaDeVentas() {
       />
 
       <Problema
-        titulo="¿Te suena?"
+        titulo="¿Te suena [acento]alguna de estas noches[/acento]?"
         preguntas={[
-          { icon: MessageSquareDashed, textoMarked: '¿Abres ChatGPT y te quedas [b]en blanco[/b] sin saber qué escribir?' },
-          { icon: Lightbulb, textoMarked: '¿Tienes mil ideas, pero no sabes [b]cuál es el paso 1[/b]?' },
-          { icon: Users, textoMarked: '¿Ves a otros lanzando negocios con IA y [b]tú sigues sin empezar[/b]?' },
-          { icon: BookmarkX, textoMarked: '¿Guardaste cientos de prompts de TikTok que nunca usaste?' },
-          { icon: TrendingDown, textoMarked: '¿Sientes que la IA avanza y [b]te estás quedando atrás[/b]?' },
+          { icon: MessageSquareDashed, textoMarked: '«Abro ChatGPT y me quedo [acento]en blanco[/acento].»' },
+          { icon: Lightbulb, textoMarked: '«Tengo mil ideas, pero no sé [acento]cuál es el paso 1[/acento].»' },
+          { icon: Hourglass, textoMarked: '«Se me van [acento]mis 2 horas libres[/acento] en tutoriales.»' },
+          { icon: Users, textoMarked: '«Veo a otros facturando con IA y [acento]me siento un tonto[/acento].»' },
+          { icon: TrendingDown, textoMarked: '«Siento que [acento]la IA me deja atrás[/acento] y sigo atado al sueldo.»' },
         ]}
       />
 
       <Agitacion
         frases={[
-          'A las 7 de la noche abres ChatGPT, te quedas en blanco y cierras la laptop.',
+          'Y cada noche así es [b]tiempo que no vuelve[/b]:',
           'Y otro curso no lo arregla: [b]más información no es más avance[/b].',
         ]}
         cifras={[
@@ -171,7 +179,6 @@ export default function PaginaDeVentas() {
       <Garantia
         nombre="La Garantía de la Primera Oferta"
         condicionMarked="Si en 15 días no tienes [b]tu oferta lista[/b] o no es para ti, te devolvemos todo."
-        pisoLegal="Reembolso gestionado por Hotmart"
         sellos={[
           { icon: Wallet, texto: 'Dinero de vuelta' },
           { icon: Mail, texto: 'Solo un correo' },

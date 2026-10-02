@@ -26,23 +26,25 @@
   ("pieza a pieza", 30 días) y el anti-curso. Traza: deseo #1 ("hoy haz esto en 5 minutos") + deseo #2 ("oferta lista hoy").
 - La promesa de 30 días (PDF del usuario) vive en el subtítulo y en la Solución.
 
-## 1. HERO
-- h1: `Hoy, en [acento]5 minutos[/acento], la IA arma tu primera oferta` (9 pal.; espacio duro entre "5" y "minutos")
-- subtítulo: `Tu negocio en [b]30 días[/b], pieza a pieza. Sin cursos ni hoja en blanco.` (14 pal.) — dolor #1 + objeción "otro curso"
+## 1. HERO (pulido 2026-10-02 a pedido de la dueña: el titular anterior no nombraba el dolor urgente ni dibujaba una escena)
+- gancho (escena del dolor #1, MOMENTO DEL DÍA — frena el scroll): `¿Otra noche en blanco frente a ChatGPT?` con ficha luna
+- h1: `De la hoja en blanco a [acento]tu negocio armado[/acento] en 30 días` (11 pal. contando "de/la") — imagen antes→después en una línea: dolor #1 (hoja en blanco) → deseo #2 (empresa armada en 30 días). 4 U's: Útil 3 · Urgente 2 (el gancho) · Ultra-específico 3 · Único 2 = 10/12
+- subtítulo: `[b]5 minutos por noche:[/b] la IA arma cada pieza por ti. Sin cursos.` (13) — deseo #1 + mecanismo + objeción "otro curso"
+- titular anterior (descartado): `Hoy, en 5 minutos, la IA arma tu primera oferta` — "oferta" es jerga de marketer; no tocaba el dolor ni el deseo grande
 - CTA: `Armar mi primera pieza gratis` → /onboarding
 - franja día-1: `7 días gratis · 15 días de garantía · cancelas en 1 toque` (jerarquía día-1: garantía; SIN contador)
 - visual: mini-demo honesto de la misión (nivel 2 de fidelidad del 19) hasta tener captura real
 
-## 2. PROBLEMA (dolores literales de la ficha)
-- título: `¿Te suena?`
-- `¿Abres ChatGPT y te quedas [b]en blanco[/b] sin saber qué escribir?` — dolor #1
-- `¿Tienes mil ideas, pero no sabes [b]cuál es el paso 1[/b]?` — identidad
-- `¿Ves a otros lanzando negocios con IA y [b]tú sigues sin empezar[/b]?` — dolor #4 (disparador de compra; el dolor #2 ya vive en la agitación)
-- `¿Guardaste cientos de prompts de TikTok que nunca usaste?` — "ya intentó"
-- `¿Sientes que la IA avanza y [b]te estás quedando atrás[/b]?` — dolor #5 (identidad)
+## 2. PROBLEMA (dolores en la VOZ LITERAL de Carlos, ficha §Dolores — rediseño 2026-10-02)
+- título: `¿Te suena [acento]alguna de estas noches[/acento]?`
+- `«Abro ChatGPT y me quedo [acento]en blanco[/acento].»` — dolor #1
+- `«Tengo mil ideas, pero no sé [acento]cuál es el paso 1[/acento].»` — identidad
+- `«Se me van [acento]mis 2 horas libres[/acento] en tutoriales.»` — dolor #2
+- `«Veo a otros facturando con IA y [acento]me siento un tonto[/acento].»` — dolor #4 (disparador de compra)
+- `«Siento que [acento]la IA me deja atrás[/acento] y sigo atado al sueldo.»` — dolor #5 (identidad)
 
 ## 3. AGITACIÓN (costo de la inacción de la ficha, en formato ESCANEABLE — elevación 2026-09-30)
-- frase 1 (escena, MOMENTO DEL DÍA): `A las 7 de la noche abres ChatGPT, te quedas en blanco y cierras la laptop.`
+- frase puente (la escena ya vive en el gancho del hero y en §2): `Y cada noche así es [b]tiempo que no vuelve[/b]:`
 - cifras en tarjetas en relieve (cuentan al entrar en pantalla, número en dorado):
   - `40 h` · `al mes, sin avanzar` (2 h/noche del avatar × ~20 noches)
   - `$300` · `en otro curso a medias` (lo que ya pagó, ficha "Ya intentó")
@@ -76,7 +78,7 @@
 - sellos: `Dinero de vuelta` · `Solo un correo` · `Sin preguntas` ("15 días" vive solo en la condición)
 - nombre: `La Garantía de la Primera Oferta` (título; en medio de frase va en minúscula)
 - condición (INCONDICIONAL, coherente con "Sin preguntas" y /reembolsos — decidido 2026-09-30): `Si en 15 días no tienes [b]tu oferta lista[/b] o no es para ti, te devolvemos todo.`
-- piso legal: `Reembolso gestionado por Hotmart` (⚠️ configurar Hotmart a 15 días en Sesión 6 ANTES de publicar)
+- piso legal: (quitado a pedido de la dueña 2026-10-02) (⚠️ configurar Hotmart a 15 días en Sesión 6 ANTES de publicar)
 
 ## 8. FAQ (objeciones de la ficha, en orden de fuerza)
 1. `¿No puedo encontrar estos prompts gratis en internet?` → `Los prompts sueltos no se conectan. Aquí la IA usa [b]todo lo que ya armaste[/b] para la pieza de hoy.`

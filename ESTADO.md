@@ -1,7 +1,7 @@
 # ESTADO — EMPRESAI
 Última actualización: 2026-09-29 | Sesión actual: 1 (cliente, precio y estrategia)
 
-⏸️ CHECKPOINT — Última acción completada (2026-10-02): landing elevada (relieve + escaneabilidad) APROBADA 37/40·18/20·17/20 / Siguiente acción exacta: OK de la dueña → Sesión 4 (/onboarding con ?plan=, primera pieza, /paywall, /login)
+⏸️ CHECKPOINT — Última acción completada (2026-10-02): a pedido de la dueña se re-escribió el HERO (gancho "¿Otra noche en blanco frente a ChatGPT?" + H1 "De la hoja en blanco a tu negocio armado en 30 días" + sub "5 minutos por noche…"), se rediseñó §2 con dolores en voz literal y fichas "noche", y se quitó el piso legal de Hotmart en la garantía / Siguiente acción exacta: re-veredicto del revisor → OK de la dueña → Sesión 4
 
 ## Qué es esta app (3 líneas máximo)
 App web tipo Duolingo que guía a emprendedores principiantes LATAM a lanzar su negocio/producto digital con IA en 30 días, 5 min/día.
@@ -135,6 +135,7 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Verificar en Sesión 6: período gratuito Hotmart para app externa · checkout real (medios de pago) · términos de datos del proveedor de IA.
 
 ## Problemas conocidos
+- landing veredicto caducado por cambios de copy/diseño pedidos por la dueña (2026-10-02): capturas nuevas landing-375-parte-0…7.png (375x7805); re-veredicto del revisor EN CURSO.
 - Garantía: decidida INCONDICIONAL (15 días, "o no es para ti") — coherente con sellos y /reembolsos (2026-10-02).
 - FICHA-MODELO.md en BORRADOR (modelo: Coursiv). Falta 2ª señal de revenue (Meta Ads Library / TrustMRR) y el plano del flujo de entrada de Coursiv (Meta Ads Library y Mobbin requieren navegador; se intentará en Sesión 2 con el navegador integrado). No bloquea diseño/arquitectura.
 - audit-conversion.sh: se excluyó `plantillas-codigo/` en scripts/lib-conversion.mjs (mezclaba tokens de plantilla con los del proyecto → contrastes falsos). Hallazgos restantes son FALSOS POSITIVOS sobre código del kit (cuenta clases/comentarios como copy; no detecta hairline/radial armados con strings concatenados; "animate" como voseo; ✓ en un comentario). Verificado visualmente y por el revisor. Antes: escaneaba `plantillas-codigo/` (plantillas de referencia del SO, no son la app) → sus hallazgos ahí son ruido. Al construir, juzgar solo los hallazgos en los archivos de la app.

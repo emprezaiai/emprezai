@@ -19,6 +19,8 @@ export interface HeroProps {
   logo?: ReactNode;
   loginHref?: string;
   loginLabel?: string;
+  /** Frase-gancho sobre el titular (la escena del dolor que frena el scroll). */
+  gancho?: ReactNode;
   /** Copy MARCADO de docs/copy/landing.md — máx 8-10 palabras, 1-3 en [acento]. */
   h1Marked: string;
   /** Copy MARCADO — máx 14 palabras (52): el kit trunca y avisa si excede. */
@@ -41,6 +43,7 @@ export function Hero({
   logo,
   loginHref,
   loginLabel = 'Entrar',
+  gancho,
   h1Marked,
   subtitleMarked,
   ctaLabel,
@@ -74,6 +77,7 @@ export function Hero({
         }}
       />
 
+      <div aria-hidden="true" className="fondo-puntos pointer-events-none absolute inset-0 -z-10" />
       <div className="mx-auto w-full max-w-[1140px] px-5">
         {/* Header 64px: marca a la izquierda, SOLO "Entrar" terciario a la derecha (19) */}
         <header className="flex h-16 items-center justify-between">
@@ -95,6 +99,11 @@ export function Hero({
           animate="visible"
           className="mx-auto flex max-w-[820px] flex-col items-center pt-10 text-center md:pt-16"
         >
+          {gancho && (
+            <motion.div initial={false} className="mb-5">
+              {gancho}
+            </motion.div>
+          )}
           {/* H1: bold completo por defecto; el acento lo pone el [acento] del copy */}
           <motion.h1 initial={false} className="text-balance text-[40px] font-bold leading-[1.08] tracking-[-0.01em] text-[var(--text-primary)] [font-family:var(--font-display)] md:text-[60px]">
             <MarkedCopy text={h1Marked} />

@@ -8,7 +8,7 @@
 
 import { motion } from 'motion/react';
 import type { LucideIcon } from 'lucide-react';
-import { IconChip, Kicker, SectionShell, useReveal, VIEWPORT_ONCE } from './ui';
+import { Kicker, SectionShell, useReveal, VIEWPORT_ONCE } from './ui';
 import { MarkedCopy, warnCopy, warnRango } from './MarkedCopy';
 
 export interface PreguntaProblema {
@@ -46,18 +46,20 @@ export function Problema({ titulo, preguntas, id }: ProblemaProps) {
             variants={item}
             className="mb-8 text-balance text-[30px] font-bold leading-[1.15] text-[var(--text-primary)] [font-family:var(--font-display)] md:text-[40px]"
           >
-            {titulo}
+            <MarkedCopy text={titulo} />
           </motion.h2>
         )}
-        <ul className="tarjeta-relieve-base flex flex-col rounded-[var(--radius-card)] px-4">
+        <ul className="tarjeta-dolor flex flex-col rounded-[var(--radius-card)] px-4">
           {preguntas.map((p, i) => (
             <motion.li
               key={i}
               variants={item}
-              className="flex items-start gap-4 border-b border-[color-mix(in_oklab,var(--text-tertiary)_18%,transparent)] py-4 last:border-b-0"
+              className="flex items-center gap-4 border-b border-[color-mix(in_oklab,var(--accent)_12%,transparent)] py-5 last:border-b-0"
             >
-              <IconChip icon={p.icon} tone="muted" size="sm" />
-              <p className="pt-1 text-[16px] font-medium leading-snug text-[var(--text-primary)]">
+              <span aria-hidden="true" className="relieve-noche inline-flex size-11 shrink-0 items-center justify-center rounded-[var(--radius-chip,12px)]">
+                <p.icon size={22} strokeWidth={2.2} />
+              </span>
+              <p className="text-pretty text-[18px] font-semibold leading-snug text-[var(--text-primary)] [font-family:var(--font-display)]">
                 <MarkedCopy text={p.textoMarked} />
               </p>
             </motion.li>
