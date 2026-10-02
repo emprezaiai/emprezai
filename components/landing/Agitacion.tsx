@@ -57,7 +57,7 @@ function CifraQueCuenta({ valor, prefijo = '', sufijo = '' }: { valor: number; p
     <span ref={ref} className="tabular-nums">
       {prefijo}
       <span ref={numeroRef}>{valor}</span>
-      {sufijo}
+      {sufijo && <span className="ml-0.5 text-[16px]">{sufijo}</span>}
     </span>
   );
 }

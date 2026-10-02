@@ -8,7 +8,7 @@
 
 import { motion } from 'motion/react';
 import type { LucideIcon } from 'lucide-react';
-import { IconChip, SectionShell, useReveal, VIEWPORT_ONCE } from './ui';
+import { IconChip, Kicker, SectionShell, useReveal, VIEWPORT_ONCE } from './ui';
 import { MarkedCopy, warnCopy, warnRango } from './MarkedCopy';
 
 export interface PreguntaProblema {
@@ -40,6 +40,7 @@ export function Problema({ titulo, preguntas, id }: ProblemaProps) {
         viewport={VIEWPORT_ONCE}
         className="mx-auto max-w-[620px]"
       >
+        {titulo && <Kicker>EL PROBLEMA</Kicker>}
         {titulo && (
           <motion.h2
             variants={item}

@@ -59,7 +59,7 @@ export function DemoMisionHero() {
       }}
     >
       <p className="mb-4 text-center text-xs font-semibold uppercase tracking-[0.08em] text-ink-3">
-        Ejemplo real de una misión
+        Ejemplo de una misión
       </p>
 
       <div className="mx-auto max-w-sm rounded-[var(--radius-card)] border border-[var(--line)] bg-raised p-4 text-left shadow-[0_24px_48px_-24px_rgb(0_0_0/0.8)]">

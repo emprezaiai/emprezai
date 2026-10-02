@@ -1,7 +1,7 @@
 # ESTADO — EMPRESAI
 Última actualización: 2026-09-29 | Sesión actual: 1 (cliente, precio y estrategia)
 
-⏸️ CHECKPOINT — Última acción completada: landing elevada APROBADA por revisor (38/40·19/20·17/20) / Siguiente acción exacta: (1) resolver contradicción de la garantía (condición vs sello "Sin preguntas") eligiendo incondicional o cambiando sello a "Vía Hotmart" + alinear /reembolsos; (2) chips 3 en una fila (hero y sellos); (3) etiquetas de cifras ≤2 líneas y "meses" junto al 12 → re-render + revisor; luego OK de la dueña → Sesión 4
+⏸️ CHECKPOINT — Última acción completada (2026-10-02): revisor NUEVO (contexto limpio) dio NO LISTA 33/40·16/20·16/20; se corrigieron sus 5 defectos (oferta sin repetición, chip del mecanismo como etiqueta, canto 2px, CTA final con ficha, cabeceras a la izquierda + pasos como camino de nodos, rótulo del demo) / Siguiente acción exacta: re-veredicto del revisor a74eb878617619be0 → si LISTA, OK de la dueña → Sesión 4
 
 ## Qué es esta app (3 líneas máximo)
 App web tipo Duolingo que guía a emprendedores principiantes LATAM a lanzar su negocio/producto digital con IA en 30 días, 5 min/día.
@@ -102,7 +102,7 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Eventos: lib/eventos.ts (landing_vista con atribución UTM/sck y marca ?qa=1), en cola local hasta conectar analítica
 
 ## Puertas de etapa
-- Landing: APROBADA por revisor 2026-09-30 tras ELEVACIÓN (relieve + escaneabilidad) — usabilidad 38/40 · craft 19/20 · copy 17/20 · "no plano / no repetitivo" ✅ · tabla de escaneabilidad en docs/revisiones/landing-veredicto.md · capturas landing-375-parte-0…7.png · aprobación del usuario: PENDIENTE
+- Landing: EN RE-REVISIÓN (2026-10-02) — última nota del revisor nuevo: NO LISTA 33/40 · 16/20 · 16/20; defectos corregidos, esperando re-veredicto. Antes: 38/40·19/20·17/20 con el revisor anterior (contexto saturado, se trabó)
 
 ## Decisiones técnicas (NO re-discutir sin pedirlo el usuario)
 - Framework: Next.js App Router (landing con SEO + rutas de servidor para la IA) — 2026-09-29
@@ -134,5 +134,7 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Verificar en Sesión 6: período gratuito Hotmart para app externa · checkout real (medios de pago) · términos de datos del proveedor de IA.
 
 ## Problemas conocidos
+- landing veredicto NO LISTA (revisor nuevo 2026-10-02): sus 5 defectos ya corregidos y re-capturados (landing-375-parte-0…7.png, 375x7789); re-veredicto EN CURSO.
+- Garantía: decidida INCONDICIONAL (15 días, "o no es para ti") — coherente con sellos y /reembolsos (2026-10-02).
 - FICHA-MODELO.md en BORRADOR (modelo: Coursiv). Falta 2ª señal de revenue (Meta Ads Library / TrustMRR) y el plano del flujo de entrada de Coursiv (Meta Ads Library y Mobbin requieren navegador; se intentará en Sesión 2 con el navegador integrado). No bloquea diseño/arquitectura.
 - audit-conversion.sh: se excluyó `plantillas-codigo/` en scripts/lib-conversion.mjs (mezclaba tokens de plantilla con los del proyecto → contrastes falsos). Hallazgos restantes son FALSOS POSITIVOS sobre código del kit (cuenta clases/comentarios como copy; no detecta hairline/radial armados con strings concatenados; "animate" como voseo; ✓ en un comentario). Verificado visualmente y por el revisor. Antes: escaneaba `plantillas-codigo/` (plantillas de referencia del SO, no son la app) → sus hallazgos ahí son ruido. Al construir, juzgar solo los hallazgos en los archivos de la app.

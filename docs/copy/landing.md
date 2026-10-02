@@ -44,9 +44,9 @@
 ## 3. AGITACIÓN (costo de la inacción de la ficha, en formato ESCANEABLE — elevación 2026-09-30)
 - frase 1 (escena, MOMENTO DEL DÍA): `A las 7 de la noche abres ChatGPT, te quedas en blanco y cierras la laptop.`
 - cifras en tarjetas en relieve (cuentan al entrar en pantalla, número en dorado):
-  - `40 h` · `al mes buscando por dónde empezar` (2 h/noche del avatar × ~20 noches)
-  - `$300` · `por otro curso que no terminas` (lo que ya pagó, ficha "Ya intentó")
-  - `12 meses` · `más atado al sueldo si nada cambia` (costo de la inacción a 1 año)
+  - `40 h` · `al mes, sin avanzar` (2 h/noche del avatar × ~20 noches)
+  - `$300` · `en otro curso a medias` (lo que ya pagó, ficha "Ya intentó")
+  - `12 meses` · `más atado al sueldo` (costo de la inacción a 1 año)
 - remate: `Y otro curso no lo arregla: [b]más información no es más avance[/b].`
 
 ## 4. SOLUCIÓN (mecanismo bautizado — Constitución 4b)
@@ -64,22 +64,18 @@
 
 ## 6. OFERTA (FICHA-MERCADO: $9.99/mes · $79.99/año · trial 7 días)
 - título: `Empieza gratis. Sigue por [acento]$0.22 al día[/acento]` (7)
-- stack (valores honestos; revisado 3ª pasada del revisor — sin contar dos veces la misma ruta ni mezclar unidades):
-  - `12 meses de misiones diarias con IA` — $120 (12 × precio mensual)
-  - `Nuevas rutas después del día 30` — Incluidas → mata "¿y después del día 30?"
-  - `Tu negocio en un documento descargable` — Incluido → mata "¿qué me queda si cancelo?"
-  - total tachado $120 · nota `Todo incluido en ambos planes. Anual: $6.67/mes.`
+- stack = UNA línea de ancla (revisor 2026-09-30: el stack de 3 líneas repetía las features): `Mes a mes, un año completo te costaría` $120 · tachado $120 · nota `Con el plan anual pagas $79.99 por el año.`
+- features anual: `El Método Pieza a Pieza: una misión de 5 minutos al día` · `La IA arma cada pieza con tu negocio` · `Todo guardado en Mi Empresa, listo para descargar` · `Nuevas rutas cada mes después del día 30`
+- features mensual: `Todo lo del plan anual` · `Pagas mes a mes` · `Cancelas en 1 toque, cuando quieras`
 - microcopy de compra (objeción #5 + VoC "al mes te sorprenden"): `Pagas seguro por Hotmart · te avisamos antes del primer cobro · cancelas en 1 toque`
 - CTA de cada plan → `/onboarding?plan=anual` / `/onboarding?plan=mensual` (el plan elegido se preselecciona en la pantalla de planes)
 - anual: $6.67/mes · `Se cobra $79.99/año` · `4 meses gratis` (12 − 79.99/9.99 = 4) · `menos de $0.22 al día` · badge `MEJOR PRECIO`
 - mensual: $9.99/mes · `menos de $0.34 al día`
-- features anual: `Tu misión de 5 minutos, cada día` · `La IA arma cada pieza con tu negocio` · `Todo guardado en Mi Empresa, listo para descargar` · `Nuevas rutas cada mes después del día 30`
-- features mensual: los 4 del anual + `Cancelas en 1 toque, cuando quieras`
 
 ## 7. GARANTÍA
-- sellos: `15 días` · `Solo un correo` · `Te devolvemos todo`
+- sellos: `15 días` · `Solo un correo` · `Sin preguntas`
 - nombre: `La Garantía de la Primera Oferta` (título; en medio de frase va en minúscula)
-- condición: `Tienes 15 días de garantía: si la IA no te entrega [b]tu oferta lista para vender[/b], escribes un correo y te devolvemos todo.` (21)
+- condición (INCONDICIONAL, coherente con "Sin preguntas" y /reembolsos — decidido 2026-09-30): `Si en 15 días no tienes [b]tu oferta lista[/b] o no es para ti, te devolvemos todo.`
 - piso legal: `Reembolso gestionado por Hotmart · 15 días` (⚠️ configurar Hotmart a 15 días en Sesión 6 ANTES de publicar)
 
 ## 8. FAQ (objeciones de la ficha, en orden de fuerza)

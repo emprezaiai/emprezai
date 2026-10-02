@@ -109,7 +109,7 @@ export function Oferta({
   return (
     <SectionShell id={id} elevacion="base" ariaLabel="Planes y precios">
       <motion.div variants={contenedor} initial="hidden" whileInView="visible" viewport={VIEWPORT_ONCE}>
-        <motion.div variants={item} className="mx-auto max-w-[620px] text-center">
+        <motion.div variants={item} className="mx-auto max-w-[880px]">
           <Kicker>{kicker}</Kicker>
           <h2 className="text-balance text-[30px] font-bold leading-[1.15] text-[var(--text-primary)] [font-family:var(--font-display)] md:text-[40px]">
             <MarkedCopy text={tituloMarked} />

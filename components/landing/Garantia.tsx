@@ -54,16 +54,16 @@ export function Garantia({ nombre, condicionMarked, pisoLegal, icon: Icono = Shi
                 <MarkedCopy text={condicionMarked} />
               </p>
               {sellos && (
-                <ul className="flex flex-wrap justify-center gap-2">
+                <ul className="grid w-full grid-cols-3 gap-2">
                   {sellos.map((se, i) => (
                     <li
                       key={i}
-                      className="flex items-center gap-2 rounded-full bg-[color-mix(in_oklab,var(--accent)_10%,transparent)] py-1 pr-3 pl-1 shadow-[inset_0_1px_0_rgb(255_255_255/0.08),0_2px_0_rgb(0_0_0/0.3)]"
+                      className="flex flex-col items-center gap-2 rounded-[var(--radius-card)] bg-[color-mix(in_oklab,var(--accent)_10%,transparent)] px-2 py-3 shadow-[inset_0_1px_0_rgb(255_255_255/0.08)]"
                     >
                       <span className="relieve-oro flex size-7 items-center justify-center rounded-full">
                         <se.icon size={14} strokeWidth={2.5} aria-hidden="true" />
                       </span>
-                      <span className="text-[13px] font-semibold text-[var(--text-primary)]">{se.texto}</span>
+                      <span className="text-[13px] font-semibold leading-tight text-[var(--text-primary)]">{se.texto}</span>
                     </li>
                   ))}
                 </ul>

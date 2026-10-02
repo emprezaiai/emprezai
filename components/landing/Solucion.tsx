@@ -8,9 +8,9 @@
 // escalonados (whileInView + stagger, reduced-motion respetado).
 
 import { motion } from 'motion/react';
-import { Check, X } from 'lucide-react';
+import { Check, Puzzle, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { Accent, CtaButton, Hairline, IconChip, Kicker, SectionShell, useReveal, VIEWPORT_ONCE } from './ui';
+import { Accent, CtaButton, IconChip, Kicker, SectionShell, useReveal, VIEWPORT_ONCE } from './ui';
 import { MarkedCopy, warnCopy } from './MarkedCopy';
 
 export interface PasoMecanismo {
@@ -78,11 +78,10 @@ export function Solucion({
 
         {/* El chip del mecanismo bautizado — hairline + <Accent> (55 §4) */}
         <motion.div variants={item} className="mt-4">
-          <Hairline surface="bg" className="w-fit">
-            <span className="block px-4 py-2 text-[16px] font-semibold">
-              <Accent>{mecanismo}</Accent>
-            </span>
-          </Hairline>
+          <span className="inline-flex w-fit items-center gap-2 rounded-[var(--radius-chip,12px)] bg-[color-mix(in_oklab,var(--accent)_10%,transparent)] px-3 py-1.5 text-[13px] font-semibold uppercase tracking-[0.06em]">
+            <Puzzle size={14} color="var(--accent)" aria-hidden="true" />
+            <Accent>{mecanismo}</Accent>
+          </span>
         </motion.div>
 
         <motion.p variants={item} className="mt-5 max-w-[620px] text-[16px] leading-relaxed text-[var(--text-secondary)] md:text-[18px]">
@@ -90,9 +89,14 @@ export function Solucion({
         </motion.p>
 
         {/* 3 pasos: filas apiladas en mobile, 3 columnas en desktop */}
-        <ol className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
+        <ol className="relative mt-10 grid grid-cols-1 gap-8 md:grid-cols-3">
+          {/* El camino: línea punteada que une los nodos, como el mapa de la Ruta */}
+          <span
+            aria-hidden="true"
+            className="absolute top-6 bottom-6 left-[21px] border-l-2 border-dashed border-[color-mix(in_oklab,var(--accent)_35%,transparent)] md:hidden"
+          />
           {pasos.map((p, i) => (
-            <motion.li key={i} variants={item} className="tarjeta-relieve flex items-start gap-4 rounded-[var(--radius-card)] p-4 md:flex-col">
+            <motion.li key={i} variants={item} className="relative flex items-start gap-4 md:flex-col">
               <span aria-hidden="true" className="relative shrink-0">
                 {p.icon ? (
                   <IconChip icon={p.icon} tone={i === pasos.length - 1 ? 'verde' : 'accent'} />

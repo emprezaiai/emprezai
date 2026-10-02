@@ -47,12 +47,13 @@ const CTA_HREF = '/onboarding';
 const CTA_ANUAL = '/onboarding?plan=anual';
 const CTA_MENSUAL = '/onboarding?plan=mensual';
 const CTA_LABEL = 'Armar mi primera pieza gratis';
-const FEATURES_BASE = [
-  'Tu misión de 5 minutos, cada día',
+const FEATURES_ANUAL = [
+  'El Método Pieza a Pieza: una misión de 5 minutos al día',
   'La IA arma cada pieza con tu negocio',
   'Todo guardado en Mi Empresa, listo para descargar',
   'Nuevas rutas cada mes después del día 30',
 ];
+const FEATURES_MENSUAL = ['Todo lo del plan anual', 'Pagas mes a mes', 'Cancelas en 1 toque, cuando quieras'];
 
 export default function PaginaDeVentas() {
   useEventoAlMontar('landing_vista');
@@ -67,13 +68,13 @@ export default function PaginaDeVentas() {
         ctaLabel={CTA_LABEL}
         ctaHref={CTA_HREF}
         socialProof={
-          <ul className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+          <ul className="grid grid-cols-3 gap-2">
             {[
               { icono: Gift, texto: '7 días gratis' },
               { icono: ShieldCheck, texto: '15 días de garantía' },
               { icono: MousePointerClick, texto: 'Cancelas en 1 toque' },
             ].map(({ icono: Icono, texto }) => (
-              <li key={texto} className="flex items-center gap-2">
+              <li key={texto} className="flex flex-col items-center gap-1.5 text-center leading-tight">
                 <span className="relieve-piedra flex size-6 items-center justify-center rounded-full">
                   <Icono size={13} strokeWidth={2.5} aria-hidden="true" />
                 </span>
@@ -102,9 +103,9 @@ export default function PaginaDeVentas() {
           'Y otro curso no lo arregla: [b]más información no es más avance[/b].',
         ]}
         cifras={[
-          { valor: 40, sufijo: 'h', etiqueta: 'al mes buscando por dónde empezar', icon: Hourglass },
-          { valor: 300, prefijo: '$', etiqueta: 'en otro curso que no terminas', icon: BookX },
-          { valor: 12, etiqueta: 'meses más atado al sueldo', icon: CalendarX2 },
+          { valor: 40, sufijo: 'h', etiqueta: 'al mes, sin avanzar', icon: Hourglass },
+          { valor: 300, prefijo: '$', etiqueta: 'en otro curso a medias', icon: BookX },
+          { valor: 12, sufijo: 'meses', etiqueta: 'más atado al sueldo', icon: CalendarX2 },
         ]}
       />
 
@@ -141,13 +142,9 @@ export default function PaginaDeVentas() {
         tituloMarked="Empieza gratis. Sigue por [acento]$0.22 al día[/acento]"
         trialDias={7}
         stack={{
-          lineas: [
-            { resultado: '12 meses de misiones diarias con IA', valor: '$120' },
-            { resultado: 'Nuevas rutas después del día 30', valor: 'Incluidas' },
-            { resultado: 'Tu negocio en un documento descargable', valor: 'Incluido' },
-          ],
+          lineas: [{ resultado: 'Mes a mes, un año completo te costaría', valor: '$120' }],
           totalTachado: '$120',
-          nota: 'Todo incluido en ambos planes. Anual: $6.67/mes.',
+          nota: 'Con el plan anual pagas $79.99 por el año.',
         }}
         anual={{
           nombre: 'Anual',
@@ -158,7 +155,7 @@ export default function PaginaDeVentas() {
           descomposicionDia: 'menos de $0.22 al día',
           ctaLabel: 'Empezar mis 7 días gratis',
           ctaHref: CTA_ANUAL,
-          features: FEATURES_BASE,
+          features: FEATURES_ANUAL,
         }}
         mensual={{
           nombre: 'Mensual',
@@ -166,14 +163,14 @@ export default function PaginaDeVentas() {
           descomposicionDia: 'menos de $0.34 al día',
           ctaLabel: 'Empezar mis 7 días gratis',
           ctaHref: CTA_MENSUAL,
-          features: [...FEATURES_BASE, 'Cancelas en 1 toque, cuando quieras'],
+          features: FEATURES_MENSUAL,
         }}
         microcopyCompra="Pagas seguro por Hotmart · te avisamos antes del primer cobro · cancelas en 1 toque"
       />
 
       <Garantia
         nombre="La Garantía de la Primera Oferta"
-        condicionMarked="Si la IA no te entrega [b]tu oferta lista para vender[/b], te devolvemos todo."
+        condicionMarked="Si en 15 días no tienes [b]tu oferta lista[/b] o no es para ti, te devolvemos todo."
         pisoLegal="Reembolso gestionado por Hotmart · 15 días"
         sellos={[
           { icon: ShieldCheck, texto: '15 días' },
@@ -221,6 +218,11 @@ export default function PaginaDeVentas() {
       />
 
       <CtaFinal
+        icono={
+          <span className="relieve-oro flex size-16 items-center justify-center rounded-[var(--radius-chip)]">
+            <Zap size={30} fill="currentColor" strokeWidth={0} aria-hidden="true" />
+          </span>
+        }
         h2Marked="Imagina tu [acento]día 30[/acento] con todo listo"
         futurePacingMarked="Abres Mi Empresa y ahí está: tu oferta, tu nombre, tu precio y tus textos. Solo falta lanzar."
         ctaLabel={CTA_LABEL}

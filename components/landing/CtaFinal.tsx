@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 // KIT DE LANDING — §9 CTA FINAL EMOCIONAL + PS (blueprint: 55 §9)
 // El bloque de MÁXIMO contraste de la página: fondo INVERTIDO (usa
 // --text-primary como fondo y --bg como texto), sin nav ni distracciones.
@@ -14,6 +15,8 @@ import { CtaButton, useReveal, VIEWPORT_ONCE } from './ui';
 import { MarkedCopy, warnCopy } from './MarkedCopy';
 
 export interface CtaFinalProps {
+  /** Ficha en relieve sobre el titular (la marca entra también al cierre). */
+  icono?: ReactNode;
   /** Copy MARCADO — headline emocional, máx 8 palabras (warn). */
   h2Marked: string;
   /** Copy MARCADO — future pacing 1-2 líneas, presente, 2ª persona (warn a 24). */
@@ -30,6 +33,7 @@ export interface CtaFinalProps {
 }
 
 export function CtaFinal({
+  icono,
   h2Marked,
   futurePacingMarked,
   ctaLabel,
@@ -67,6 +71,11 @@ export function CtaFinal({
         viewport={VIEWPORT_ONCE}
         className="relative mx-auto flex max-w-[680px] flex-col items-center px-5 text-center"
       >
+        {icono && (
+          <motion.div variants={item} className="mb-6">
+            {icono}
+          </motion.div>
+        )}
         <motion.h2
           variants={item}
           className="text-balance text-[30px] font-bold leading-[1.15] [font-family:var(--font-display)] md:text-[44px]"
@@ -103,7 +112,7 @@ export function CtaFinal({
         {psMarked !== undefined && (
           <motion.p
             variants={item}
-            className="mt-10 max-w-[520px] border-l-2 pl-4 text-left text-[16px] italic leading-[1.6]"
+            className="mt-10 max-w-[520px] border-l-2 pl-4 text-left text-[16px] leading-[1.6]"
             style={{
               borderColor: 'var(--accent)',
               color: 'color-mix(in oklab, var(--inverse-ink, var(--bg)) 80%, transparent)',
