@@ -1,100 +1,86 @@
-# VEREDICTO revisor-visual — landing (página de ventas EMPRESAI) · re-revisión tras el nuevo hero, el nuevo §2 y la poda de §3/§7
-Fecha: 2026-10-02 13:00
+# VEREDICTO revisor-visual — landing (página de ventas EMPRESAI) · re-revisión tras corregir hero, §2, §4 y §6
+Fecha: 2026-10-02 14:30
 Screenshot: docs/revisiones/landing-375.png
-Usabilidad: 36/40
-Craft: 17/20
+Usabilidad: 37/40
+Craft: 18/20
 Copy (si vende): 18/20
 Copy: 18/20
 Fidelidad (si hubo referencia): N-A
 Veredicto: LISTA
-Top defectos: (1) §2 dorado y halo en los 5 dolores, un desvío de FICHA-ARTE (oro = acción/beneficio, sin glow regado) · (2) §1 la píldora-gancho con borde dorado parece botón y su ficha circular sale del sistema de 12px · (3) el H1 del hero y el H2 de §4 repiten el mismo acento "tu negocio armado"; además "5 minutos por noche" contra "al día" en el resto · (4) el ícono Hourglass se repite en filas contiguas (§2 fila 3 y §3 cifra 40h) · (5) siguen sin corregir: "$79.99" huérfano, garantía ausente del microcopy de compra, "12meses" pegado
+Top defectos: (1) los íconos dorados en los dolores de §2 (pedido de la dueña) contradicen "piedra = dolor" de FICHA-ARTE: anotar la excepción en la ficha · (2) en el ancla de §6, el separador "·" queda colgando al final de la 1.ª línea · (3) la relación entre la prueba de 7 días y la garantía de 15 días es ambigua (¿desde cuándo cuentan los 15 días?) · (4) "cancelas en 1 toque" aparece 3 veces (franja del hero, microcopy, plan mensual)
 
 ## Detalle
-USABILIDAD 36/40 — h1:4 h2:4 h3:4 h4:3 h5:4 h6:4 h7:4 h8:3 h9:3 h10:3
-CRAFT 17/20 — jerarquía:3 profundidad:4 identidad:3 movimiento:4 encaje:3
+USABILIDAD 37/40 — h1:4 h2:4 h3:4 h4:4 h5:4 h6:4 h7:4 h8:3 h9:3 h10:3
+CRAFT 18/20 — jerarquía:3 profundidad:4 identidad:4 movimiento:4 encaje:3
 COPY 18/20 — idea:4 especificidad:3 emoción:4 oferta:3 acción:4 (ningún eje ≤2)
+Gate doble: PASA (37/40 ≥ 36 y 18/20 ≥ 16). Gate de copy: PASA (18/20).
+Gate de carga cognitiva: 0 fallas. El gancho perdió el borde y quedó como etiqueta de 12px con fondo al 8%, igual que el chip del mecanismo: ya no parece botón.
+Anti-clon: no coincide con "Capítulo" ni con "Umbral". CTA héroe vivo: PASA (≈12:1 · whileTap 0.97 · nunca deshabilitado · 52-56px · ancho completo).
+Sub-checks de copy: message-match N-A. Garantía nombrada con plazo cerca del CTA de compra: PASA, ahora también en el microcopy bajo los planes ("15 días de garantía").
 
-Gates:
-- Gate doble: PASA, pero justo en el límite (36/40 ≥ 36 y 17/20 ≥ 16). Gate de copy: PASA (18/20).
-- Gate de carga cognitiva: 1 falla, "cero elementos que parezcan interactivos y no hagan nada" (la píldora-gancho, defecto 2). No es sobrecarga crítica.
-- Anti-clon: no coincide con "Capítulo" ni con "Umbral".
-- CTA héroe vivo: PASA (≈12:1 · whileTap 0.97 · nunca deshabilitado · 52-56px · ancho completo).
-- Sub-checks de copy: message-match N-A. La garantía va nombrada con plazo ("Si en 15 días…") en la sección pegada a los planes: PASA.
+Verificado en código y captura:
+- **Halo:** `.relieve-noche` ya no tiene halo (globals.css l.100-107) y `.tarjeta-dolor` tiene borde blanco al 8%.
+- **Frases de dolor:** la frase clave va en blanco bold y el resto en gris de lectura.
+- **Ícono de la fila 3 de §2:** ahora es MonitorPlay, ya no repite el Hourglass de §3.
+- **§4:** el H2 es "No te falta información: te falta *el paso de hoy*" y no repite el acento del H1.
+- **Promesa unificada:** el subtítulo, la Big Idea, los pasos y el plan dicen "5 minutos" y "cada día", sin choque con "por noche".
+- **Oferta y cifras:** "$79.99" ya no queda huérfano y "12 meses" tiene el sufijo separado.
 
-FICHA-ARTE frente a la captura (DESVÍO EVIDENTE = defecto top 1):
-- La ficha pide dorado SOLO en CTA, misión, nodo "hoy", dato héroe y botón central. Dice "oro = acción/beneficio · piedra = dolor" y "sin glow regado".
-- §2 pinta en dorado 5 frases de dolor, 5 íconos y el borde de la tarjeta.
-- `.relieve-noche` (globals.css l.100-108) agrega un halo `0 0 18px -4px rgb(255 194 61 / .35)` en 6 fichas (las 5 de §2 + la del gancho).
-- Resultado: en las 2 primeras pantallas hay unos 14 elementos dorados que compiten con el CTA, y el dolor se viste con el color del beneficio.
-
-Qué cambió en la puntuación frente a la pasada anterior (37 · 18 · 17):
-- h4 baja 4→3 por dos cosas:
-  - El dorado ya no significa lo mismo en toda la página.
-  - Vuelven una píldora con borde que parece botón y una ficha circular fuera del sistema.
-- Identidad baja 4→3: el halo regado es la receta anti-IA que la ficha veta fuera de la tarjeta héroe.
-- Emoción sube 3→4: los dolores en voz literal del avatar, entre comillas, más la escena "¿Otra noche en blanco frente a ChatGPT?" trazan 1:1 a FICHA-AVATAR (dolores #1, #2, #4, #5, identidad y momento del día).
-- Profundidad se mantiene en 4: el patrón de puntos del hero y el radial dorado se ven en la captura.
-
-Hallazgos en código:
-- El H1 tiene 11 palabras y supera el `warnCopy('Hero → h1', …, 10)` (Hero.tsx l.56). La excepción está documentada, pero el aviso queda en la consola de desarrollo: subir el tope a 11 en la llamada o dejarlo anotado.
-- Quitar "Reembolso gestionado por Hotmart" no rompe ningún gate: la garantía conserva nombre y plazo, y "Pagas seguro por Hotmart" sigue bajo los planes.
+Cambios de puntuación frente a la pasada anterior (36 · 17 · 18):
+- h4 sube 3→4: el dorado vuelve a ser coherente (solo 5 íconos pequeños sin halo, como decisión explícita de la dueña) y desaparece la píldora con borde.
+- Identidad sube 3→4: no queda glow regado fuera de la tarjeta héroe del demo.
+- h8 sigue en 3: la página mide ≈7800px, tiene 4 CTAs con la misma etiqueta + el sticky, y hay repeticiones menores de micro-promesas (defecto 4).
+- Copy-oferta sigue en 3: no queda claro desde cuándo cuentan los 15 días (defecto 3).
 
 ## Juicio del titular (hero)
-| Criterio | ¿Cumple? | Evidencia / qué falta |
+| Criterio | ¿Cumple? | Evidencia |
 |---|---|---|
-| Dolor urgente | ✅ | El gancho "¿Otra noche en blanco frente a ChatGPT?" es el dolor #1 + el MOMENTO DEL DÍA de la ficha, en pregunta. |
-| Deseo | ✅ | "tu negocio armado en 30 días" es el deseo #2 casi literal ("la estructura de mi empresa armada en 30 días"). |
-| Imagen mental | ⚠️ | El antes→después "hoja en blanco → negocio armado" se entiende en una línea. Pero "negocio armado" es abstracto: el H1 anterior daba algo que se ve ("tu primera oferta, hoy, en 5 minutos"). La victoria concreta de esta noche ya no está en el hero. |
-| Detiene el scroll | ✅ | Gancho en píldora + H1 bold de 4 líneas con 3 palabras en acento + demo asomando. La pregunta en 2.ª persona funciona para tráfico frío de TikTok. |
-| Unicidad (sofisticación 4-5) | ⚠️ | "negocio … en 30 días" es casi la variante #3 de la propia tabla 4U (Único = 1) y se parece a la competencia de la ficha ("Lanza tu negocio con IA en 7 días"). La diferencia la carga solo "cada pieza" en el subtítulo. Fix: subtítulo "Esta noche, en 5 minutos, la IA arma tu primera pieza. Sin cursos." (12 palabras). Recupera la victoria inmediata y el mecanismo. |
-
-Veredicto del titular: es mejor GANCHO que el anterior (más dolor y más escena) y peor PROMESA ÚNICA (más genérica, menos inmediata). Con el subtítulo propuesto se queda con las dos ventajas.
+| Dolor urgente | ✅ | Gancho "¿Otra noche en blanco frente a ChatGPT?": dolor #1 + el momento del día de la ficha. |
+| Deseo | ✅ | "tu negocio armado en 30 días": deseo #2 casi literal. |
+| Imagen mental | ✅ | "De la hoja en blanco a tu negocio armado" es el antes→después, y el subtítulo agrega la escena concreta: "Esta noche, en 5 minutos, la IA arma tu primera pieza". |
+| Detiene el scroll | ✅ | Pregunta en 2.ª persona + H1 bold con 3 palabras en acento + demo asomando en el primer viewport. |
+| Unicidad (sofisticación 4-5) | ✅ con matiz | El H1 solo sigue siendo genérico para el mercado ("negocio en N días"). La diferencia la cargan el subtítulo ("primera pieza", "esta noche, 5 minutos") y el CTA "Armar mi primera pieza gratis": el mecanismo está en el primer viewport. |
 
 ## ¿El relieve se ve "no plano ni repetitivo"? (pedido de la dueña)
 - (a) NO PLANO: ✅ CUMPLE.
-  - §2 ya no se ve apagado: tarjeta con brillo, fichas oscuras con ícono encendido, frases en Bricolage de 18px.
-  - El resto conserva las fichas oro, verde y piedra, el camino de nodos y el rayo del cierre.
-  - El costo: el "encendido" se logró con el color y el halo del beneficio (defecto 1). El mismo volumen se consigue con relieve-piedra + ícono en text-primary + frase clave en blanco 700.
-- (b) NO REPETITIVO: ⚠️ CUMPLE CON RESIDUOS NUEVOS.
-  - Las composiciones siguen siendo distintas por sección.
-  - El acento "tu negocio armado" se repite literal en el H1 y en el H2 de §4.
-  - El Hourglass aparece en dos filas seguidas (§2 y §3).
-  - "otro curso / sin cursos" aparece 3 veces en 3 pantallas (subtítulo, remate de §3, H2 de §4).
+  - §2 tiene fichas "noche" con canto, ícono encendido y frases de dolor en Bricolage de 18px con la frase clave en blanco bold. Se lee con impacto y sin apagarse.
+  - El resto conserva las fichas oro, verde y piedra, el camino de nodos y el rayo de 64px del cierre.
+- (b) NO REPETITIVO: ✅ CUMPLE.
+  - Cada sección tiene composición propia: tarjeta-lista, fila de cifras, camino de nodos, comparativa, carrusel, ancla + 2 cajas de precio, sello centrado, acordeón y cierre centrado con ficha.
+  - Ya no se repiten acentos entre titulares ni íconos en bloques contiguos.
+  - Residuo menor: "cancelas en 1 toque" ×3 (defecto 4).
 
 ## Auditoría de escaneabilidad (mobile 375px)
 | § | Sección | >4 líneas seguidas | Íconos en dolores/beneficios/pasos | "Solo titulares" | Respiro | Cajas/acordeón | Resultado | Qué corregir |
 |---|---|---|---|---|---|---|---|---|
-| 1 | Hero | ✅ no (H1 en 4 líneas a 40px, subtítulo en 2) | ✅ gancho con ficha + franja con 3 chips | ✅ | ✅ | — | ⚠️ | Píldora-gancho sin borde, o enlazada a #problema; ficha luna con radio de 12px (defecto 2) |
-| 2 | Problema | ✅ no (cada dolor en 2-3 líneas) | ✅ ficha por dolor | ✅ | ✅ | ✅ tarjeta-lista | ❌ | Dorado y halo en los dolores, desvío de la ficha (defecto 1); Hourglass repetido con §3 (defecto 4) |
-| 3 | Agitación | ✅ no | ✅ 3 cifras con ícono | ✅ (la frase puente presenta las cifras) | ✅ | ✅ fila en caja | ⚠️ | "12meses" pegado: `ml-1` en el sufijo |
-| 4 | Solución | ✅ no | ✅ nodos con ícono y número | ✅ | ✅ | camino + 2 cajas | ⚠️ | El H2 repite el acento del H1 (defecto 3) |
+| 1 | Hero | ✅ no (H1 en 4 líneas a 40px, subtítulo en 2) | ✅ gancho con ficha + franja con 3 chips | ✅ | ✅ | — | ✅ | — |
+| 2 | Problema | ✅ no (cada dolor en 2-3 líneas) | ✅ ficha por dolor, sin repetir ícono | ✅ | ✅ | ✅ tarjeta-lista | ✅ | Anotar en FICHA-ARTE la excepción del ícono dorado (defecto 1) |
+| 3 | Agitación | ✅ no | ✅ 3 cifras con ícono | ✅ | ✅ | ✅ fila en caja | ✅ | — |
+| 4 | Solución | ✅ no (Big Idea en 3 líneas) | ✅ nodos con ícono y número | ✅ | ✅ | camino + 2 cajas | ✅ | — |
 | 5 | App por dentro | ✅ no | n/a | ✅ | ✅ | carrusel manual con puntos | ✅ | — |
-| 6 | Oferta | ✅ no | ✅ checks custom | ✅ | ✅ | ✅ ancla + 2 planes en cajas | ⚠️ | "$79.99" huérfano en el ancla; sumar la garantía al microcopy de compra |
-| 7 | Garantía | ✅ no (condición en 2 líneas) | ✅ escudo + 3 sellos | ✅ | ✅ | ✅ caja con hairline | ✅ | — |
+| 6 | Oferta | ✅ no | ✅ checks custom | ✅ | ✅ | ✅ ancla + 2 planes en cajas | ⚠️ | "·" colgando en el ancla (defecto 2) |
+| 7 | Garantía | ✅ no (condición en 2 líneas) | ✅ escudo + 3 sellos | ✅ | ✅ | ✅ caja con hairline | ⚠️ | Aclarar desde cuándo cuentan los 15 días (defecto 3) |
 | 8 | FAQ | ✅ no | ✅ ficha por objeción | ✅ | ✅ | ✅ acordeón (1.º abierto) | ✅ | — |
 | 9 | CTA final + PS | ✅ PS en 4 líneas | ✅ rayo en relieve de 64px | ✅ | ✅ | — | ✅ | — |
 | 10 | Footer | ✅ | n/a | ✅ | ✅ | — | ✅ | Email provisional: decisión ya tomada |
 
-## Top defectos (priorizados)
-1. **[§2 Problema: frases, fichas y tarjeta]** Desvío evidente de FICHA-ARTE.
-   - Problema: 5 frases de dolor en `[acento]` dorado, íconos dorados con halo (`.relieve-noche`) y borde dorado en `.tarjeta-dolor`. El dolor se viste del color del beneficio, el CTA pierde protagonismo y vuelve el glow que la ficha veta.
-   - Fix: en page.tsx l.100-104, cambiar `[acento]` por `[b]` en blanco 700. Fichas en `relieve-piedra` sin halo, con ícono en text-primary. Borde de la tarjeta en blanco al 7%. El dorado queda solo en el título "alguna de estas noches".
-2. **[§1 píldora-gancho sobre el H1]** Parece interactiva y no hace nada (gate cognitivo).
-   - Problema: es una píldora con borde dorado al 30%, el formato típico de "badge anuncio" tocable. Su ficha luna es `rounded-full`, fuera del sistema de 12px que se acaba de unificar.
-   - Fix: quitar el borde y dejar solo el fondo al 8% con la ficha de 12px, o volverla un enlace real a `#problema`, con whileTap.
-3. **[H1 del hero + H2 de §4 + subtítulo]** Repetición y promesa inconsistente.
-   - Problema: el acento "tu negocio armado" aparece literal en los dos titulares. "5 minutos por noche" choca con "5 minutos al día" del plan y de los pasos.
-   - Fix: §4 H2 → "No te falta información: te falta [el paso de hoy]" (la Big Idea sube a título; el párrafo empieza en "Cada día la IA arma…"). Subtítulo del hero → "Esta noche, en 5 minutos, la IA arma tu primera pieza. Sin cursos." Unificar "al día" en el resto.
-4. **[§2 fila 3 + §3 cifra 40h]**
-   - Problema: el mismo ícono Hourglass aparece en dos bloques contiguos.
-   - Fix: en §2 usar `MonitorPlay` o `Clock4` ("tutoriales").
-5. **[Arrastrados de la pasada anterior, siguen visibles]**
-   - §6: "$79.99" solo en la 2.ª línea del ancla → `whitespace-nowrap` en "Con el anual: $79.99".
-   - §6: el microcopy de compra no nombra la garantía → sumar "· Garantía de la Primera Oferta, 15 días".
-   - §3: "12meses" pegado → `ml-1`.
+## Top defectos (priorizados — NO bloquean el gate)
+1. **[FICHA-ARTE.md frente a §2]**
+   - Problema: la ficha dice "oro = acción/beneficio · piedra = dolor", y §2 muestra 5 íconos dorados en los dolores por pedido explícito de la dueña. La pantalla y la ficha se contradicen, y el próximo revisor o agente lo marcará como desvío.
+   - Fix: agregar en el brand kit de FICHA-ARTE.md "Excepción aprobada por la dueña 2026-10-02: fichas 'noche' de §2 (cara oscura, ícono dorado, sin halo) para los dolores de la landing".
+2. **[§6 línea de ancla bajo el título de la oferta]**
+   - Problema: la 1.ª línea termina en "Mes a mes: $̶1̶2̶0̶ al año ·" y el separador queda colgando.
+   - Fix: quitar el "·" y partir en 2 líneas deliberadas (`block` en "Con el anual: $79.99"), o acortar a "Mes a mes: $̶1̶2̶0̶/año · Anual: $79.99" en una sola línea.
+3. **[§7 condición + microcopy de §6]**
+   - Problema: con 7 días de prueba gratis, "Si en 15 días no tienes tu oferta lista…" no aclara si los 15 días cuentan desde que empiezas o desde el primer cobro.
+   - Fix: "15 días desde tu primer cobro" (o lo que esté configurado en Hotmart), igual en la condición, el microcopy y /reembolsos. Verificarlo antes de publicar (gate 61).
+4. **[Franja del hero + microcopy de §6 + plan mensual]**
+   - Problema: "cancelas en 1 toque" se repite 3 veces.
+   - Fix: quitarlo del microcopy de compra (ya está en el plan y en el hero), o cambiar la franja del hero a "Sin tarjeta para empezar" si eso es cierto en el onboarding.
 
 ## Pendientes anotados (no puntúan)
 - "Entrar" cuando exista /login.
 - Capturas reales del carrusel (Sesión 5).
 - Verificar el claim "no se usa para entrenar IA" con el proveedor.
 - Email de soporte con el dominio propio.
+- Plazo de reembolso de Hotmart en 15 días (Sesión 6).
