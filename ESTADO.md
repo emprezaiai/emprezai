@@ -1,7 +1,7 @@
 # ESTADO — EMPRESAI
-Última actualización: 2026-09-29 | Sesión actual: 1 (cliente, precio y estrategia)
+Última actualización: 2026-10-06 | Sesión actual: 4 (recorrido de inicio + pantalla de planes)
 
-⏸️ CHECKPOINT — Última acción completada (2026-10-06): landing APROBADA con "La Garantía Sin Preguntas" (37/40·18/20·19/20) / Siguiente acción exacta: OK de la dueña → Sesión 4 (/onboarding con ?plan=, primera pieza, /paywall, /login)
+⏸️ CHECKPOINT — Última acción completada (2026-10-06): /onboarding + /paywall CONSTRUIDOS y verificados (tsc ✓ lint ✓ build ✓, recorrido completo a 375 y 360 sin desborde ni errores) — revisor-visual EN CURSO / Siguiente acción exacta: aplicar veredictos (docs/revisiones/onboarding-veredicto.md, paywall-veredicto.md) → commit → OK de la dueña → Sesión 5 (/login + app interna)
 
 ## Qué es esta app (3 líneas máximo)
 App web tipo Duolingo que guía a emprendedores principiantes LATAM a lanzar su negocio/producto digital con IA en 30 días, 5 min/día.
@@ -96,9 +96,12 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Elección del usuario (2026-09-30, 3ª vuelta): pantalla HOY = composición de la A (réplica de su captura) + pantalla RUTA = mapa de la B, AMBAS con colores/tonos de la C (bg #0F0D16, superficie #1A1622, texto2 #998FA8, dorado #FFC23D, verde #3DDC97, Bricolage Grotesque + Instrument Sans). Capturas: docs/revisiones/eleccion-hoy-A-colores-C-375.jpg + eleccion-ruta-B-colores-C-375.jpg — APROBADA 2026-09-30. Descartadas: fusión A+B+C "Tablero Dorado" (no le gustó), combinación C+B.
 
 ## Secuencia maestra de construcción (NO saltar)
-- Estado: Landing CONSTRUIDA y APROBADA · Onboarding/Paywall/Login/App interna: pendientes · Ruta: / → /onboarding → /paywall → /login → /app
+- Estado: Landing APROBADA · Onboarding + Paywall CONSTRUIDOS (revisión en curso) · Login/App interna: pendientes · Ruta: / → /onboarding → /paywall → /login → /app
 - Landing (app/page.tsx, kit components/landing): protagonista = promesa "Hoy, en 5 minutos, la IA arma tu primera oferta" + demo del mecanismo · CTA primario "Armar mi primera pieza gratis" → /onboarding (planes → /onboarding?plan=anual|mensual)
 - Copy marcado y trazado: docs/copy/landing.md (10 variantes de titular puntuadas) · Legales: /privacidad /terminos /reembolsos /aviso-ia (datos del responsable PENDIENTES en lib/legal.ts)
+- Onboarding (/onboarding, components/onboarding, contenido en lib/onboarding.ts) — análisis vs propuesta de Gemini (2026-10-06): se tomaron sus 3 primeras preguntas (punto de la idea, obstáculo, área con "No lo sé"), el ejercicio adaptado al área y la recompensa "guardada en Mi Empresa". Cambios por reglas del SO: su 4ª pregunta (5 vs 10-15 min) no cambiaba nada → reemplazada por la pregunta ancla "¿Cuándo harás tu misión de 5 minutos?" (hora del recordatorio); + reconocimiento tras el obstáculo (patrón→sin culpa→mecanismo, mini-visual antes/después); + paso "tu idea en una línea" con sugerencias por área y "Tu idea es tuya"; + pregunta de ayuda si eligió "No lo sé" (qué se te da mejor → área); + etiqueta positiva con evidencia. Secuencia: punto → freno → reconocimiento → área → (ayuda) → idea → momento → etiqueta → MISIÓN 1 ("Ayudo a [cliente] a [resultado] sin [dolor]", 4 opciones del área por hueco + "Escribir la mía" + consejo de 1 línea) → armando (4 líneas personalizadas, anillo con mesetas, error con Reintentar) → PIEZA 1 (celebración, copiar/editar, "Guardada en Mi Empresa 1 de 30", Día 2 bloqueado) → /paywall?plan=. Lee ?plan= de la landing. Estado en localStorage "empresai_onboarding" v1 (se retoma al volver).
+- Paywall (/paywall, components/paywall/Paywall.tsx): titular de Gemini adaptado "Desbloquea los 29 días que faltan" + "Y deja que la IA construya tu empresa completa. Hecho con tus N respuestas" · mini-ruta Día 1 hecho/Días 2-4 bloqueados/+26 · Anual $6.67/mes ($79.99/año, "Ahorras 33%", preseleccionado o el de ?plan=) · Mensual $9.99 · línea de tiempo con fechas reales (hoy / día 5 aviso / día 7 cobro y monto) · La Garantía Sin Preguntas · "Ahora no" · botón fijo "Empezar mis 7 días gratis". Precio de Gemini $59.99 NO se tomó: se mantiene $79.99 (unit economics aprobados); su "Prueba 15 días sin riesgo" mezclaba prueba y garantía → se muestran separadas. Pago: variables públicas NEXT_PUBLIC_HOTMART_CHECKOUT_ANUAL / _MENSUAL (URL con off; se agrega showOnlyTrial=1 y sck); sin ellas, aviso honesto de vista previa (no simula cobro).
+- Capturas del recorrido: scripts/captura-recorrido.mjs → docs/revisiones/recorrido/ (375) y recorrido-360-nose/ (360, camino "No lo sé")
 - Eventos: lib/eventos.ts (landing_vista con atribución UTM/sck y marca ?qa=1), en cola local hasta conectar analítica
 
 ## Puertas de etapa
@@ -131,13 +134,18 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - ⚠️ Configurar Hotmart con garantía de 15 días ANTES de publicar la promesa (landing/legales) — Sesión 6.
 - ⚠️ Claim "no se usa para entrenar IA" (FAQ 5, privacidad, aviso-ia): confirmar términos vigentes del proveedor y anotar fuente antes de publicar (gate 61).
 - Landing (no bloqueante, revisor): sacar el <span role="status"> de EnlaceCta fuera del Link (hermano) — hacerlo junto con la próxima re-revisión de la landing (al montar capturas reales en Sesión 5) para no caducar el veredicto sin necesidad.
-- Paywall debe LEER ?plan=anual|mensual y preseleccionarlo (Sesión 4).
+- (hecho 2026-10-06) Paywall lee ?plan=anual|mensual y lo preselecciona.
+- 🔴 BLOQUEA PUBLICAR: la Pieza 1 del recorrido hoy se COMPONE con las respuestas (lib/onboarding.ts → armarPrimeraPieza, sin IA). La landing promete "la IA arma tu primera pieza": conectar la ruta de servidor con IA real (límite por IP + respaldo a la composición) en Sesión 6 antes de publicar.
+- Paywall: agregar "Restaurar compra / Ya pagué: entrar" cuando exista /login (Sesión 5; omitido hoy porque no tendría acción).
+- Pasar utm/sck de la landing → onboarding → paywall (hoy el paywall solo lee sck de su propia URL) — Sesión 6 con Hotmart.
+- Cumplir las promesas del paywall: aviso por correo 2 días antes del cobro + cancelar en 1 toque (Resend + Hotmart, Sesión 6).
 - "Entrar" del header: se quitó hasta que exista /login — volver a poner loginHref en Hero (Sesión 4).
 - Carrusel y demo del hero = vistas previas del diseño → reemplazar por capturas REALES con datos semilla (Sesión 5) y sumar el recorrido del fundador como prueba social.
 - (hecho) FICHA-AVATAR aprobada; precio informado sin objeción (2026-09-29).
 - Verificar en Sesión 6: período gratuito Hotmart para app externa · checkout real (medios de pago) · términos de datos del proveedor de IA.
 
 ## Problemas conocidos
+- landing veredicto: el hook pre-stop lo marca CADUCADO porque hay archivos nuevos en app/ (onboarding/paywall), pero el código de la landing (app/page.tsx, components/landing/) NO cambió desde el veredicto del 2026-10-06 → falso positivo; se re-revisa en Sesión 5 con las capturas reales.
 - Garantía: decidida INCONDICIONAL (15 días, "o no es para ti") — coherente con sellos y /reembolsos (2026-10-02).
 - FICHA-MODELO.md en BORRADOR (modelo: Coursiv). Falta 2ª señal de revenue (Meta Ads Library / TrustMRR) y el plano del flujo de entrada de Coursiv (Meta Ads Library y Mobbin requieren navegador; se intentará en Sesión 2 con el navegador integrado). No bloquea diseño/arquitectura.
 - audit-conversion.sh: se excluyó `plantillas-codigo/` en scripts/lib-conversion.mjs (mezclaba tokens de plantilla con los del proyecto → contrastes falsos). Hallazgos restantes son FALSOS POSITIVOS sobre código del kit (cuenta clases/comentarios como copy; no detecta hairline/radial armados con strings concatenados; "animate" como voseo; ✓ en un comentario). Verificado visualmente y por el revisor. Antes: escaneaba `plantillas-codigo/` (plantillas de referencia del SO, no son la app) → sus hallazgos ahí son ruido. Al construir, juzgar solo los hallazgos en los archivos de la app.

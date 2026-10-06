@@ -54,6 +54,13 @@
   --color-warning: var(--warning);
   --font-display: var(--font-bricolage);
   --font-sans: var(--font-instrument);
+  /* Escala tipográfica del recorrido (50 §A2/C2): caption 13 · botón 17 · pregunta 28 · precio 24 */
+  --text-caption: 0.8125rem;
+  --text-ayuda: 0.9375rem;
+  --text-boton: 1.0625rem;
+  --text-pregunta: 1.75rem;
+  --text-pregunta--line-height: 1.12;
+  --text-precio: 1.5rem;
 }
 
 html {
@@ -154,4 +161,85 @@ body {
 :focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: 2px;
+}
+
+/* ============================================================================
+   RECORRIDO DE INICIO Y PLANES (onboarding + paywall, Sesión 4)
+   ============================================================================ */
+
+/* Fondo con profundidad: brillo dorado arriba, verde abajo, puntos sutiles. */
+.fondo-recorrido {
+  background:
+    radial-gradient(520px 320px at 100% -10%, rgb(255 194 61 / 0.1), transparent 70%),
+    radial-gradient(420px 320px at -10% 110%, rgb(61 220 151 / 0.07), transparent 70%),
+    var(--surface-base);
+}
+
+/* Opción de respuesta: superficie elevada con canto; al elegirla se enciende en dorado. */
+.opcion-recorrido {
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.04), transparent 50%), var(--surface-raised);
+  border: 1px solid rgb(255 255 255 / 0.08);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.06),
+    0 2px 0 rgb(0 0 0 / 0.35);
+  transition:
+    border-color 200ms ease-out,
+    background-color 200ms ease-out,
+    box-shadow 200ms ease-out;
+}
+.opcion-recorrido[aria-checked='true'],
+.opcion-recorrido[aria-pressed='true'] {
+  background: linear-gradient(180deg, rgb(255 194 61 / 0.12), rgb(255 194 61 / 0.04) 70%), var(--surface-raised);
+  border: 2px solid var(--gold);
+  box-shadow:
+    inset 0 1px 0 rgb(255 217 120 / 0.2),
+    0 2px 0 var(--gold-deep);
+}
+
+/* Botón principal en relieve dorado (mismo material que las fichas). */
+.boton-oro {
+  background: linear-gradient(180deg, var(--gold-light), var(--gold));
+  color: var(--on-gold);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.45),
+    0 3px 0 var(--gold-deep),
+    0 14px 24px -12px rgb(255 194 61 / 0.45);
+  transition:
+    transform 120ms ease-out,
+    box-shadow 120ms ease-out,
+    opacity 200ms ease-out;
+}
+.boton-oro:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.45),
+    0 1px 0 var(--gold-deep);
+}
+.boton-oro:disabled {
+  opacity: 0.65;
+}
+
+/* Barra inferior fija: degradé hacia el fondo para que el contenido no choque con el botón. */
+.barra-inferior {
+  background: linear-gradient(180deg, transparent, var(--surface-base) 28%);
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+}
+
+/* Borde degradado (hairline) para la pieza y el plan recomendado. */
+.hairline-oro {
+  border: 1.5px solid transparent;
+  background:
+    linear-gradient(var(--surface-raised), var(--surface-raised)) padding-box,
+    linear-gradient(140deg, var(--gold), rgb(255 194 61 / 0.15) 55%, rgb(61 220 151 / 0.5)) border-box;
+}
+
+/* Hueco del ejercicio aún vacío: línea punteada que respira. */
+.hueco-vacio {
+  border-bottom: 2px dashed rgb(255 194 61 / 0.6);
+}
+
+/* Velo detrás de las hojas inferiores (bottom sheets). */
+.velo-oscuro {
+  background: rgb(10 9 16 / 0.72);
+  backdrop-filter: blur(2px);
 }
