@@ -97,7 +97,7 @@ await capturar('planes');
 await pagina.getByRole('radio', { name: /Mensual/ }).click();
 await espera(500);
 await capturar('planes-mensual');
-await tocar('Empezar mis 7 días gratis');
+await tocar('Seguir mi ruta: 7 días gratis');
 await espera(600);
 await capturar('planes-vista-previa');
 

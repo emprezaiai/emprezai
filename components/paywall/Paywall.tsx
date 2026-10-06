@@ -178,15 +178,15 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
                 Pieza 1 lista{respuestas > 0 ? ` · ${respuestas} respuestas` : ''}
               </p>
             )}
-            <TituloAcento texto="Desbloquea los 29 días hasta tu oferta lista" acento="tu oferta lista" className="text-pregunta" />
+            <TituloAcento texto="Desbloquea 29 días hasta salir a vender" acento="salir a vender" className="text-pregunta" />
             <p className="mt-2 text-base leading-relaxed text-ink-2">
-              Adiós a la hoja en blanco: con el Método Pieza a Pieza, la IA arma tu negocio contigo,{' '}
-              <span className="font-semibold text-ink-1">5 minutos al día</span>.
+              Adiós a la hoja en blanco: tu negocio pieza a pieza,{' '}
+              <span className="font-semibold whitespace-nowrap text-ink-1">5 minutos al día</span>.
             </p>
           </motion.div>
 
           {/* Tu ruta: la pieza 1 hecha, lo demás bloqueado */}
-          <motion.section {...entrar(1)} aria-label="Tu ruta de 30 días" className="tarjeta-relieve mt-6 rounded-[var(--radius-card)] p-4">
+          <motion.section {...entrar(1)} aria-label="Tu ruta de 30 días" className="tarjeta-relieve mt-4 rounded-[var(--radius-card)] p-4">
             <ol className="relative grid grid-cols-5 gap-1">
               <span aria-hidden="true" className="absolute top-5 right-[10%] left-[10%] h-0.5 bg-[color-mix(in_oklab,var(--ink-1)_12%,transparent)]" />
               {RUTA.map((r, i) => {
@@ -400,7 +400,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
             whileTap={{ scale: 0.98 }}
             className="boton-oro flex h-14 w-full items-center justify-center gap-2 rounded-[var(--radius-pill)] px-6 font-display text-boton font-bold"
           >
-            {yendo ? 'Abriendo la página de pago…' : `Empezar mis ${PRECIOS.diasPrueba} días gratis`}
+            {yendo ? 'Abriendo la página de pago…' : `Seguir mi ruta: ${PRECIOS.diasPrueba} días gratis`}
             {!yendo && <ArrowRight size={20} aria-hidden="true" />}
           </motion.button>
           <p className="mt-2 text-center text-caption text-ink-2" aria-live="polite">
@@ -495,15 +495,15 @@ function EsqueletoPlanes() {
           <div className="size-11 rounded-full bg-raised" />
         </div>
         <div className="px-4 pt-2">
-          <div className="h-3 w-2/5 animate-pulse rounded-full bg-raised" />
-          <div className="mt-2 h-16 w-11/12 animate-pulse rounded-[var(--radius-chip)] bg-raised" />
-          <div className="mt-2 h-12 w-4/5 animate-pulse rounded-[var(--radius-chip)] bg-raised" />
-          <div className="mt-6 h-48 animate-pulse rounded-[var(--radius-card)] bg-raised" />
-          <div className="mt-4 h-20 animate-pulse rounded-[var(--radius-card)] bg-raised" />
-          <div className="mt-3 h-20 animate-pulse rounded-[var(--radius-card)] bg-raised" />
+          <div className="h-3 w-2/5 rounded-full bg-raised motion-safe:animate-pulse" />
+          <div className="mt-2 h-16 w-11/12 rounded-[var(--radius-chip)] bg-raised motion-safe:animate-pulse" />
+          <div className="mt-2 h-14 w-4/5 rounded-[var(--radius-chip)] bg-raised motion-safe:animate-pulse" />
+          <div className="mt-4 h-52 rounded-[var(--radius-card)] bg-raised motion-safe:animate-pulse" />
+          <div className="mt-4 h-24 rounded-[var(--radius-card)] bg-raised motion-safe:animate-pulse" />
+          <div className="mt-3 h-24 rounded-[var(--radius-card)] bg-raised motion-safe:animate-pulse" />
         </div>
         <div className="mt-auto px-4 pt-6 pb-4">
-          <div className="h-14 animate-pulse rounded-[var(--radius-pill)] bg-raised" />
+          <div className="h-14 rounded-[var(--radius-pill)] bg-raised motion-safe:animate-pulse" />
         </div>
       </div>
     </main>
