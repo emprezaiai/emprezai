@@ -1,7 +1,7 @@
 # ESTADO — EMPRESAI
 Última actualización: 2026-09-29 | Sesión actual: 1 (cliente, precio y estrategia)
 
-⏸️ CHECKPOINT — Última acción completada (2026-10-02): landing con titular nuevo APROBADA 37/40·18/20·18/20 / Siguiente acción exacta: OK de la dueña → Sesión 4 (/onboarding con ?plan=, primera pieza, /paywall, /login)
+⏸️ CHECKPOINT — Última acción completada (2026-10-06): landing APROBADA con "La Garantía Sin Preguntas" (37/40·18/20·19/20) / Siguiente acción exacta: OK de la dueña → Sesión 4 (/onboarding con ?plan=, primera pieza, /paywall, /login)
 
 ## Qué es esta app (3 líneas máximo)
 App web tipo Duolingo que guía a emprendedores principiantes LATAM a lanzar su negocio/producto digital con IA en 30 días, 5 min/día.
@@ -102,7 +102,7 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Eventos: lib/eventos.ts (landing_vista con atribución UTM/sck y marca ?qa=1), en cola local hasta conectar analítica
 
 ## Puertas de etapa
-- Landing: APROBADA 2026-10-02 (revisor contexto limpio) tras nuevo titular y dolores rediseñados — usabilidad 37/40 · craft 18/20 · copy 18/20 · titular ✅ dolor/deseo/imagen/scroll · relieve no plano/no repetitivo ✅ · escaneabilidad 8/10 ✅ · evidencia: docs/revisiones/landing-375.png (+ parte-0…7, 375x7803) · veredicto docs/revisiones/landing-veredicto.md · aprobación de la dueña: PENDIENTE
+- Landing: APROBADA 2026-10-06 — usabilidad 37/40 · craft 18/20 · copy 19/20 · titular ✅ · relieve no plano/no repetitivo ✅ · escaneabilidad 8/10 ✅ · evidencia: docs/revisiones/landing-375.png (+ parte-0…7, 375x7830) · veredicto docs/revisiones/landing-veredicto.md · aprobación de la dueña: PENDIENTE
 
 ## Decisiones técnicas (NO re-discutir sin pedirlo el usuario)
 - Framework: Next.js App Router (landing con SEO + rutas de servidor para la IA) — 2026-09-29
@@ -123,7 +123,8 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 
 ## Pendientes / ⚠️
 - (hecho 2026-10-06) Nombre de la garantía elegido por la dueña: "La Garantía Sin Preguntas". ⚠️ Verificar en Hotmart que la devolución sea realmente "1 clic" antes de publicar (si no, "Devolución con 1 solicitud").
-- Landing, retoques no bloqueantes (hacer en la re-revisión de Sesión 5 con capturas reales): ancla de la oferta sin "·" colgando ("Mes a mes: $120/año · Anual: $79.99") · quitar "cancelas en 1 toque" del microcopy bajo planes (aparece 3 veces) · escena/ml-1 ya hechos.
+- Landing, retoques no bloqueantes (hacer en la re-revisión de Sesión 5 con capturas reales + prueba propia "La fundadora va en el día X de 30"): condición de garantía en 3 líneas ("15 días desde tu primer pago. ¿No es para ti? Pides la devolución en 1 clic y te devolvemos todo.") · franja del hero con etiquetas alineadas (las 3 en 1 o 2 líneas).
+- 🔴 BLOQUEA PUBLICAR: compra de prueba + reembolso real en Hotmart (Sesión 6) para confirmar "Sin preguntas" y "Devolución en 1 clic"; si no es literal → "Devolución con 1 solicitud" o renombrar a "La Garantía de 15 Días".
 - (hecho 2026-10-02) Garantía definida por la dueña: 15 días desde el PRIMER PAGO, devolución del 100% en 1 clic vía Hotmart, sin preguntas — aplicada en landing, microcopy y /reembolsos. ⚠️ Configurar Hotmart con garantía de 15 días (Sesión 6).
 - ⚠️ Garantía: la condición ("si la IA no te entrega tu oferta…") contradice el sello "Sin preguntas" — decidir incondicional vs condicional y alinear sellos + /reembolsos (gate 61).
 - (hecho 2026-09-30) Responsable legal: persona natural (sin empresa registrada), Toronto, Canadá → PIPEDA + leyes LATAM en privacidad. ⚠️ El email de soporte es PERSONAL y queda público en el footer y los legales: reemplazar por soporte@<dominio> al comprar el dominio (Sesión 6). Recomendado confirmar impuestos con un contador en Canadá.
@@ -137,7 +138,6 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Verificar en Sesión 6: período gratuito Hotmart para app externa · checkout real (medios de pago) · términos de datos del proveedor de IA.
 
 ## Problemas conocidos
-- landing veredicto: re-confirmación EN CURSO tras renombrar la garantía (2026-10-06, capturas 375x7830).
 - Garantía: decidida INCONDICIONAL (15 días, "o no es para ti") — coherente con sellos y /reembolsos (2026-10-02).
 - FICHA-MODELO.md en BORRADOR (modelo: Coursiv). Falta 2ª señal de revenue (Meta Ads Library / TrustMRR) y el plano del flujo de entrada de Coursiv (Meta Ads Library y Mobbin requieren navegador; se intentará en Sesión 2 con el navegador integrado). No bloquea diseño/arquitectura.
 - audit-conversion.sh: se excluyó `plantillas-codigo/` en scripts/lib-conversion.mjs (mezclaba tokens de plantilla con los del proyecto → contrastes falsos). Hallazgos restantes son FALSOS POSITIVOS sobre código del kit (cuenta clases/comentarios como copy; no detecta hairline/radial armados con strings concatenados; "animate" como voseo; ✓ en un comentario). Verificado visualmente y por el revisor. Antes: escaneaba `plantillas-codigo/` (plantillas de referencia del SO, no son la app) → sus hallazgos ahí son ruido. Al construir, juzgar solo los hallazgos en los archivos de la app.
