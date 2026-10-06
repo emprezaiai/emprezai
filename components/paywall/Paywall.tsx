@@ -8,17 +8,51 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { ArrowRight, Check, LockKeyhole, ShieldCheck, Sparkles, WifiOff, X, Zap } from 'lucide-react';
+import { AnimatePresence, animate, motion, useReducedMotion } from 'motion/react';
+import { ArrowRight, Bot, Check, LockKeyhole, ShieldCheck, Sparkles, WifiOff, X, Zap } from 'lucide-react';
 import { NOMBRE_MOMENTO, contarRespuestas, leerEstado, type EstadoOnboarding, type Plan } from '@/lib/onboarding';
-import { PRECIOS } from '@/lib/legal';
+import { PRECIOS, RESPONSABLE } from '@/lib/legal';
 import { registrarEvento } from '@/lib/eventos';
 import { EASE_SALIDA, TituloAcento, vibrar } from '@/components/onboarding/piezas';
 
-const PLANES: Record<Plan, { nombre: string; porMes: string; cobro: string; monto: string; periodo: string }> = {
-  anual: { nombre: 'Anual', porMes: '$6.67', cobro: 'Se cobra $79.99 al año', monto: '$79.99', periodo: 'al año' },
-  mensual: { nombre: 'Mensual', porMes: '$9.99', cobro: 'Se cobra $9.99 cada mes', monto: '$9.99', periodo: 'al mes' },
+const PLANES: Record<Plan, { nombre: string; porMes: string; cobro: string; porDia: string; monto: number; periodo: string }> = {
+  anual: { nombre: 'Anual', porMes: '$6.67', cobro: 'Se cobra $79.99 al año', porDia: '$0.22 al día', monto: 79.99, periodo: 'al año' },
+  mensual: { nombre: 'Mensual', porMes: '$9.99', cobro: 'Se cobra $9.99 cada mes', porDia: '$0.33 al día', monto: 9.99, periodo: 'al mes' },
 };
+// 12 × $9.99 = $119.88 contra $79.99 → $39.89 de ahorro real (dato exacto, sin redondear).
+const AHORRO_ANUAL = '$39.89';
+
+/* Monto que CUENTA al cambiar de plan (50 §C3: 300 ms, tabular-nums; sin conteo si reduce). */
+function Monto({ valor }: { valor: number }) {
+  const reduce = useReducedMotion();
+  const nodo = useRef<HTMLSpanElement>(null);
+  const previo = useRef(valor);
+  useEffect(() => {
+    const desde = previo.current;
+    previo.current = valor;
+    const pintar = (v: number) => {
+      if (nodo.current) nodo.current.textContent = `$${v.toFixed(2)}`;
+    };
+    if (reduce || desde === valor) {
+      pintar(valor);
+      return;
+    }
+    const control = animate(desde, valor, { duration: 0.3, ease: 'easeOut', onUpdate: pintar });
+    return () => control.stop();
+  }, [valor, reduce]);
+  return (
+    <span ref={nodo} className="tabular-nums">
+      ${valor.toFixed(2)}
+    </span>
+  );
+}
+
+/** Corta por palabra solo si es largo. */
+function recortar(texto: string, max: number): string {
+  if (texto.length <= max) return texto;
+  const corte = texto.slice(0, max);
+  return `${corte.slice(0, corte.lastIndexOf(' ')).trimEnd()}…`;
+}
 
 // Enlaces de pago de Hotmart (públicos, no son secretos). Vacíos hasta la Sesión 6.
 const CHECKOUT: Record<Plan, string | undefined> = {
@@ -27,7 +61,7 @@ const CHECKOUT: Record<Plan, string | undefined> = {
 };
 
 const RUTA = [
-  { dia: 1, nombre: 'Tu propuesta' },
+  { dia: 1, nombre: 'Tu frase' },
   { dia: 2, nombre: 'Cliente ideal' },
   { dia: 3, nombre: 'Tu oferta' },
   { dia: 4, nombre: 'Tu precio' },
@@ -83,7 +117,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
   function elegirPlan(nuevo: Plan) {
     if (nuevo === plan) return;
     setPlan(nuevo);
-    vibrar(20);
+    vibrar(35);
   }
 
   function irAlPago() {
@@ -128,9 +162,22 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
 
         <div className="px-4 pt-2">
           <motion.div {...entrar(0)}>
+            {pieza && (
+              <p className="mb-2 flex items-center gap-2 text-xs font-semibold tracking-[0.08em] text-green uppercase">
+                <Check size={14} strokeWidth={3} aria-hidden="true" />
+                Tu pieza 1 ya está guardada
+              </p>
+            )}
             <TituloAcento texto="Desbloquea los 29 días que faltan" acento="29 días" className="text-pregunta" />
             <p className="mt-2 text-base leading-relaxed text-ink-2">
-              Y deja que la IA construya tu empresa completa.
+              {pieza ? (
+                <>
+                  La IA arma <strong className="font-semibold text-ink-1">«{recortar(pieza.idea, 48)}»</strong> pieza a pieza, hasta tu
+                  oferta lista para vender.
+                </>
+              ) : (
+                'Y deja que la IA construya tu empresa completa, pieza a pieza.'
+              )}
               {respuestas > 0 && <strong className="font-semibold text-ink-1"> Hecho con tus {respuestas} respuestas.</strong>}
             </p>
           </motion.div>
@@ -146,7 +193,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
                   <li key={r.dia} className="relative flex flex-col items-center gap-2 text-center">
                     <span
                       className={`flex size-10 items-center justify-center rounded-full ${
-                        hecho ? 'relieve-verde' : hoy ? 'relieve-oro' : 'relieve-piedra'
+                        hecho ? 'relieve-verde' : hoy ? 'relieve-oro' : 'border border-[var(--line)] bg-sunken text-ink-3'
                       }`}
                     >
                       {hecho ? (
@@ -166,7 +213,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
                 );
               })}
               <li className="relative flex flex-col items-center gap-2 text-center">
-                <span className="flex size-10 items-center justify-center rounded-full border border-dashed border-[var(--line)] bg-sunken font-display text-sm font-bold text-ink-2">
+                <span className="flex size-10 items-center justify-center rounded-full border border-[var(--line)] bg-sunken font-display text-sm font-bold text-ink-2">
                   +26
                 </span>
                 <span className="text-xs leading-tight text-ink-2">
@@ -175,17 +222,35 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
                 </span>
               </li>
             </ol>
+            {pieza && (
+              <figure className="mt-4 rounded-[var(--radius-chip)] border-l-2 border-green bg-sunken px-3 py-2">
+                <figcaption className="text-xs font-semibold text-green">Día 1 · tu frase de negocio</figcaption>
+                <blockquote className="mt-1 line-clamp-3 font-display text-sm leading-snug font-bold text-ink-1">«{pieza.frase}»</blockquote>
+              </figure>
+            )}
             <p className="mt-4 flex items-start gap-2 border-t border-[var(--line)] pt-4 text-ayuda leading-snug text-ink-2">
               <Sparkles size={18} className="mt-0.5 shrink-0 text-gold" aria-hidden="true" />
               <span>
-                Una misión de 5 minutos {momento ? NOMBRE_MOMENTO[momento] : 'al día'}:{' '}
-                <strong className="font-semibold text-ink-1">la IA arma cada pieza usando las anteriores.</strong>
+                <strong className="font-semibold text-ink-1">El Método Pieza a Pieza:</strong> 5 minutos{' '}
+                {momento ? NOMBRE_MOMENTO[momento] : 'al día'} y la IA arma cada pieza usando las anteriores.
               </span>
             </p>
           </motion.section>
 
           {/* Planes */}
-          <motion.div {...entrar(2)} role="radiogroup" aria-label="Elige tu plan" className="mt-6 flex flex-col gap-3">
+          <motion.div
+            {...entrar(2)}
+            role="radiogroup"
+            aria-label="Elige tu plan"
+            className="mt-6 flex flex-col gap-3"
+            onKeyDown={(e) => {
+              if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+              e.preventDefault();
+              const nuevo: Plan = plan === 'anual' ? 'mensual' : 'anual';
+              elegirPlan(nuevo);
+              e.currentTarget.querySelector<HTMLButtonElement>(`[data-plan="${nuevo}"]`)?.focus();
+            }}
+          >
             {(['anual', 'mensual'] as const).map((id) => {
               const datos = PLANES[id];
               const activo = plan === id;
@@ -195,6 +260,8 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
                   type="button"
                   role="radio"
                   aria-checked={activo}
+                  data-plan={id}
+                  tabIndex={activo ? 0 : -1}
                   onClick={() => elegirPlan(id)}
                   className={`relative flex min-h-20 items-center gap-3 rounded-[var(--radius-card)] border border-[var(--line)] px-4 py-4 text-left transition-colors duration-200 active:scale-[0.99] ${
                     activo ? 'bg-[color-mix(in_oklab,var(--gold)_8%,var(--surface-raised))]' : 'bg-raised'
@@ -215,7 +282,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
                       transition={{ type: 'spring', bounce: 0.3, duration: 0.4, delay: reduce ? 0 : 0.5 }}
                       className="absolute -top-3 right-4 rounded-[var(--radius-chip)] bg-gradient-to-b from-gold-light to-gold px-2 py-1 text-xs font-extrabold tracking-[0.04em] text-on-gold uppercase shadow-[0_2px_0_var(--gold-deep)]"
                     >
-                      Ahorras 33%
+                      Ahorras {AHORRO_ANUAL}
                     </motion.span>
                   )}
                   <span
@@ -229,6 +296,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
                   <span className="min-w-0 flex-1">
                     <span className="block font-display text-lg font-bold text-ink-1">{datos.nombre}</span>
                     <span className="block text-sm text-ink-2">{datos.cobro}</span>
+                    <span className="block text-xs text-ink-3">{datos.porDia}</span>
                   </span>
                   <span className="text-right">
                     <span className="block font-display text-precio leading-none font-extrabold tabular-nums text-ink-1">{datos.porMes}</span>
@@ -243,15 +311,19 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
           <motion.section {...entrar(3)} aria-label="Cómo funciona tu prueba gratis" className="mt-6 pl-1">
             <ol className="flex flex-col">
               {[
-                { titulo: 'Hoy: empiezas gratis', texto: 'Acceso completo a tu ruta de 30 días.', tono: 'oro' as const },
-                { titulo: `${fechaAviso}: te avisamos`, texto: 'Te escribimos antes de cualquier cobro.', tono: 'oro' as const },
+                { titulo: <>Hoy: empiezas gratis</>, texto: 'Acceso completo a tu ruta de 30 días.', tono: 'oro' as const },
+                { titulo: <>{fechaAviso}: te avisamos</>, texto: 'Te escribimos antes de cualquier cobro.', tono: 'oro' as const },
                 {
-                  titulo: `${fechaCobro}: primer cobro de ${p.monto}`,
-                  texto: 'Cancela antes en 1 toque y no pagas nada.',
+                  titulo: (
+                    <>
+                      {fechaCobro}: primer cobro de <Monto valor={p.monto} />
+                    </>
+                  ),
+                  texto: 'Si cancelas antes, no pagas nada.',
                   tono: 'neutro' as const,
                 },
               ].map((n, i, todos) => (
-                <li key={n.titulo} className="relative flex gap-3 pb-4 last:pb-0">
+                <li key={i} className="relative flex gap-3 pb-4 last:pb-0">
                   {i < todos.length - 1 && (
                     <motion.span
                       aria-hidden="true"
@@ -266,18 +338,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
                     className={`relative mt-1 size-3 shrink-0 rounded-full ${n.tono === 'oro' ? 'bg-gold' : 'border-2 border-ink-3 bg-base'}`}
                   />
                   <span>
-                    <AnimatePresence mode="wait" initial={false}>
-                      <motion.span
-                        key={n.titulo}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.15 }}
-                        className="block text-ayuda font-semibold text-ink-1"
-                      >
-                        {n.titulo}
-                      </motion.span>
-                    </AnimatePresence>
+                    <span className="block text-ayuda font-semibold text-ink-1">{n.titulo}</span>
                     <span className="block text-caption text-ink-2">{n.texto}</span>
                   </span>
                 </li>
@@ -299,18 +360,37 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
             </div>
           </motion.section>
 
-          <p className="mt-4 flex items-center justify-center gap-2 text-xs text-ink-3">
-            <LockKeyhole size={14} aria-hidden="true" />
-            Pago seguro por Hotmart · Tu idea es tuya
-          </p>
+          <ul className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-ink-2">
+            <li className="flex items-center gap-1">
+              <Bot size={14} className="text-gold" aria-hidden="true" />
+              La IA ya viene incluida
+            </li>
+            <li className="flex items-center gap-1">
+              <LockKeyhole size={14} className="text-gold" aria-hidden="true" />
+              Pago seguro por Hotmart
+            </li>
+            <li className="flex items-center gap-1">
+              <ShieldCheck size={14} className="text-gold" aria-hidden="true" />
+              Tu idea es tuya
+            </li>
+          </ul>
 
-          <div className="mt-2 flex justify-center">
+          <div className="mt-2 flex items-center justify-center gap-2">
             <Link
               href={volver}
-              className="flex min-h-11 items-center px-4 text-sm font-medium text-ink-3 underline-offset-4 transition-colors duration-150 hover:text-ink-2 hover:underline"
+              className="flex min-h-11 items-center px-3 text-sm font-medium text-ink-3 underline-offset-4 transition-colors duration-150 hover:text-ink-2 hover:underline"
             >
               Ahora no
             </Link>
+            <span aria-hidden="true" className="text-ink-3">
+              ·
+            </span>
+            <a
+              href={`mailto:${RESPONSABLE.emailContacto}?subject=${encodeURIComponent('Ya pagué EMPRESAI y quiero entrar')}`}
+              className="flex min-h-11 items-center px-3 text-sm font-medium text-ink-3 underline-offset-4 transition-colors duration-150 hover:text-ink-2 hover:underline"
+            >
+              ¿Ya pagaste? Recupera tu acceso
+            </a>
           </div>
         </div>
 
@@ -334,7 +414,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
               </span>
             ) : (
               <>
-                Hoy pagas <strong className="font-semibold text-ink-1">$0</strong> · luego {p.monto} {p.periodo} · cancelas en 1 toque
+                Hoy <strong className="font-semibold text-ink-1">$0</strong> · luego <Monto valor={p.monto} /> {p.periodo} · cancela cuando quieras
               </>
             )}
           </p>

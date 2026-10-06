@@ -72,7 +72,7 @@ export function PasoPieza({
             <motion.span
               initial={{ scale: reduce ? 1 : 0.4, rotate: reduce ? 0 : -12 }}
               animate={{ scale: 1, rotate: 0 }}
-              transition={{ type: 'spring', bounce: 0.5, duration: 0.6 }}
+              transition={{ type: 'spring', bounce: 0.25, duration: 0.6 }}
               className="relieve-verde relative flex size-16 items-center justify-center rounded-full"
             >
               <Check size={32} strokeWidth={3} />
@@ -101,10 +101,6 @@ export function PasoPieza({
           </blockquote>
 
           <div className="mt-4 flex flex-col gap-3 border-t border-[var(--line)] pt-4">
-            <p className="text-ayuda leading-snug break-words text-ink-2">
-              <span className="block text-xs font-semibold text-ink-3">Tu idea</span>
-              {pieza.idea}
-            </p>
             <p className="flex items-start gap-2 text-ayuda leading-snug text-ink-2">
               <Target size={18} className="mt-0.5 shrink-0 text-gold" aria-hidden="true" />
               <span>
@@ -155,7 +151,7 @@ export function PasoPieza({
               <motion.span
                 initial={{ scale: reduce ? 1 : 0 }}
                 animate={{ scale: 1 }}
-                transition={reduce ? { duration: 0 } : { type: 'spring', bounce: 0.5, duration: 0.5, delay: 1.3 }}
+                transition={reduce ? { duration: 0 } : { type: 'spring', bounce: 0.25, duration: 0.5, delay: 1.3 }}
                 className="flex size-6 items-center justify-center rounded-full bg-green text-on-green"
               >
                 <Check size={14} strokeWidth={3} aria-hidden="true" />

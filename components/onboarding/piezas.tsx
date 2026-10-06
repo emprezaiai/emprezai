@@ -20,6 +20,7 @@ import {
   Moon,
   NoteBlank,
   Package,
+  PencilSimpleLine,
   Signpost,
   SunHorizon,
   Target,
@@ -40,6 +41,7 @@ const ICONOS: Record<Opcion<string>['icono'], Icon> = {
   Briefcase,
   Books,
   Package,
+  PencilSimpleLine,
   Signpost,
   Handshake,
   ChalkboardTeacher,
@@ -128,16 +130,18 @@ export function FichaIcono({
   icono,
   tono = 'piedra',
   tamano = 40,
+  redonda = false,
 }: {
   icono: Opcion<string>['icono'];
   tono?: 'piedra' | 'oro' | 'verde';
   tamano?: 40 | 48 | 64;
+  redonda?: boolean;
 }) {
   const Icono = ICONOS[icono];
   return (
     <span
       aria-hidden="true"
-      className={`relieve-${tono} inline-flex shrink-0 items-center justify-center rounded-[var(--radius-chip)] transition-colors duration-200`}
+      className={`relieve-${tono} inline-flex shrink-0 items-center justify-center ${redonda ? 'rounded-full' : 'rounded-[var(--radius-chip)]'} transition-colors duration-200`}
       style={{ width: tamano, height: tamano }}
     >
       <Icono size={Math.round(tamano * 0.55)} weight="duotone" />
@@ -188,16 +192,16 @@ export function OpcionRespuesta({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: reduce ? 0 : 0.08 + indice * 0.055, ease: EASE_SALIDA }}
       whileTap={{ scale: 0.98 }}
-      className="opcion-recorrido flex min-h-16 w-full items-center gap-3 rounded-[var(--radius-card)] px-3 py-3 text-left disabled:opacity-100"
+      className="opcion-recorrido flex min-h-16 w-full items-center gap-3 py-3 pr-4 pl-3 text-left disabled:opacity-100"
     >
-      <FichaIcono icono={opcion.icono} tono={elegida ? 'oro' : 'piedra'} />
+      <FichaIcono icono={opcion.icono} tono={elegida ? 'oro' : 'piedra'} redonda />
       <span className="flex-1 text-base leading-snug font-medium text-ink-1">{opcion.texto}</span>
       <span className="flex size-6 shrink-0 items-center justify-center">
         {elegida && (
           <motion.span
             initial={{ scale: reduce ? 1 : 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: 'spring', bounce: 0.4, duration: 0.3 }}
+            transition={{ type: 'spring', bounce: 0.25, duration: 0.3 }}
           >
             <CheckCustom tamano={24} />
           </motion.span>
@@ -239,8 +243,8 @@ export function BotonPrincipal({
 export function PromesaRecorrido() {
   const reduce = useReducedMotion();
   const items = [
-    { titulo: '2 minutos', texto: '5 preguntas rápidas' },
-    { titulo: 'Tu pieza 1', texto: 'tu propuesta de valor' },
+    { titulo: 'Tu pieza 1', texto: 'tu frase de negocio' },
+    { titulo: 'Tu ruta', texto: '30 días, 5 min al día' },
     { titulo: 'Gratis', texto: 'sin crear cuenta' },
   ];
   return (
@@ -250,7 +254,7 @@ export function PromesaRecorrido() {
       transition={{ duration: 0.35, delay: reduce ? 0 : 0.35, ease: EASE_SALIDA }}
       className="tarjeta-relieve-base rounded-[var(--radius-card)] p-4"
     >
-      <p className="text-xs font-semibold tracking-[0.08em] text-gold uppercase">Al terminar te llevas</p>
+      <p className="text-xs font-semibold tracking-[0.08em] text-gold uppercase">Toma 2 minutos · al terminar te llevas</p>
       <ul className="mt-3 grid grid-cols-3 gap-2">
         {items.map((it) => (
           <li key={it.titulo} className="flex flex-col gap-1">

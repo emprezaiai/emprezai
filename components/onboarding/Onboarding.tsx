@@ -99,10 +99,12 @@ function Flujo({ planInicial }: { planInicial?: Plan }) {
     irA(pasos[i - 1], {}, -1);
   }
 
-  function responderArea(area: NonNullable<Respuestas['area']>) {
-    // "No lo sé" de nuevo conserva lo que ya eligió en la pregunta de ayuda.
-    const areaFinal = area === 'nose' ? (respuestas.area === 'nose' ? respuestas.areaFinal : undefined) : area;
-    avanzar(conAreaFinal({ ...respuestas, area }, areaFinal));
+  function responderArea(area: NonNullable<Respuestas['area']>, texto?: string) {
+    // "No lo sé" y "Otra cosa" pasan por la pregunta de ayuda; repetir la misma respuesta
+    // conserva lo que ya eligió ahí.
+    const porAyuda = area === 'nose' || area === 'otra';
+    const areaFinal = porAyuda ? (respuestas.area === area ? respuestas.areaFinal : undefined) : area;
+    avanzar(conAreaFinal({ ...respuestas, area, areaOtra: area === 'otra' ? texto : undefined }, areaFinal));
   }
 
   // Si cambia el área efectiva, el ejercicio anterior ya no aplica: se vacía.
@@ -127,14 +129,19 @@ function Flujo({ planInicial }: { planInicial?: Plan }) {
       break;
     case 'freno':
       contenido = (
-        <PasoPregunta pregunta={PREGUNTA_FRENO} valor={respuestas.freno} onResponder={(freno) => avanzar({ ...respuestas, freno })} />
+        <PasoPregunta
+          pregunta={PREGUNTA_FRENO}
+          valor={respuestas.freno}
+          valorOtra={respuestas.frenoOtro}
+          onResponder={(freno, texto) => avanzar({ ...respuestas, freno, frenoOtro: freno === 'otro' ? texto : undefined })}
+        />
       );
       break;
     case 'reconocimiento':
-      contenido = <PasoReconocimiento freno={respuestas.freno ?? 'blanco'} onSeguir={() => avanzar(respuestas)} />;
+      contenido = <PasoReconocimiento freno={respuestas.freno ?? 'blanco'} frenoOtro={respuestas.frenoOtro} onSeguir={() => avanzar(respuestas)} />;
       break;
     case 'area':
-      contenido = <PasoPregunta pregunta={PREGUNTA_AREA} valor={respuestas.area} onResponder={responderArea} />;
+      contenido = <PasoPregunta pregunta={PREGUNTA_AREA} valor={respuestas.area} valorOtra={respuestas.areaOtra} onResponder={responderArea} />;
       break;
     case 'ayuda':
       contenido = (
@@ -150,7 +157,7 @@ function Flujo({ planInicial }: { planInicial?: Plan }) {
         <PasoIdea
           area={respuestas.areaFinal ?? 'servicios'}
           punto={respuestas.punto}
-          areaElegidaPorAyuda={respuestas.area === 'nose'}
+          areaElegidaPorAyuda={respuestas.area === 'nose' || respuestas.area === 'otra'}
           valor={respuestas.idea}
           onSeguir={(idea) => avanzar({ ...respuestas, idea })}
         />
@@ -164,6 +171,8 @@ function Flujo({ planInicial }: { planInicial?: Plan }) {
     case 'etiqueta':
       contenido = (
         <PasoEtiqueta
+          punto={respuestas.punto}
+          eligioConAyuda={respuestas.area === 'nose'}
           area={respuestas.areaFinal ?? 'servicios'}
           idea={respuestas.idea ?? ''}
           momento={respuestas.momento ?? 'noche'}
@@ -175,6 +184,7 @@ function Flujo({ planInicial }: { planInicial?: Plan }) {
       contenido = (
         <PasoEjercicio
           area={respuestas.areaFinal ?? 'servicios'}
+          idea={respuestas.idea ?? ''}
           inicial={{ cliente: respuestas.cliente, resultado: respuestas.resultado, dolor: respuestas.dolor }}
           onTerminar={(valores) => avanzar({ ...respuestas, ...valores })}
         />
@@ -184,6 +194,7 @@ function Flujo({ planInicial }: { planInicial?: Plan }) {
       contenido = (
         <PasoArmando
           respuestas={respuestas}
+          onVolver={() => irA('ejercicio', {}, -1)}
           onListo={(primeraPieza: PrimeraPieza) => {
             registrarEvento('resultado_visto', { area: respuestas.areaFinal ?? 'ninguna' });
             irA('pieza', { primeraPieza });
@@ -199,7 +210,11 @@ function Flujo({ planInicial }: { planInicial?: Plan }) {
           onSeguir={() => router.push(estado.plan ? `/paywall?plan=${estado.plan}` : '/paywall')}
         />
       ) : (
-        <PasoArmando respuestas={respuestas} onListo={(primeraPieza) => irA('pieza', { primeraPieza })} />
+        <PasoArmando
+          respuestas={respuestas}
+          onVolver={() => irA('ejercicio', {}, -1)}
+          onListo={(primeraPieza) => irA('pieza', { primeraPieza })}
+        />
       );
       break;
   }

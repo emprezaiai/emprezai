@@ -4,7 +4,7 @@
 // no avanzan. Si el usuario no tiene idea, las sugerencias van primero. "Tu idea es tuya" junto
 // al campo (objeción 6 de FICHA-AVATAR).
 
-import { useId, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { ArrowRight, LockKeyhole, Sparkles } from 'lucide-react';
 import { IDEAS_SUGERIDAS, LARGO_MAX_IDEA, NOMBRE_AREA, type IdArea, type IdPunto } from '@/lib/onboarding';
@@ -26,6 +26,8 @@ export function PasoIdea({
   const reduce = useReducedMotion();
   const idCampo = useId();
   const [idea, setIdea] = useState(valor ?? '');
+  const [aviso, setAviso] = useState(0);
+  const campo = useRef<HTMLTextAreaElement>(null);
   const sinIdea = punto === 'sin-idea';
   const valida = idea.trim().length >= 6;
 
@@ -68,7 +70,7 @@ export function PasoIdea({
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: reduce ? 0 : 0.1 + i * 0.055, ease: EASE_SALIDA }}
               whileTap={{ scale: 0.98 }}
-              className="opcion-recorrido min-h-12 rounded-[var(--radius-chip)] px-4 py-3 text-left text-ayuda leading-snug font-medium text-ink-1"
+              className="opcion-recorrido min-h-12 px-5 py-3 text-left text-ayuda leading-snug font-medium text-ink-1"
             >
               {sugerencia}
             </motion.button>
@@ -79,13 +81,17 @@ export function PasoIdea({
           Tu idea
         </label>
         <textarea
+          key={aviso}
+          ref={campo}
           id={idCampo}
           value={idea}
           onChange={(e) => setIdea(e.target.value.slice(0, LARGO_MAX_IDEA))}
           rows={2}
           maxLength={LARGO_MAX_IDEA}
           placeholder="Ej.: Pasteles para cumpleaños infantiles"
-          className="mt-2 w-full resize-none rounded-[var(--radius-chip)] border border-[var(--line)] bg-sunken px-4 py-3 text-base text-ink-1 placeholder:text-ink-3 focus:border-gold focus:outline-none"
+          className={`mt-2 w-full resize-none rounded-[var(--radius-chip)] border bg-sunken px-4 py-3 text-base text-ink-1 placeholder:text-ink-3 focus:border-gold focus:outline-none ${
+            aviso && !valida ? 'sacudir border-warning' : 'border-[var(--line)]'
+          }`}
         />
         <div className="mt-2 flex items-start justify-between gap-4">
           <p className="flex items-start gap-2 text-caption text-ink-2">
@@ -101,9 +107,21 @@ export function PasoIdea({
       </div>
 
       <BotonPrincipal
-        onClick={() => onSeguir(idea.replace(/\s+/g, ' ').trim())}
-        deshabilitado={!valida}
-        nota={valida ? undefined : 'Escribe al menos unas palabras o toca una sugerencia.'}
+        onClick={() => {
+          if (valida) {
+            onSeguir(idea.replace(/\s+/g, ' ').trim());
+            return;
+          }
+          // Botón vivo: si falta la idea, lleva al campo y lo señala.
+          setAviso((n) => n + 1);
+          vibrar(30);
+          window.setTimeout(() => campo.current?.focus(), 0);
+        }}
+        nota={
+          valida ? undefined : (
+            <span className={aviso ? 'text-warning' : undefined}>Escribe al menos unas palabras o toca una sugerencia.</span>
+          )
+        }
       >
         Esta es mi idea
         <ArrowRight size={20} aria-hidden="true" />

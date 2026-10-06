@@ -4,9 +4,9 @@
 // versionado y migra a la cuenta en el primer login (Sesión 5/6).
 
 export type IdPunto = 'idea' | 'oferta' | 'sin-idea';
-export type IdFreno = 'blanco' | 'tiempo' | 'teoria' | 'ideas';
+export type IdFreno = 'blanco' | 'tiempo' | 'teoria' | 'ideas' | 'otro';
 export type IdArea = 'servicios' | 'cursos' | 'productos';
-export type IdAreaRespuesta = IdArea | 'nose';
+export type IdAreaRespuesta = IdArea | 'nose' | 'otra';
 export type IdMomento = 'manana' | 'mediodia' | 'noche';
 export type Plan = 'anual' | 'mensual';
 
@@ -26,7 +26,11 @@ export type IdPaso =
 export interface Respuestas {
   punto?: IdPunto;
   freno?: IdFreno;
+  /** Texto libre si eligió "Otra cosa" en el freno. */
+  frenoOtro?: string;
   area?: IdAreaRespuesta;
+  /** Texto libre si eligió "Otra cosa" en el área. */
+  areaOtra?: string;
   /** Área efectiva: la elegida, o la que sale de la pregunta de ayuda si respondió "No lo sé". */
   areaFinal?: IdArea;
   idea?: string;
@@ -58,7 +62,7 @@ export interface EstadoOnboarding {
 export interface Opcion<T extends string> {
   id: T;
   texto: string;
-  icono: 'Lightbulb' | 'Target' | 'Compass' | 'NoteBlank' | 'Clock' | 'GraduationCap' | 'Brain' | 'Briefcase' | 'Books' | 'Package' | 'Signpost' | 'Handshake' | 'ChalkboardTeacher' | 'SunHorizon' | 'Bus' | 'Moon';
+  icono: 'Lightbulb' | 'Target' | 'Compass' | 'NoteBlank' | 'Clock' | 'GraduationCap' | 'Brain' | 'Briefcase' | 'Books' | 'Package' | 'Signpost' | 'Handshake' | 'ChalkboardTeacher' | 'SunHorizon' | 'Bus' | 'Moon' | 'PencilSimpleLine';
 }
 
 export interface Pregunta<T extends string> {
@@ -67,6 +71,8 @@ export interface Pregunta<T extends string> {
   acento: string;
   ayuda: string;
   opciones: Opcion<T>[];
+  /** Salida "Otra cosa (escribe la tuya)" para categorías abiertas (50 §A2). */
+  otra?: { id: T; texto: string; placeholder: string };
 }
 
 export const PREGUNTA_PUNTO: Pregunta<IdPunto> = {
@@ -90,6 +96,7 @@ export const PREGUNTA_FRENO: Pregunta<IdFreno> = {
     { id: 'teoria', texto: 'Los cursos son caros y pura teoría', icono: 'GraduationCap' },
     { id: 'ideas', texto: 'Tengo mil ideas y no sé cuál elegir', icono: 'Brain' },
   ],
+  otra: { id: 'otro', texto: 'Otra cosa (escribe la tuya)', placeholder: 'Ej.: Me da miedo vender' },
 };
 
 export const PREGUNTA_AREA: Pregunta<IdAreaRespuesta> = {
@@ -102,6 +109,7 @@ export const PREGUNTA_AREA: Pregunta<IdAreaRespuesta> = {
     { id: 'productos', texto: 'Productos físicos o comercio', icono: 'Package' },
     { id: 'nose', texto: 'No lo sé, ayúdame a elegir', icono: 'Signpost' },
   ],
+  otra: { id: 'otra', texto: 'Otra cosa (escribe la tuya)', placeholder: 'Ej.: Comida casera, belleza…' },
 };
 
 export const PREGUNTA_AYUDA: Pregunta<IdArea> = {
@@ -168,6 +176,14 @@ export const RECONOCIMIENTO: Record<
     antes: 'Con un curso',
     antesDato: '40 h de teoría',
   },
+  otro: {
+    titulo: 'Sea lo que sea, se avanza en 5 minutos',
+    acento: '5 minutos',
+    cuerpo: 'Casi siempre lo que frena es no saber cuál es el paso de hoy.',
+    fuerte: 'Aquí cada día tienes una misión exacta y la IA arma la pieza contigo.',
+    antes: 'Sin paso claro',
+    antesDato: 'Otro día igual',
+  },
   ideas: {
     titulo: 'Tener mil ideas no es el problema',
     acento: 'no es el problema',
@@ -212,7 +228,7 @@ export interface Hueco {
 }
 
 export const HUECOS: Hueco[] = [
-  { id: 'cliente', pregunta: '¿A quién ayudas?', consejo: 'Mientras más específico, más fácil venderle.', conector: 'Ayudo a' },
+  { id: 'cliente', pregunta: '¿A quién ayudas?', consejo: 'Mientras más específico, más fácil venderle.', conector: 'ayudo a' },
   { id: 'resultado', pregunta: '¿Qué logra gracias a ti?', consejo: 'Lo que tu cliente gana, no lo que tú haces.', conector: 'a' },
   { id: 'dolor', pregunta: '¿Qué se ahorra o evita?', consejo: 'Lo que hoy le molesta y quiere dejar atrás.', conector: 'sin' },
 ];
@@ -239,7 +255,7 @@ export const OPCIONES_EJERCICIO: Record<IdArea, Record<IdHueco, string[]>> = {
 
 export function secuencia(r: Respuestas): IdPaso[] {
   const pasos: IdPaso[] = ['punto', 'freno', 'reconocimiento', 'area'];
-  if (r.area === 'nose') pasos.push('ayuda');
+  if (r.area === 'nose' || r.area === 'otra') pasos.push('ayuda');
   pasos.push('idea', 'momento', 'etiqueta', 'ejercicio', 'armando', 'pieza');
   return pasos;
 }
@@ -278,8 +294,13 @@ export const QUITAR_INICIO: Record<IdHueco, RegExp> = {
   dolor: /^sin\s+/i,
 };
 
-export function armarFrase(r: Pick<Respuestas, 'cliente' | 'resultado' | 'dolor'>): string {
-  return `Ayudo a ${r.cliente} a ${r.resultado} sin ${r.dolor}.`;
+/** "Con mi idea" en minúscula inicial para que se lea dentro de la frase. */
+export function ideaEnFrase(idea: string): string {
+  return limpiarTexto(idea, LARGO_MAX_IDEA);
+}
+
+export function armarFrase(r: Pick<Respuestas, 'idea' | 'cliente' | 'resultado' | 'dolor'>): string {
+  return `Con ${ideaEnFrase(r.idea ?? '')}, ayudo a ${r.cliente} a ${r.resultado} sin ${r.dolor}.`;
 }
 
 /**
@@ -292,7 +313,7 @@ export async function armarPrimeraPieza(r: Respuestas): Promise<PrimeraPieza> {
     throw new Error('Faltan respuestas para armar la pieza');
   }
   return {
-    titulo: 'Tu propuesta de valor',
+    titulo: 'Tu frase de negocio',
     frase: armarFrase(r),
     idea: r.idea,
     area: r.areaFinal,

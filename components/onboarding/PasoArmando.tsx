@@ -13,11 +13,22 @@ import { EASE_SALIDA } from './piezas';
 const DURACION = 4.6;
 const RETRASOS_LINEA = [0, 1.1, 2.3, 3.5];
 
-function recortar(texto: string, max = 34): string {
-  return texto.length > max ? `${texto.slice(0, max - 1).trimEnd()}…` : texto;
+/** Corta por palabra (nunca a media palabra) solo si de verdad es largo. */
+function recortar(texto: string, max = 60): string {
+  if (texto.length <= max) return texto;
+  const corte = texto.slice(0, max);
+  return `${corte.slice(0, corte.lastIndexOf(' ')).trimEnd()}…`;
 }
 
-export function PasoArmando({ respuestas, onListo }: { respuestas: Respuestas; onListo: (pieza: PrimeraPieza) => void }) {
+export function PasoArmando({
+  respuestas,
+  onListo,
+  onVolver,
+}: {
+  respuestas: Respuestas;
+  onListo: (pieza: PrimeraPieza) => void;
+  onVolver: () => void;
+}) {
   const reduce = useReducedMotion();
   const avance = useMotionValue(0);
   const porcentaje = useTransform(avance, (v) => `${Math.round(v * 100)}%`);
@@ -28,7 +39,7 @@ export function PasoArmando({ respuestas, onListo }: { respuestas: Respuestas; o
   const lineas = [
     `Leyendo tu idea: ${recortar(respuestas.idea ?? '')}`,
     `Enfocando tu área: ${respuestas.areaFinal ? NOMBRE_AREA[respuestas.areaFinal] : ''}`,
-    `Puliendo tu frase para ${recortar(respuestas.cliente ?? '', 26)}`,
+    `Puliendo tu frase para ${recortar(respuestas.cliente ?? '')}`,
     'Guardando tu pieza en Mi Empresa',
   ];
 
@@ -96,7 +107,11 @@ export function PasoArmando({ respuestas, onListo }: { respuestas: Respuestas; o
       {error ? (
         <div className="mt-8 w-full text-center">
           <h1 className="font-display text-2xl font-extrabold text-ink-1">No pudimos terminar tu pieza</h1>
-          <p className="mt-2 text-base text-ink-2">Tus respuestas están guardadas. Vuelve a intentarlo, no tienes que repetir nada.</p>
+          <p className="mt-2 text-base text-ink-2">
+            {intento === 0
+              ? 'Tus respuestas están guardadas. Vuelve a intentarlo, no tienes que repetir nada.'
+              : 'Sigue sin funcionar. Revisa tu frase: tus respuestas siguen guardadas.'}
+          </p>
           <button
             type="button"
             onClick={() => {
@@ -110,6 +125,15 @@ export function PasoArmando({ respuestas, onListo }: { respuestas: Respuestas; o
             <RotateCcw size={20} aria-hidden="true" />
             Reintentar
           </button>
+          {intento > 0 && (
+            <button
+              type="button"
+              onClick={onVolver}
+              className="mt-2 flex min-h-11 w-full items-center justify-center text-sm font-semibold text-ink-2 underline-offset-4 hover:underline"
+            >
+              Volver a mi frase
+            </button>
+          )}
         </div>
       ) : (
         <>
@@ -130,7 +154,7 @@ export function PasoArmando({ respuestas, onListo }: { respuestas: Respuestas; o
                       <motion.span
                         initial={{ scale: 0.5 }}
                         animate={{ scale: 1 }}
-                        transition={{ type: 'spring', bounce: 0.45, duration: 0.3 }}
+                        transition={{ type: 'spring', bounce: 0.25, duration: 0.3 }}
                         className="flex size-5 items-center justify-center rounded-full bg-green text-on-green"
                       >
                         <Check size={12} strokeWidth={3.5} aria-hidden="true" />

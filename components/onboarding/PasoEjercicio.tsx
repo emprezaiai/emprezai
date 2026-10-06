@@ -1,8 +1,9 @@
 'use client';
 
-// LA PRIMERA MISIÓN (ejercicio intermedio-fácil, adaptado al área): completar la propuesta de
-// valor "Ayudo a [cliente] a [resultado] sin [dolor]" tocando opciones del área o escribiendo
-// las propias. La frase se arma en vivo arriba; cada hueco trae un consejo de una línea.
+// LA PRIMERA MISIÓN (ejercicio intermedio-fácil, adaptado al área): completar su frase de negocio
+// (propuesta de valor) "Con [su idea], ayudo a [cliente] a [resultado] sin [dolor]" tocando
+// opciones del área o escribiendo las propias. La frase se arma en vivo arriba; cada hueco trae
+// un consejo de una línea. El botón nunca está muerto: si falta algo, lleva al hueco vacío.
 
 import { useEffect, useId, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
@@ -13,6 +14,7 @@ import {
   NOMBRE_AREA,
   OPCIONES_EJERCICIO,
   QUITAR_INICIO,
+  ideaEnFrase,
   limpiarTexto,
   type IdArea,
   type IdHueco,
@@ -23,10 +25,12 @@ type Valores = Partial<Record<IdHueco, string>>;
 
 export function PasoEjercicio({
   area,
+  idea,
   inicial,
   onTerminar,
 }: {
   area: IdArea;
+  idea: string;
   inicial: Valores;
   onTerminar: (valores: Required<Valores>) => void;
 }) {
@@ -37,6 +41,7 @@ export function PasoEjercicio({
   const [actual, setActual] = useState(primeroVacio < 0 ? HUECOS.length - 1 : primeroVacio);
   const [escribiendo, setEscribiendo] = useState(false);
   const [propio, setPropio] = useState('');
+  const [aviso, setAviso] = useState(0);
   const temporizador = useRef<number | undefined>(undefined);
 
   useEffect(() => () => window.clearTimeout(temporizador.current), []);
@@ -73,35 +78,48 @@ export function PasoEjercicio({
         >
           <p className="flex items-center gap-2 text-xs font-semibold tracking-[0.08em] text-gold uppercase">
             <Zap size={14} fill="currentColor" strokeWidth={0} aria-hidden="true" />
-            Misión 1 · 2 min · {NOMBRE_AREA[area]}
+            Misión 1 · 5 min · {NOMBRE_AREA[area]}
           </p>
-          <TituloAcento texto="Arma tu propuesta de valor" acento="propuesta de valor" className="mt-2 text-pregunta" />
+          <TituloAcento texto="Arma tu frase de negocio" acento="frase de negocio" className="mt-2 text-pregunta" />
+          <p className="mt-1 text-ayuda text-ink-2">Qué haces y para quién, en una sola frase (tu propuesta de valor).</p>
         </motion.div>
 
         {/* La frase en vivo: cada hueco es tocable para cambiarlo */}
-        <div className="hairline-oro mt-6 rounded-[var(--radius-card)] p-4 shadow-[0_18px_32px_-18px_rgb(0_0_0/0.8)]">
+        <div
+          key={aviso}
+          className={`hairline-oro mt-6 rounded-[var(--radius-card)] p-4 shadow-[0_18px_32px_-18px_rgb(0_0_0/0.8)] ${aviso ? 'sacudir' : ''}`}
+        >
           <p className="text-xs font-semibold text-ink-3">Tu frase</p>
           <p className="mt-2 font-display text-xl leading-snug font-bold text-ink-1" aria-live="polite">
+            <span className="text-ink-2">Con {ideaEnFrase(idea)}, </span>
             {HUECOS.map((h, i) => {
               const valor = valores[h.id];
               const esActual = i === actual && !completa;
               return (
                 <span key={h.id}>
                   {h.conector}{' '}
-                  <button
-                    type="button"
+                  {/* span con rol de botón: un <button> no puede partirse entre líneas (es inline-block) */}
+                  <span
+                    role="button"
+                    tabIndex={0}
                     onClick={() => irAHueco(i)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        irAHueco(i);
+                      }
+                    }}
                     aria-label={`${h.pregunta} ${valor ? `Elegiste: ${valor}. Toca para cambiarlo.` : 'Sin completar.'}`}
-                    className={`rounded-sm text-left transition-colors duration-200 ${
+                    className={`cursor-pointer transition-colors duration-200 ${
                       valor
-                        ? `text-gold ${i === actual ? 'underline decoration-2 underline-offset-4' : ''}`
+                        ? `hueco-lleno text-gold ${i === actual ? 'underline decoration-2 underline-offset-4' : ''}`
                         : esActual
-                          ? 'hueco-vacio text-ink-3'
-                          : 'text-ink-3'
+                          ? 'hueco-vacio'
+                          : 'hueco-lleno text-ink-3'
                     }`}
                   >
-                    {valor ?? (esActual ? '_ _ _ _ _' : '…')}
-                  </button>
+                    {valor ?? (esActual ? '\u00A0' : '…')}
+                  </span>
                   {i < HUECOS.length - 1 ? ' ' : '.'}
                 </span>
               );
@@ -134,7 +152,7 @@ export function PasoEjercicio({
                     { icono: Store, texto: 'En el título de tu oferta (la armas el día 3)' },
                   ].map(({ icono: Icono, texto }) => (
                     <li key={texto} className="flex items-center gap-3 text-ayuda leading-snug text-ink-1">
-                      <span className="relieve-piedra flex size-9 shrink-0 items-center justify-center rounded-[var(--radius-chip)]" aria-hidden="true">
+                      <span className="flex size-9 shrink-0 items-center justify-center rounded-[var(--radius-chip)] bg-[color-mix(in_oklab,var(--gold)_12%,transparent)] text-gold" aria-hidden="true">
                         <Icono size={18} strokeWidth={2.2} />
                       </span>
                       {texto}
@@ -172,7 +190,7 @@ export function PasoEjercicio({
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.25, delay: reduce ? 0 : 0.05 + i * 0.05, ease: EASE_SALIDA }}
                     whileTap={{ scale: 0.98 }}
-                    className="opcion-recorrido min-h-12 rounded-[var(--radius-chip)] px-4 py-3 text-left text-ayuda leading-snug font-medium text-ink-1"
+                    className="opcion-recorrido min-h-12 px-5 py-3 text-left text-ayuda leading-snug font-medium text-ink-1"
                   >
                     {op}
                   </motion.button>
@@ -199,7 +217,7 @@ export function PasoEjercicio({
                       type="button"
                       onClick={() => llenar(propio)}
                       disabled={limpiarTexto(propio, LARGO_MAX_HUECO).length < 3}
-                      className="h-12 rounded-[var(--radius-chip)] border border-[var(--line)] bg-raised-2 text-ayuda font-semibold text-ink-1 transition-opacity duration-200 active:scale-[0.98] disabled:opacity-65"
+                      className="h-12 rounded-[var(--radius-pill)] border border-[var(--line)] bg-raised-2 text-ayuda font-semibold text-ink-1 transition-opacity duration-200 active:scale-[0.98] disabled:opacity-65"
                     >
                       Usar esta
                     </button>
@@ -208,7 +226,7 @@ export function PasoEjercicio({
                   <button
                     type="button"
                     onClick={() => setEscribiendo(true)}
-                    className="flex min-h-12 items-center gap-2 rounded-[var(--radius-chip)] px-4 text-ayuda font-semibold text-gold transition-colors duration-150 hover:bg-raised active:scale-[0.98]"
+                    className="flex min-h-12 items-center gap-2 rounded-[var(--radius-pill)] px-5 text-ayuda font-semibold text-gold transition-colors duration-150 hover:bg-raised active:scale-[0.98]"
                   >
                     <PencilLine size={18} aria-hidden="true" />
                     Escribir la mía
@@ -221,11 +239,25 @@ export function PasoEjercicio({
       </div>
 
       <BotonPrincipal
-        deshabilitado={!completa}
         onClick={() => {
-          if (completa) onTerminar(valores as Required<Valores>);
+          if (completa) {
+            onTerminar(valores as Required<Valores>);
+            return;
+          }
+          // Botón vivo: si falta algo, lleva al hueco vacío y lo señala.
+          irAHueco(HUECOS.findIndex((h) => !valores[h.id]));
+          setAviso((n) => n + 1);
+          vibrar(30);
         }}
-        nota={completa ? 'Se guarda en Mi Empresa como tu pieza 1' : `Completa los ${HUECOS.length} huecos de tu frase`}
+        nota={
+          completa ? (
+            'Se guarda en Mi Empresa como tu pieza 1'
+          ) : aviso ? (
+            <span className="text-warning">Te falta completar el hueco marcado</span>
+          ) : (
+            `Completa los ${HUECOS.length} huecos de tu frase`
+          )
+        }
       >
         Armar mi pieza
         <ArrowRight size={20} aria-hidden="true" />
