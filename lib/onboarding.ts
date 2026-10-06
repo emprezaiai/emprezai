@@ -154,7 +154,7 @@ export const RECONOCIMIENTO: Record<
 > = {
   blanco: {
     titulo: 'No te faltan ideas: te sobra la hoja en blanco',
-    acento: 'la hoja en blanco',
+    acento: 'hoja en blanco',
     cuerpo: 'ChatGPT espera que sepas qué pedirle, y a las 7 de la noche nadie lo sabe.',
     fuerte: 'Aquí es al revés: te damos la misión exacta y la IA arma la pieza contigo.',
     antes: 'Frente a ChatGPT',
@@ -186,7 +186,7 @@ export const RECONOCIMIENTO: Record<
   },
   ideas: {
     titulo: 'Tener mil ideas no es el problema',
-    acento: 'no es el problema',
+    acento: 'mil ideas',
     cuerpo: 'El problema es no saber cuál es el paso 1, y eso paraliza a cualquiera.',
     fuerte: 'Aquí empiezas por una sola idea y la ruta te dice qué hacer cada día.',
     antes: 'Con mil ideas',
@@ -319,7 +319,7 @@ export function armarFrase(r: Pick<Respuestas, 'idea' | 'cliente' | 'resultado' 
 
 /** El tema de una idea de conocimiento ("Mini curso de Excel para…" → "Excel"). */
 export function temaDeLaIdea(idea: string): string | undefined {
-  const m = /^(?:mini\s+)?(?:curso|cursos|clases|taller|guía|e-?book|mentoría)\s+de\s+(.+?)(?:\s+para\s+.*)?$/i.exec(idea.trim());
+  const m = /^(?:mini\s+)?(?:curso|cursos|clases|taller|mentoría)\s+de\s+(.+?)(?:\s+para\s+.*)?$/i.exec(idea.trim());
   if (!m) return undefined;
   // Sin limpiarTexto: respeta mayúsculas de nombres propios (Excel, Canva).
   const tema = m[1].replace(/\s+/g, ' ').trim().slice(0, 40);
@@ -333,31 +333,42 @@ export function opcionesHueco(area: IdArea, hueco: IdHueco, idea: string): strin
     hueco === 'cliente'
       ? clienteDeLaIdea(idea)
       : hueco === 'resultado' && temaDeLaIdea(idea)
-        ? `aprender ${temaDeLaIdea(idea)} paso a paso`
+        ? 'usarlo en su día a día, paso a paso'
         : undefined;
   if (!propia || base.some((o) => o.toLowerCase() === propia.toLowerCase())) return base;
   return [propia, ...base.slice(0, 3)];
 }
 
 /** Resumen corto de lo que respondió: se muestra en la ruta y crece con cada respuesta. */
-const CORTO_PUNTO: Record<IdPunto, string> = { idea: 'Con una idea', oferta: 'Sabe qué vender', 'sin-idea': 'Busca su idea' };
+const CORTO_PUNTO: Record<IdPunto, string> = { idea: 'Tienes una idea', oferta: 'Ya sabes qué vender', 'sin-idea': 'Buscas tu idea' };
 const CORTO_FRENO: Record<IdFreno, string> = {
-  blanco: 'Se queda en blanco',
-  tiempo: 'Poco tiempo',
-  teoria: 'Sin más teoría',
-  ideas: 'Mil ideas',
-  otro: 'Su propio freno',
+  blanco: 'hoja en blanco',
+  tiempo: 'poco tiempo',
+  teoria: 'mucha teoría',
+  ideas: 'mil ideas',
+  otro: 'el tuyo',
 };
 
-export function resumenRespuestas(r: Respuestas): string[] {
+export interface ItemResumen {
+  texto: string;
+  /** 'freno' es un dato a resolver (sin check verde de "hecho"). */
+  tipo: 'logro' | 'freno';
+}
+
+export function resumenRespuestas(r: Respuestas): ItemResumen[] {
   const corto = (t: string) => (t.length > 26 ? `${t.slice(0, 25).trimEnd()}…` : t);
-  const items: string[] = [];
-  if (r.punto) items.push(CORTO_PUNTO[r.punto]);
-  if (r.freno) items.push(r.freno === 'otro' && r.frenoOtro ? corto(r.frenoOtro) : CORTO_FRENO[r.freno]);
-  if (r.areaFinal) items.push(NOMBRE_AREA[r.areaFinal]);
-  else if (r.area === 'otra' && r.areaOtra) items.push(corto(r.areaOtra));
-  if (r.idea) items.push(corto(r.idea));
-  if (r.momento) items.push(NOMBRE_MOMENTO[r.momento][0].toUpperCase() + NOMBRE_MOMENTO[r.momento].slice(1));
+  const items: ItemResumen[] = [];
+  if (r.punto) items.push({ texto: CORTO_PUNTO[r.punto], tipo: 'logro' });
+  if (r.freno) {
+    const freno = r.freno === 'otro' && r.frenoOtro ? corto(r.frenoOtro) : CORTO_FRENO[r.freno];
+    items.push({ texto: `Freno: ${freno}`, tipo: 'freno' });
+  }
+  if (r.areaFinal) items.push({ texto: NOMBRE_AREA[r.areaFinal], tipo: 'logro' });
+  else if (r.area === 'otra' && r.areaOtra) items.push({ texto: corto(r.areaOtra), tipo: 'logro' });
+  if (r.idea) items.push({ texto: corto(r.idea), tipo: 'logro' });
+  if (r.momento) {
+    items.push({ texto: NOMBRE_MOMENTO[r.momento][0].toUpperCase() + NOMBRE_MOMENTO[r.momento].slice(1), tipo: 'logro' });
+  }
   return items;
 }
 

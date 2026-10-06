@@ -26,7 +26,7 @@ import {
   Target,
   type Icon,
 } from '@phosphor-icons/react';
-import type { Opcion } from '@/lib/onboarding';
+import type { ItemResumen, Opcion } from '@/lib/onboarding';
 
 export const EASE_SALIDA = [0.16, 1, 0.3, 1] as const;
 
@@ -271,7 +271,7 @@ export function PromesaRecorrido() {
 /* ── La ruta en miniatura (Hoy → Día 30): el dispositivo de la marca, anclado abajo ── */
 const DIAS_RUTA = [1, 2, 3, 4, 5];
 
-export function RutaMini({ titulo, respuestas = [] }: { titulo: string; respuestas?: string[] }) {
+export function RutaMini({ titulo, respuestas = [] }: { titulo: string; respuestas?: ItemResumen[] }) {
   const reduce = useReducedMotion();
   return (
     <motion.div
@@ -316,18 +316,24 @@ export function RutaMini({ titulo, respuestas = [] }: { titulo: string; respuest
       </ol>
       {respuestas.length > 0 && (
         <ul className="mt-4 flex flex-wrap gap-2 border-t border-[var(--line)] pt-4" aria-label="Lo que ya sabe tu ruta">
-          {respuestas.map((r, i) => (
-            <motion.li
-              key={r}
-              initial={{ opacity: 0, scale: reduce ? 1 : 0.85 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ type: 'spring', bounce: 0.25, duration: 0.35, delay: reduce ? 0 : 0.35 + i * 0.05 }}
-              className="flex items-center gap-1 rounded-[var(--radius-pill)] bg-[color-mix(in_oklab,var(--green)_12%,transparent)] py-1 pr-3 pl-2 text-xs font-semibold text-ink-1"
-            >
-              <Check size={12} strokeWidth={3} className="text-green" aria-hidden="true" />
-              {r}
-            </motion.li>
-          ))}
+          {respuestas.map((r, i) => {
+            // Solo la respuesta recién dada "aparece"; las anteriores ya estaban.
+            const nueva = i === respuestas.length - 1;
+            return (
+              <motion.li
+                key={r.texto}
+                initial={nueva && !reduce ? { opacity: 0, scale: 0.85 } : false}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ type: 'spring', bounce: 0.25, duration: 0.35, delay: 0.35 }}
+                className={`flex items-center gap-1 rounded-[var(--radius-pill)] py-1 pr-3 text-xs font-semibold text-ink-1 ${
+                  r.tipo === 'freno' ? 'bg-raised-2 pl-3' : 'bg-[color-mix(in_oklab,var(--green)_12%,transparent)] pl-2'
+                }`}
+              >
+                {r.tipo === 'logro' && <Check size={12} strokeWidth={3} className="text-green" aria-hidden="true" />}
+                {r.texto}
+              </motion.li>
+            );
+          })}
         </ul>
       )}
     </motion.div>

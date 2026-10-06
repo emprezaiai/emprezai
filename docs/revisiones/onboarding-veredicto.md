@@ -1,48 +1,49 @@
 # VEREDICTO revisor-visual — onboarding
-Fecha: 2026-10-06 18:30
+Fecha: 2026-10-06 19:45
 Screenshot: docs/revisiones/onboarding-375.png
-Usabilidad: 32/40
-Craft: 16/20
+Usabilidad: 34/40
+Craft: 17/20
 Copy (si vende): 18/20
 Fidelidad (si hubo referencia): N-A
 Veredicto: NO LISTA
-Top defectos: (1) la ruta en miniatura es la misma tarjeta estática en 6 pantallas, dice "Cada respuesta ajusta tu ruta" pero nunca cambia, y en las preguntas de 3 opciones deja un hueco de 180-260px a media pantalla · (2) en el área Cursos, el resultado genérico ("dominar una habilidad en 7 días") deja la frase vaga; el hueco vacío sigue mostrando "sin …." con 4 puntos · (3) el error de "Usar esta" sacude la tarjeta en vez del campo, el aviso sale lejos y no dice qué falló, y el botón es gris cuando "Continuar" es dorado · (4) el dorado se usa en todos los rótulos, bombillas e íconos, aunque la ficha lo restringe · (5) "Escribir la mía" queda bajo la barra fija a 375 y la pieza base dice "la afinamos en tu primera misión" cuando el usuario ya la hizo
+Top defectos: (1) las etiquetas verdes de la ruta hablan en tercera persona ("Sabe qué vender", "Busca su idea", "Se queda en blanco"), cuando toda la app tutea, y ponen un check verde de logro sobre un dolor · (2) la sugerencia propia "Guía de comidas saludables…" genera "aprender comidas saludables paso a paso", que no es español natural, y el camino Excel repite "Excel" dos veces en la frase · (3) el acento dorado cubre 4-6 palabras con artículos y preposiciones ("en vez de quedarte en blanco", "la hoja en blanco") · (4) el mismo gesto, escribir una respuesta propia, se resuelve con dos componentes y dos textos distintos ("Otra cosa (escribe la tuya)" en fila con ícono y "Escribir la mía" como enlace subrayado) · (5) quedan 110-210px vacíos bajo la tarjeta en las preguntas de 3 opciones (01-punto, 05-ayuda, 07-momento) y no hay salida "Ya tengo cuenta" para quien ya pagó
 
 ---
 
-## Re-revisión 3: qué se corrigió
-| Hallazgo de la revisión 2 | Estado |
+## Re-revisión 4: qué se corrigió
+| Hallazgo de la revisión 3 | Estado |
 |---|---|
-| 1. La idea y el cliente no se cuadran / falta el artículo | CORREGIDO en el camino por defecto. "Manejo de redes sociales: ayudo a negocios locales a conseguir clientes por redes sin contratar una agencia cara." y "Mini curso de Excel: ayudo a dueños de negocio a dominar una habilidad…" ya no se contradicen ni se repiten (`clienteDeLaIdea`, `ideaEnFrase`, `opcionesHueco`). Queda abierto: el resultado sigue saliendo solo del área y no usa el tema de la idea ("una habilidad" en lugar de "Excel") |
-| 2. Vacío muerto | PARCIAL. La etiqueta queda llena (resumen + ruta) y la carga tiene esqueleto. En 01-punto, 05-ayuda y 07-momento el vacío ya no queda al pie: queda a media pantalla, entre las opciones y la ruta anclada (180-260px) |
-| 3. La duración se contradice | CORREGIDO ("Toma unos 5 minutos" / "Misión 1 · Día 1" / "misión de 5 minutos") |
-| 4. "Continuar" y "Usar esta" desactivados | CORREGIDO, ninguno lleva `disabled`. Pero el aviso de "Usar esta" no es igual al de PasoPregunta (ver defecto 3) |
-| 5. Copiar/Editar en 12px · texto cortado bajo la barra | CORREGIDO (`--radius-pill`; "En este celular por ahora…" se lee completo en 13-pieza-arriba y en onboarding-375) |
-| m5. Falta una pieza de respaldo | CORREGIDO (`piezaBase` al segundo fallo). Su texto de prueba choca con el momento (defecto 5) |
-| Detalle: "sin …." con 4 puntos | PERSISTE |
+| 1. RutaMini estática, el rótulo no se cumple, hueco a media pantalla | CORREGIDO EN LO PRINCIPAL. Las etiquetas crecen con cada respuesta (`resumenRespuestas`), el rótulo es "Tu ruta hasta ahora" y la tarjeta va 24px bajo las opciones. Quedan abiertos: los nodos Hoy→30 son idénticos en 7 pantallas; todas las etiquetas vuelven a animarse en cada paso, así que la nueva no se distingue; las etiquetas están en tercera persona (defecto 1) |
+| 2. Resultado genérico en Cursos · "sin …." | CORREGIDO para "curso/clases de X" ("aprender Excel paso a paso" con la mayúscula respetada). El punto solo aparece con el último hueco lleno (PasoEjercicio L124). Regresión nueva con "guía/e-book" (defecto 2) |
+| 3. Error de "Usar esta" | CORREGIDO. Sacude el input con `border-warning`, muestra "Escribe al menos unas letras." justo debajo y usa `boton-oro`, igual que "Continuar" |
+| 4. Dorado regado | CORREGIDO EN LO PRINCIPAL. Rótulos, bombillas, íconos de lista y "Escribir la mía" quedaron en ink-2/ink-3. Siguen en dorado: "DÍA 1 DE 30 · TU RUTA ESTÁ LISTA" (PasoEtiqueta L79), un rótulo en mayúsculas, y "Pieza 1 de 30" (Armando L190 / Pieza L94). Pasa como dato de misión, pero es el borde de la ficha |
+| 5. "Escribir la mía" bajo la barra · texto de piezaBase | CORREGIDO. En las capturas "-final" se ve completo encima de la barra fija. piezaBase dice "la afinamos mañana en tu Día 2". `overflow-x-clip` está en el `<main>` (Onboarding.tsx L237) |
 
 ## Detalle de puntajes
-USABILIDAD 32/40: h1:3 h2:3 h3:3 h4:3 h5:3 h6:4 h7:3 h8:3 h9:3 h10:4
-CRAFT 16/20: jerarquía:3 profundidad:3 identidad:3 movimiento:4 encaje:3
+USABILIDAD 34/40: h1:4 h2:3 h3:3 h4:3 h5:3 h6:4 h7:3 h8:3 h9:4 h10:4
+CRAFT 17/20: jerarquía:3 profundidad:4 identidad:3 movimiento:4 encaje:3
 COPY 18/20: idea:3 especificidad:3 emoción:4 oferta:4 acción:4
-FIDELIDAD: N/A
-Falla el gate doble por usabilidad (32 < 36). Craft (16) pasa justo. Copy (18) pasa, sin ningún eje en 2 o menos.
+FIDELIDAD: N/A (la referencia de la ficha solo rige la composición de "Hoy", no el onboarding)
+Falla el gate doble por usabilidad (34 < 36). Craft (17) y copy (18) pasan, sin ningún eje en 2 o menos.
 
-- h1 = 3: la barra de % y la carga (anillo, 4 líneas y esqueleto) informan bien. La ruta promete "Cada respuesta ajusta tu ruta", pero `RutaMini` no recibe estado (piezas.tsx L274): lo que muestra no cambia nunca.
-- h4 = 3: la misma acción (confirmar el texto propio) es "Continuar" dorado en PasoPregunta L116-123 y "Usar esta" gris en PasoEjercicio L216-229, y cada una avisa el error de forma distinta.
-- h5 = 3: el error de raíz (idea contra cliente) queda evitado en el camino por defecto. Si el usuario elige otro cliente, la frase puede quedar casi repetida ("…para negocios locales: ayudo a dueños de pequeños negocios…"), pero ya no se contradice.
-- h8 = 3: hay una sola acción primaria y la jerarquía está limpia. La ruta idéntica repetida en 6 pantallas funciona como papel tapiz, y hay huecos a media pantalla en las preguntas de 3 opciones.
-- h9 = 3: los avisos en ámbar sí llegan. El de "Usar esta" dice "Te falta completar el hueco marcado" cuando el problema real es que escribiste menos de 3 letras.
-- Gate de carga cognitiva: 1 falla límite. Freno, área y los huecos del ejercicio tienen 5 opciones si se cuenta la vía de "Otra cosa/Escribir la mía". No es crítico.
-- CTA héroe vivo: dorado #FFC23D sobre #0F0D16, contraste aprox. 12:1 ✓ · whileTap 0.98 ✓ · ningún paso pasa `deshabilitado` a BotonPrincipal ✓ · 56px a ancho completo ✓.
-- Ficha de arte: paleta, par Bricolage/Instrument, display de 28px, píldoras y resorte 0.25 coinciden. El desvío es el uso del acento: la ficha dice "SOLO en CTA, misión de hoy, nodo hoy, dato héroe", y en pantalla aparece en todos los rótulos en mayúsculas, bombillas, íconos de "Dónde la vas a usar" y en "Escribir la mía".
-- Código h3/h7: hay atrás en cada paso, cada hueco se puede tocar, "Editar" vuelve al ejercicio y el estado se retoma desde localStorage. Enter confirma, las sugerencias rellenan el campo y el avance es automático a los 300ms.
-- Movimiento: stagger ✓ · conteo (anillo %, "1 de 30") ✓ · anillo y barra que se dibujan ✓ · tap ✓ · transición con dirección ✓ · celebración ✓ · pulso del nodo Hoy (repeat 2) ✓ · `.sacudir` y `useReducedMotion` respetan reduced-motion ✓.
-- Copy: el reconocimiento usa la escena literal de la ficha (7 PM, 15 min en blanco). La oferta del recorrido queda clara y con un solo número de tiempo. Message-match: no verificable (sin dato del 34). Garantía: N/A (aquí no hay CTA de compra).
+- h1 = 4: barra con % real, check con resorte y avance a los 300ms, frase en vivo con aria-live, etiquetas que crecen, carga con anillo + 4 líneas con los datos del usuario + esqueleto, y "Guardada en Mi Empresa 1 de 30".
+- h2 = 3: el copy usa la voz del avatar ("hoja en blanco", "7 de la noche", "directo al grano"). Fallan las etiquetas en tercera persona (`CORTO_PUNTO`/`CORTO_FRENO`, lib/onboarding.ts L343-350) y la frase "aprender comidas saludables".
+- h3 = 3 (código): hay atrás en cada paso, cada hueco se puede tocar, "Editar" en la pieza, el estado se retoma desde localStorage, y "Reintentar" + "Volver a mi frase" ante fallos. No hay ninguna entrada "Ya tengo cuenta" en el recorrido (grep sin resultados en Onboarding.tsx), y el modo "Escribir la mía" no se puede cancelar.
+- h4 = 3: "Usar esta" y "Continuar" ya son iguales. Ahora la misma acción (escribir la propia) es una fila con ícono en PasoPregunta L59-61 y un enlace subrayado con otro texto en PasoEjercicio L239-246. Las etiquetas rompen el tuteo de la ficha ("Idioma UI: tuteo").
+- h5 = 3: el CTA valida al hacer clic y salta al hueco vacío; hay maxLength, `limpiarTexto` y doble toque bloqueado. `temaDeLaIdea` (L322) acepta "guía" y "e-book", y con una sugerencia de la propia app arma una frase rota.
+- h7 = 3 (código): Enter confirma en los dos inputs, la sugerencia que sale de la idea va primera, hay avance automático y se retoma el estado. No hay nada para el experto más allá de eso.
+- h8 = 3: hay una sola acción primaria por pantalla. El vacío al pie en las preguntas de 3 opciones y los títulos sobre-acentuados se notan con lupa.
+- h9 = 4: los avisos en ámbar dicen qué hacer y aparecen junto al campo. "No pudimos terminar tu pieza" va con "Tus respuestas están guardadas…" + Reintentar, y hay pieza base al segundo fallo. Detalle: la rama "Sigue sin funcionar…" (Armando L118) nunca se muestra, porque `intento>0` va directo a piezaBase.
+- Gate de carga cognitiva: 1 falla límite. Freno y área presentan 5 opciones, y el ejercicio 4 + "Escribir la mía". No es crítico.
+- CTA héroe vivo: #FFC23D sobre #0F0D16, contraste aprox. 12:1 ✓ · whileTap 0.98 ✓ · ningún paso pasa `deshabilitado` ✓ · h-14 (56px) a ancho completo ✓.
+- Ficha de arte: paleta, Bricolage/Instrument, título de 28px, píldoras, tarjetas de 18-22px y resorte 0.25 coinciden. El verde de la ficha significa "progreso HECHO", y el check verde sobre "Se queda en blanco" lo usa al revés.
+- Anclas de conversión: hay hairline dorada degradada en la frase y en la pieza ✓, íconos SVG Phosphor/Lucide sin emojis ✓ y secciones distinguibles ✓. Los titulares con énfasis fallan en extensión (defecto 3).
+- Movimiento (código): stagger de opciones (0.055s) ✓ · conteo de % en la carga ✓ · anillo y barra de progreso que se dibujan ✓ · tap 0.98 ✓ · transición entre pasos ✓ · celebración con check verde ✓ · pulso del nodo Hoy (repeat 2) ✓ · etiquetas con resorte ✓ · `useReducedMotion` + `.sacudir` desactivado en reduced-motion ✓.
+- Copy: la frase final del camino por defecto es sólida y concreta. Message-match: no verificable (sin dato del 34). Garantía: N/A (aquí no hay CTA de compra).
 
 ## Top defectos (ubicación → fix)
-1. **[Ruta en miniatura: 01/02/04/05-ayuda/07-momento/03/08]** `RutaMini` es estática y siempre igual, el rótulo "Cada respuesta ajusta tu ruta" no se cumple, y en las preguntas de 3 opciones queda un hueco de 180-260px entre las opciones y la ruta. → Pasarle las respuestas y nombrar lo que se desbloquea (ej. "Día 2 · tu cliente ideal", "a las 7 PM") para que cambie paso a paso, o cambiar el rótulo y subir la tarjeta 24px bajo las opciones.
-2. **[Ejercicio, área Cursos + frase en vivo]** `lib/onboarding.ts` L244: "dominar una habilidad en 7 días" deja vaga "Mini curso de Excel: ayudo a dueños de negocio a dominar una habilidad…". Además, el hueco vacío muestra "sin …." → Extraer el tema de la idea (lo que va antes de "para") como 1ª opción de resultado ("dominar Excel en 7 días"), y no agregar "." cuando el último hueco está vacío (PasoEjercicio L121-123).
-3. **[Ejercicio → "Usar esta"]** PasoEjercicio L218-226: el error sacude la tarjeta de la frase y el aviso sale bajo el CTA con un texto que no describe el error. El botón es gris, pero el equivalente en PasoPregunta es dorado. → Sacudir el input con `border-warning`, poner "Escribe al menos unas letras" justo debajo y unificar el estilo con "Continuar".
-4. **[Acento dorado en todas las pantallas]** Los rótulos en mayúsculas de RutaMini, PromesaRecorrido y "Dónde la vas a usar", las bombillas, los íconos de lista y "Escribir la mía" van en `text-gold`, contra lo que dice FICHA-ARTE ("SOLO en CTA/misión de hoy/nodo hoy/dato héroe"). → Pasar esos rótulos e íconos a `text-ink-3`/`ink-2` y dejar el oro solo en la palabra acento del título, el nodo Hoy, los huecos llenos y el CTA.
-5. **[Ejercicio 375 arriba + pieza base]** "Escribir la mía" queda tapada por la barra fija (se ve un fantasma en 09/10-arriba). `piezaBase` dice "la afinamos con tus respuestas en tu primera misión" justo cuando la misión 1 acaba de terminar. → Dar al contenido un `pb` igual al alto de la barra, y cambiar el texto a "Es una versión base: la afinamos mañana en tu Día 2".
+1. **[Etiquetas de RutaMini: 02-freno, 04-área, 07-momento; 360: 05-ayuda, 08-momento]** "Sabe qué vender", "Busca su idea", "Se queda en blanco" y "Su propio freno" están en tercera persona dentro de una app que tutea, y el check verde de logro va sobre un dolor. → Reescribir `CORTO_PUNTO`/`CORTO_FRENO` en segunda persona o como dato neutro ("Ya sabes qué vender", "Freno: hoja en blanco") y no poner check verde en la etiqueta del freno.
+2. **[Ejercicio, Paso 2 en Cursos · lib/onboarding.ts L322-336]** Con "Guía de comidas saludables para mamás ocupadas", que la app sugiere, sale "aprender comidas saludables paso a paso". Con Excel, la frase repite "Excel… aprender Excel". → Limitar `temaDeLaIdea` a curso/clases/taller/mentoría y, si el tema ya está en la idea, ofrecer "usarlo en su negocio paso a paso".
+3. **[Títulos con acento: 09-etiqueta (360) "Elegiste en vez de quedarte en blanco", 03-reconocimiento "la hoja en blanco"]** El dorado cubre 4-6 palabras con artículos y preposiciones, contra la regla de 1-3 palabras clave. → Dejar el `acento` en 1-3 palabras de beneficio y sin artículos: "hoja en blanco" (sin "la") y, en la etiqueta, reformular a "Elegiste **avanzar**" o un equivalente.
+4. **[Escribir una respuesta propia: PasoPregunta (fila "Otra cosa (escribe la tuya)") vs PasoEjercicio ("Escribir la mía", enlace)]** El mismo gesto usa dos componentes y dos textos. → Usar en el ejercicio la misma fila con ícono PencilSimpleLine y el mismo texto "Otra cosa (escribe la tuya)", con opción de cancelar.
+5. **[Pie de 01-punto, 05-ayuda, 07-momento]** Quedan 110-210px vacíos bajo la tarjeta, y nadie que ya pagó tiene salida ("Ya tengo cuenta") desde el recorrido. → En 01-punto, agregar al pie un enlace secundario "¿Ya tienes cuenta? Entrar" (min-h-11, ink-2), que llena el vacío y da la salida que falta.

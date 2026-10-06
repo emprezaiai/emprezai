@@ -12,8 +12,8 @@ import { BotonPrincipal, CheckCustom, EASE_SALIDA, RutaMini, TituloAcento } from
 function etiqueta(punto: IdPunto | undefined, eligioConAyuda: boolean): { titulo: string; acento: string; cuerpo: string } {
   if (punto === 'sin-idea' || eligioConAyuda) {
     return {
-      titulo: 'Elegiste en vez de quedarte en blanco',
-      acento: 'en vez de quedarte en blanco',
+      titulo: 'Elegiste avanzar en vez de quedarte en blanco',
+      acento: 'avanzar',
       cuerpo: 'Eso ya es avanzar: ahora tienes área, idea y horario, cuando muchos se quedan solo pensándolo.',
     };
   }
@@ -26,7 +26,7 @@ function etiqueta(punto: IdPunto | undefined, eligioConAyuda: boolean): { titulo
   }
   return {
     titulo: 'Tus respuestas dicen que eres de los que actúan',
-    acento: 'de los que actúan',
+    acento: 'actúan',
     cuerpo: 'Tenías una idea guardada y hoy le pusiste área y horario. Ese es el paso que casi nadie da.',
   };
 }

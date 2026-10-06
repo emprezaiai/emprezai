@@ -7,7 +7,7 @@
 
 import { useEffect, useId, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { ArrowRight, Lightbulb, MessageCircle, PencilLine, Store, UserRound, Zap } from 'lucide-react';
+import { ArrowRight, Lightbulb, MessageCircle, Store, UserRound, Zap } from 'lucide-react';
 import {
   HUECOS,
   LARGO_MAX_HUECO,
@@ -19,7 +19,7 @@ import {
   type IdArea,
   type IdHueco,
 } from '@/lib/onboarding';
-import { BotonPrincipal, CheckCustom, EASE_SALIDA, TituloAcento, vibrar } from './piezas';
+import { BotonPrincipal, CheckCustom, EASE_SALIDA, FichaIcono, TituloAcento, vibrar } from './piezas';
 
 type Valores = Partial<Record<IdHueco, string>>;
 
@@ -234,16 +234,28 @@ export function PasoEjercicio({
                     >
                       Usar esta
                     </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEscribiendo(false);
+                        setPropio('');
+                        setAvisoPropio(0);
+                      }}
+                      className="flex min-h-11 items-center justify-center text-sm font-semibold text-ink-2 underline-offset-4 hover:underline"
+                    >
+                      Cancelar
+                    </button>
                   </div>
                 ) : (
-                  <button
+                  <motion.button
                     type="button"
                     onClick={() => setEscribiendo(true)}
-                    className="flex min-h-12 items-center gap-2 rounded-[var(--radius-pill)] px-5 text-ayuda font-semibold text-ink-1 underline decoration-[var(--line)] underline-offset-4 transition-colors duration-150 hover:bg-raised active:scale-[0.98]"
+                    whileTap={{ scale: 0.98 }}
+                    className="opcion-recorrido flex min-h-12 items-center gap-3 py-2 pr-5 pl-2 text-left text-ayuda font-medium text-ink-1"
                   >
-                    <PencilLine size={18} aria-hidden="true" />
-                    Escribir la mía
-                  </button>
+                    <FichaIcono icono="PencilSimpleLine" redonda />
+                    Otra cosa (escribe la tuya)
+                  </motion.button>
                 )}
               </div>
             </motion.div>

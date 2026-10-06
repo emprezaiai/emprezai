@@ -38,7 +38,13 @@ function Monto({ valor, desdeCero = false }: { valor: number; desdeCero?: boolea
       pintar(valor);
       return;
     }
-    const control = animate(desde, valor, { duration: desde === 0 ? 0.4 : 0.3, ease: 'easeOut', onUpdate: pintar });
+    const entrada = desde === 0;
+    const control = animate(desde, valor, {
+      duration: entrada ? 0.4 : 0.3,
+      delay: entrada ? 0.5 : 0,
+      ease: 'easeOut',
+      onUpdate: pintar,
+    });
     return () => control.stop();
   }, [valor, reduce]);
   return (
@@ -174,8 +180,8 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
             )}
             <TituloAcento texto="Desbloquea los 29 días hasta tu oferta lista" acento="tu oferta lista" className="text-pregunta" />
             <p className="mt-2 text-base leading-relaxed text-ink-2">
-              Con el Método Pieza a Pieza, la IA arma tu negocio contigo,{' '}
-              <span className="font-semibold text-ink-1">una pieza al día</span>.
+              Adiós a la hoja en blanco: con el Método Pieza a Pieza, la IA arma tu negocio contigo,{' '}
+              <span className="font-semibold text-ink-1">5 minutos al día</span>.
             </p>
           </motion.div>
 
@@ -213,7 +219,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
                   +26
                 </span>
                 <span className="text-xs leading-tight font-semibold text-ink-2">
-                  Lista
+                  A vender
                   <span className="sr-only"> (día 30, oferta lista para vender)</span>
                 </span>
               </li>
@@ -399,7 +405,16 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
           </motion.button>
           <p className="mt-2 text-center text-caption text-ink-2" aria-live="polite">
             {errorPago ? (
-              <span className="text-warning">No pudimos abrir la página de pago. Escríbenos y te ayudamos a terminar.</span>
+              <span className="text-warning">
+                No pudimos abrir la página de pago.{' '}
+                <a
+                  className="font-semibold underline underline-offset-4"
+                  href={`mailto:${RESPONSABLE.emailContacto}?subject=${encodeURIComponent('No pude abrir el pago de EMPRESAI')}`}
+                >
+                  Escríbenos
+                </a>{' '}
+                y te ayudamos a terminar.
+              </span>
             ) : sinConexion ? (
               <span className="inline-flex items-center gap-1 text-warning">
                 <WifiOff size={14} aria-hidden="true" />
@@ -474,13 +489,22 @@ function AvisoVistaPrevia({ plan, onCerrar }: { plan: string; onCerrar: () => vo
 
 function EsqueletoPlanes() {
   return (
-    <main className="fondo-recorrido min-h-dvh" aria-busy="true" aria-label="Cargando los planes">
-      <div className="mx-auto flex w-full max-w-md flex-col px-4 pt-16">
-        <div className="h-8 w-4/5 animate-pulse rounded-[var(--radius-chip)] bg-raised" />
-        <div className="mt-2 h-4 w-3/5 animate-pulse rounded-[var(--radius-chip)] bg-raised" />
-        <div className="mt-6 h-32 animate-pulse rounded-[var(--radius-card)] bg-raised" />
-        <div className="mt-6 h-20 animate-pulse rounded-[var(--radius-card)] bg-raised" />
-        <div className="mt-3 h-20 animate-pulse rounded-[var(--radius-card)] bg-raised" />
+    <main className="fondo-recorrido min-h-dvh overflow-x-clip" aria-busy="true" aria-label="Cargando los planes">
+      <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col">
+        <div className="flex h-14 items-center px-2">
+          <div className="size-11 rounded-full bg-raised" />
+        </div>
+        <div className="px-4 pt-2">
+          <div className="h-3 w-2/5 animate-pulse rounded-full bg-raised" />
+          <div className="mt-2 h-16 w-11/12 animate-pulse rounded-[var(--radius-chip)] bg-raised" />
+          <div className="mt-2 h-12 w-4/5 animate-pulse rounded-[var(--radius-chip)] bg-raised" />
+          <div className="mt-6 h-48 animate-pulse rounded-[var(--radius-card)] bg-raised" />
+          <div className="mt-4 h-20 animate-pulse rounded-[var(--radius-card)] bg-raised" />
+          <div className="mt-3 h-20 animate-pulse rounded-[var(--radius-card)] bg-raised" />
+        </div>
+        <div className="mt-auto px-4 pt-6 pb-4">
+          <div className="h-14 animate-pulse rounded-[var(--radius-pill)] bg-raised" />
+        </div>
       </div>
     </main>
   );

@@ -113,9 +113,7 @@ export function PasoArmando({
         <div className="mt-8 w-full text-center">
           <h1 className="font-display text-2xl font-extrabold text-ink-1">No pudimos terminar tu pieza</h1>
           <p className="mt-2 text-base text-ink-2">
-            {intento === 0
-              ? 'Tus respuestas están guardadas. Vuelve a intentarlo, no tienes que repetir nada.'
-              : 'Sigue sin funcionar. Revisa tu frase: tus respuestas siguen guardadas.'}
+            Tus respuestas están guardadas. Vuelve a intentarlo, no tienes que repetir nada.
           </p>
           <button
             type="button"
@@ -130,15 +128,13 @@ export function PasoArmando({
             <RotateCcw size={20} aria-hidden="true" />
             Reintentar
           </button>
-          {intento > 0 && (
-            <button
-              type="button"
-              onClick={onVolver}
-              className="mt-2 flex min-h-11 w-full items-center justify-center text-sm font-semibold text-ink-2 underline-offset-4 hover:underline"
-            >
-              Volver a mi frase
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={onVolver}
+            className="mt-2 flex min-h-11 w-full items-center justify-center text-sm font-semibold text-ink-2 underline-offset-4 hover:underline"
+          >
+            Volver a mi frase
+          </button>
         </div>
       ) : (
         <>
