@@ -8,7 +8,7 @@ export default function Reembolsos() {
   return (
     <PaginaLegal
       titulo="Política de Reembolsos"
-      resumen="La Garantía de la Primera Oferta: 15 días desde tu primer pago para pedir el 100% de tu dinero, sin preguntas."
+      resumen="La Garantía Sin Preguntas: 15 días desde tu primer pago para pedir el 100% de tu dinero, sin preguntas."
     >
       <section>
         <h2>1. Prueba gratis</h2>
@@ -19,7 +19,7 @@ export default function Reembolsos() {
       </section>
 
       <section>
-        <h2>2. La Garantía de la Primera Oferta ({PRECIOS.diasGarantia} días)</h2>
+        <h2>2. La Garantía Sin Preguntas ({PRECIOS.diasGarantia} días)</h2>
         <p>
           Tienes {PRECIOS.diasGarantia} días de garantía de devolución a partir de tu primer pago. Si durante los primeros{' '}
           {PRECIOS.diasGarantia} días pagados sientes que la app no es para ti, pides la devolución en 1 clic y Hotmart te

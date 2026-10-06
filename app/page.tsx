@@ -18,7 +18,6 @@ import {
   Moon,
   MousePointerClick,
   Puzzle,
-  RotateCcw,
   Search,
   ShieldCheck,
   Sprout,
@@ -152,7 +151,7 @@ export default function PaginaDeVentas() {
         stack={{
           lineas: [{ resultado: 'Mes a mes', valor: '$120' }],
           totalTachado: '$120',
-          nota: 'Con el anual: $79.99',
+          nota: 'Anual: $79.99',
         }}
         anual={{
           nombre: 'Anual',
@@ -177,12 +176,12 @@ export default function PaginaDeVentas() {
       />
 
       <Garantia
-        nombre="La Garantía de la Primera Oferta"
-        condicionMarked="[b]15 días desde tu primer pago.[/b] Si sientes que la app no es para ti, pides la devolución en 1 clic y Hotmart te regresa el 100%."
+        nombre="La Garantía Sin Preguntas"
+        condicionMarked="[b]15 días desde tu primer pago.[/b] Si sientes que la app no es para ti, pides la devolución en 1 clic y te devolvemos todo."
         sellos={[
           { icon: Wallet, texto: '100% de vuelta' },
           { icon: MousePointerClick, texto: 'Devolución en 1 clic' },
-          { icon: RotateCcw, texto: 'Sin preguntas' },
+          { icon: ShieldCheck, texto: 'Pago protegido' },
         ]}
         cta={{ label: CTA_LABEL, href: CTA_HREF }}
       />
@@ -234,8 +233,8 @@ export default function PaginaDeVentas() {
         futurePacingMarked="Abres Mi Empresa y ahí está: tu oferta, tu nombre, tu precio y tus textos. Solo falta lanzar."
         ctaLabel={CTA_LABEL}
         ctaHref={CTA_HREF}
-        recap="7 días gratis · Garantía de la Primera Oferta"
-        psMarked="PS: EMPRESAI convierte tu idea en un negocio listo en 30 días con el Método Pieza a Pieza. Entras con 7 días gratis y la Garantía de la Primera Oferta."
+        recap="7 días gratis · Garantía Sin Preguntas"
+        psMarked="PS: EMPRESAI convierte tu idea en un negocio listo en 30 días con el Método Pieza a Pieza. Entras con 7 días gratis y la Garantía Sin Preguntas."
       />
 
       <FooterLegal

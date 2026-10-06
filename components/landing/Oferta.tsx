@@ -123,10 +123,13 @@ export function Oferta({
             variants={item}
             className="tarjeta-relieve mx-auto mt-8 max-w-[560px] rounded-[var(--radius-card)] px-5 py-4 text-center text-[16px] text-[var(--text-secondary)]"
           >
-            {stack.lineas[0]?.resultado}: <span className="tabular-nums line-through">{stack.totalTachado}</span> al año
+            <span className="whitespace-nowrap">
+              {stack.lineas[0]?.resultado}: <span className="tabular-nums line-through">{stack.totalTachado}</span>/año
+            </span>
             {stack.nota && (
               <>
-                {' · '}
+                {' '}
+                <span aria-hidden="true">·</span>{' '}
                 <span className="font-semibold whitespace-nowrap text-[var(--text-primary)]">{stack.nota}</span>
               </>
             )}

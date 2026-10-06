@@ -66,7 +66,7 @@
 
 ## 6. OFERTA (FICHA-MERCADO: $9.99/mes · $79.99/año · trial 7 días)
 - título: `Empieza gratis. Sigue por [acento]$0.22 al día[/acento]` (7)
-- ancla de UNA línea (sin check ni "Valor total"): `Mes a mes: ~~$120~~ al año · Con el anual: $79.99`
+- ancla de UNA línea (sin check ni "Valor total"): `Mes a mes: ~~$120~~/año · Anual: $79.99`
 - features anual: `El Método Pieza a Pieza: una misión de 5 minutos al día` · `La IA arma cada pieza con tu negocio` · `Todo guardado en Mi Empresa, listo para descargar` · `Nuevas rutas cada mes después del día 30`
 - features mensual: `Todo lo del plan anual` · `Pagas mes a mes` · `Cancelas en 1 toque, cuando quieras`
 - microcopy de compra (objeción #5 + VoC "al mes te sorprenden"): `Pagas seguro por Hotmart · te avisamos antes del primer cobro · cancelas en 1 toque`
@@ -75,9 +75,9 @@
 - mensual: $9.99/mes · `menos de $0.34 al día`
 
 ## 7. GARANTÍA
-- sellos: `100% de vuelta` · `Devolución en 1 clic` · `Sin preguntas`
-- nombre: `La Garantía de la Primera Oferta` (título; en medio de frase va en minúscula)
-- condición (TEXTO DE LA DUEÑA 2026-10-02, cuenta desde el PRIMER PAGO — tras los 7 días gratis): `[b]15 días desde tu primer pago.[/b] Si sientes que la app no es para ti, pides la devolución en 1 clic y Hotmart te regresa el 100%.`
+- sellos: `100% de vuelta` · `Devolución en 1 clic` · `Pago protegido`
+- nombre: `La Garantía Sin Preguntas` (elegido por la dueña 2026-10-02; reemplaza "de la Primera Oferta", que venía de la condición vieja)
+- condición (TEXTO DE LA DUEÑA 2026-10-02, cuenta desde el PRIMER PAGO — tras los 7 días gratis): `[b]15 días desde tu primer pago.[/b] Si sientes que la app no es para ti, pides la devolución en 1 clic y te devolvemos todo.`
 - piso legal: (quitado a pedido de la dueña 2026-10-02) (⚠️ configurar Hotmart a 15 días en Sesión 6 ANTES de publicar)
 
 ## 8. FAQ (objeciones de la ficha, en orden de fuerza)
@@ -91,8 +91,8 @@
 ## 9. CTA FINAL
 - h2: `Imagina tu [acento]día 30[/acento] con todo listo` (7)
 - future pacing: `Abres Mi Empresa y ahí está: tu oferta, tu nombre, tu precio y tus textos. Solo falta lanzar.` (18)
-- recap: `7 días gratis · Garantía de la Primera Oferta`
-- PS: `PS: EMPRESAI convierte tu idea en un negocio listo en 30 días con el Método Pieza a Pieza. Entras con 7 días gratis y la Garantía de la Primera Oferta.` (29 — recortado a <200 caracteres por el presupuesto de 52)
+- recap: `7 días gratis · Garantía Sin Preguntas`
+- PS: `PS: EMPRESAI convierte tu idea en un negocio listo en 30 días con el Método Pieza a Pieza. Entras con 7 días gratis y la Garantía Sin Preguntas.` (29 — recortado a <200 caracteres por el presupuesto de 52)
 
 ## 10. FOOTER
 - Privacidad · Términos · Reembolsos · Aviso de IA · soporte (⚠️ email provisional hasta tener dominio)
