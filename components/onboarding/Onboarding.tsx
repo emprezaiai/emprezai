@@ -234,7 +234,7 @@ function Flujo({ planInicial }: { planInicial?: Plan }) {
   }
 
   return (
-    <main className="fondo-recorrido min-h-dvh">
+    <main className="fondo-recorrido min-h-dvh overflow-x-clip">
       <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col">
         {conBarra ? (
           <Encabezado progreso={progreso(paso, respuestas)} onAtras={atras} />

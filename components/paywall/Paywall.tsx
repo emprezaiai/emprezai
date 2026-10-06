@@ -152,7 +152,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
   });
 
   return (
-    <main className="fondo-recorrido min-h-dvh">
+    <main className="fondo-recorrido min-h-dvh overflow-x-clip">
       <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col">
         <header className="flex h-14 items-center px-2">
           <Link
