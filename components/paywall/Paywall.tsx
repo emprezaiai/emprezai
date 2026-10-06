@@ -9,7 +9,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, animate, motion, useReducedMotion } from 'motion/react';
-import { ArrowRight, Bot, Check, LockKeyhole, ShieldCheck, Sparkles, WifiOff, X, Zap } from 'lucide-react';
+import { ArrowRight, Bot, Check, LockKeyhole, ShieldCheck, WifiOff, X, Zap } from 'lucide-react';
 import { NOMBRE_MOMENTO, contarRespuestas, leerEstado, type EstadoOnboarding, type Plan } from '@/lib/onboarding';
 import { PRECIOS, RESPONSABLE } from '@/lib/legal';
 import { registrarEvento } from '@/lib/eventos';
@@ -61,10 +61,10 @@ const CHECKOUT: Record<Plan, string | undefined> = {
 };
 
 const RUTA = [
-  { dia: 1, nombre: 'Tu frase' },
-  { dia: 2, nombre: 'Cliente ideal' },
-  { dia: 3, nombre: 'Tu oferta' },
-  { dia: 4, nombre: 'Tu precio' },
+  { dia: 1, nombre: 'Frase' },
+  { dia: 2, nombre: 'Cliente' },
+  { dia: 3, nombre: 'Oferta' },
+  { dia: 4, nombre: 'Precio' },
 ];
 
 const suscribirNada = () => () => {};
@@ -163,22 +163,20 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
         <div className="px-4 pt-2">
           <motion.div {...entrar(0)}>
             {pieza && (
-              <p className="mb-2 flex items-center gap-2 text-xs font-semibold tracking-[0.08em] text-green uppercase">
+              <p className="mb-2 flex items-center gap-2 text-xs font-semibold tracking-[0.04em] whitespace-nowrap text-green uppercase">
                 <Check size={14} strokeWidth={3} aria-hidden="true" />
-                Tu pieza 1 ya está guardada
+                Pieza 1 guardada{respuestas > 0 ? ` · con tus ${respuestas} respuestas` : ''}
               </p>
             )}
-            <TituloAcento texto="Desbloquea los 29 días que faltan" acento="29 días" className="text-pregunta" />
+            <TituloAcento texto="Desbloquea los 29 días hasta tu oferta lista" acento="tu oferta lista" className="text-pregunta" />
             <p className="mt-2 text-base leading-relaxed text-ink-2">
               {pieza ? (
                 <>
-                  La IA arma <strong className="font-semibold text-ink-1">«{recortar(pieza.idea, 48)}»</strong> pieza a pieza, hasta tu
-                  oferta lista para vender.
+                  Con el Método Pieza a Pieza, la IA arma <span className="font-semibold text-ink-1">{recortar(pieza.idea, 48)}</span> contigo.
                 </>
               ) : (
-                'Y deja que la IA construya tu empresa completa, pieza a pieza.'
+                'Con el Método Pieza a Pieza, la IA construye tu empresa completa contigo.'
               )}
-              {respuestas > 0 && <strong className="font-semibold text-ink-1"> Hecho con tus {respuestas} respuestas.</strong>}
             </p>
           </motion.div>
 
@@ -204,10 +202,9 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
                         <LockKeyhole size={16} strokeWidth={2.2} aria-hidden="true" />
                       )}
                     </span>
-                    <span className="text-xs leading-tight text-ink-2">
-                      <span className={`block font-semibold ${hecho ? 'text-green' : 'text-ink-1'}`}>Día {r.dia}</span>
+                    <span className={`text-xs leading-tight font-semibold ${hecho ? 'text-green' : 'text-ink-2'}`}>
                       {r.nombre}
-                      <span className="sr-only">{hecho ? ' (hecho)' : ' (bloqueado)'}</span>
+                      <span className="sr-only">{` (día ${r.dia}${hecho ? ', hecho' : ', bloqueado'})`}</span>
                     </span>
                   </li>
                 );
@@ -216,25 +213,23 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
                 <span className="flex size-10 items-center justify-center rounded-full border border-[var(--line)] bg-sunken font-display text-sm font-bold text-ink-2">
                   +26
                 </span>
-                <span className="text-xs leading-tight text-ink-2">
-                  <span className="block font-semibold text-ink-1">Día 30</span>
-                  Lista para vender
+                <span className="text-xs leading-tight font-semibold text-ink-2">
+                  Lista
+                  <span className="sr-only"> (día 30, oferta lista para vender)</span>
                 </span>
               </li>
             </ol>
+            {!pieza && (
+              <p className="mt-4 text-caption text-ink-2">
+                5 minutos {momento ? NOMBRE_MOMENTO[momento] : 'al día'}: una misión y una pieza nueva cada día.
+              </p>
+            )}
             {pieza && (
               <figure className="mt-4 rounded-[var(--radius-chip)] border-l-2 border-green bg-sunken px-3 py-2">
                 <figcaption className="text-xs font-semibold text-green">Día 1 · tu frase de negocio</figcaption>
-                <blockquote className="mt-1 line-clamp-3 font-display text-sm leading-snug font-bold text-ink-1">«{pieza.frase}»</blockquote>
+                <blockquote className="mt-1 font-display text-sm leading-snug font-bold text-ink-1">«{pieza.frase}»</blockquote>
               </figure>
             )}
-            <p className="mt-4 flex items-start gap-2 border-t border-[var(--line)] pt-4 text-ayuda leading-snug text-ink-2">
-              <Sparkles size={18} className="mt-0.5 shrink-0 text-gold" aria-hidden="true" />
-              <span>
-                <strong className="font-semibold text-ink-1">El Método Pieza a Pieza:</strong> 5 minutos{' '}
-                {momento ? NOMBRE_MOMENTO[momento] : 'al día'} y la IA arma cada pieza usando las anteriores.
-              </span>
-            </p>
           </motion.section>
 
           {/* Planes */}
@@ -375,19 +370,16 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
             </li>
           </ul>
 
-          <div className="mt-2 flex items-center justify-center gap-2">
+          <div className="mt-2 flex flex-col items-center">
             <Link
               href={volver}
-              className="flex min-h-11 items-center px-3 text-sm font-medium text-ink-3 underline-offset-4 transition-colors duration-150 hover:text-ink-2 hover:underline"
+              className="flex min-h-11 items-center px-3 text-sm font-medium whitespace-nowrap text-ink-3 underline-offset-4 transition-colors duration-150 hover:text-ink-2 hover:underline"
             >
               Ahora no
             </Link>
-            <span aria-hidden="true" className="text-ink-3">
-              ·
-            </span>
             <a
               href={`mailto:${RESPONSABLE.emailContacto}?subject=${encodeURIComponent('Ya pagué EMPRESAI y quiero entrar')}`}
-              className="flex min-h-11 items-center px-3 text-sm font-medium text-ink-3 underline-offset-4 transition-colors duration-150 hover:text-ink-2 hover:underline"
+              className="flex min-h-11 items-center px-3 text-sm font-medium whitespace-nowrap text-ink-3 underline-offset-4 transition-colors duration-150 hover:text-ink-2 hover:underline"
             >
               ¿Ya pagaste? Recupera tu acceso
             </a>

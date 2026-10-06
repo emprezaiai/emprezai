@@ -6,8 +6,8 @@
 
 import { useEffect, useState } from 'react';
 import { animate, motion, useMotionValue, useReducedMotion, useTransform } from 'motion/react';
-import { Check, RotateCcw } from 'lucide-react';
-import { NOMBRE_AREA, armarPrimeraPieza, type PrimeraPieza, type Respuestas } from '@/lib/onboarding';
+import { Check, RotateCcw, Sparkles } from 'lucide-react';
+import { NOMBRE_AREA, armarPrimeraPieza, piezaBase, type PrimeraPieza, type Respuestas } from '@/lib/onboarding';
 import { EASE_SALIDA } from './piezas';
 
 const DURACION = 4.6;
@@ -69,6 +69,11 @@ export function PasoArmando({
       })
       .catch(() => {
         if (cancelado) return;
+        // Segundo fallo: nunca a las puertas de los planes con las manos vacías (50 §B).
+        if (intento > 0) {
+          onListo(piezaBase(respuestas));
+          return;
+        }
         anillo.stop();
         temporizadores.forEach((t) => window.clearTimeout(t));
         setError(true);
@@ -174,6 +179,24 @@ export function PasoArmando({
               );
             })}
           </ul>
+
+          {/* Vista previa de lo que se está armando (esqueleto con la forma de la pieza) */}
+          <div aria-hidden="true" className="hairline-oro mt-8 w-full rounded-[var(--radius-card)] p-4 opacity-80">
+            <div className="flex items-center gap-3">
+              <span className="relieve-oro flex size-10 items-center justify-center rounded-[var(--radius-chip)]">
+                <Sparkles size={20} strokeWidth={2.2} />
+              </span>
+              <div>
+                <p className="text-xs font-semibold text-gold">Pieza 1 de 30</p>
+                <p className="font-display text-base font-bold text-ink-1">Tu frase de negocio</p>
+              </div>
+            </div>
+            <div className="mt-4 flex flex-col gap-2">
+              {['w-full', 'w-11/12', 'w-2/3'].map((ancho) => (
+                <span key={ancho} className={`h-3 animate-pulse rounded-full bg-[color-mix(in_oklab,var(--ink-1)_10%,transparent)] ${ancho}`} />
+              ))}
+            </div>
+          </div>
         </>
       )}
     </div>

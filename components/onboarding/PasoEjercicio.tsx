@@ -12,10 +12,10 @@ import {
   HUECOS,
   LARGO_MAX_HUECO,
   NOMBRE_AREA,
-  OPCIONES_EJERCICIO,
   QUITAR_INICIO,
   ideaEnFrase,
   limpiarTexto,
+  opcionesHueco,
   type IdArea,
   type IdHueco,
 } from '@/lib/onboarding';
@@ -48,7 +48,7 @@ export function PasoEjercicio({
 
   const hueco = HUECOS[actual];
   const completa = HUECOS.every((h) => Boolean(valores[h.id]));
-  const opciones = OPCIONES_EJERCICIO[area][hueco.id];
+  const opciones = opcionesHueco(area, hueco.id, idea);
 
   function irAHueco(i: number) {
     window.clearTimeout(temporizador.current);
@@ -78,7 +78,7 @@ export function PasoEjercicio({
         >
           <p className="flex items-center gap-2 text-xs font-semibold tracking-[0.08em] text-gold uppercase">
             <Zap size={14} fill="currentColor" strokeWidth={0} aria-hidden="true" />
-            Misión 1 · 5 min · {NOMBRE_AREA[area]}
+            Misión 1 · Día 1 · {NOMBRE_AREA[area]}
           </p>
           <TituloAcento texto="Arma tu frase de negocio" acento="frase de negocio" className="mt-2 text-pregunta" />
           <p className="mt-1 text-ayuda text-ink-2">Qué haces y para quién, en una sola frase (tu propuesta de valor).</p>
@@ -91,7 +91,7 @@ export function PasoEjercicio({
         >
           <p className="text-xs font-semibold text-ink-3">Tu frase</p>
           <p className="mt-2 font-display text-xl leading-snug font-bold text-ink-1" aria-live="polite">
-            <span className="text-ink-2">Con {ideaEnFrase(idea)}, </span>
+            <span className="text-ink-2">{ideaEnFrase(idea, valores.cliente)}: </span>
             {HUECOS.map((h, i) => {
               const valor = valores[h.id];
               const esActual = i === actual && !completa;
@@ -215,8 +215,14 @@ export function PasoEjercicio({
                     />
                     <button
                       type="button"
-                      onClick={() => llenar(propio)}
-                      disabled={limpiarTexto(propio, LARGO_MAX_HUECO).length < 3}
+                      onClick={() => {
+                        if (limpiarTexto(propio, LARGO_MAX_HUECO).length < 3) {
+                          setAviso((n) => n + 1);
+                          vibrar(30);
+                          return;
+                        }
+                        llenar(propio);
+                      }}
                       className="h-12 rounded-[var(--radius-pill)] border border-[var(--line)] bg-raised-2 text-ayuda font-semibold text-ink-1 transition-opacity duration-200 active:scale-[0.98] disabled:opacity-65"
                     >
                       Usar esta

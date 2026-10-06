@@ -5,7 +5,7 @@
 
 import type { ReactNode } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
-import { Check, ChevronLeft } from 'lucide-react';
+import { Check, ChevronLeft, LockKeyhole, Zap } from 'lucide-react';
 import {
   Books,
   Brain,
@@ -254,7 +254,7 @@ export function PromesaRecorrido() {
       transition={{ duration: 0.35, delay: reduce ? 0 : 0.35, ease: EASE_SALIDA }}
       className="tarjeta-relieve-base rounded-[var(--radius-card)] p-4"
     >
-      <p className="text-xs font-semibold tracking-[0.08em] text-gold uppercase">Toma 2 minutos · al terminar te llevas</p>
+      <p className="text-xs font-semibold tracking-[0.08em] text-gold uppercase">Toma unos 5 minutos · al terminar te llevas</p>
       <ul className="mt-3 grid grid-cols-3 gap-2">
         {items.map((it) => (
           <li key={it.titulo} className="flex flex-col gap-1">
@@ -264,6 +264,56 @@ export function PromesaRecorrido() {
           </li>
         ))}
       </ul>
+    </motion.div>
+  );
+}
+
+/* ── La ruta en miniatura (Hoy → Día 30): el dispositivo de la marca, anclado abajo ── */
+const DIAS_RUTA = [1, 2, 3, 4, 5];
+
+export function RutaMini({ titulo }: { titulo: string }) {
+  const reduce = useReducedMotion();
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: reduce ? 0 : 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, delay: reduce ? 0 : 0.3, ease: EASE_SALIDA }}
+      className="tarjeta-relieve-base rounded-[var(--radius-card)] p-4"
+    >
+      <p className="text-xs font-semibold tracking-[0.08em] text-gold uppercase">{titulo}</p>
+      <ol className="relative mt-4 flex items-start justify-between" aria-label="Tu ruta de 30 días: hoy empiezas">
+        <span aria-hidden="true" className="absolute top-4 right-4 left-4 h-0.5 bg-[color-mix(in_oklab,var(--ink-1)_12%,transparent)]" />
+        {DIAS_RUTA.map((dia) => (
+          <li key={dia} className="relative flex flex-col items-center gap-1">
+            {dia === 1 ? (
+              <span className="relative flex size-8 items-center justify-center">
+                {!reduce && (
+                  <motion.span
+                    aria-hidden="true"
+                    className="absolute inset-0 rounded-full bg-[color-mix(in_oklab,var(--gold)_35%,transparent)]"
+                    animate={{ scale: [1, 1.5], opacity: [0.7, 0] }}
+                    transition={{ duration: 1.4, repeat: 2, ease: 'easeOut' }}
+                  />
+                )}
+                <span className="relieve-oro relative flex size-8 items-center justify-center rounded-full">
+                  <Zap size={16} fill="currentColor" strokeWidth={0} aria-hidden="true" />
+                </span>
+              </span>
+            ) : (
+              <span className="flex size-8 items-center justify-center rounded-full border border-[var(--line)] bg-sunken text-ink-3">
+                <LockKeyhole size={14} aria-hidden="true" />
+              </span>
+            )}
+            <span className={`text-xs font-semibold ${dia === 1 ? 'text-gold' : 'text-ink-3'}`}>{dia === 1 ? 'Hoy' : `Día ${dia}`}</span>
+          </li>
+        ))}
+        <li className="relative flex flex-col items-center gap-1">
+          <span className="flex size-8 items-center justify-center rounded-full border border-[var(--line)] bg-sunken text-xs font-bold text-ink-2">
+            30
+          </span>
+          <span className="text-xs font-semibold text-ink-3">Lista</span>
+        </li>
+      </ol>
     </motion.div>
   );
 }

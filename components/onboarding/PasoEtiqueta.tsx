@@ -7,7 +7,7 @@
 import { motion, useReducedMotion } from 'motion/react';
 import { ArrowRight, Zap } from 'lucide-react';
 import { NOMBRE_AREA, NOMBRE_MOMENTO, type IdArea, type IdMomento, type IdPunto } from '@/lib/onboarding';
-import { BotonPrincipal, CheckCustom, EASE_SALIDA, TituloAcento } from './piezas';
+import { BotonPrincipal, CheckCustom, EASE_SALIDA, RutaMini, TituloAcento } from './piezas';
 
 function etiqueta(punto: IdPunto | undefined, eligioConAyuda: boolean): { titulo: string; acento: string; cuerpo: string } {
   if (punto === 'sin-idea' || eligioConAyuda) {
@@ -83,7 +83,7 @@ export function PasoEtiqueta({
           <TituloAcento texto={e.titulo} acento={e.acento} className="mt-6 text-pregunta" />
         </motion.div>
         <motion.p {...entrar(2)} className="mt-4 text-base leading-relaxed text-ink-2">
-          {e.cuerpo} <strong className="font-semibold text-ink-1">Tu primera misión usa justo eso: en 5 minutos armas tu frase de negocio.</strong>
+          {e.cuerpo} <strong className="font-semibold text-ink-1">Tu primera misión usa justo eso: ahora mismo armas tu frase de negocio.</strong>
         </motion.p>
 
         <motion.ul {...entrar(3)} className="tarjeta-relieve mt-6 flex flex-col gap-3 rounded-[var(--radius-card)] p-4">
@@ -99,6 +99,10 @@ export function PasoEtiqueta({
             </li>
           ))}
         </motion.ul>
+
+        <div className="mt-6">
+          <RutaMini titulo="Hoy empieza tu ruta" />
+        </div>
       </div>
 
       <BotonPrincipal onClick={onSeguir}>

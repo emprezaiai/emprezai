@@ -25,7 +25,7 @@ import {
 } from '@/lib/onboarding';
 import { registrarEvento } from '@/lib/eventos';
 import { LogoEmpresai } from '@/components/app/LogoEmpresai';
-import { Encabezado, PromesaRecorrido } from './piezas';
+import { Encabezado, PromesaRecorrido, RutaMini } from './piezas';
 import { PasoPregunta } from './PasoPregunta';
 import { PasoReconocimiento } from './PasoReconocimiento';
 import { PasoIdea } from './PasoIdea';
@@ -134,6 +134,7 @@ function Flujo({ planInicial }: { planInicial?: Plan }) {
           valor={respuestas.freno}
           valorOtra={respuestas.frenoOtro}
           onResponder={(freno, texto) => avanzar({ ...respuestas, freno, frenoOtro: freno === 'otro' ? texto : undefined })}
+          pie={<RutaMini titulo="Cada respuesta ajusta tu ruta" />}
         />
       );
       break;
@@ -141,7 +142,13 @@ function Flujo({ planInicial }: { planInicial?: Plan }) {
       contenido = <PasoReconocimiento freno={respuestas.freno ?? 'blanco'} frenoOtro={respuestas.frenoOtro} onSeguir={() => avanzar(respuestas)} />;
       break;
     case 'area':
-      contenido = <PasoPregunta pregunta={PREGUNTA_AREA} valor={respuestas.area} valorOtra={respuestas.areaOtra} onResponder={responderArea} />;
+      contenido = <PasoPregunta
+          pregunta={PREGUNTA_AREA}
+          valor={respuestas.area}
+          valorOtra={respuestas.areaOtra}
+          onResponder={responderArea}
+          pie={<RutaMini titulo="Tu misión 1 se adapta a tu área" />}
+        />;
       break;
     case 'ayuda':
       contenido = (
@@ -149,6 +156,7 @@ function Flujo({ planInicial }: { planInicial?: Plan }) {
           pregunta={PREGUNTA_AYUDA}
           valor={respuestas.areaFinal}
           onResponder={(areaFinal) => avanzar(conAreaFinal(respuestas, areaFinal))}
+          pie={<RutaMini titulo="Cada respuesta ajusta tu ruta" />}
         />
       );
       break;
@@ -165,7 +173,12 @@ function Flujo({ planInicial }: { planInicial?: Plan }) {
       break;
     case 'momento':
       contenido = (
-        <PasoPregunta pregunta={PREGUNTA_MOMENTO} valor={respuestas.momento} onResponder={(momento) => avanzar({ ...respuestas, momento })} />
+        <PasoPregunta
+          pregunta={PREGUNTA_MOMENTO}
+          valor={respuestas.momento}
+          onResponder={(momento) => avanzar({ ...respuestas, momento })}
+          pie={<RutaMini titulo="Una misión al día, a tu hora" />}
+        />
       );
       break;
     case 'etiqueta':

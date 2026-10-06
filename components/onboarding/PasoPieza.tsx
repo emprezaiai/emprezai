@@ -113,7 +113,7 @@ export function PasoPieza({
             <button
               type="button"
               onClick={copiar}
-              className="flex h-11 items-center justify-center gap-2 rounded-[var(--radius-chip)] border border-[var(--line)] bg-raised-2 text-sm font-semibold text-ink-1 transition-colors duration-150 active:scale-[0.98]"
+              className="flex h-11 items-center justify-center gap-2 rounded-[var(--radius-pill)] border border-[var(--line)] bg-raised-2 text-sm font-semibold text-ink-1 transition-colors duration-150 active:scale-[0.98]"
             >
               {copiado === 'si' ? <Check size={16} className="text-green" aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
               {copiado === 'si' ? '¡Copiada!' : 'Copiar frase'}
@@ -121,7 +121,7 @@ export function PasoPieza({
             <button
               type="button"
               onClick={onEditar}
-              className="flex h-11 items-center justify-center gap-2 rounded-[var(--radius-chip)] border border-[var(--line)] bg-raised-2 text-sm font-semibold text-ink-1 transition-colors duration-150 active:scale-[0.98]"
+              className="flex h-11 items-center justify-center gap-2 rounded-[var(--radius-pill)] border border-[var(--line)] bg-raised-2 text-sm font-semibold text-ink-1 transition-colors duration-150 active:scale-[0.98]"
             >
               <PencilLine size={16} aria-hidden="true" />
               Editar

@@ -30,6 +30,7 @@ export function PasoPregunta<T extends string>({
   const [elegida, setElegida] = useState<T | undefined>(valor);
   const [bloqueada, setBloqueada] = useState(false);
   const [otra, setOtra] = useState(valorOtra ?? '');
+  const [aviso, setAviso] = useState(0);
   const temporizador = useRef<number | undefined>(undefined);
   const esOtra = pregunta.otra !== undefined && elegida === pregunta.otra.id;
   const otraValida = limpiarTexto(otra, LARGO_MAX_OTRA).length >= 3;
@@ -46,7 +47,12 @@ export function PasoPregunta<T extends string>({
   }
 
   function confirmarOtra() {
-    if (!pregunta.otra || !otraValida) return;
+    if (!pregunta.otra) return;
+    if (!otraValida) {
+      setAviso((n) => n + 1);
+      vibrar(30);
+      return;
+    }
     onResponder(pregunta.otra.id, limpiarTexto(otra, LARGO_MAX_OTRA));
   }
 
@@ -92,6 +98,7 @@ export function PasoPregunta<T extends string>({
               Escríbela con tus palabras
             </label>
             <input
+              key={aviso}
               id={idCampo}
               autoFocus
               value={otra}
@@ -101,12 +108,14 @@ export function PasoPregunta<T extends string>({
                 if (e.key === 'Enter') confirmarOtra();
               }}
               placeholder={pregunta.otra.placeholder}
-              className="h-12 w-full rounded-[var(--radius-chip)] border border-gold bg-sunken px-4 text-base text-ink-1 placeholder:text-ink-3 focus:outline-none"
+              className={`h-12 w-full rounded-[var(--radius-chip)] border bg-sunken px-4 text-base text-ink-1 placeholder:text-ink-3 focus:outline-none ${
+                aviso && !otraValida ? 'sacudir border-warning' : 'border-gold'
+              }`}
             />
+            {aviso > 0 && !otraValida && <p className="text-caption text-warning">Escribe al menos unas letras.</p>}
             <button
               type="button"
               onClick={confirmarOtra}
-              disabled={!otraValida}
               className="boton-oro flex h-12 items-center justify-center gap-2 rounded-[var(--radius-pill)] font-display text-base font-bold"
             >
               Continuar

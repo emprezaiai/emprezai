@@ -200,17 +200,17 @@ export const IDEAS_SUGERIDAS: Record<IdArea, string[]> = {
   servicios: [
     'Manejo de redes sociales para negocios locales',
     'Asistente virtual para emprendedores',
-    'Diseño de menús y catálogos con IA',
+    'Diseño de menús y catálogos para restaurantes',
   ],
   cursos: [
     'Mini curso de Excel para dueños de negocio',
-    'Guía de comidas saludables para la semana',
-    'Clases de inglés para el trabajo',
+    'Guía de comidas saludables para mamás ocupadas',
+    'Clases de inglés para empleados que quieren crecer',
   ],
   productos: [
     'Velas aromáticas hechas a mano',
-    'Accesorios personalizados para mascotas',
-    'Kits de regalo para fechas especiales',
+    'Accesorios personalizados para dueños de mascotas',
+    'Kits de regalo para quien quiere sorprender',
   ],
 };
 
@@ -294,13 +294,36 @@ export const QUITAR_INICIO: Record<IdHueco, RegExp> = {
   dolor: /^sin\s+/i,
 };
 
-/** "Con mi idea" en minúscula inicial para que se lea dentro de la frase. */
-export function ideaEnFrase(idea: string): string {
-  return limpiarTexto(idea, LARGO_MAX_IDEA);
+/** El "para quién" que ya viene en su idea ("Mini curso de Excel para dueños de negocio"). */
+export function clienteDeLaIdea(idea: string): string | undefined {
+  const m = /\bpara\s+(.{3,60})$/i.exec(idea.trim());
+  if (!m) return undefined;
+  const quien = limpiarTexto(m[1], LARGO_MAX_HUECO);
+  // "para la semana", "para el trabajo": no es una persona.
+  return /^(la|el|los|las|un|una|que|mi|tu|su)\s/i.test(quien) ? undefined : quien;
+}
+
+/** La idea como inicio de la frase: con mayúscula y sin repetir el cliente si ya lo nombra. */
+export function ideaEnFrase(idea: string, cliente?: string): string {
+  let t = idea.replace(/\s+/g, ' ').trim().replace(/[.,;:!¡?¿\s]+$/u, '');
+  const quien = clienteDeLaIdea(t);
+  if (quien && cliente && quien.toLowerCase() === cliente.toLowerCase()) {
+    t = t.replace(/\s+para\s+.{3,60}$/i, '');
+  }
+  return t ? t[0].toUpperCase() + t.slice(1) : t;
 }
 
 export function armarFrase(r: Pick<Respuestas, 'idea' | 'cliente' | 'resultado' | 'dolor'>): string {
-  return `Con ${ideaEnFrase(r.idea ?? '')}, ayudo a ${r.cliente} a ${r.resultado} sin ${r.dolor}.`;
+  return `${ideaEnFrase(r.idea ?? '', r.cliente)}: ayudo a ${r.cliente} a ${r.resultado} sin ${r.dolor}.`;
+}
+
+/** Opciones del hueco: si su idea ya dice para quién, esa va primero. */
+export function opcionesHueco(area: IdArea, hueco: IdHueco, idea: string): string[] {
+  const base = OPCIONES_EJERCICIO[area][hueco];
+  if (hueco !== 'cliente') return base;
+  const quien = clienteDeLaIdea(idea);
+  if (!quien || base.some((o) => o.toLowerCase() === quien.toLowerCase())) return base;
+  return [quien, ...base.slice(0, 3)];
 }
 
 /**
@@ -318,6 +341,21 @@ export async function armarPrimeraPieza(r: Respuestas): Promise<PrimeraPieza> {
     idea: r.idea,
     area: r.areaFinal,
     prueba: `Lee tu frase en voz alta a 3 personas que encajen con «${r.cliente}» y anota qué te responden.`,
+    creadaEn: new Date().toISOString(),
+  };
+}
+
+/** Pieza base del área (respaldo provisional: se afina en la primera sesión). */
+export function piezaBase(r: Respuestas): PrimeraPieza {
+  const area = r.areaFinal ?? 'servicios';
+  const op = OPCIONES_EJERCICIO[area];
+  const completas = { idea: r.idea || IDEAS_SUGERIDAS[area][0], cliente: r.cliente || op.cliente[0], resultado: r.resultado || op.resultado[0], dolor: r.dolor || op.dolor[0] };
+  return {
+    titulo: 'Tu frase de negocio (versión base)',
+    frase: armarFrase(completas),
+    idea: completas.idea,
+    area,
+    prueba: 'Es una versión base: la afinamos con tus respuestas en tu primera misión.',
     creadaEn: new Date().toISOString(),
   };
 }
