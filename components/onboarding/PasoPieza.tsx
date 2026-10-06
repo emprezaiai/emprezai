@@ -102,7 +102,7 @@ export function PasoPieza({
 
           <div className="mt-4 flex flex-col gap-3 border-t border-[var(--line)] pt-4">
             <p className="flex items-start gap-2 text-ayuda leading-snug text-ink-2">
-              <Target size={18} className="mt-0.5 shrink-0 text-gold" aria-hidden="true" />
+              <Target size={18} className="mt-0.5 shrink-0 text-ink-3" aria-hidden="true" />
               <span>
                 <strong className="font-semibold text-ink-1">Tu prueba de hoy:</strong> {pieza.prueba}
               </span>

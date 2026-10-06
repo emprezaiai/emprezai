@@ -254,7 +254,7 @@ export function PromesaRecorrido() {
       transition={{ duration: 0.35, delay: reduce ? 0 : 0.35, ease: EASE_SALIDA }}
       className="tarjeta-relieve-base rounded-[var(--radius-card)] p-4"
     >
-      <p className="text-xs font-semibold tracking-[0.08em] text-gold uppercase">Toma unos 5 minutos · al terminar te llevas</p>
+      <p className="text-xs font-semibold tracking-[0.08em] text-ink-3 uppercase">Toma unos 5 minutos · al terminar te llevas</p>
       <ul className="mt-3 grid grid-cols-3 gap-2">
         {items.map((it) => (
           <li key={it.titulo} className="flex flex-col gap-1">
@@ -271,7 +271,7 @@ export function PromesaRecorrido() {
 /* ── La ruta en miniatura (Hoy → Día 30): el dispositivo de la marca, anclado abajo ── */
 const DIAS_RUTA = [1, 2, 3, 4, 5];
 
-export function RutaMini({ titulo }: { titulo: string }) {
+export function RutaMini({ titulo, respuestas = [] }: { titulo: string; respuestas?: string[] }) {
   const reduce = useReducedMotion();
   return (
     <motion.div
@@ -280,7 +280,7 @@ export function RutaMini({ titulo }: { titulo: string }) {
       transition={{ duration: 0.35, delay: reduce ? 0 : 0.3, ease: EASE_SALIDA }}
       className="tarjeta-relieve-base rounded-[var(--radius-card)] p-4"
     >
-      <p className="text-xs font-semibold tracking-[0.08em] text-gold uppercase">{titulo}</p>
+      <p className="text-xs font-semibold tracking-[0.08em] text-ink-3 uppercase">{titulo}</p>
       <ol className="relative mt-4 flex items-start justify-between" aria-label="Tu ruta de 30 días: hoy empiezas">
         <span aria-hidden="true" className="absolute top-4 right-4 left-4 h-0.5 bg-[color-mix(in_oklab,var(--ink-1)_12%,transparent)]" />
         {DIAS_RUTA.map((dia) => (
@@ -314,6 +314,22 @@ export function RutaMini({ titulo }: { titulo: string }) {
           <span className="text-xs font-semibold text-ink-3">Lista</span>
         </li>
       </ol>
+      {respuestas.length > 0 && (
+        <ul className="mt-4 flex flex-wrap gap-2 border-t border-[var(--line)] pt-4" aria-label="Lo que ya sabe tu ruta">
+          {respuestas.map((r, i) => (
+            <motion.li
+              key={r}
+              initial={{ opacity: 0, scale: reduce ? 1 : 0.85 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ type: 'spring', bounce: 0.25, duration: 0.35, delay: reduce ? 0 : 0.35 + i * 0.05 }}
+              className="flex items-center gap-1 rounded-[var(--radius-pill)] bg-[color-mix(in_oklab,var(--green)_12%,transparent)] py-1 pr-3 pl-2 text-xs font-semibold text-ink-1"
+            >
+              <Check size={12} strokeWidth={3} className="text-green" aria-hidden="true" />
+              {r}
+            </motion.li>
+          ))}
+        </ul>
+      )}
     </motion.div>
   );
 }

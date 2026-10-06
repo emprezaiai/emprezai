@@ -16,6 +16,7 @@ import {
   guardarEstado,
   leerEstado,
   progreso,
+  resumenRespuestas,
   secuencia,
   type EstadoOnboarding,
   type IdPaso,
@@ -134,7 +135,7 @@ function Flujo({ planInicial }: { planInicial?: Plan }) {
           valor={respuestas.freno}
           valorOtra={respuestas.frenoOtro}
           onResponder={(freno, texto) => avanzar({ ...respuestas, freno, frenoOtro: freno === 'otro' ? texto : undefined })}
-          pie={<RutaMini titulo="Cada respuesta ajusta tu ruta" />}
+          pie={<RutaMini titulo="Tu ruta hasta ahora" respuestas={resumenRespuestas(respuestas)} />}
         />
       );
       break;
@@ -147,7 +148,7 @@ function Flujo({ planInicial }: { planInicial?: Plan }) {
           valor={respuestas.area}
           valorOtra={respuestas.areaOtra}
           onResponder={responderArea}
-          pie={<RutaMini titulo="Tu misión 1 se adapta a tu área" />}
+          pie={<RutaMini titulo="Tu ruta hasta ahora" respuestas={resumenRespuestas(respuestas)} />}
         />;
       break;
     case 'ayuda':
@@ -156,7 +157,7 @@ function Flujo({ planInicial }: { planInicial?: Plan }) {
           pregunta={PREGUNTA_AYUDA}
           valor={respuestas.areaFinal}
           onResponder={(areaFinal) => avanzar(conAreaFinal(respuestas, areaFinal))}
-          pie={<RutaMini titulo="Cada respuesta ajusta tu ruta" />}
+          pie={<RutaMini titulo="Tu ruta hasta ahora" respuestas={resumenRespuestas(respuestas)} />}
         />
       );
       break;
@@ -177,7 +178,7 @@ function Flujo({ planInicial }: { planInicial?: Plan }) {
           pregunta={PREGUNTA_MOMENTO}
           valor={respuestas.momento}
           onResponder={(momento) => avanzar({ ...respuestas, momento })}
-          pie={<RutaMini titulo="Una misión al día, a tu hora" />}
+          pie={<RutaMini titulo="Tu ruta hasta ahora" respuestas={resumenRespuestas(respuestas)} />}
         />
       );
       break;

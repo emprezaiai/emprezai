@@ -317,13 +317,48 @@ export function armarFrase(r: Pick<Respuestas, 'idea' | 'cliente' | 'resultado' 
   return `${ideaEnFrase(r.idea ?? '', r.cliente)}: ayudo a ${r.cliente} a ${r.resultado} sin ${r.dolor}.`;
 }
 
-/** Opciones del hueco: si su idea ya dice para quién, esa va primero. */
+/** El tema de una idea de conocimiento ("Mini curso de Excel para…" → "Excel"). */
+export function temaDeLaIdea(idea: string): string | undefined {
+  const m = /^(?:mini\s+)?(?:curso|cursos|clases|taller|guía|e-?book|mentoría)\s+de\s+(.+?)(?:\s+para\s+.*)?$/i.exec(idea.trim());
+  if (!m) return undefined;
+  // Sin limpiarTexto: respeta mayúsculas de nombres propios (Excel, Canva).
+  const tema = m[1].replace(/\s+/g, ' ').trim().slice(0, 40);
+  return tema.length >= 3 ? tema : undefined;
+}
+
+/** Opciones del hueco: lo que su idea ya dice (para quién, de qué tema) va primero. */
 export function opcionesHueco(area: IdArea, hueco: IdHueco, idea: string): string[] {
   const base = OPCIONES_EJERCICIO[area][hueco];
-  if (hueco !== 'cliente') return base;
-  const quien = clienteDeLaIdea(idea);
-  if (!quien || base.some((o) => o.toLowerCase() === quien.toLowerCase())) return base;
-  return [quien, ...base.slice(0, 3)];
+  const propia =
+    hueco === 'cliente'
+      ? clienteDeLaIdea(idea)
+      : hueco === 'resultado' && temaDeLaIdea(idea)
+        ? `aprender ${temaDeLaIdea(idea)} paso a paso`
+        : undefined;
+  if (!propia || base.some((o) => o.toLowerCase() === propia.toLowerCase())) return base;
+  return [propia, ...base.slice(0, 3)];
+}
+
+/** Resumen corto de lo que respondió: se muestra en la ruta y crece con cada respuesta. */
+const CORTO_PUNTO: Record<IdPunto, string> = { idea: 'Con una idea', oferta: 'Sabe qué vender', 'sin-idea': 'Busca su idea' };
+const CORTO_FRENO: Record<IdFreno, string> = {
+  blanco: 'Se queda en blanco',
+  tiempo: 'Poco tiempo',
+  teoria: 'Sin más teoría',
+  ideas: 'Mil ideas',
+  otro: 'Su propio freno',
+};
+
+export function resumenRespuestas(r: Respuestas): string[] {
+  const corto = (t: string) => (t.length > 26 ? `${t.slice(0, 25).trimEnd()}…` : t);
+  const items: string[] = [];
+  if (r.punto) items.push(CORTO_PUNTO[r.punto]);
+  if (r.freno) items.push(r.freno === 'otro' && r.frenoOtro ? corto(r.frenoOtro) : CORTO_FRENO[r.freno]);
+  if (r.areaFinal) items.push(NOMBRE_AREA[r.areaFinal]);
+  else if (r.area === 'otra' && r.areaOtra) items.push(corto(r.areaOtra));
+  if (r.idea) items.push(corto(r.idea));
+  if (r.momento) items.push(NOMBRE_MOMENTO[r.momento][0].toUpperCase() + NOMBRE_MOMENTO[r.momento].slice(1));
+  return items;
 }
 
 /**
@@ -355,7 +390,7 @@ export function piezaBase(r: Respuestas): PrimeraPieza {
     frase: armarFrase(completas),
     idea: completas.idea,
     area,
-    prueba: 'Es una versión base: la afinamos con tus respuestas en tu primera misión.',
+    prueba: 'Es una versión base: la afinamos mañana en tu Día 2.',
     creadaEn: new Date().toISOString(),
   };
 }

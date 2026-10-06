@@ -42,6 +42,7 @@ export function PasoEjercicio({
   const [escribiendo, setEscribiendo] = useState(false);
   const [propio, setPropio] = useState('');
   const [aviso, setAviso] = useState(0);
+  const [avisoPropio, setAvisoPropio] = useState(0);
   const temporizador = useRef<number | undefined>(undefined);
 
   useEffect(() => () => window.clearTimeout(temporizador.current), []);
@@ -120,7 +121,7 @@ export function PasoEjercicio({
                   >
                     {valor ?? (esActual ? '\u00A0' : '…')}
                   </span>
-                  {i < HUECOS.length - 1 ? ' ' : '.'}
+                  {i < HUECOS.length - 1 ? ' ' : valor ? '.' : ''}
                 </span>
               );
             })}
@@ -144,7 +145,7 @@ export function PasoEjercicio({
                 </p>
               </div>
               <div className="tarjeta-relieve-base mt-6 rounded-[var(--radius-card)] p-4">
-                <p className="text-xs font-semibold tracking-[0.08em] text-gold uppercase">Dónde la vas a usar</p>
+                <p className="text-xs font-semibold tracking-[0.08em] text-ink-3 uppercase">Dónde la vas a usar</p>
                 <ul className="mt-3 flex flex-col gap-3">
                   {[
                     { icono: UserRound, texto: 'En tu perfil de redes, para que sepan qué haces' },
@@ -152,7 +153,7 @@ export function PasoEjercicio({
                     { icono: Store, texto: 'En el título de tu oferta (la armas el día 3)' },
                   ].map(({ icono: Icono, texto }) => (
                     <li key={texto} className="flex items-center gap-3 text-ayuda leading-snug text-ink-1">
-                      <span className="flex size-9 shrink-0 items-center justify-center rounded-[var(--radius-chip)] bg-[color-mix(in_oklab,var(--gold)_12%,transparent)] text-gold" aria-hidden="true">
+                      <span className="flex size-9 shrink-0 items-center justify-center rounded-[var(--radius-chip)] bg-raised-2 text-ink-2" aria-hidden="true">
                         <Icono size={18} strokeWidth={2.2} />
                       </span>
                       {texto}
@@ -175,7 +176,7 @@ export function PasoEjercicio({
               </p>
               <h2 className="mt-1 font-display text-xl font-bold text-ink-1">{hueco.pregunta}</h2>
               <p className="mt-1 flex items-center gap-2 text-caption text-ink-2">
-                <Lightbulb size={16} className="shrink-0 text-gold" aria-hidden="true" />
+                <Lightbulb size={16} className="shrink-0 text-ink-3" aria-hidden="true" />
                 {hueco.consejo}
               </p>
 
@@ -202,6 +203,7 @@ export function PasoEjercicio({
                       {hueco.pregunta} (escribe la tuya)
                     </label>
                     <input
+                      key={avisoPropio}
                       id={idCampo}
                       autoFocus
                       value={propio}
@@ -211,19 +213,24 @@ export function PasoEjercicio({
                         if (e.key === 'Enter') llenar(propio);
                       }}
                       placeholder="Escríbela con tus palabras"
-                      className="h-12 w-full rounded-[var(--radius-chip)] border border-gold bg-sunken px-4 text-base text-ink-1 placeholder:text-ink-3 focus:outline-none"
+                      className={`h-12 w-full rounded-[var(--radius-chip)] border bg-sunken px-4 text-base text-ink-1 placeholder:text-ink-3 focus:outline-none ${
+                        avisoPropio && limpiarTexto(propio, LARGO_MAX_HUECO).length < 3 ? 'sacudir border-warning' : 'border-gold'
+                      }`}
                     />
+                    {avisoPropio > 0 && limpiarTexto(propio, LARGO_MAX_HUECO).length < 3 && (
+                      <p className="text-caption text-warning">Escribe al menos unas letras.</p>
+                    )}
                     <button
                       type="button"
                       onClick={() => {
                         if (limpiarTexto(propio, LARGO_MAX_HUECO).length < 3) {
-                          setAviso((n) => n + 1);
+                          setAvisoPropio((n) => n + 1);
                           vibrar(30);
                           return;
                         }
                         llenar(propio);
                       }}
-                      className="h-12 rounded-[var(--radius-pill)] border border-[var(--line)] bg-raised-2 text-ayuda font-semibold text-ink-1 transition-opacity duration-200 active:scale-[0.98] disabled:opacity-65"
+                      className="boton-oro flex h-12 items-center justify-center rounded-[var(--radius-pill)] font-display text-base font-bold"
                     >
                       Usar esta
                     </button>
@@ -232,7 +239,7 @@ export function PasoEjercicio({
                   <button
                     type="button"
                     onClick={() => setEscribiendo(true)}
-                    className="flex min-h-12 items-center gap-2 rounded-[var(--radius-pill)] px-5 text-ayuda font-semibold text-gold transition-colors duration-150 hover:bg-raised active:scale-[0.98]"
+                    className="flex min-h-12 items-center gap-2 rounded-[var(--radius-pill)] px-5 text-ayuda font-semibold text-ink-1 underline decoration-[var(--line)] underline-offset-4 transition-colors duration-150 hover:bg-raised active:scale-[0.98]"
                   >
                     <PencilLine size={18} aria-hidden="true" />
                     Escribir la mía

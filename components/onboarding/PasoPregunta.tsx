@@ -125,7 +125,7 @@ export function PasoPregunta<T extends string>({
         )}
       </AnimatePresence>
 
-      {pie && <div className="mt-auto pt-8">{pie}</div>}
+      {pie && <div className="mt-6">{pie}</div>}
     </div>
   );
 }

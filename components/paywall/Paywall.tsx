@@ -358,11 +358,11 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
 
           <ul className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-ink-2">
             <li className="flex items-center gap-1">
-              <Bot size={14} className="text-gold" aria-hidden="true" />
+              <Bot size={14} className="text-ink-3" aria-hidden="true" />
               La IA ya viene incluida
             </li>
             <li className="flex items-center gap-1">
-              <LockKeyhole size={14} className="text-gold" aria-hidden="true" />
+              <LockKeyhole size={14} className="text-ink-3" aria-hidden="true" />
               Pago seguro por Hotmart
             </li>
           </ul>

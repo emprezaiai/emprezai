@@ -42,7 +42,7 @@ export function PasoIdea({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: EASE_SALIDA }}
         >
-          <p className="text-xs font-semibold tracking-[0.08em] text-gold uppercase">
+          <p className="text-xs font-semibold tracking-[0.08em] text-ink-3 uppercase">
             {NOMBRE_AREA[area]}
             {areaElegidaPorAyuda && <span className="text-ink-3 normal-case tracking-normal"> · por lo que se te da mejor</span>}
           </p>
@@ -54,7 +54,7 @@ export function PasoIdea({
 
         <div className="mt-6 flex flex-col gap-2" aria-label="Sugerencias de idea">
           <p className="flex items-center gap-1 text-xs font-semibold text-ink-3">
-            <Sparkles size={14} className="text-gold" aria-hidden="true" />
+            <Sparkles size={14} className="text-ink-3" aria-hidden="true" />
             Sugerencias para tu área
           </p>
           {IDEAS_SUGERIDAS[area].map((sugerencia, i) => (
