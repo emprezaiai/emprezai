@@ -15,18 +15,19 @@ import { PRECIOS, RESPONSABLE } from '@/lib/legal';
 import { registrarEvento } from '@/lib/eventos';
 import { EASE_SALIDA, TituloAcento, vibrar } from '@/components/onboarding/piezas';
 
-const PLANES: Record<Plan, { nombre: string; porMes: string; cobro: string; porDia: string; monto: number; periodo: string }> = {
-  anual: { nombre: 'Anual', porMes: '$6.67', cobro: 'Se cobra $79.99 al año', porDia: '$0.22 al día', monto: 79.99, periodo: 'al año' },
-  mensual: { nombre: 'Mensual', porMes: '$9.99', cobro: 'Se cobra $9.99 cada mes', porDia: '$0.33 al día', monto: 9.99, periodo: 'al mes' },
+const PLANES: Record<Plan, { nombre: string; porMes: number; cobro: string; porDia: string; monto: number; periodo: string }> = {
+  anual: { nombre: 'Anual', porMes: 6.67, cobro: 'Se cobra $79.99 al año', porDia: '$0.22 al día', monto: 79.99, periodo: 'al año' },
+  mensual: { nombre: 'Mensual', porMes: 9.99, cobro: 'Se cobra $9.99 cada mes', porDia: '$0.33 al día', monto: 9.99, periodo: 'al mes' },
 };
 // 12 × $9.99 = $119.88 contra $79.99 → $39.89 de ahorro real (dato exacto, sin redondear).
 const AHORRO_ANUAL = '$39.89';
 
 /* Monto que CUENTA al cambiar de plan (50 §C3: 300 ms, tabular-nums; sin conteo si reduce). */
-function Monto({ valor }: { valor: number }) {
+function Monto({ valor, desdeCero = false }: { valor: number; desdeCero?: boolean }) {
   const reduce = useReducedMotion();
   const nodo = useRef<HTMLSpanElement>(null);
-  const previo = useRef(valor);
+  // desdeCero: el precio héroe cuenta de 0 a su valor al entrar (baseline 2 de 22).
+  const previo = useRef(desdeCero ? 0 : valor);
   useEffect(() => {
     const desde = previo.current;
     previo.current = valor;
@@ -37,7 +38,7 @@ function Monto({ valor }: { valor: number }) {
       pintar(valor);
       return;
     }
-    const control = animate(desde, valor, { duration: 0.3, ease: 'easeOut', onUpdate: pintar });
+    const control = animate(desde, valor, { duration: desde === 0 ? 0.4 : 0.3, ease: 'easeOut', onUpdate: pintar });
     return () => control.stop();
   }, [valor, reduce]);
   return (
@@ -47,12 +48,7 @@ function Monto({ valor }: { valor: number }) {
   );
 }
 
-/** Corta por palabra solo si es largo. */
-function recortar(texto: string, max: number): string {
-  if (texto.length <= max) return texto;
-  const corte = texto.slice(0, max);
-  return `${corte.slice(0, corte.lastIndexOf(' ')).trimEnd()}…`;
-}
+
 
 // Enlaces de pago de Hotmart (públicos, no son secretos). Vacíos hasta la Sesión 6.
 const CHECKOUT: Record<Plan, string | undefined> = {
@@ -91,6 +87,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
   const [plan, setPlan] = useState<Plan>(planInicial ?? onboarding?.plan ?? 'anual');
   const [vistaPrevia, setVistaPrevia] = useState(false);
   const [sinConexion, setSinConexion] = useState(false);
+  const [errorPago, setErrorPago] = useState(false);
   const [yendo, setYendo] = useState(false);
   const [fechaCobro] = useState(() => fechaEnDias(PRECIOS.diasPrueba));
   const [fechaAviso] = useState(() => fechaEnDias(PRECIOS.diasPrueba - 2));
@@ -133,7 +130,14 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
       setVistaPrevia(true);
       return;
     }
-    const url = new URL(base);
+    let url: URL;
+    try {
+      url = new URL(base);
+    } catch {
+      setErrorPago(true);
+      return;
+    }
+    setErrorPago(false);
     url.searchParams.set('showOnlyTrial', '1');
     const sck = new URLSearchParams(window.location.search).get('sck');
     if (sck) url.searchParams.set('sck', sck.slice(0, 120));
@@ -163,20 +167,15 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
         <div className="px-4 pt-2">
           <motion.div {...entrar(0)}>
             {pieza && (
-              <p className="mb-2 flex items-center gap-2 text-xs font-semibold tracking-[0.04em] whitespace-nowrap text-green uppercase">
+              <p className="mb-2 flex items-center gap-2 text-xs font-semibold tracking-[0.08em] text-green uppercase">
                 <Check size={14} strokeWidth={3} aria-hidden="true" />
-                Pieza 1 guardada{respuestas > 0 ? ` · con tus ${respuestas} respuestas` : ''}
+                Pieza 1 lista{respuestas > 0 ? ` · ${respuestas} respuestas` : ''}
               </p>
             )}
             <TituloAcento texto="Desbloquea los 29 días hasta tu oferta lista" acento="tu oferta lista" className="text-pregunta" />
             <p className="mt-2 text-base leading-relaxed text-ink-2">
-              {pieza ? (
-                <>
-                  Con el Método Pieza a Pieza, la IA arma <span className="font-semibold text-ink-1">{recortar(pieza.idea, 48)}</span> contigo.
-                </>
-              ) : (
-                'Con el Método Pieza a Pieza, la IA construye tu empresa completa contigo.'
-              )}
+              Con el Método Pieza a Pieza, la IA arma tu negocio contigo,{' '}
+              <span className="font-semibold text-ink-1">una pieza al día</span>.
             </p>
           </motion.div>
 
@@ -237,7 +236,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
             {...entrar(2)}
             role="radiogroup"
             aria-label="Elige tu plan"
-            className="mt-6 flex flex-col gap-3"
+            className="mt-4 flex flex-col gap-3"
             onKeyDown={(e) => {
               if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) return;
               e.preventDefault();
@@ -275,7 +274,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
                       initial={{ scale: reduce ? 1 : 0.8, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       transition={{ type: 'spring', bounce: 0.3, duration: 0.4, delay: reduce ? 0 : 0.5 }}
-                      className="absolute -top-3 right-4 rounded-[var(--radius-chip)] bg-gradient-to-b from-gold-light to-gold px-2 py-1 text-xs font-extrabold tracking-[0.04em] text-on-gold uppercase shadow-[0_2px_0_var(--gold-deep)]"
+                      className="absolute -top-3 right-4 rounded-[var(--radius-chip)] bg-gradient-to-b from-gold-light to-gold px-2 py-1 text-caption font-extrabold tracking-[0.04em] text-on-gold uppercase shadow-[0_2px_0_var(--gold-deep)]"
                     >
                       Ahorras {AHORRO_ANUAL}
                     </motion.span>
@@ -294,7 +293,9 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
                     <span className="block text-xs text-ink-3">{datos.porDia}</span>
                   </span>
                   <span className="text-right">
-                    <span className="block font-display text-precio leading-none font-extrabold tabular-nums text-ink-1">{datos.porMes}</span>
+                    <span className="block font-display text-precio leading-none font-extrabold tabular-nums text-ink-1">
+                      <Monto valor={datos.porMes} desdeCero />
+                    </span>
                     <span className="block text-xs text-ink-3">al mes</span>
                   </span>
                 </button>
@@ -364,10 +365,6 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
               <LockKeyhole size={14} className="text-gold" aria-hidden="true" />
               Pago seguro por Hotmart
             </li>
-            <li className="flex items-center gap-1">
-              <ShieldCheck size={14} className="text-gold" aria-hidden="true" />
-              Tu idea es tuya
-            </li>
           </ul>
 
           <div className="mt-2 flex flex-col items-center">
@@ -392,6 +389,8 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
             type="button"
             onClick={irAlPago}
             disabled={yendo}
+            animate={reduce ? undefined : { scale: [1, 1.02, 1] }}
+            transition={{ duration: 0.6, delay: 2, ease: 'easeInOut' }}
             whileTap={{ scale: 0.98 }}
             className="boton-oro flex h-14 w-full items-center justify-center gap-2 rounded-[var(--radius-pill)] px-6 font-display text-boton font-bold"
           >
@@ -399,7 +398,9 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
             {!yendo && <ArrowRight size={20} aria-hidden="true" />}
           </motion.button>
           <p className="mt-2 text-center text-caption text-ink-2" aria-live="polite">
-            {sinConexion ? (
+            {errorPago ? (
+              <span className="text-warning">No pudimos abrir la página de pago. Escríbenos y te ayudamos a terminar.</span>
+            ) : sinConexion ? (
               <span className="inline-flex items-center gap-1 text-warning">
                 <WifiOff size={14} aria-hidden="true" />
                 Sin conexión. Conéctate para ir a la página de pago.

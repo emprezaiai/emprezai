@@ -1,7 +1,7 @@
 # ESTADO — EMPRESAI
 Última actualización: 2026-10-06 | Sesión actual: 4 (recorrido de inicio + pantalla de planes)
 
-⏸️ CHECKPOINT — Última acción completada (2026-10-06): /onboarding + /paywall CONSTRUIDOS y verificados (tsc ✓ lint ✓ build ✓, recorrido completo a 375 y 360 sin desborde ni errores) — revisor-visual EN CURSO / Siguiente acción exacta: aplicar veredictos (docs/revisiones/onboarding-veredicto.md, paywall-veredicto.md) → commit → OK de la dueña → Sesión 5 (/login + app interna)
+⏸️ CHECKPOINT — Última acción completada (2026-10-06): onboarding + paywall construidos y en 3ª ronda de revisión (ver Problemas conocidos) / Siguiente acción exacta: aplicar pendientes del veredicto del onboarding → npm run build → node scripts/captura-recorrido.mjs (375 y 360 nose) → re-lanzar revisor-visual en ambas → commit → mostrar a la dueña
 
 ## Qué es esta app (3 líneas máximo)
 App web tipo Duolingo que guía a emprendedores principiantes LATAM a lanzar su negocio/producto digital con IA en 30 días, 5 min/día.
@@ -145,7 +145,7 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Verificar en Sesión 6: período gratuito Hotmart para app externa · checkout real (medios de pago) · términos de datos del proveedor de IA.
 
 ## Problemas conocidos
-- onboarding veredicto / paywall veredicto: 1ª revisión NO LISTA (onboarding 28/40·14/20·16/20; paywall 31/40·15/20·14/20). Correcciones aplicadas y commiteadas (0a02626); re-revisión del revisor-visual EN CURSO — no declarar listas hasta que el veredicto diga LISTA.
+- onboarding veredicto / paywall veredicto: 3ª revisión NO LISTA por usabilidad (onboarding 32/40·16/20·18/20; paywall 32/40·15/20·17/20). Paywall: correcciones de la 3ª ronda YA aplicadas (subtítulo sin repetir la idea, planes más arriba, confianza en 1 línea, precio que cuenta + pulso del botón + insignia 13px, try/catch del enlace de pago) — falta recapturar y re-revisar. Onboarding PENDIENTE (ver docs/revisiones/onboarding-veredicto.md): RutaMini que cambie con las respuestas y suba bajo las opciones; tema de la idea como 1ª opción de resultado; sin punto final con hueco vacío; "Usar esta" sacude su campo + aviso propio + estilo dorado; dorado solo en CTA/nodo hoy/acento (rótulos e íconos a ink-2/3); padding bajo la barra fija; texto de piezaBase "la afinamos mañana en tu Día 2".
 - landing veredicto: el hook pre-stop lo marca CADUCADO porque hay archivos nuevos en app/ (onboarding/paywall), pero el código de la landing (app/page.tsx, components/landing/) NO cambió desde el veredicto del 2026-10-06 → falso positivo; se re-revisa en Sesión 5 con las capturas reales.
 - Garantía: decidida INCONDICIONAL (15 días, "o no es para ti") — coherente con sellos y /reembolsos (2026-10-02).
 - FICHA-MODELO.md en BORRADOR (modelo: Coursiv). Falta 2ª señal de revenue (Meta Ads Library / TrustMRR) y el plano del flujo de entrada de Coursiv (Meta Ads Library y Mobbin requieren navegador; se intentará en Sesión 2 con el navegador integrado). No bloquea diseño/arquitectura.
