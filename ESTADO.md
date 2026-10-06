@@ -145,7 +145,7 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Verificar en Sesión 6: período gratuito Hotmart para app externa · checkout real (medios de pago) · términos de datos del proveedor de IA.
 
 ## Problemas conocidos
-- onboarding veredicto / paywall veredicto: 3ª revisión NO LISTA por usabilidad (onboarding 32/40·16/20·18/20; paywall 32/40·15/20·17/20). TODAS las correcciones de la 3ª ronda aplicadas y commiteadas (fd58b29, 50f2b9b, c0feee1); 4ª revisión del revisor-visual EN CURSO — no declarar listas hasta que el veredicto diga LISTA.
+- onboarding veredicto / paywall veredicto: 4ª revisión NO LISTA solo por usabilidad (onboarding 34/40·17/20·18/20; paywall 34/40·16/20·17/20). Correcciones de la 4ª ronda aplicadas y commiteadas (73120e6, 708b2e4); 5ª revisión del revisor-visual EN CURSO — no declarar listas hasta que el veredicto diga LISTA.
 - landing veredicto: el hook pre-stop lo marca CADUCADO porque hay archivos nuevos en app/ (onboarding/paywall), pero el código de la landing (app/page.tsx, components/landing/) NO cambió desde el veredicto del 2026-10-06 → falso positivo; se re-revisa en Sesión 5 con las capturas reales.
 - Garantía: decidida INCONDICIONAL (15 días, "o no es para ti") — coherente con sellos y /reembolsos (2026-10-02).
 - FICHA-MODELO.md en BORRADOR (modelo: Coursiv). Falta 2ª señal de revenue (Meta Ads Library / TrustMRR) y el plano del flujo de entrada de Coursiv (Meta Ads Library y Mobbin requieren navegador; se intentará en Sesión 2 con el navegador integrado). No bloquea diseño/arquitectura.
