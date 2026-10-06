@@ -1,7 +1,7 @@
 # ESTADO — EMPRESAI
 Última actualización: 2026-10-06 | Sesión actual: 4 (recorrido de inicio + pantalla de planes)
 
-⏸️ CHECKPOINT — Última acción completada (2026-10-06): onboarding + paywall construidos y en 3ª ronda de revisión (ver Problemas conocidos) / Siguiente acción exacta: aplicar pendientes del veredicto del onboarding → npm run build → node scripts/captura-recorrido.mjs (375 y 360 nose) → re-lanzar revisor-visual en ambas → commit → mostrar a la dueña
+⏸️ CHECKPOINT — Última acción completada (2026-10-06): onboarding + paywall APROBADOS por el revisor (36/40·17/20·18/20 y 36/40·16/20·19/20) / Siguiente acción exacta: OK de la dueña tras probarlo → Sesión 5 (/login con magic link + app interna Hoy/Ruta/Mi Empresa; reemplazar los mailto de "Recupera tu acceso" por /login)
 
 ## Qué es esta app (3 líneas máximo)
 App web tipo Duolingo que guía a emprendedores principiantes LATAM a lanzar su negocio/producto digital con IA en 30 días, 5 min/día.
@@ -96,7 +96,7 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Elección del usuario (2026-09-30, 3ª vuelta): pantalla HOY = composición de la A (réplica de su captura) + pantalla RUTA = mapa de la B, AMBAS con colores/tonos de la C (bg #0F0D16, superficie #1A1622, texto2 #998FA8, dorado #FFC23D, verde #3DDC97, Bricolage Grotesque + Instrument Sans). Capturas: docs/revisiones/eleccion-hoy-A-colores-C-375.jpg + eleccion-ruta-B-colores-C-375.jpg — APROBADA 2026-09-30. Descartadas: fusión A+B+C "Tablero Dorado" (no le gustó), combinación C+B.
 
 ## Secuencia maestra de construcción (NO saltar)
-- Estado: Landing APROBADA · Onboarding LISTO (36/40·17/20·18/20) · Paywall en re-revisión · Login/App interna: pendientes · Login/App interna: pendientes · Ruta: / → /onboarding → /paywall → /login → /app
+- Estado: Landing APROBADA · Onboarding LISTO (36/40·17/20·18/20) · Paywall LISTO (36/40·16/20·19/20) · Login/App interna: pendientes · Login/App interna: pendientes · Ruta: / → /onboarding → /paywall → /login → /app
 - Landing (app/page.tsx, kit components/landing): protagonista = promesa "Hoy, en 5 minutos, la IA arma tu primera oferta" + demo del mecanismo · CTA primario "Armar mi primera pieza gratis" → /onboarding (planes → /onboarding?plan=anual|mensual)
 - Copy marcado y trazado: docs/copy/landing.md (10 variantes de titular puntuadas) · Legales: /privacidad /terminos /reembolsos /aviso-ia (datos del responsable PENDIENTES en lib/legal.ts)
 - Onboarding (/onboarding, components/onboarding, contenido en lib/onboarding.ts) — análisis vs propuesta de Gemini (2026-10-06): se tomaron sus 3 primeras preguntas (punto de la idea, obstáculo, área con "No lo sé"), el ejercicio adaptado al área y la recompensa "guardada en Mi Empresa". Cambios por reglas del SO: su 4ª pregunta (5 vs 10-15 min) no cambiaba nada → reemplazada por la pregunta ancla "¿Cuándo harás tu misión de 5 minutos?" (hora del recordatorio); + reconocimiento tras el obstáculo (patrón→sin culpa→mecanismo, mini-visual antes/después); + paso "tu idea en una línea" con sugerencias por área y "Tu idea es tuya"; + pregunta de ayuda si eligió "No lo sé" (qué se te da mejor → área); + etiqueta positiva con evidencia. Secuencia: punto → freno → reconocimiento → área → (ayuda) → idea → momento → etiqueta → MISIÓN 1 ("Ayudo a [cliente] a [resultado] sin [dolor]", 4 opciones del área por hueco + "Escribir la mía" + consejo de 1 línea) → armando (4 líneas personalizadas, anillo con mesetas, error con Reintentar) → PIEZA 1 (celebración, copiar/editar, "Guardada en Mi Empresa 1 de 30", Día 2 bloqueado) → /paywall?plan=. Lee ?plan= de la landing. Estado en localStorage "empresai_onboarding" v1 (se retoma al volver).
@@ -105,6 +105,8 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Eventos: lib/eventos.ts (landing_vista con atribución UTM/sck y marca ?qa=1), en cola local hasta conectar analítica
 
 ## Puertas de etapa
+- Onboarding: LISTO 2026-10-06 (5ª revisión) — 36/40 · 17/20 · copy 18/20 · evidencia docs/revisiones/onboarding-375.png + recorrido/ (375) + recorrido-360-nose/ · veredicto docs/revisiones/onboarding-veredicto.md · aprobación de la dueña: PENDIENTE
+- Paywall: LISTO 2026-10-06 (6ª revisión) — 36/40 · 16/20 · copy 19/20 · evidencia docs/revisiones/paywall-375.png + recorrido/14-16 · veredicto docs/revisiones/paywall-veredicto.md · aprobación de la dueña: PENDIENTE
 - Landing: APROBADA 2026-10-06 — usabilidad 37/40 · craft 18/20 · copy 19/20 · titular ✅ · relieve no plano/no repetitivo ✅ · escaneabilidad 8/10 ✅ · evidencia: docs/revisiones/landing-375.png (+ parte-0…7, 375x7830) · veredicto docs/revisiones/landing-veredicto.md · aprobación de la dueña: PENDIENTE
 
 ## Decisiones técnicas (NO re-discutir sin pedirlo el usuario)
@@ -146,7 +148,7 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 
 ## Problemas conocidos
 - onboarding veredicto: LISTA en la 5ª revisión (36/40·17/20·18/20, justo en el umbral). El hook puede marcarlo CADUCADO porque después se editó components/paywall/Paywall.tsx — el código del recorrido (components/onboarding/, lib/onboarding.ts) NO cambió desde ese veredicto → falso positivo. Mejoras no bloqueantes del veredicto para la próxima pasada: no repetir palabras de la idea en las opciones (redes/curso), animar solo la etiqueta agregada en ese paso, pie con mt-auto y carga centrada, CampoPropio común (etiqueta visible + Continuar + Cancelar), "Ya tienes área…" en la etiqueta y espacios duros en "día a día".
-- paywall veredicto: 5ª revisión NO LISTA (35/40·15/20·18/20). Correcciones aplicadas y commiteadas (836bae9); 6ª revisión EN CURSO — no declarar lista hasta que el veredicto diga LISTA.
+- paywall veredicto: LISTA en la 6ª revisión (36/40·16/20·19/20, justo en el umbral). Mejoras no bloqueantes para la próxima pasada: "pieza a pieza" sin partirse (nowrap), tarjetas de plan con relieve como las opciones, degradé opaco de la barra 28-32px, puntos de la línea de tiempo que no son "hoy" en ink-3, y 1 línea de prueba social REAL cuando existan testimonios (nunca inventada).
 - landing veredicto: el hook pre-stop lo marca CADUCADO porque hay archivos nuevos en app/ (onboarding/paywall), pero el código de la landing (app/page.tsx, components/landing/) NO cambió desde el veredicto del 2026-10-06 → falso positivo; se re-revisa en Sesión 5 con las capturas reales.
 - Garantía: decidida INCONDICIONAL (15 días, "o no es para ti") — coherente con sellos y /reembolsos (2026-10-02).
 - FICHA-MODELO.md en BORRADOR (modelo: Coursiv). Falta 2ª señal de revenue (Meta Ads Library / TrustMRR) y el plano del flujo de entrada de Coursiv (Meta Ads Library y Mobbin requieren navegador; se intentará en Sesión 2 con el navegador integrado). No bloquea diseño/arquitectura.
