@@ -333,7 +333,7 @@ export function opcionesHueco(area: IdArea, hueco: IdHueco, idea: string): strin
     hueco === 'cliente'
       ? clienteDeLaIdea(idea)
       : hueco === 'resultado' && temaDeLaIdea(idea)
-        ? 'usarlo en su día a día, paso a paso'
+        ? 'usarlo paso a paso en su día a día'
         : undefined;
   if (!propia || base.some((o) => o.toLowerCase() === propia.toLowerCase())) return base;
   return [propia, ...base.slice(0, 3)];
