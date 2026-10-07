@@ -180,7 +180,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
             )}
             <TituloAcento texto="Desbloquea 29 días hasta salir a vender" acento="salir a vender" className="text-pregunta" />
             <p className="mt-2 text-base leading-relaxed text-ink-2">
-              Adiós a la hoja en blanco: tu negocio pieza a pieza,{' '}
+              Adiós a la hoja en blanco: tu negocio <span className="whitespace-nowrap">pieza a pieza</span>,{' '}
               <span className="font-semibold whitespace-nowrap text-ink-1">5 minutos al día</span>.
             </p>
           </motion.div>
@@ -264,7 +264,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
                   tabIndex={activo ? 0 : -1}
                   onClick={() => elegirPlan(id)}
                   className={`relative flex min-h-20 items-center gap-3 rounded-[var(--radius-card)] border border-[var(--line)] px-4 py-4 text-left transition-colors duration-200 active:scale-[0.99] ${
-                    activo ? 'bg-[color-mix(in_oklab,var(--gold)_8%,var(--surface-raised))]' : 'bg-raised'
+                    activo ? 'tarjeta-relieve-oro' : 'tarjeta-relieve'
                   }`}
                 >
                   {activo && (
@@ -314,7 +314,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
             <ol className="flex flex-col">
               {[
                 { titulo: <>Hoy: empiezas gratis</>, texto: 'Acceso completo a tu ruta de 30 días.', tono: 'oro' as const },
-                { titulo: <>{fechaAviso}: te avisamos</>, texto: 'Te escribimos antes de cualquier cobro.', tono: 'oro' as const },
+                { titulo: <>{fechaAviso}: te avisamos</>, texto: 'Te escribimos antes de cualquier cobro.', tono: 'aviso' as const },
                 {
                   titulo: (
                     <>
@@ -337,7 +337,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
                   )}
                   <span
                     aria-hidden="true"
-                    className={`relative mt-1 size-3 shrink-0 rounded-full ${n.tono === 'oro' ? 'bg-gold' : 'border-2 border-ink-3 bg-base'}`}
+                    className={`relative mt-1 size-3 shrink-0 rounded-full ${n.tono === 'oro' ? 'bg-gold' : n.tono === 'aviso' ? 'bg-ink-3' : 'border-2 border-ink-3 bg-base'}`}
                   />
                   <span>
                     <span className="block text-ayuda font-semibold text-ink-1">{n.titulo}</span>
@@ -387,6 +387,18 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
               ¿Ya pagaste? Recupera tu acceso
             </a>
           </div>
+
+          <nav aria-label="Condiciones" className="mt-2 flex items-center justify-center gap-4 text-xs text-ink-3">
+            {[
+              { href: '/terminos', texto: 'Términos' },
+              { href: '/privacidad', texto: 'Privacidad' },
+              { href: '/reembolsos', texto: 'Reembolsos' },
+            ].map((l) => (
+              <Link key={l.href} href={l.href} className="flex min-h-11 items-center underline-offset-4 hover:text-ink-2 hover:underline">
+                {l.texto}
+              </Link>
+            ))}
+          </nav>
         </div>
 
         {/* Botón fijo con el plan elegido (el precio nunca queda bajo el pliegue) */}
