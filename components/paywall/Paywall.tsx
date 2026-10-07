@@ -382,12 +382,12 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
             >
               Ahora no
             </Link>
-            <a
-              href={`mailto:${RESPONSABLE.emailContacto}?subject=${encodeURIComponent('Ya pagué EMPRESAI y quiero entrar')}`}
+            <Link
+              href="/login"
               className="flex min-h-11 items-center px-3 text-sm font-medium whitespace-nowrap text-ink-3 underline-offset-4 transition-colors duration-150 hover:text-ink-2 hover:underline"
             >
-              ¿Ya pagaste? Recupera tu acceso
-            </a>
+              ¿Ya pagaste? Entra aquí
+            </Link>
           </div>
 
           <nav aria-label="Condiciones" className="flex items-center justify-center gap-4 text-sm text-ink-3">
@@ -496,6 +496,12 @@ function AvisoVistaPrevia({ plan, onCerrar }: { plan: string; onCerrar: () => vo
         >
           Entendido
         </button>
+        <Link
+          href="/login"
+          className="mt-2 flex min-h-11 w-full items-center justify-center text-sm font-semibold text-ink-1 underline-offset-4 hover:underline"
+        >
+          Seguir a crear mi cuenta (vista previa)
+        </Link>
       </motion.div>
     </motion.div>
   );

@@ -60,6 +60,7 @@ export default function PaginaDeVentas() {
   return (
     <div className="min-h-dvh bg-[var(--bg)] text-[var(--text-primary)] [font-family:var(--font-body)]">
       <Hero
+        loginHref="/login"
         appName="EMPRESAI"
         logo={<LogoEmpresai />}
         gancho={

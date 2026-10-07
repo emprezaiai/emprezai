@@ -5,6 +5,7 @@
 // El estado se guarda en cada paso (localStorage versionado) y se retoma al volver.
 
 import { useEffect, useState, useSyncExternalStore } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import {
@@ -25,7 +26,6 @@ import {
   type Respuestas,
 } from '@/lib/onboarding';
 import { registrarEvento } from '@/lib/eventos';
-import { RESPONSABLE } from '@/lib/legal';
 import { LogoEmpresai } from '@/components/app/LogoEmpresai';
 import { Encabezado, PromesaRecorrido, RutaMini } from './piezas';
 import { PasoPregunta } from './PasoPregunta';
@@ -128,13 +128,13 @@ function Flujo({ planInicial }: { planInicial?: Plan }) {
           pie={
             <>
               <PromesaRecorrido />
-              {/* Salida para quien ya pagó: hoy abre un correo a soporte; pasa a /login en la Sesión 5 */}
-              <a
-                href={`mailto:${RESPONSABLE.emailContacto}?subject=${encodeURIComponent('Ya pagué EMPRESAI y quiero entrar')}`}
+              {/* Salida para quien ya pagó */}
+              <Link
+                href="/login"
                 className="mt-4 flex min-h-11 items-center justify-center text-sm font-medium text-ink-2 underline-offset-4 hover:underline"
               >
-                ¿Ya pagaste? Recupera tu acceso
-              </a>
+                ¿Ya pagaste? Entra aquí
+              </Link>
             </>
           }
         />
