@@ -20,7 +20,8 @@ import { crearCuenta, useCuenta } from '@/lib/cuenta';
 import { leerEstado } from '@/lib/onboarding';
 
 const ACCESO_REAL = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL);
-const MODO_DEMOSTRACION = !ACCESO_REAL && process.env.NEXT_PUBLIC_VISTA_PREVIA === '1';
+const BANDERA_DEMO = !ACCESO_REAL && process.env.NEXT_PUBLIC_VISTA_PREVIA === '1';
+const demoPermitida = () => BANDERA_DEMO && ['localhost', '127.0.0.1'].includes(window.location.hostname);
 const ESPERA_REENVIO = 60;
 const CORREO_VALIDO = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -40,11 +41,13 @@ export function Acceso() {
   );
   const [email, setEmail] = useState('');
   const [codigo, setCodigo] = useState('');
-  const [estado, setEstado] = useState<'inicio' | 'enviando' | 'enviado' | 'error'>('inicio');
+  const [estado, setEstado] = useState<'inicio' | 'enviando' | 'enviado' | 'pronto' | 'error'>('inicio');
+  const [demo, setDemo] = useState(false);
   const [errorCampo, setErrorCampo] = useState('');
   const [errorCodigo, setErrorCodigo] = useState('');
   const [espera, setEspera] = useState(0);
   const [reenviado, setReenviado] = useState(false);
+  const [intentos, setIntentos] = useState(0);
 
   // Ya tiene sesión: directo a su ruta.
   useEffect(() => {
@@ -61,7 +64,8 @@ export function Acceso() {
     ev?.preventDefault();
     const limpio = email.trim().toLowerCase();
     if (!CORREO_VALIDO.test(limpio)) {
-      setErrorCampo('Ese correo parece incompleto. Ejemplo: tu@correo.com');
+      setErrorCampo(limpio ? 'Ese correo parece incompleto. Ejemplo: tu@correo.com' : 'Escribe tu correo para recibir el enlace.');
+      setIntentos((n) => n + 1);
       vibrar(30);
       campo.current?.focus();
       return;
@@ -74,9 +78,11 @@ export function Acceso() {
     setErrorCampo('');
     setEstado('enviando');
     // Sesión 6: aquí se pide al servidor el enlace + código (límite de intentos; mismo mensaje exista o no el correo).
+    const enDemo = demoPermitida();
     window.setTimeout(() => {
       setEmail(limpio);
-      setEstado('enviado');
+      setDemo(enDemo);
+      setEstado(ACCESO_REAL || enDemo ? 'enviado' : 'pronto');
       setEspera(ESPERA_REENVIO);
       setReenviado(false);
     }, 700);
@@ -89,7 +95,7 @@ export function Acceso() {
       vibrar(30);
       return;
     }
-    if (MODO_DEMOSTRACION) {
+    if (demo) {
       entrarDemostracion();
       return;
     }
@@ -98,10 +104,12 @@ export function Acceso() {
   }
 
   function entrarDemostracion() {
-    if (!MODO_DEMOSTRACION) return;
+    if (!demoPermitida()) return;
     crearCuenta(email);
     router.replace('/app');
   }
+
+  if (cuenta !== null) return <main className="fondo-recorrido min-h-dvh" aria-busy="true" />;
 
   const entrar = (i: number) => ({
     initial: { opacity: 0, y: reduce ? 0 : 12 },
@@ -120,7 +128,31 @@ export function Acceso() {
         </motion.header>
 
         <AnimatePresence mode="wait" initial={false}>
-          {estado === 'enviado' ? (
+          {estado === 'pronto' ? (
+            <motion.section key="pronto" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-1 flex-col pt-8" aria-live="polite">
+              <TituloAcento texto="El acceso abre muy pronto" acento="muy pronto" className="text-pregunta" />
+              <p className="mt-2 text-base text-ink-2">
+                Estamos terminando de activar la entrada a la app. Guarda este correo: es el que usarás para entrar,{' '}
+                <strong className="font-semibold [overflow-wrap:anywhere] text-ink-1">{email}</strong>.
+              </p>
+              {tienePieza && (
+                <p className="mt-4 flex items-start gap-2 text-caption text-ink-2">
+                  <LockKeyhole size={16} className="mt-0.5 shrink-0 text-green" aria-hidden="true" />
+                  Tu pieza 1 queda guardada en este celular: al entrar, pasa a tu cuenta sola.
+                </p>
+              )}
+              <button
+                type="button"
+                onClick={() => setEstado('inicio')}
+                className="mt-6 flex min-h-11 items-center text-sm font-semibold text-ink-2 transition-transform duration-100 active:scale-[0.97]"
+              >
+                Usar otro correo
+              </button>
+              <div className="mt-auto pt-8">
+                <RutaMini destacada titulo="Tu ruta te espera" respuestas={tienePieza ? [{ texto: 'Pieza 1 lista', tipo: 'logro' }] : [{ texto: '5 minutos al día', tipo: 'freno' }]} />
+              </div>
+            </motion.section>
+          ) : estado === 'enviado' ? (
             <motion.section
               key="enviado"
               initial={{ opacity: 0, x: reduce ? 0 : 24 }}
@@ -153,15 +185,15 @@ export function Acceso() {
                     setCodigo(ev.target.value.replace(/\D/g, '').slice(0, 6));
                     setErrorCodigo('');
                   }}
-                  placeholder="123456"
+                  placeholder="6 números"
                   aria-invalid={Boolean(errorCodigo)}
                   aria-describedby={errorCodigo ? `${idCodigo}-error` : undefined}
-                  className={`h-14 w-full rounded-[var(--radius-pill)] border bg-sunken px-5 text-center font-display text-xl font-bold tracking-[0.3em] text-ink-1 tabular-nums placeholder:text-ink-3 focus:border-gold focus:outline-none ${
-                    errorCodigo ? 'border-warning' : 'border-[var(--line)]'
+                  className={`h-14 w-full rounded-[var(--radius-pill)] border bg-sunken px-5 text-center font-display text-xl font-bold tracking-[0.3em] text-ink-1 tabular-nums placeholder:font-sans placeholder:text-base placeholder:font-normal placeholder:tracking-normal placeholder:text-ink-3 focus:outline-none ${
+                    errorCodigo ? 'border-danger' : 'border-[var(--line)] focus:border-gold'
                   }`}
                 />
                 {errorCodigo && (
-                  <p id={`${idCodigo}-error`} role="alert" className="text-caption text-warning">
+                  <p id={`${idCodigo}-error`} role="alert" className="text-caption text-danger">
                     {errorCodigo}
                   </p>
                 )}
@@ -173,14 +205,14 @@ export function Acceso() {
 
               <p className="mt-4 text-caption text-ink-2">¿No te llega? Revisa Spam o Promociones; a veces tarda un minuto.</p>
 
-              {MODO_DEMOSTRACION && (
+              {demo && (
                 <div className="tarjeta-relieve-base mt-6 rounded-[var(--radius-card)] p-4">
                   <p className="text-sm font-semibold text-ink-1">Modo demostración</p>
                   <p className="mt-1 text-caption text-ink-2">Entra sin esperar el correo. Solo existe en esta versión de prueba.</p>
                   <button
                     type="button"
                     onClick={entrarDemostracion}
-                    className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-[var(--radius-pill)] border border-[var(--line)] bg-raised-2 font-display text-base font-bold text-ink-1"
+                    className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-[var(--radius-pill)] border border-[var(--line)] bg-raised-2 font-display text-base font-bold text-ink-1 transition-transform duration-100 active:scale-[0.97]"
                   >
                     Entrar en modo demostración
                     <ArrowRight size={18} aria-hidden="true" />
@@ -197,21 +229,32 @@ export function Acceso() {
                     setReenviado(true);
                     vibrar();
                   }}
-                  className="flex min-h-11 items-center gap-2 text-sm font-semibold text-ink-1 disabled:text-ink-3"
+                  className="flex min-h-11 items-center gap-2 text-sm font-semibold text-ink-1 transition-transform duration-100 active:scale-[0.97] disabled:text-ink-3"
                 >
                   <RotateCcw size={16} aria-hidden="true" />
                   {espera > 0 ? `Reenviar en ${espera} s` : 'Reenviar el enlace'}
                 </button>
                 <p role="status" className={reenviado ? 'text-caption text-green' : 'sr-only'}>
-                  {reenviado ? 'Te reenviamos el enlace.' : ''}
+                  {reenviado ? (demo ? 'En modo demostración no se envían correos.' : 'Te reenviamos el enlace.') : ''}
                 </p>
-                <button type="button" onClick={() => setEstado('inicio')} className="flex min-h-11 items-center text-sm font-semibold text-ink-2">
+                <button
+                  type="button"
+                  onClick={() => setEstado('inicio')}
+                  className="flex min-h-11 items-center text-sm font-semibold text-ink-2 transition-transform duration-100 active:scale-[0.97]"
+                >
                   Usar otro correo
                 </button>
               </div>
             </motion.section>
           ) : (
-            <motion.section key="inicio" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, x: reduce ? 0 : -16 }} transition={{ duration: 0.25 }} className="pt-8">
+            <motion.section
+              key="inicio"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, x: reduce ? 0 : -16 }}
+              transition={{ duration: 0.25 }}
+              className="flex flex-1 flex-col pt-8"
+            >
               <motion.div {...entrar(1)}>
                 <TituloAcento texto="Entra a tu ruta de 30 días" acento="tu ruta" className="text-pregunta" />
                 <p className="mt-2 text-base text-ink-2">
@@ -246,17 +289,18 @@ export function Acceso() {
                   placeholder="tu@correo.com"
                   aria-invalid={Boolean(errorCampo)}
                   aria-describedby={errorCampo ? `${idCampo}-error` : undefined}
-                  className={`h-14 w-full rounded-[var(--radius-pill)] border bg-sunken px-5 text-base text-ink-1 placeholder:text-ink-3 focus:border-gold focus:outline-none ${
-                    errorCampo ? 'border-warning' : 'border-[var(--line)]'
+                  key={intentos}
+                  className={`h-14 w-full rounded-[var(--radius-pill)] border bg-sunken px-5 text-base text-ink-1 placeholder:text-ink-3 focus:outline-none ${
+                    errorCampo ? 'sacudir border-danger' : 'border-[var(--line)] focus:border-gold'
                   }`}
                 />
                 {errorCampo && (
-                  <p id={`${idCampo}-error`} role="alert" className="text-caption text-warning">
+                  <p id={`${idCampo}-error`} role="alert" className="text-caption text-danger">
                     {errorCampo}
                   </p>
                 )}
                 {estado === 'error' && (
-                  <p role="alert" className="text-caption text-warning">
+                  <p role="alert" className="text-caption text-danger">
                     No pudimos enviar el enlace. Revisa tu conexión e intenta de nuevo.
                   </p>
                 )}
@@ -286,18 +330,22 @@ export function Acceso() {
                 </p>
               </motion.form>
 
-              <motion.div {...entrar(3)} className="mt-8">
+              <motion.div {...entrar(3)} className="mt-auto pt-8">
                 <RutaMini
+                  destacada
                   titulo={tienePieza ? 'Tu ruta te espera' : 'Lo que te espera adentro'}
                   respuestas={
                     tienePieza
                       ? [
                           { texto: 'Pieza 1 lista', tipo: 'logro' },
-                          { texto: 'Mañana: tu cliente ideal', tipo: 'freno' },
+                          { texto: 'Mañana: tu cliente ideal · 5 min', tipo: 'freno' },
                         ]
                       : [{ texto: '5 minutos al día', tipo: 'freno' }]
                   }
                 />
+                <p className="mt-3 text-center text-caption text-ink-2">
+                  Tu negocio, pieza a pieza: hoy ya sabes qué hacer, y en 5 minutos está hecho.
+                </p>
               </motion.div>
 
               {!tienePieza && (

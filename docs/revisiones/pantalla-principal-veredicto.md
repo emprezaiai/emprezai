@@ -1,96 +1,113 @@
 # VEREDICTO revisor-visual — pantalla-principal (Hoy, M0)
-Fecha: 2026-10-07 09:00
+Fecha: 2026-10-07 12:00
 Screenshot: docs/revisiones/pantalla-principal-375.png
-Usabilidad: 27/40
-Craft: 12/20
+Usabilidad: 29/40
+Craft: 15/20
 Copy (si vende): N-A
-Fidelidad (si hubo referencia): NO FIEL
+Fidelidad (si hubo referencia): FIEL
 Veredicto: NO LISTA
-Top defectos: 1) CTA principal fuera de la primera vista (asoma cortado bajo el botón central) · 2) a 360px el título de la misión se monta sobre el cubo de vidrio · 3) copy redundante y con la concordancia rota ("ya tiene frase de negocio: hoy los usa") · 4) la llama apagada (M4) pulsa y baja su contraste, contra lo que pide el 56 §M4.2 · 5) cubos sin resplandor y el saludo pesa más que la misión (desvío del tour hoy-v2)
+Top defectos: 1) el día 1 en estado "hecho" deja unos 180px de vacío muerto sobre la barra · 2) dos bloques de texto gris seguidos bajo los datos (la línea M4 queda pegada al borde izquierdo y fuera del stagger, el insight lleva sangría con ícono) · 3) datos redundantes ("1 · 1 · 1/7" en la semana 1) y "0/7 esta semana" sin sustantivo · 4) unos 9 tamaños de texto y el saludo de 20px queda fuera de la escala de la ficha · 5) guardarCuenta sigue tragándose el fallo de guardado, y error.tsx manda a "Perfil" cuando la ayuda está en el chip de la cabecera
 
 ## Detalle de puntaje
-Usabilidad: h1:3 h2:2 h3:3 h4:3 h5:3 h6:3 h7:3 h8:2 h9:2 h10:3
-Craft: jerarquía:2 profundidad:3 identidad:2 movimiento:3 encaje:2
+Usabilidad: h1:3 h2:3 h3:3 h4:3 h5:3 h6:3 h7:3 h8:2 h9:3 h10:3
+Craft: jerarquía:3 profundidad:3 identidad:3 movimiento:3 encaje:3
 
-Capturas puntuadas: app/17-hoy-demo-dia8-arriba.png, app/17-hoy-demo-dia8-final.png, app/04-hoy-dia1-hecho.png,
-app/09-hoy-dia2-pendiente.png, app/16-hoy-dia2-hecho.png, app-360/17-hoy-demo-dia8-arriba.png, pantalla-principal-375.png.
+Capturas puntuadas: pantalla-principal-375.png, app/17-hoy-demo-dia8-arriba.png, app/17-hoy-demo-dia8-final.png,
+app/04-hoy-dia1-hecho.png, app/09-hoy-dia2-pendiente.png, app/16-hoy-dia2-hecho.png, app-360/17-hoy-demo-dia8-arriba.png,
+app-360/09-hoy-dia2-pendiente.png.
+Código: components/interna/Hoy.tsx, components/interna/Marco.tsx, app/app/error.tsx, lib/cuenta.ts, app/globals.css.
 
 ## Gate de carga cognitiva
-Falla 1 de 8 ítems: "cero elementos que parecen interactivos y no hacen nada". La tarjeta héroe tiene borde dorado y
-canto, y las fichas de los 3 datos tienen relieve de "botón de juego", pero ninguna de las dos responde al toque.
-"Qué sigue es obvio" pasa por poco: en la primera vista del día 8 la única acción visible es el rayo, que no tiene
-etiqueta visible. No hay sobrecarga crítica.
+Falla 0 de 8. El ítem de "elementos que parecen interactivos y no hacen nada" ya pasa: la tarjeta héroe y las 3 fichas son
+Link. El "qué sigue" es obvio porque el CTA aparece en la primera vista a 375 y a 360. No hay sobrecarga.
 
-## CTA héroe vivo
-Contraste: OK (texto #1A1206 sobre #FFC23D, y el dorado sobre #0F0D16 supera 3:1 con margen). Tap: OK (.boton-oro:active,
-translateY 2px en 120ms). Nunca disabled: OK. Alto 56px y ancho completo: OK. FALLA en ubicación: con 2 o más piezas
-el CTA cae bajo el pliegue y en la primera vista se ve cortado detrás del botón central.
+## CTA héroe vivo (los 4 se cumplen)
+Contraste: #1A1206 sobre #FFC23D da unos 11:1, y el dorado contra #0F0D16 supera 3:1. Tap: .boton-oro:active con
+translateY 2px en 120ms. Nunca disabled: es un Link. Mide 56px de alto y ocupa todo el ancho, en la primera vista.
+Nota: hay 3 entradas al mismo destino casi juntas (la tarjeta héroe, el CTA y el rayo central). Son dos dorados
+"primarios" en la primera vista y dos paradas de tabulación repetidas.
 
-## Test de fidelidad (contrato de composición referencia-usuario-1.jpg + tour aprobado public/landing/hoy-v2.png)
-Las 7 piezas de la composición están todas: 2 chips circulares y título centrado · saludo · tarjeta héroe con cubos ·
-3 datos · filas en píldora con flecha en círculo · CTA en píldora · botón central elevado.
-- Modo: OK (oscuro, Opción C)
-- Hue del acento: OK (#FFC23D)
+## Test de fidelidad (referencia-usuario-1.jpg = contrato de composición · public/landing/hoy-v2.png = tour aprobado)
+- Modo: OK (oscuro)
+- Hue del acento: OK (#FFC23D, más #3DDC97 como 2ª nota)
 - Clase tipográfica display: OK (Bricolage, grotesk)
-- Radios: OK (tarjetas 20px · píldoras 999px · chips 12px)
-- Densidad: FALLO. hoy-v2 mostraba el CTA en la primera vista con 6 bloques. Ahora hay 8 bloques (se sumaron la línea
-  de racha y el insight de 3 líneas) y el CTA quedó bajo el pliegue.
-- Sombras/profundidad: FALLO. La ficha levanta la restricción solo para los "cubos de vidrio CON RESPLANDOR". Los cubos
-  de .cubo-vidrio no tienen halo, y la tarjeta perdió el brillo radial interior que tenía hoy-v2. Ahora se ven
-  como cuadrados grises con un punto.
-Resultado: 2 de 6 fallos → NO FIEL.
+- Radios: OK (tarjetas 20px · píldoras 999px · chips 12px, igual que en la ficha)
+- Densidad: FALLO LEVE. Entre los datos y las filas hay dos bloques de texto (línea M4 + insight) que no existen ni
+  en la referencia ni en hoy-v2: suman 4-5 líneas de gris. El CTA sí quedó en la primera vista.
+- Sombras/profundidad: OK. Los cubos tienen halo (.cubo-verde/.cubo-oro) y la tarjeta lleva el radial dorado (.heroe-hoy::before).
+Resultado: 1 de 6 fallos → FIEL.
+Valores de FICHA-ARTE comprobados en el screenshot: fondo #0F0D16, superficie #1A1622, tinta #EFEAF5/#BDB4CB/#998FA8,
+Bricolage + Instrument y radios 20/999/12 coinciden. Desvío menor: el saludo mide 20px (text-xl) y la ficha fija
+display en 24-28 y title en 16-19, así que queda en tierra de nadie.
 
 ## Hallazgos por severidad
 
 ### ALTA
-1. components/interna/Hoy.tsx:241-261. El CTA "Empezar la misión de hoy" se pinta al final, después de las filas en
-   píldora (l.219). En el día 8 queda fuera de los 812px y asoma cortado detrás del botón central
-   (17-hoy-demo-dia8-arriba.png); a 360px ni siquiera asoma. Además rompe el orden M0 del propio comentario de la
-   l.6 (dato → acción → racha → insight).
-   FIX: mover el bloque del CTA justo debajo de la tarjeta héroe (l.163) y dejar las píldoras y el insight debajo.
-2. components/interna/Hoy.tsx:112 y l.132. Los cubos son absolutos (h-32 w-32, right-2) y el h2 usa max-w-[70%]. A 360px
-   el título "Hoy: crea el nombre" se monta sobre el cubo verde (app-360/17-hoy-demo-dia8-arriba.png).
-   FIX: h2 con max-w-[calc(100%-8.5rem)], o cubos de size-12/size-10 por debajo de 380px.
-3. components/interna/Hoy.tsx:62 y l.76. La regex que quita "Tu/Tus/El/La" deja frases que suenan a máquina ("usa
-   cliente ideal y oferta") y el "los" fijo rompe la concordancia en el día 2: "ya tiene frase de negocio: hoy los usa"
-   (09-hoy-dia2-pendiente.png).
-   FIX: conservar los posesivos ("tu cliente ideal y tu oferta") y usar "lo/la" o "los" según la cantidad.
+1. 04-hoy-dia1-hecho.png (y la versión a 360). Entre la píldora "Tu frase de negocio" y la barra quedan unos 180px vacíos.
+   Es el defecto 14 de la revisión anterior y sigue sin corregirse. Es justo la pantalla que la persona ve después de su
+   primera victoria.
+   FIX: con 1 sola pieza, mostrar debajo la pieza de mañana bloqueada (Día 2 · "se abre mañana") o la semana 1 en 7 nodos.
 
 ### MEDIA
-4. components/interna/Hoy.tsx:169-176. La llama apagada (M4) se anima en bucle con opacity 0.5→0.75. Eso contradice
-   el 56 §M4.2 ("sin animación de llama viva") y, al 50% de opacidad, el gris #998FA8 sobre #1A1622 queda por debajo
-   de 4.5:1 (56 §M4.4).
-   FIX: quitar animate y opacity, y dejar el stroke 1.5 en ink-3 estático.
-5. components/interna/Hoy.tsx:135-141 + l.206-216. Se repite la misma información en 3 lugares. Pendiente: el
-   subtítulo "usa X y Y" y el insight "ya tiene X y Y". Hecho: "Mañana · Día 3: tu oferta" y "Mañana el Método usa lo
-   de hoy para tu oferta". Encima, la línea de racha suma un tercer bloque de texto.
-   FIX: el subtítulo de la tarjeta queda solo con "5 minutos" y la línea de racha se integra bajo la ficha de racha.
-6. components/interna/Hoy.tsx:208. El copy de M4 es la fila "Mentor sereno", pero la ficha compila Enérgico + Juguetón.
-   FIX: usar la fila coach o cómplice del 56 §M4.3 ("7 días no se dejan morir hoy. Una pieza y sigue.").
-7. app/globals.css:301-308 (.cubo-vidrio) + Hoy.tsx:110. Sin resplandor, el detalle firma del contrato no se ve.
-   FIX: agregar un halo de color al cubo (0 0 28px rgb(61 220 151/.35) y su versión dorada) y un radial dorado dentro
-   de la tarjeta, como en hoy-v2.
-8. Hoy.tsx:103 contra l.132. Jerarquía invertida: el saludo genérico "Buenos días" (28px) pesa más que la misión de
-   hoy (20px), que es el objeto principal. Hay unos 8 tamaños de texto en pantalla (13/28/12/20/14/24/15/16/17).
-   FIX: bajar el saludo a 20px y subir el título de la misión a 24px, para que el héroe sea la misión.
-9. app/app/ no tiene error.tsx. useCuentaActiva lanza un error (Marco.tsx:19) y no hay Error Boundary, así que un
-   localStorage corrupto o ausente termina en la pantalla de error genérica. Además, guardarCuenta
-   (lib/cuenta.ts:81-83) traga el fallo de almacenamiento sin avisar al usuario.
-   FIX: crear app/app/error.tsx con qué pasó y qué hacer, y mostrar un aviso visible cuando no se pueda guardar.
+2. Hoy.tsx:223-233. La línea M4 es un <p> sin motion: aparece de golpe, fuera del stagger, y queda pegada al borde
+   izquierdo. El insight de abajo va sangrado detrás del ícono Sparkles. Son dos bloques grises seguidos y desalineados:
+   4-5 líneas de texto entre los datos y la lista (defecto 15 de la revisión anterior, sin corregir).
+   FIX: cuando rachaEnRiesgo, unir M4 e insight en un solo bloque con un ícono (la llama en ink-2), envuelto en entrar(4).
+3. Hoy.tsx:182-221. En la semana 1, si no hubo cortes, racha = piezas = semana: el usuario ve "1 · 1 · 1/7" o
+   "2 · 2 · 2/7", el mismo dato 3 veces. El día 8, el héroe numérico es "0/7" con la etiqueta "esta semana", que no dice
+   de qué (¿piezas, días?) y empieza la semana con un cero.
+   FIX: la etiqueta pasa a "piezas de la semana" y el número se cambia por 7 puntos de progreso (llenos/vacíos), así no
+   repite el dato de piezas.
+4. Tipografía. Hay unos 9 tamaños en pantalla: 14 (fecha), 20 (saludo), 12 (eyebrow/labels), 24 (misión/números),
+   17 (CTA), 16 (filas, "/7"), 13 (M4), 15 (insight), 18 (marca). El máximo es 3-4. El saludo de 20px está fuera de la
+   escala de la ficha (24-28 / 16-19).
+   FIX: saludo a 18px semibold, M4/insight/subtítulo a 15, eyebrow/labels/sub-fila a 12; la misión y los números
+   quedan como único display (24).
+5. lib/cuenta.ts:78-87. guardarCuenta sigue tragándose el fallo de almacenamiento: la persona termina su misión, la ve
+   "lista" y la pierde al recargar sin ningún aviso (la otra mitad del defecto 9).
+   FIX: que devuelva boolean y mostrar un aviso visible: "No pudimos guardar en este celular. Libera espacio y toca
+   Reintentar."
+6. app/app/error.tsx:13. El texto dice "escríbenos desde Perfil", pero ahora la ayuda está en el chip de la cabecera
+   de Hoy (mailto). Son dos caminos distintos para lo mismo.
+   FIX: poner en error.tsx un enlace directo "Escribir a soporte" con el mismo mailto.
 
 ### BAJA
-10. lib/cuenta.ts:208. "min en total" = piezas × 5: el número no se mide, se inventa.
-    FIX: guardar la duración real de cada misión, o cambiar el dato por uno verdadero ("semana 2 de 5").
-11. Hoy.tsx:83-89. El chip izquierdo dice aria-label "Ajustes" con ícono de controles, pero lleva a /app/perfil, que es
-    el mismo destino que la pestaña Perfil, con otro nombre y otro ícono.
-    FIX: llevarlo a /app/perfil#ajustes y nombrarlo igual que la sección de destino.
-12. Hoy.tsx:107 y l.167-204. La tarjeta héroe y las 3 fichas de datos parecen tocables y no hacen nada.
-    FIX: la tarjeta héroe enlaza a /app/mision; la ficha de racha y la de piezas enlazan a Ruta y Mi Empresa.
-13. Marco.tsx:79 (grid de 5 columnas iguales). La etiqueta "Mi Empresa" queda pegada al aro del botón central (más
-    todavía a 360px), mientras que "Ruta" respira. El desbalance óptico se ve.
-    FIX: etiqueta "Empresa", o columnas 1fr 1fr auto 1fr 1fr con gap.
-14. 04-hoy-dia1-hecho.png: queda un hueco muerto de unos 180px entre el CTA y la barra.
-    FIX: en el estado "hecho" con 1 pieza, mostrar la vista previa de la pieza de mañana (bloqueada) para llenar con valor.
-15. Hoy.tsx:206-210. La línea de racha no entra en el stagger (aparece de golpe, sin entrar(n)), y su borde izquierdo
-    no coincide con el del insight, que lleva ícono.
-    FIX: envolverla en motion con entrar(2) y alinearla con la misma sangría del insight.
+7. Marco.tsx:126-131. El indicador de la pestaña activa (layoutId con spring) no respeta prefers-reduced-motion: no hay
+   MotionConfig reducedMotion="user". Tampoco hay transición entre pestañas (no hay template.tsx ni AnimatePresence),
+   solo se mueve la pastilla. FIX: <MotionConfig reducedMotion="user"> en el layout de /app y un fade de 200ms en template.tsx.
+8. Hoy.tsx:116-177. La tarjeta héroe y el CTA son dos Link al mismo destino, uno debajo del otro: dos paradas de
+   tabulación iguales. FIX: tabIndex={-1} y aria-hidden en el Link de la tarjeta, o convertir la tarjeta en un div con
+   onClick sin foco.
+9. Hoy.tsx:111. El h1 es el saludo genérico ("Buenos días") y la misión, que es el objeto principal, no es un
+   encabezado. FIX: el saludo pasa a <p> y el título de la misión a <h1>.
+10. Hoy.tsx:248. Las flechas de las filas en píldora pasaron de dorado (hoy-v2) a piedra. Es coherente con dejar el
+    dorado solo para la acción, pero es un desvío del tour aprobado: confirmarlo con la dueña o anotarlo en FICHA-ARTE.
+
+## Re-revisión 2: qué se corrigió
+Verificado en screenshot y código, contra los 15 defectos de la revisión 1:
+- [CORREGIDO] 1. El CTA va justo debajo de la tarjeta héroe (Hoy.tsx:173) y se ve completo en la primera vista a 375 y a 360.
+- [CORREGIDO] 2. Los cubos ahora son size-12/size-11 dentro de una caja de 28 y el título lleva pr-24. A 360 ya no se
+  monta sobre los cubos.
+- [CORREGIDO] 3. El insight conserva los posesivos y cierra con "con eso", sin pronombre que concordar ("ya tiene tu
+  frase de negocio: hoy arma tu cliente ideal con eso"). Se lee natural.
+- [CORREGIDO] 4. La llama apagada es estática, con borde y trazo en ink-2 (#BDB4CB) y sin opacidad: el contraste es
+  correcto.
+- [CORREGIDO] 5. El subtítulo dice solo "5 minutos, desde el celular". [SIGUE] la línea de racha no se integró a la ficha:
+  ahora es un bloque aparte junto al insight (hallazgo 2).
+- [CORREGIDO] 6. El copy de M4 ("modo siesta… la vuelve a prender") es cómplice-juguetón, alineado con la ficha.
+- [CORREGIDO] 7. Los cubos tienen halo de color y la tarjeta lleva el radial dorado. El detalle firma ya se ve.
+- [CORREGIDO] 8. El saludo bajó a 20px y la misión subió a 24px: el héroe es la misión. [SIGUE] hay demasiados tamaños
+  (hallazgo 4).
+- [PARCIAL] 9. Ya existe app/app/error.tsx con qué pasó y qué hacer. guardarCuenta sigue tragándose el fallo (hallazgo 5).
+- [CORREGIDO] 10. "min en total" se cambió por un dato real: piezas de la semana N/7. Trae su propio problema de
+  etiqueta y redundancia (hallazgo 3).
+- [CORREGIDO] 11. El chip izquierdo ahora es "Ayuda" (mailto) y ya no duplica Perfil.
+- [CORREGIDO] 12. La tarjeta héroe y las 3 fichas son Link con active:scale.
+- [CORREGIDO] 13. La grilla de la barra es 1fr 1fr 88px 1fr 1fr y "Mi Empresa" ya respira respecto del aro.
+- [SIN CORREGIR] 14. El día 1 "hecho" sigue con el vacío muerto (hallazgo 1).
+- [SIN CORREGIR] 15. La línea de racha sigue fuera del stagger y desalineada del insight (hallazgo 2).
+Movimiento (eje 4) verificado en código: stagger entrar(0-5) OK · conteo con Cuenta OK · barra que crece con scaleX OK ·
+tap con active:scale y translateY OK · transición entre pestañas solo con el indicador · modales no aplican en esta
+pantalla · celebración fuera de esta pantalla · reduced-motion OK en Hoy, falta en el indicador de la barra.
+Balance: 29/40 (antes 27) · 15/20 (antes 12) · FIEL (antes NO FIEL). Sigue NO LISTA: faltan 7 puntos de usabilidad y
+1 de craft. El camino más corto es cerrar los hallazgos 1, 2 y 3 (suben h8 y encaje) y el 4 (sube jerarquía).

@@ -141,7 +141,25 @@ await pagina.getByRole('button', { name: /^COMPETENCIA|Competencia/i }).first().
 await espera(600);
 await capturar('20-empresa-demo-detalle');
 await ir('/app/mision', 1200);
-await capturar('21-mision-demo-dia8-ia');
+await capturar('21-mision-demo-dia8-borrador');
+await pagina.getByRole('button', { name: /Usar plantilla/ }).click();
+await espera(400);
+await capturar('22-mision-demo-dia8-plantilla');
+
+// ── Camino D: el estado REAL antes de conectar el correo (fuera del computador de desarrollo) ──
+// [::1] no está en la lista de "local" de la demo: se ve lo que vería un comprador hoy.
+const baseReal = base.replace('localhost', '[::1]');
+await pagina.goto(`${baseReal}/login`, { waitUntil: 'load' });
+await pagina.evaluate(() => {
+  localStorage.clear();
+  sessionStorage.clear();
+});
+await pagina.goto(`${baseReal}/login`, { waitUntil: 'load' });
+await espera(900);
+await pagina.getByLabel('Tu correo').fill('carlos.ruiz@gmail.com');
+await pagina.getByRole('button', { name: /Enviarme mi enlace/ }).click();
+await espera(1300);
+await capturar('23-entrar-sin-servidor');
 
 console.log(JSON.stringify({ medidas: medidas.map((m) => `${m.nombre}:${m.desborde}`), errores }, null, 1));
 await navegador.close();

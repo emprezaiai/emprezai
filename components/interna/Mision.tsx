@@ -1,24 +1,33 @@
 'use client';
 
-// LA MISIÓN DEL DÍA — 5 minutos, una pieza (modo foco, sin barra inferior). Misiones guiadas
-// (días 2-4): preguntas con opciones del área + "Otra cosa"; la pieza se arma con tus respuestas y
-// tus piezas anteriores (Método Pieza a Pieza) y se guarda en Mi Empresa con celebración (56 §M1:
-// la pieza es la protagonista y "vuela" a Mi Empresa). Del día 5 en adelante la arma la IA
-// (Sesión 6): la pantalla lo dice con palabras de la usuaria y ofrece algo útil mientras tanto.
+// LA MISIÓN DEL DÍA — 5 minutos, una pieza (modo foco, sin barra inferior).
+// · Días 2-4: misiones guiadas con opciones del área + "Otra cosa"; la pieza se compone sola.
+// · Días 5-30: borrador guiado (pregunta + consejo + plantilla para rellenar), así la ruta nunca se
+//   frena mientras se conecta la IA (Sesión 6); se guarda como "versión base" que la IA afinará.
+// · Cierres de semana (7, 14, 21, 30): juntan las piezas de la semana en una sola, sin preguntas.
+// Al guardar: celebración con la pieza como protagonista que "vuela" a Mi Empresa (firma de FICHA-ARTE).
 
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, animate, motion, useReducedMotion } from 'motion/react';
-import { ArrowLeft, ArrowRight, Check, Flame, Lightbulb, PencilLine, RotateCcw, Sparkles, Zap } from 'lucide-react';
-import { estadoRuta, guardarPieza, type PiezaGuardada } from '@/lib/cuenta';
-import { misionGuiada, type ContextoMision, type PiezaCompuesta } from '@/lib/misiones';
-import { RUTA, diaRuta } from '@/lib/ruta';
+import { ArrowLeft, ArrowRight, Check, Flame, Lightbulb, PencilLine, RotateCcw, Sparkles, WandSparkles, Zap } from 'lucide-react';
+import { estadoRuta, guardarPieza, type Cuenta, type PiezaGuardada } from '@/lib/cuenta';
+import { guiaBorrador, misionGuiada, type ContextoMision, type PiezaCompuesta } from '@/lib/misiones';
+import { RUTA, diaRuta, type DiaRuta } from '@/lib/ruta';
 import { limpiarTexto } from '@/lib/onboarding';
 import { BotonPrincipal, EASE_SALIDA, TituloAcento, vibrar } from '@/components/onboarding/piezas';
 import { useCuentaActiva } from './Marco';
 
 const LARGO_MAX = 80;
+const LARGO_MAX_BORRADOR = 600;
 const CHISPAS = [0, 60, 120, 180, 240, 300];
+
+const resumenCorto = (t: string) => {
+  const limpio = t.replace(/\s+/g, ' ').trim();
+  if (limpio.length <= 60) return limpio;
+  const corte = limpio.slice(0, 58);
+  return `${corte.slice(0, corte.lastIndexOf(' '))}…`;
+};
 
 export function Mision() {
   const cuenta = useCuentaActiva();
@@ -41,14 +50,38 @@ export function Mision() {
   if (dia.dia === 1)
     return <Aviso titulo="Tu misión 1 está en el recorrido de inicio" texto="Arma tu frase de negocio en 5 minutos y vuelve: se guarda aquí sola." href="/onboarding" cta="Armar mi frase" />;
 
-  if (!misionGuiada(dia.dia)) return <MisionConIA />;
-  return <MisionGuiadaFlujo key={dia.dia} onGuardada={setCelebrar} />;
+  if (misionGuiada(dia.dia)) return <MisionGuiadaFlujo key={dia.dia} onGuardada={setCelebrar} />;
+  if (dia.cierre) return <CierreSemana key={dia.dia} onGuardada={setCelebrar} />;
+  return <MisionBorrador key={dia.dia} onGuardada={setCelebrar} />;
 }
 
-/* ── Pantalla de aviso (sin misión disponible) ── */
-function Aviso({ titulo, texto, href, cta }: { titulo: string; texto: string; href: string; cta: string }) {
+/* ── Piezas comunes ── */
+
+function Pantalla({ children, accion }: { children: ReactNode; accion?: ReactNode }) {
   return (
-    <main className="flex flex-1 flex-col px-4">
+    <main className="flex min-h-dvh flex-1 flex-col">
+      <div className="px-4">{children}</div>
+      {accion}
+    </main>
+  );
+}
+
+function BarraAccion({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <div className="barra-inferior sticky bottom-0 z-10 mt-auto px-4 pt-6">
+      <Link href={href} className="boton-oro flex h-14 w-full items-center justify-center gap-2 rounded-[var(--radius-pill)] font-display text-boton font-bold">
+        {children}
+        <ArrowRight size={20} aria-hidden="true" />
+      </Link>
+    </div>
+  );
+}
+
+/* Pantalla de aviso (sin misión disponible): contenido arriba, la acción fija abajo. */
+function Aviso({ titulo, texto, href, cta }: { titulo: string; texto: string; href: string; cta: string }) {
+  const cuenta = useCuentaActiva();
+  return (
+    <Pantalla accion={<BarraAccion href={href}>{cta}</BarraAccion>}>
       <EncabezadoMision />
       <div className="tarjeta-relieve mt-8 rounded-[var(--radius-card)] p-6 text-center">
         <span aria-hidden="true" className="relieve-verde mx-auto flex size-16 items-center justify-center rounded-full">
@@ -56,16 +89,13 @@ function Aviso({ titulo, texto, href, cta }: { titulo: string; texto: string; hr
         </span>
         <h1 className="mt-4 font-display text-2xl font-extrabold text-ink-1">{titulo}</h1>
         <p className="mt-2 text-ayuda text-ink-2">{texto}</p>
-        <Link href={href} className="boton-oro mt-6 flex h-14 items-center justify-center gap-2 rounded-[var(--radius-pill)] font-display text-boton font-bold">
-          {cta}
-          <ArrowRight size={20} aria-hidden="true" />
-        </Link>
       </div>
-    </main>
+      <SemanaEnNodos dia={Math.max(cuenta.piezas.length, 1)} />
+    </Pantalla>
   );
 }
 
-function EncabezadoMision({ kicker, titulo, compacto = false }: { kicker?: string; titulo?: string; compacto?: boolean }) {
+function EncabezadoMision({ dia }: { dia?: DiaRuta }) {
   return (
     <header className="flex items-start gap-3 pt-4">
       <Link
@@ -75,13 +105,13 @@ function EncabezadoMision({ kicker, titulo, compacto = false }: { kicker?: strin
       >
         <ArrowLeft size={20} aria-hidden="true" />
       </Link>
-      {titulo && (
+      {dia && (
         <div className="min-w-0 pt-1">
           <p className="flex items-center gap-1 text-xs font-bold tracking-[0.08em] text-gold uppercase">
             <Zap size={12} fill="currentColor" strokeWidth={0} aria-hidden="true" />
-            {kicker}
+            Día {dia.dia} · 5 min
           </p>
-          <p className={`font-display leading-tight font-extrabold text-ink-1 ${compacto ? 'text-base' : 'text-2xl'}`}>{titulo}</p>
+          <p className="font-display text-base leading-tight font-extrabold text-ink-1">{dia.mision}</p>
         </div>
       )}
     </header>
@@ -98,67 +128,208 @@ function SeArmaCon({ usa, piezasHechas }: { usa: number[]; piezasHechas: Set<num
       {lista.map((d) => (
         <span key={d} className="inline-flex items-center gap-1 rounded-[var(--radius-pill)] bg-[color-mix(in_oklab,var(--green)_12%,transparent)] px-2 py-1 text-ink-1">
           <Check size={12} strokeWidth={3} className="text-green" aria-hidden="true" />
-          {RUTA[d - 1].pieza}
+          {RUTA[d - 1].corto}
         </span>
       ))}
     </div>
   );
 }
 
-/* ── Misión que arma la IA (día 5+): honesta y con algo útil que hacer hoy ── */
-function MisionConIA() {
+function ErrorGuardado({ visible }: { visible: boolean }) {
+  return (
+    <p role="alert" className={visible ? 'mx-4 mt-4 rounded-[var(--radius-chip)] bg-raised-2 px-3 py-2 text-caption text-danger' : 'sr-only'}>
+      {visible ? 'No pudimos guardar tu pieza en este celular. Revisa que no estés en modo incógnito o sin espacio, e inténtalo otra vez.' : ''}
+    </p>
+  );
+}
+
+/* ── Borrador guiado (días 5-30 que no cierran semana) ── */
+function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
   const cuenta = useCuentaActiva();
+  const reduce = useReducedMotion();
+  const idCampo = useId();
   const dia = diaRuta(estadoRuta(cuenta).diaActual);
+  const guia = guiaBorrador(dia.dia);
   const hechas = new Set(cuenta.piezas.map((p) => p.dia));
   const usadas = dia.usa.map((d) => cuenta.piezas.find((p) => p.dia === d)).filter((p): p is PiezaGuardada => Boolean(p));
+  const clave = `empresai_borrador_${dia.dia}`;
+  const [texto, setTexto] = useState(() => {
+    try {
+      return sessionStorage.getItem(clave) ?? '';
+    } catch {
+      return '';
+    }
+  });
+  const [aviso, setAviso] = useState(0);
+  const [errorGuardado, setErrorGuardado] = useState(false);
+  const valido = limpiarTexto(texto, LARGO_MAX_BORRADOR).length >= 15 && !texto.includes('___');
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(clave, texto);
+    } catch {
+      // Sin almacenamiento: el borrador vive solo en pantalla.
+    }
+  }, [clave, texto]);
+
+  if (!guia) return null;
+
+  function guardar() {
+    if (!valido) {
+      setAviso((n) => n + 1);
+      vibrar(30);
+      return;
+    }
+    const contenido = texto.replace(/\s+/g, ' ').trim();
+    const ok = guardarPieza(cuenta, { dia: dia.dia, titulo: dia.pieza, contenido, resumen: resumenCorto(contenido), base: true });
+    if (!ok) {
+      setErrorGuardado(true);
+      return;
+    }
+    try {
+      sessionStorage.removeItem(clave);
+    } catch {
+      // Nada que limpiar.
+    }
+    vibrar(40);
+    onGuardada(dia.dia);
+  }
+
   return (
-    <main className="flex flex-1 flex-col">
-      <div className="px-4">
-        <EncabezadoMision kicker={`Día ${dia.dia} · 5 min`} titulo={dia.mision} />
-        <SeArmaCon usa={dia.usa} piezasHechas={hechas} />
-        <div className="hairline-oro relieve-tarjeta mt-6 rounded-[var(--radius-card)] p-4">
-          <p className="flex items-start gap-2 font-display text-lg leading-snug font-bold text-ink-1">
-            <Sparkles size={20} className="mt-0.5 shrink-0 text-gold" aria-hidden="true" />
-            Esta pieza la arma la IA con todo lo que ya armaste
-          </p>
-          <p className="mt-2 text-ayuda leading-snug text-ink-2">
-            Estamos activando la IA de esta misión. Muy pronto respondes 1 o 2 preguntas y en segundos tienes {dia.pieza.toLowerCase()}. Te avisamos
-            apenas esté lista.
-          </p>
-        </div>
-        {usadas.length > 0 && (
-          <section className="mt-6" aria-labelledby="titulo-repaso">
-            <h2 id="titulo-repaso" className="font-display text-base font-bold text-ink-1">
-              Mientras tanto, repasa lo que la IA va a usar
-            </h2>
-            <ul className="mt-3 flex flex-col gap-2">
-              {usadas.map((p) => (
-                <li key={p.dia}>
-                  <Link
-                    href={`/app/empresa?pieza=${p.dia}`}
-                    className="fila-pildora flex min-h-14 items-center gap-3 py-2 pr-3 pl-5 transition-transform duration-150 active:scale-[0.99]"
-                  >
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-xs font-semibold text-ink-3">
-                        Día {p.dia} · {p.titulo}
-                      </span>
-                      <span className="block truncate text-sm font-semibold text-ink-1">{p.resumen ?? p.contenido}</span>
-                    </span>
-                    <ArrowRight size={18} className="shrink-0 text-ink-3" aria-hidden="true" />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-      </div>
-      <div className="barra-inferior sticky bottom-0 z-10 mt-auto px-4 pt-6">
-        <Link href="/app/empresa" className="boton-oro flex h-14 w-full items-center justify-center gap-2 rounded-[var(--radius-pill)] font-display text-boton font-bold">
-          Repasar mis piezas
+    <Pantalla
+      accion={
+        <BotonPrincipal
+          onClick={guardar}
+          nota={
+            aviso > 0 && !valido ? (
+              <span className="text-danger">{texto.includes('___') ? 'Completa los espacios ___ con tus palabras.' : 'Escribe al menos una frase.'}</span>
+            ) : (
+              'Se guarda como tu pieza de hoy'
+            )
+          }
+        >
+          Guardar en Mi Empresa
           <ArrowRight size={20} aria-hidden="true" />
-        </Link>
+        </BotonPrincipal>
+      }
+    >
+      <EncabezadoMision dia={dia} />
+      <SeArmaCon usa={dia.usa} piezasHechas={hechas} />
+      <motion.div initial={{ opacity: 0, y: reduce ? 0 : 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: EASE_SALIDA }} className="mt-6">
+        <TituloAcento texto={guia.pregunta} acento={guia.acento} as="h1" className="text-pregunta" />
+        <p className="mt-2 flex items-start gap-2 text-caption text-ink-2">
+          <Lightbulb size={16} className="mt-0.5 shrink-0 text-ink-3" aria-hidden="true" />
+          {guia.consejo}
+        </p>
+      </motion.div>
+
+      <div className="hairline-oro relieve-tarjeta mt-4 rounded-[var(--radius-card)] p-3">
+        <label htmlFor={idCampo} className="flex items-center justify-between gap-2 px-1 text-sm font-semibold text-ink-1">
+          Tu {dia.corto.toLowerCase()}
+          <button
+            type="button"
+            onClick={() => {
+              setTexto(guia.plantilla);
+              vibrar();
+            }}
+            className="flex min-h-11 items-center gap-1 rounded-[var(--radius-pill)] px-3 text-xs font-semibold text-gold active:scale-95"
+          >
+            <WandSparkles size={14} aria-hidden="true" />
+            Usar plantilla
+          </button>
+        </label>
+        <textarea
+          key={aviso}
+          id={idCampo}
+          value={texto}
+          maxLength={LARGO_MAX_BORRADOR}
+          onChange={(ev) => setTexto(ev.target.value)}
+          rows={5}
+          placeholder={guia.plantilla}
+          className={`mt-1 w-full resize-none rounded-[var(--radius-chip)] border bg-sunken px-4 py-3 text-base leading-snug text-ink-1 placeholder:text-ink-3 focus:outline-none ${
+            aviso && !valido ? 'sacudir border-danger focus:border-danger' : 'border-[var(--line)] focus:border-gold'
+          }`}
+        />
+        <p className="mt-2 px-1 text-caption text-ink-3">Versión base: cuando conectemos la IA, aquí te la arma en segundos con tus piezas.</p>
       </div>
-    </main>
+
+      {usadas.length > 0 && (
+        <section className="mt-6" aria-labelledby="titulo-repaso">
+          <h2 id="titulo-repaso" className="text-sm font-semibold text-ink-2">
+            Para inspirarte, lo que ya armaste:
+          </h2>
+          <ul className="mt-2 flex flex-col gap-2">
+            {usadas.map((p) => (
+              <li key={p.dia} className="rounded-[var(--radius-chip)] bg-raised px-3 py-2 text-sm">
+                <span className="block text-xs font-semibold text-ink-3">{RUTA[p.dia - 1].corto}</span>
+                <span className="text-ink-1">{p.resumen ?? p.contenido}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+      <ErrorGuardado visible={errorGuardado} />
+    </Pantalla>
+  );
+}
+
+/* ── Cierre de semana (7, 14, 21, 30): junta las piezas en una sola ── */
+function CierreSemana({ onGuardada }: { onGuardada: (dia: number) => void }) {
+  const cuenta = useCuentaActiva();
+  const reduce = useReducedMotion();
+  const dia = diaRuta(estadoRuta(cuenta).diaActual);
+  const [errorGuardado, setErrorGuardado] = useState(false);
+  const piezas = dia.dia === 30 ? cuenta.piezas : cuenta.piezas.filter((p) => diaRuta(p.dia).semana === dia.semana);
+
+  function guardar() {
+    const contenido = piezas.map((p) => `${RUTA[p.dia - 1].corto}: ${p.resumen ?? p.contenido}`).join(' · ');
+    const ok = guardarPieza(cuenta, {
+      dia: dia.dia,
+      titulo: dia.pieza,
+      contenido,
+      resumen: `${piezas.length} piezas en una sola página`,
+      detalle: [{ rotulo: 'Úsalo así', valor: 'Es tu resumen para compartir o revisar antes de seguir con la siguiente semana.' }],
+      base: true,
+    });
+    if (!ok) {
+      setErrorGuardado(true);
+      return;
+    }
+    vibrar(40);
+    onGuardada(dia.dia);
+  }
+
+  return (
+    <Pantalla
+      accion={
+        <BotonPrincipal onClick={guardar} nota="Se guarda como tu pieza de hoy">
+          {dia.dia === 30 ? 'Guardar mi negocio completo' : 'Cerrar mi semana'}
+          <ArrowRight size={20} aria-hidden="true" />
+        </BotonPrincipal>
+      }
+    >
+      <EncabezadoMision dia={dia} />
+      <motion.div initial={{ opacity: 0, y: reduce ? 0 : 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: EASE_SALIDA }} className="mt-6">
+        <TituloAcento texto={dia.dia === 30 ? 'Tu negocio, en una página' : `Tu semana ${dia.semana}, en una página`} acento="en una página" as="h1" className="text-pregunta" />
+        <p className="mt-2 text-ayuda text-ink-2">Revisa lo que armaste. Al guardarlo queda como una sola pieza, lista para compartir.</p>
+      </motion.div>
+      <ul className="hairline-oro relieve-tarjeta mt-4 flex flex-col gap-3 rounded-[var(--radius-card)] p-4">
+        {piezas.map((p) => (
+          <li key={p.dia} className="flex items-start gap-3">
+            <span aria-hidden="true" className="relieve-verde mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full">
+              <Check size={12} strokeWidth={3} />
+            </span>
+            <span className="min-w-0 text-sm">
+              <span className="block text-xs font-semibold text-ink-3">
+                Día {p.dia} · {RUTA[p.dia - 1].corto}
+              </span>
+              <span className="text-ink-1">{p.resumen ?? p.contenido}</span>
+            </span>
+          </li>
+        ))}
+      </ul>
+      <ErrorGuardado visible={errorGuardado} />
+    </Pantalla>
   );
 }
 
@@ -192,6 +363,7 @@ function MisionGuiadaFlujo({ onGuardada }: { onGuardada: (dia: number) => void }
   const [aviso, setAviso] = useState(0);
   const [avisoMultiple, setAvisoMultiple] = useState(false);
   const [bloqueado, setBloqueado] = useState(false);
+  const [errorGuardado, setErrorGuardado] = useState(false);
   const [fase, setFase] = useState<'preguntas' | 'armando' | 'resultado'>('preguntas');
   const [pieza, setPieza] = useState<PiezaCompuesta | null>(null);
   const temporizador = useRef<number | undefined>(undefined);
@@ -263,7 +435,11 @@ function MisionGuiadaFlujo({ onGuardada }: { onGuardada: (dia: number) => void }
 
   function guardar() {
     if (!pieza) return;
-    guardarPieza(cuenta, { dia: dia.dia, titulo: dia.pieza, contenido: pieza.contenido, resumen: pieza.resumen, detalle: pieza.detalle, base: true });
+    const ok = guardarPieza(cuenta, { dia: dia.dia, titulo: dia.pieza, contenido: pieza.contenido, resumen: pieza.resumen, detalle: pieza.detalle, base: true });
+    if (!ok) {
+      setErrorGuardado(true);
+      return;
+    }
     try {
       sessionStorage.removeItem(claveBorrador(dia.dia));
     } catch {
@@ -276,9 +452,9 @@ function MisionGuiadaFlujo({ onGuardada }: { onGuardada: (dia: number) => void }
   const todas = [...opciones, ...elegidas.filter((o) => !opciones.includes(o))];
 
   return (
-    <main className="flex flex-1 flex-col">
+    <main className="flex min-h-dvh flex-1 flex-col">
       <div className="px-4">
-        <EncabezadoMision kicker={`Día ${dia.dia} · 5 min`} titulo={dia.mision} compacto={fase === 'preguntas'} />
+        <EncabezadoMision dia={dia} />
         {fase !== 'preguntas' && <SeArmaCon usa={dia.usa} piezasHechas={hechas} />}
 
         {/* Lo ya respondido: se toca para cambiarlo */}
@@ -288,6 +464,7 @@ function MisionGuiadaFlujo({ onGuardada }: { onGuardada: (dia: number) => void }
               <li key={q.id} className="max-w-full">
                 <button
                   type="button"
+                  disabled={bloqueado}
                   onClick={() => setPaso(i)}
                   aria-label={`Cambiar: ${q.pregunta} ${(resp[q.id] ?? []).join(', ')}`}
                   className="inline-flex min-h-11 max-w-full items-center gap-1 rounded-[var(--radius-pill)] bg-raised-2 px-3 text-xs font-semibold text-ink-1"
@@ -321,98 +498,97 @@ function MisionGuiadaFlujo({ onGuardada }: { onGuardada: (dia: number) => void }
               {pregunta.consejo}
             </p>
 
-            <div
-              className={`mt-4 gap-2 ${pregunta.multiple ? 'grid grid-cols-2' : 'flex flex-col'}`}
-              role={pregunta.multiple ? 'group' : 'radiogroup'}
-              aria-label={pregunta.pregunta}
-            >
-              {todas.map((op, i) => {
-                const marcada = elegidas.includes(op);
-                return (
-                  <motion.button
-                    key={op}
-                    type="button"
-                    role={pregunta.multiple ? 'checkbox' : 'radio'}
-                    aria-checked={marcada}
-                    disabled={bloqueado && !marcada}
-                    onClick={() => elegir(op)}
-                    initial={{ opacity: 0, y: reduce ? 0 : 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.25, delay: reduce ? 0 : 0.04 + i * 0.045, ease: EASE_SALIDA }}
-                    whileTap={{ scale: 0.98 }}
-                    className={`opcion-recorrido flex min-h-12 items-center gap-3 py-3 text-left text-ayuda font-medium text-ink-1 disabled:opacity-100 ${
-                      pregunta.multiple ? 'pr-3 pl-4' : 'pr-4 pl-5'
-                    }`}
-                  >
-                    <span className="min-w-0 flex-1">{op}</span>
-                    {pregunta.multiple ? (
-                      <span
-                        aria-hidden="true"
-                        className={`flex size-6 shrink-0 items-center justify-center rounded-full border-2 ${marcada ? 'border-gold bg-gold text-on-gold' : 'border-ink-3'}`}
-                      >
-                        {marcada && <Check size={14} strokeWidth={3.5} />}
-                      </span>
-                    ) : (
-                      marcada && (
-                        <span aria-hidden="true" className="flex size-6 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_oklab,var(--gold)_16%,transparent)] text-gold">
-                          <Check size={14} strokeWidth={3} />
+            {/* Las opciones agrupadas en una tarjeta con hairline, como la referencia aprobada */}
+            <div className="hairline-oro relieve-tarjeta mt-4 rounded-[var(--radius-card)] p-3">
+              <div className={`gap-2 ${pregunta.multiple ? 'grid grid-cols-2' : 'flex flex-col'}`} role={pregunta.multiple ? 'group' : 'radiogroup'} aria-label={pregunta.pregunta}>
+                {todas.map((op, i) => {
+                  const marcada = elegidas.includes(op);
+                  return (
+                    <motion.button
+                      key={op}
+                      type="button"
+                      role={pregunta.multiple ? 'checkbox' : 'radio'}
+                      aria-checked={marcada}
+                      disabled={bloqueado && !marcada}
+                      onClick={() => elegir(op)}
+                      initial={{ opacity: 0, y: reduce ? 0 : 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.25, delay: reduce ? 0 : 0.04 + i * 0.045, ease: EASE_SALIDA }}
+                      whileTap={{ scale: 0.98 }}
+                      className={`opcion-recorrido flex min-h-12 items-center gap-3 py-3 text-left text-ayuda font-medium text-ink-1 disabled:opacity-100 ${
+                        pregunta.multiple ? 'pr-3 pl-4' : 'pr-4 pl-5'
+                      }`}
+                    >
+                      <span className="min-w-0 flex-1">{op}</span>
+                      {pregunta.multiple ? (
+                        <span
+                          aria-hidden="true"
+                          className={`flex size-6 shrink-0 items-center justify-center rounded-full border-2 ${marcada ? 'border-gold bg-gold text-on-gold' : 'border-ink-3'}`}
+                        >
+                          {marcada && <Check size={14} strokeWidth={3.5} />}
                         </span>
-                      )
-                    )}
-                  </motion.button>
-                );
-              })}
-            </div>
+                      ) : (
+                        marcada && (
+                          <span aria-hidden="true" className="flex size-6 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_oklab,var(--gold)_16%,transparent)] text-gold">
+                            <Check size={14} strokeWidth={3} />
+                          </span>
+                        )
+                      )}
+                    </motion.button>
+                  );
+                })}
+              </div>
 
-            <div className="mt-2">
-              {escribiendo ? (
-                <div className="flex flex-col gap-2">
-                  <label htmlFor={idCampo} className="text-sm font-semibold text-ink-1">
-                    Escríbela con tus palabras
-                  </label>
-                  <input
-                    key={aviso}
-                    id={idCampo}
-                    autoFocus
-                    value={propio}
-                    maxLength={LARGO_MAX}
-                    onChange={(ev) => setPropio(ev.target.value)}
-                    onKeyDown={(ev) => {
-                      if (ev.key === 'Enter') usarPropio();
-                      if (ev.key === 'Escape') {
+              <div className="mt-2">
+                {escribiendo ? (
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor={idCampo} className="text-sm font-semibold text-ink-1">
+                      Escríbela con tus palabras
+                    </label>
+                    <input
+                      key={aviso}
+                      id={idCampo}
+                      autoFocus
+                      value={propio}
+                      maxLength={LARGO_MAX}
+                      onChange={(ev) => setPropio(ev.target.value)}
+                      onKeyDown={(ev) => {
+                        if (ev.key === 'Enter') usarPropio();
+                        if (ev.key === 'Escape') {
+                          setEscribiendo(false);
+                          setPropio('');
+                        }
+                      }}
+                      className={`h-12 w-full rounded-[var(--radius-pill)] border bg-sunken px-5 text-base text-ink-1 focus:outline-none ${
+                        aviso && limpiarTexto(propio, LARGO_MAX).length < 3 ? 'sacudir border-danger' : 'border-gold'
+                      }`}
+                    />
+                    {aviso > 0 && limpiarTexto(propio, LARGO_MAX).length < 3 && <p className="text-caption text-danger">Escribe al menos unas letras.</p>}
+                    <button type="button" onClick={usarPropio} className="boton-oro flex h-12 items-center justify-center rounded-[var(--radius-pill)] font-display text-base font-bold">
+                      Usar esta
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
                         setEscribiendo(false);
                         setPropio('');
-                      }
-                    }}
-                    className={`h-12 w-full rounded-[var(--radius-pill)] border bg-sunken px-5 text-base text-ink-1 focus:outline-none ${
-                      aviso && limpiarTexto(propio, LARGO_MAX).length < 3 ? 'sacudir border-warning' : 'border-gold'
-                    }`}
-                  />
-                  {aviso > 0 && limpiarTexto(propio, LARGO_MAX).length < 3 && <p className="text-caption text-warning">Escribe al menos unas letras.</p>}
-                  <button type="button" onClick={usarPropio} className="boton-oro flex h-12 items-center justify-center rounded-[var(--radius-pill)] font-display text-base font-bold">
-                    Usar esta
-                  </button>
+                      }}
+                      className="flex min-h-11 items-center justify-center text-sm font-semibold text-ink-2"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                ) : (
                   <button
                     type="button"
-                    onClick={() => {
-                      setEscribiendo(false);
-                      setPropio('');
-                    }}
-                    className="flex min-h-11 items-center justify-center text-sm font-semibold text-ink-2"
+                    onClick={() => setEscribiendo(true)}
+                    className="opcion-recorrido flex min-h-12 w-full items-center gap-2 py-3 pr-4 pl-5 text-left text-ayuda font-medium text-ink-2"
                   >
-                    Cancelar
+                    <PencilLine size={16} aria-hidden="true" />
+                    Otra cosa (escribe la tuya)
                   </button>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setEscribiendo(true)}
-                  className="opcion-recorrido flex min-h-12 w-full items-center gap-2 py-3 pr-4 pl-5 text-left text-ayuda font-medium text-ink-2"
-                >
-                  <PencilLine size={16} aria-hidden="true" />
-                  Otra cosa (escribe la tuya)
-                </button>
-              )}
+                )}
+              </div>
             </div>
           </motion.section>
         )}
@@ -435,7 +611,7 @@ function MisionGuiadaFlujo({ onGuardada }: { onGuardada: (dia: number) => void }
           <motion.section key="resultado" initial={{ opacity: 0, y: reduce ? 0 : 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: EASE_SALIDA }} className="mt-6 px-4">
             <article className="hairline-oro relieve-tarjeta rounded-[var(--radius-card)] p-4">
               <p className="text-xs font-bold tracking-[0.08em] text-gold uppercase">
-                Pieza {dia.dia} · {dia.pieza}
+                Pieza {dia.dia} · {dia.corto}
               </p>
               <p className="mt-2 text-lg leading-snug font-semibold text-pretty break-words text-ink-1">{pieza.contenido}</p>
               {pieza.detalle?.map((d) => (
@@ -464,6 +640,7 @@ function MisionGuiadaFlujo({ onGuardada }: { onGuardada: (dia: number) => void }
           </motion.section>
         )}
       </AnimatePresence>
+      <ErrorGuardado visible={errorGuardado} />
 
       {/* El botón principal, fijo abajo como en el recorrido de inicio */}
       {fase === 'preguntas' && pregunta.multiple && !escribiendo && (
@@ -475,7 +652,7 @@ function MisionGuiadaFlujo({ onGuardada }: { onGuardada: (dia: number) => void }
               vibrar(30);
             }
           }}
-          nota={avisoMultiple ? <span className="text-warning">Elige al menos una.</span> : `${elegidas.length} elegida${elegidas.length === 1 ? '' : 's'}`}
+          nota={avisoMultiple ? <span className="text-danger">Elige al menos una.</span> : `${elegidas.length} elegida${elegidas.length === 1 ? '' : 's'}`}
         >
           Continuar
           <ArrowRight size={20} aria-hidden="true" />
@@ -514,83 +691,97 @@ function Cuenta({ valor }: { valor: number }) {
   );
 }
 
-/* ── Celebración al guardar: la pieza es la protagonista y vuela a Mi Empresa (firma de FICHA-ARTE) ── */
+/* ── Celebración: la pieza es la protagonista; al encenderse el tick, una copia "vuela" a Mi Empresa ── */
 function Celebracion({ dia }: { dia: number }) {
-  const cuenta = useCuentaActiva();
+  const cuenta: Cuenta = useCuentaActiva();
   const reduce = useReducedMotion();
   const e = estadoRuta(cuenta);
   const d = diaRuta(dia);
   const pieza = cuenta.piezas.find((p) => p.dia === dia);
   const siguiente = dia < RUTA.length ? diaRuta(dia + 1) : undefined;
   return (
-    <main className="flex flex-1 flex-col items-center px-4 pt-10 text-center" aria-live="polite">
-      <p className="text-xs font-bold tracking-[0.08em] text-green uppercase">{d.cierre ? `¡Semana ${d.semana} completa!` : `Día ${dia} listo`}</p>
-      <h1 className="mt-1 font-display text-pregunta font-extrabold text-ink-1">¡Pieza {dia} guardada!</h1>
+    <main className="flex min-h-dvh flex-1 flex-col">
+      <div className="flex flex-col items-center px-4 pt-10 text-center" aria-live="polite">
+        <p className="text-xs font-bold tracking-[0.08em] text-green uppercase">{d.cierre ? `¡Semana ${d.semana} completa!` : `Día ${dia} listo`}</p>
+        <h1 className="mt-1 font-display text-pregunta font-extrabold text-ink-1">¡Pieza {dia} guardada!</h1>
 
-      {/* La pieza: aparece con resorte, el tick "En Mi Empresa" se enciende en verde */}
-      <div className="relative mt-6 w-full">
-        {!reduce &&
-          CHISPAS.map((g) => (
+        <div className="relative mt-6 w-full">
+          {!reduce &&
+            CHISPAS.map((g) => (
+              <motion.span
+                key={g}
+                aria-hidden="true"
+                className="absolute top-1/2 left-1/2 size-2 rounded-full bg-gold"
+                initial={{ x: 0, y: 0, opacity: 0 }}
+                animate={{ x: Math.cos((g * Math.PI) / 180) * 150, y: Math.sin((g * Math.PI) / 180) * 70, opacity: [0, 1, 0] }}
+                transition={{ duration: 0.8, delay: 0.25, ease: EASE_SALIDA }}
+              />
+            ))}
+          <motion.article
+            initial={{ opacity: 0, scale: reduce ? 1 : 0.85, y: reduce ? 0 : 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ type: 'spring', bounce: 0.25, duration: 0.6 }}
+            className="hairline-oro relieve-tarjeta relative rounded-[var(--radius-card)] p-4 text-left"
+          >
+            <p className="flex items-center justify-between gap-2 text-xs font-bold tracking-[0.08em] uppercase">
+              <span className="text-gold">{d.corto}</span>
+              <motion.span
+                initial={{ scale: reduce ? 1 : 0 }}
+                animate={{ scale: 1 }}
+                transition={reduce ? { duration: 0 } : { type: 'spring', bounce: 0.25, duration: 0.5, delay: 0.9 }}
+                className="flex shrink-0 items-center gap-1 text-green"
+              >
+                <Check size={14} strokeWidth={3} aria-hidden="true" />
+                En Mi Empresa
+              </motion.span>
+            </p>
+            <p className="mt-2 line-clamp-3 text-base leading-snug font-semibold text-ink-1">{pieza?.resumen ?? pieza?.contenido}</p>
+          </motion.article>
+          {/* Firma de FICHA-ARTE: la pieza vuela hacia "Mi Empresa" (el botón de abajo) */}
+          {!reduce && (
             <motion.span
-              key={g}
               aria-hidden="true"
-              className="absolute top-1/2 left-1/2 size-2 rounded-full bg-gold"
-              initial={{ x: 0, y: 0, opacity: 0 }}
-              animate={{ x: Math.cos((g * Math.PI) / 180) * 150, y: Math.sin((g * Math.PI) / 180) * 70, opacity: [0, 1, 0] }}
-              transition={{ duration: 0.8, delay: 0.25, ease: EASE_SALIDA }}
-            />
-          ))}
-        <motion.article
-          initial={{ opacity: 0, scale: reduce ? 1 : 0.85, y: reduce ? 0 : 12 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ type: 'spring', bounce: 0.25, duration: 0.6 }}
-          className="hairline-oro relieve-tarjeta relative rounded-[var(--radius-card)] p-4 text-left"
-        >
-          <p className="flex items-center justify-between gap-2 text-xs font-bold tracking-[0.08em] uppercase">
-            <span className="text-gold">{d.pieza}</span>
-            <motion.span
-              initial={{ scale: reduce ? 1 : 0 }}
-              animate={{ scale: 1 }}
-              transition={reduce ? { duration: 0 } : { type: 'spring', bounce: 0.25, duration: 0.5, delay: 0.9 }}
-              className="flex shrink-0 items-center gap-1 text-green"
+              className="pointer-events-none absolute top-4 left-1/2 flex h-7 -translate-x-1/2 items-center gap-1 rounded-full bg-gold px-3 text-xs font-bold text-on-gold shadow-[0_2px_0_var(--gold-deep)]"
+              initial={{ opacity: 0, y: 0, scale: 1 }}
+              animate={{ opacity: [0, 1, 1, 0], y: [0, 0, 380, 420], scale: [1, 1, 0.7, 0.5] }}
+              transition={{ duration: 1.1, delay: 1.1, times: [0, 0.15, 0.85, 1], ease: EASE_SALIDA }}
             >
-              <Check size={14} strokeWidth={3} aria-hidden="true" />
-              En Mi Empresa
+              <Sparkles size={12} />
+              Pieza {dia}
             </motion.span>
-          </p>
-          <p className="mt-2 line-clamp-3 text-base leading-snug font-semibold text-ink-1">{pieza?.resumen ?? pieza?.contenido}</p>
-        </motion.article>
-      </div>
+          )}
+        </div>
 
-      <p className="mt-6 flex flex-wrap items-center justify-center gap-x-2 text-ayuda text-ink-2">
-        <Flame size={18} className="text-gold" fill="currentColor" aria-hidden="true" />
-        <span>
-          Racha de{' '}
-          <strong className="font-display text-lg text-ink-1">
-            <Cuenta valor={e.racha} />
-          </strong>{' '}
-          {e.racha === 1 ? 'día' : 'días'}
-        </span>
-        <span aria-hidden="true">·</span>
-        <span>
-          <strong className="font-display text-lg text-ink-1">
-            <Cuenta valor={e.piezasListas} />
-          </strong>{' '}
-          de {RUTA.length} piezas
-        </span>
-      </p>
-      <SemanaEnNodos dia={dia} />
-      {siguiente && (
-        <p className="mt-4 text-sm text-ink-3">
-          Mañana · Día {siguiente.dia}: {siguiente.pieza.toLowerCase()}
+        <p className="mt-6 flex flex-wrap items-center justify-center gap-x-2 text-ayuda text-ink-2">
+          <Flame size={18} className="text-gold" fill="currentColor" aria-hidden="true" />
+          <span>
+            Racha de{' '}
+            <strong className="font-display text-lg text-ink-1">
+              <Cuenta valor={e.racha} />
+            </strong>{' '}
+            {e.racha === 1 ? 'día' : 'días'}
+          </span>
+          <span aria-hidden="true">·</span>
+          <span>
+            <strong className="font-display text-lg text-ink-1">
+              <Cuenta valor={e.piezasListas} />
+            </strong>{' '}
+            de {RUTA.length} piezas
+          </span>
         </p>
-      )}
-      <div className="mt-6 flex w-full flex-col gap-2 pb-4">
+        <SemanaEnNodos dia={dia} />
+        {siguiente && (
+          <p className="mt-4 text-sm text-ink-3">
+            Mañana · Día {siguiente.dia}: {siguiente.pieza.toLowerCase()}
+          </p>
+        )}
+      </div>
+      <div className="barra-inferior sticky bottom-0 z-10 mt-auto px-4 pt-6">
         <Link href={`/app/empresa?pieza=${dia}`} className="boton-oro flex h-14 items-center justify-center gap-2 rounded-[var(--radius-pill)] font-display text-boton font-bold">
           Ver en Mi Empresa
           <ArrowRight size={20} aria-hidden="true" />
         </Link>
-        <Link href="/app" className="flex min-h-11 items-center justify-center text-sm font-semibold text-ink-2">
+        <Link href="/app" className="mt-1 flex min-h-11 items-center justify-center text-sm font-semibold text-ink-2">
           Volver a Hoy
         </Link>
       </div>
@@ -629,7 +820,7 @@ function SemanaEnNodos({ dia }: { dia: number }) {
               initial={{ scale: reduce ? 1 : d.dia === dia ? 0.4 : 1 }}
               animate={{ scale: 1 }}
               transition={{ type: 'spring', bounce: 0.25, duration: 0.5, delay: reduce ? 0 : 0.4 + i * 0.04 }}
-              className={`relative flex size-9 items-center justify-center rounded-full ${lista ? 'relieve-verde' : 'relieve-piedra opacity-60'}`}
+              className={`relative flex size-9 items-center justify-center rounded-full ${lista ? 'relieve-verde' : 'relieve-piedra-apagada'}`}
               aria-label={`Día ${d.dia}${lista ? ', listo' : ''}`}
             >
               {lista ? <Check size={16} strokeWidth={3} aria-hidden="true" /> : <span className="text-xs font-bold">{d.dia}</span>}

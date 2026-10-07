@@ -75,15 +75,18 @@ function leerCrudo(): string | null {
   }
 }
 
-export function guardarCuenta(cuenta: Cuenta): void {
+/** Guarda la cuenta. Devuelve false si el celular no dejó guardar (quien llama debe avisarlo). */
+export function guardarCuenta(cuenta: Cuenta): boolean {
+  let ok = true;
   try {
     const crudo = JSON.stringify(cuenta);
     if (esDemo()) sessionStorage.setItem(`${CLAVE}_demo`, crudo);
     else localStorage.setItem(CLAVE, crudo);
   } catch {
-    // Sin almacenamiento disponible: la sesión sigue en memoria hasta recargar.
+    ok = false;
   }
   window.dispatchEvent(new Event(EVENTO));
+  return ok;
 }
 
 export function cerrarSesion(): void {
@@ -213,13 +216,13 @@ export function estadoRuta(cuenta: Cuenta, hoy: string = fechaLocal()): EstadoRu
   };
 }
 
-export function guardarPieza(cuenta: Cuenta, pieza: Omit<PiezaGuardada, 'fecha' | 'creadaEn'>): Cuenta {
+/** Guarda una pieza. Devuelve null si no se pudo guardar en este celular. */
+export function guardarPieza(cuenta: Cuenta, pieza: Omit<PiezaGuardada, 'fecha' | 'creadaEn'>): Cuenta | null {
   const ahora = new Date();
   const nueva: PiezaGuardada = { ...pieza, fecha: fechaLocal(ahora), creadaEn: ahora.toISOString() };
   const piezas = [...cuenta.piezas.filter((p) => p.dia !== pieza.dia), nueva].sort((a, b) => a.dia - b.dia);
   const actualizada = { ...cuenta, piezas };
-  guardarCuenta(actualizada);
-  return actualizada;
+  return guardarCuenta(actualizada) ? actualizada : null;
 }
 
 /* ── Datos de EJEMPLO (Carlos, día 8) para capturas y demos: nunca se mezclan con la cuenta real ── */

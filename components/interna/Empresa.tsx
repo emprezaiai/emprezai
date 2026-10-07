@@ -7,7 +7,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { ArrowRight, Check, ChevronDown, Copy, Download, LockKeyhole, Share2, X } from 'lucide-react';
+import { ArrowRight, Check, ChevronDown, Copy, Download, LockKeyhole, Share, X } from 'lucide-react';
 import { estadoRuta, type Cuenta, type PiezaGuardada } from '@/lib/cuenta';
 import { RUTA, SEMANAS, TOTAL_DIAS, diaRuta } from '@/lib/ruta';
 import { EASE_SALIDA } from '@/components/onboarding/piezas';
@@ -37,7 +37,7 @@ function resumenDe(p: PiezaGuardada): string {
   return `${corte.slice(0, corte.lastIndexOf(' '))}…`;
 }
 
-const rotulo = (titulo: string) => titulo.replace(/^Tu |^Tus |^El |^La /, '');
+const rotulo = (p: PiezaGuardada) => RUTA[p.dia - 1]?.corto ?? p.titulo;
 
 export function Empresa() {
   const cuenta = useCuentaActiva();
@@ -145,7 +145,7 @@ export function Empresa() {
           aria-label="Compartir mi empresa"
           className="tarjeta-relieve flex size-11 items-center justify-center rounded-full text-ink-2 transition-transform duration-150 active:scale-95"
         >
-          <Share2 size={20} aria-hidden="true" />
+          <Share size={20} aria-hidden="true" />
         </button>
       </header>
 
@@ -161,11 +161,21 @@ export function Empresa() {
                 <motion.span
                   key={dia}
                   aria-hidden="true"
+                  /* el segmento de la pieza nueva destella una vez */
                   initial={{ scaleY: reduce ? 1 : 0.3, opacity: 0 }}
                   animate={{ scaleY: 1, opacity: 1 }}
                   transition={{ duration: 0.25, delay: reduce ? 0 : 0.2 + i * 0.015 }}
                   className={`h-3 flex-1 rounded-full ${lista ? 'bg-green' : actual ? 'bg-gold' : 'bg-raised-2'}`}
-                />
+                >
+                  {nueva && dia === nueva.dia && !reduce && (
+                    <motion.span
+                      className="block size-full rounded-full bg-green-light"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: [0, 1, 0] }}
+                      transition={{ duration: 1, delay: 0.9, ease: 'easeInOut' }}
+                    />
+                  )}
+                </motion.span>
               );
             })}
           </div>
@@ -192,13 +202,15 @@ export function Empresa() {
           <>
             {/* La pieza más nueva, destacada */}
             <motion.button
-              {...entrar(1)}
+              initial={{ opacity: 0, scale: reduce ? 1 : 0.94, y: reduce ? 0 : 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ type: 'spring', bounce: 0.25, duration: 0.55, delay: reduce ? 0 : 0.15 }}
               type="button"
               onClick={() => abrir(nueva.dia)}
               className="hairline-oro relieve-tarjeta mt-6 block w-full rounded-[var(--radius-card)] p-4 text-left transition-transform duration-150 active:scale-[0.99]"
             >
               <span className="flex items-center justify-between gap-2 text-xs font-bold tracking-[0.08em] uppercase">
-                <span className="truncate text-ink-3">{rotulo(nueva.titulo)}</span>
+                <span className="truncate text-ink-3">{rotulo(nueva)}</span>
                 <span className="shrink-0 text-gold">Nueva · Día {nueva.dia}</span>
               </span>
               <span className="mt-2 block text-lg leading-snug font-semibold text-pretty text-ink-1">{resumenDe(nueva)}</span>
@@ -252,9 +264,7 @@ export function Empresa() {
                               onClick={() => abrir(p.dia)}
                               className="tarjeta-relieve flex h-full w-full flex-col rounded-[var(--radius-card)] p-3 text-left transition-transform duration-150 active:scale-[0.98]"
                             >
-                              <span className="line-clamp-1 text-xs font-bold tracking-[0.06em] text-ink-3 uppercase" title={rotulo(p.titulo)}>
-                                {rotulo(p.titulo)}
-                              </span>
+                              <span className="text-xs font-bold tracking-[0.06em] whitespace-nowrap text-ink-3 uppercase">{rotulo(p)}</span>
                               <span className="mt-1 line-clamp-3 text-sm leading-snug font-semibold text-ink-1">{resumenDe(p)}</span>
                               <span className="mt-auto pt-2 text-xs font-semibold text-green">Día {p.dia}</span>
                             </button>
@@ -276,7 +286,7 @@ export function Empresa() {
               <Link href="/app/mision" className="flex items-center gap-3 rounded-[var(--radius-card)] border border-dashed border-gold p-4 transition-transform duration-150 active:scale-[0.99]">
                 <span className="min-w-0 flex-1 text-sm">
                   <span className="block font-semibold text-ink-1">Hoy · Día {siguiente.dia}</span>
-                  <span className="block text-ink-2">{siguiente.pieza}: se arma en 5 minutos</span>
+                  <span className="block text-pretty text-ink-2">{siguiente.pieza} · 5 minutos</span>
                 </span>
                 <ArrowRight size={18} className="shrink-0 text-gold" aria-hidden="true" />
               </Link>
@@ -344,6 +354,14 @@ function HojaPieza({ pieza, onCerrar }: { pieza: PiezaGuardada; onCerrar: () => 
   }, [onCerrar]);
 
   useEffect(() => {
+    const anterior = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = anterior;
+    };
+  }, []);
+
+  useEffect(() => {
     if (copiado !== 'si') return;
     const t = window.setTimeout(() => setCopiado('no'), 2400);
     return () => window.clearTimeout(t);
@@ -370,8 +388,15 @@ function HojaPieza({ pieza, onCerrar }: { pieza: PiezaGuardada; onCerrar: () => 
         exit={{ y: reduce ? 0 : 48, opacity: 0 }}
         transition={{ duration: 0.3, ease: EASE_SALIDA }}
         onClick={(ev) => ev.stopPropagation()}
+        drag={reduce ? false : 'y'}
+        dragConstraints={{ top: 0, bottom: 0 }}
+        dragElastic={{ top: 0, bottom: 0.6 }}
+        onDragEnd={(_, info) => {
+          if (info.offset.y > 100) onCerrar();
+        }}
         className="tarjeta-relieve max-h-[85dvh] w-full max-w-md overflow-y-auto rounded-t-[var(--radius-card)] px-4 pt-4 pb-[max(16px,env(safe-area-inset-bottom))]"
       >
+        <span aria-hidden="true" className="mx-auto mb-3 block h-1 w-10 rounded-full bg-ink-3" />
         <div className="flex items-start gap-3">
           <div className="min-w-0 flex-1">
             <p className="text-xs font-bold tracking-[0.08em] text-green uppercase">Día {pieza.dia} · lista</p>

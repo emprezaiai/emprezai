@@ -8,15 +8,16 @@ import { createContext, useContext, useEffect, type ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'motion/react';
-import { Briefcase, House, Map as IconoMapa, UserRound, Zap } from 'lucide-react';
-import { activarDemo, importarPieza1SiFalta, useCuenta, type Cuenta } from '@/lib/cuenta';
+import { Briefcase, Check, House, Map as IconoMapa, UserRound, Zap } from 'lucide-react';
+import { activarDemo, estadoRuta, importarPieza1SiFalta, useCuenta, type Cuenta } from '@/lib/cuenta';
 
 const ContextoCuenta = createContext<Cuenta | null>(null);
 
 // Los datos de ejemplo (?demo=carlos) solo existen en la versión de prueba local: en producción
 // nadie entra a la app sin cuenta (fail-closed).
 const DEMO_PERMITIDA = process.env.NEXT_PUBLIC_VISTA_PREVIA === '1';
-const pideDemo = () => DEMO_PERMITIDA && new URLSearchParams(window.location.search).get('demo') === 'carlos';
+const enLocal = () => ['localhost', '127.0.0.1'].includes(window.location.hostname);
+const pideDemo = () => DEMO_PERMITIDA && enLocal() && new URLSearchParams(window.location.search).get('demo') === 'carlos';
 
 /** La cuenta dentro de la app (el Marco garantiza que existe). */
 export function useCuentaActiva(): Cuenta {
@@ -67,7 +68,7 @@ function ContenidoConNav({ children }: { children: ReactNode }) {
   const enMision = usePathname().startsWith('/app/mision');
   return (
     <>
-      <div className={`mx-auto flex min-h-dvh w-full max-w-md flex-col ${enMision ? 'pb-8' : 'pb-28'}`}>{children}</div>
+      <div className={`mx-auto flex min-h-dvh w-full max-w-md flex-col ${enMision ? '' : 'pb-28'}`}>{children}</div>
       {!enMision && <NavInferior />}
     </>
   );
@@ -75,6 +76,10 @@ function ContenidoConNav({ children }: { children: ReactNode }) {
 
 function NavInferior() {
   const ruta = usePathname();
+  const cuenta = useContext(ContextoCuenta);
+  const e = cuenta ? estadoRuta(cuenta) : null;
+  // Con la pieza de hoy hecha, el botón central deja de llamar a una misión terminada: pasa a verde y abre la pieza.
+  const hecha = Boolean(e && (e.hechaHoy || e.terminada));
   const activo = (href: string) => (href === '/app' ? ruta === '/app' : ruta.startsWith(href));
   return (
     <nav
@@ -87,11 +92,11 @@ function NavInferior() {
         ))}
         <li className="flex justify-center">
           <Link
-            href="/app/mision"
-            aria-label="Misión de hoy"
-            className="boton-central -mt-8 flex size-16 items-center justify-center rounded-full transition-transform duration-150 active:scale-95"
+            href={hecha && e ? `/app/empresa?pieza=${e.piezasListas}` : '/app/mision'}
+            aria-label={hecha ? 'Ver la pieza de hoy' : 'Misión de hoy'}
+            className={`${hecha ? 'boton-central-hecho' : 'boton-central'} -mt-8 flex size-16 items-center justify-center rounded-full transition-transform duration-150 active:scale-95`}
           >
-            <Zap size={28} fill="currentColor" strokeWidth={0} aria-hidden="true" />
+            {hecha ? <Check size={30} strokeWidth={3} aria-hidden="true" /> : <Zap size={28} fill="currentColor" strokeWidth={0} aria-hidden="true" />}
           </Link>
         </li>
         {DESTINOS.slice(2).map((d) => (

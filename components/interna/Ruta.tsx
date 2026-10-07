@@ -25,6 +25,7 @@ export function Ruta() {
   const reduce = useReducedMotion();
   const e = estadoRuta(cuenta);
   const [aviso, setAviso] = useState('');
+  const [hoyVisible, setHoyVisible] = useState(true);
   const semanaActual = diaRuta(e.hechaHoy ? Math.max(e.piezasListas, 1) : e.diaActual).semana;
   const refHoy = useRef<HTMLLIElement>(null);
   const hecho = new Set(cuenta.piezas.map((p) => p.dia));
@@ -38,6 +39,14 @@ export function Ruta() {
     if (e.diaActual > 2) irAHoy(false);
     // Solo al entrar.
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const nodo = refHoy.current;
+    if (!nodo || typeof IntersectionObserver === 'undefined') return;
+    const obs = new IntersectionObserver(([entrada]) => setHoyVisible(entrada.isIntersecting), { rootMargin: '-64px 0px -200px 0px' });
+    obs.observe(nodo);
+    return () => obs.disconnect();
   }, []);
 
   function estadoDe(dia: number): EstadoNodo {
@@ -63,14 +72,18 @@ export function Ruta() {
             {e.piezasListas}/{TOTAL_DIAS}
           </span>
         </p>
-        <button
-          type="button"
-          onClick={() => irAHoy()}
-          className="tarjeta-relieve ml-auto flex h-11 items-center gap-1 rounded-[var(--radius-pill)] px-3 text-sm font-semibold text-ink-1 transition-transform duration-150 active:scale-95"
-        >
-          <LocateFixed size={16} aria-hidden="true" />
-          Hoy
-        </button>
+        {!hoyVisible && (
+          <motion.button
+            type="button"
+            onClick={() => irAHoy()}
+            aria-label="Ir a mi día"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="tarjeta-relieve ml-auto flex size-11 items-center justify-center rounded-full text-ink-1 transition-transform duration-150 active:scale-95"
+          >
+            <LocateFixed size={18} aria-hidden="true" />
+          </motion.button>
+        )}
       </header>
 
       <div className="px-4 pt-2">
@@ -127,7 +140,7 @@ export function Ruta() {
                                 ? 'relieve-oro'
                                 : estado === 'manana'
                                   ? 'relieve-piedra'
-                                  : 'relieve-piedra opacity-60'
+                                  : 'relieve-piedra-apagada'
                           }`}
                         >
                           {estado === 'hecho' ? (
@@ -187,7 +200,7 @@ export function Ruta() {
                         )}
                         <span className="relative mt-1 flex flex-col items-center rounded-[var(--radius-chip)] bg-[var(--surface-base)] px-2 text-center">
                           <span className={`text-xs font-bold ${estado === 'hoy' ? 'text-gold' : estado === 'hecho' ? 'text-green' : 'text-ink-3'}`}>Día {d.dia}</span>
-                          <span className="line-clamp-1 text-xs text-ink-2">{d.pieza.replace(/^(Tu|Tus|El|La) /, '')}</span>
+                          <span className="text-xs whitespace-nowrap text-ink-2">{d.corto}</span>
                         </span>
                       </motion.li>
                     );
@@ -200,7 +213,7 @@ export function Ruta() {
       </div>
 
       {/* La misión de hoy, siempre a mano */}
-      <div className="velo-tarjeta-fija sticky bottom-20 z-10 px-4 pt-6 pb-4">
+      <div className="velo-tarjeta-fija sticky bottom-0 z-10 px-4 pt-6 pb-24">
         {aviso ? (
           <div role="status" aria-live="polite" className="mb-2 flex items-start gap-2 rounded-[var(--radius-chip)] bg-raised-2 py-2 pr-1 pl-3 text-caption text-ink-1">
             <span className="flex-1 pt-1">{aviso}</span>
@@ -225,7 +238,7 @@ export function Ruta() {
           </span>
           <span className="min-w-0 flex-1">
             <span className="block text-xs font-semibold text-ink-3">
-              {e.terminada ? '¡Ruta completa!' : e.hechaHoy ? 'Hoy ya armaste tu pieza' : `Hoy · Día ${hoy.dia} · 5 min`}
+              {e.terminada ? '¡Ruta completa!' : e.hechaHoy ? 'Pieza de hoy lista' : `Hoy · Día ${hoy.dia} · 5 min`}
             </span>
             <span className="line-clamp-2 font-display text-base leading-snug font-bold text-ink-1">
               {e.terminada ? 'Tu negocio está listo' : e.hechaHoy ? `Mañana: ${hoy.pieza.charAt(0).toLowerCase()}${hoy.pieza.slice(1)}` : hoy.pieza}

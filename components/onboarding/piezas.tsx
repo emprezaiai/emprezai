@@ -271,14 +271,14 @@ export function PromesaRecorrido() {
 /* ── La ruta en miniatura (Hoy → Día 30): el dispositivo de la marca, anclado abajo ── */
 const DIAS_RUTA = [1, 2, 3, 4, 5];
 
-export function RutaMini({ titulo, respuestas = [] }: { titulo: string; respuestas?: ItemResumen[] }) {
+export function RutaMini({ titulo, respuestas = [], destacada = false }: { titulo: string; respuestas?: ItemResumen[]; destacada?: boolean }) {
   const reduce = useReducedMotion();
   return (
     <motion.div
       initial={{ opacity: 0, y: reduce ? 0 : 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: reduce ? 0 : 0.3, ease: EASE_SALIDA }}
-      className="tarjeta-relieve-base rounded-[var(--radius-card)] p-4"
+      className={`${destacada ? 'hairline-oro relieve-tarjeta' : 'tarjeta-relieve-base'} rounded-[var(--radius-card)] p-4`}
     >
       <p className="text-xs font-semibold tracking-[0.08em] text-ink-3 uppercase">{titulo}</p>
       <ol className="relative mt-4 flex items-start justify-between" aria-label="Tu ruta de 30 días: hoy empiezas">

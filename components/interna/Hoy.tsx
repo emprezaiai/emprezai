@@ -8,7 +8,7 @@
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { animate, motion, useReducedMotion } from 'motion/react';
-import { ArrowRight, Bell, CalendarCheck, ChevronRight, Flame, LifeBuoy, Puzzle, Sparkles } from 'lucide-react';
+import { ArrowRight, Bell, CalendarCheck, ChevronRight, Flame, LifeBuoy, LockKeyhole, Puzzle, Sparkles } from 'lucide-react';
 import { estadoRuta } from '@/lib/cuenta';
 import { RESPONSABLE } from '@/lib/legal';
 import { RUTA, TOTAL_DIAS, diaRuta } from '@/lib/ruta';
@@ -107,8 +107,8 @@ export function Hoy() {
 
       <div className="px-4">
         <motion.div {...entrar(0)}>
-          <p className="text-sm text-ink-3">{fechaLarga()}</p>
-          <h1 className="font-display text-xl font-extrabold text-ink-1">{saludo()}</h1>
+          <p className="text-xs text-ink-3">{fechaLarga()}</p>
+          <h1 className="font-display text-lg font-bold text-ink-1">{saludo()}</h1>
         </motion.div>
 
         {/* 1. EL DATO DE HOY: la misión (o lo que ya armaste). Toda la tarjeta lleva a la acción. */}
@@ -142,8 +142,8 @@ export function Hoy() {
             <span className="relative mt-2 block pr-24 font-display text-2xl leading-tight font-extrabold text-ink-1">
               {e.terminada ? '¡Tu negocio está listo para vender!' : e.hechaHoy ? `¡Pieza ${diaMostrado} lista!` : `Hoy: ${minusculaInicial(hoyRuta.mision)}`}
             </span>
-            <span className="relative mt-2 block text-sm text-ink-2">
-              {e.hechaHoy && siguiente ? `Mañana · Día ${siguiente.dia}: ${minusculaInicial(siguiente.pieza)}` : '5 minutos, desde el celular'}
+            <span className="relative mt-2 block text-ayuda text-ink-2">
+              {e.hechaHoy ? 'Ya está guardada en Mi Empresa' : '5 minutos, desde el celular'}
             </span>
             <span className="relative mt-4 flex items-center gap-3">
               <span
@@ -212,24 +212,33 @@ export function Hoy() {
               <span aria-hidden="true" className="relieve-piedra flex size-10 items-center justify-center rounded-[var(--radius-chip)]">
                 <CalendarCheck size={20} strokeWidth={2.2} />
               </span>
-              <span className="font-display text-precio leading-none font-extrabold text-ink-1">
-                <Cuenta valor={enSemana} />
-                <span className="text-base text-ink-3">/{diasSemana}</span>
+              <span className="flex h-6 items-center gap-1" aria-label={`${enSemana} de ${diasSemana} piezas de la semana ${semanaDeHoy}`}>
+                {Array.from({ length: diasSemana }, (_, i) => (
+                  <motion.span
+                    key={i}
+                    aria-hidden="true"
+                    initial={{ scale: reduce ? 1 : 0.4, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ type: 'spring', bounce: 0.25, duration: 0.4, delay: reduce ? 0 : 0.35 + i * 0.04 }}
+                    className={`size-2 rounded-full ${i < enSemana ? 'bg-green' : 'bg-raised-2'}`}
+                  />
+                ))}
               </span>
-              <span className="text-xs text-ink-2">esta semana</span>
+              <span className="text-xs text-ink-2">piezas de la semana</span>
             </Link>
           </li>
         </motion.ul>
-        {e.rachaEnRiesgo && (
-          <p className="mt-2 text-caption text-ink-2">
-            La llama está en modo siesta: tu misión de hoy la vuelve a prender y sigue tu racha de {e.racha} {e.racha === 1 ? 'día' : 'días'}.
-          </p>
-        )}
-
-        {/* 4. EL INSIGHT en la voz del Método */}
+        {/* 4. EL INSIGHT en la voz del Método (con el estado de la racha si está en riesgo) */}
         <motion.p {...entrar(4)} className="mt-4 flex items-start gap-2 text-ayuda leading-snug text-ink-2">
           <Sparkles size={18} className="mt-0.5 shrink-0 text-ink-3" aria-hidden="true" />
-          {insight}
+          <span>
+            {e.rachaEnRiesgo && (
+              <strong className="font-semibold text-ink-1">
+                La llama está en modo siesta: la misión de hoy la vuelve a prender.{' '}
+              </strong>
+            )}
+            {insight}
+          </span>
         </motion.p>
 
         {/* Filas en píldora: tus últimas piezas */}
@@ -242,7 +251,7 @@ export function Hoy() {
                   className="fila-pildora flex min-h-16 items-center gap-3 py-2 pr-2 pl-5 transition-transform duration-150 active:scale-[0.98]"
                 >
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate font-display text-base font-bold text-ink-1">{p.titulo}</span>
+                    <span className="block truncate font-display text-ayuda font-bold text-ink-1">{p.titulo}</span>
                     <span className="block text-xs text-ink-3">Día {p.dia} · lista</span>
                   </span>
                   <span aria-hidden="true" className="relieve-piedra flex size-11 shrink-0 items-center justify-center rounded-full">
@@ -251,6 +260,22 @@ export function Hoy() {
                 </Link>
               </li>
             ))}
+            {e.hechaHoy && siguiente && (
+              <li>
+                <Link
+                  href="/app/ruta"
+                  className="flex min-h-16 items-center gap-3 rounded-[var(--radius-pill)] border border-dashed border-[var(--line)] bg-sunken py-2 pr-2 pl-5 transition-transform duration-150 active:scale-[0.98]"
+                >
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-display text-ayuda font-bold text-ink-1">{siguiente.pieza}</span>
+                    <span className="block text-xs text-ink-3">Mañana · Día {siguiente.dia} · 5 min</span>
+                  </span>
+                  <span aria-hidden="true" className="relieve-piedra-apagada flex size-11 shrink-0 items-center justify-center rounded-full">
+                    <LockKeyhole size={18} />
+                  </span>
+                </Link>
+              </li>
+            )}
           </motion.ul>
         )}
       </div>

@@ -58,9 +58,9 @@ export const MISIONES_GUIADAS: MisionGuiada[] = [
         acento: 'quita el sueño',
         consejo: 'El problema que ya le duele hoy, no uno que tú imaginas.',
         opciones: porArea({
-          servicios: ['No le llegan clientes nuevos', 'No sabe cuánto gana de verdad', 'Se le va el día en tareas repetidas', 'Su negocio se ve poco profesional'],
-          cursos: ['Siente que se está quedando atrás', 'No tiene tiempo para aprender', 'Ya pagó cursos y no los terminó', 'No sabe por dónde empezar'],
-          productos: ['No encuentra algo que le guste de verdad', 'Lo que hay es caro o de mala calidad', 'No tiene tiempo de buscar', 'Quiere algo especial para regalar'],
+          servicios: ['Faltan clientes nuevos', 'No tener claro cuánto se gana', 'Tareas repetidas que roban el día', 'Una imagen poco profesional'],
+          cursos: ['Quedarse atrás', 'Falta de tiempo para aprender', 'Cursos pagados y sin terminar', 'No saber por dónde empezar'],
+          productos: ['No encontrar algo que guste de verdad', 'Opciones caras o de mala calidad', 'Falta de tiempo para buscar', 'Querer algo especial para regalar'],
         }),
       },
       {
@@ -159,4 +159,45 @@ export const MISIONES_GUIADAS: MisionGuiada[] = [
 
 export function misionGuiada(dia: number): MisionGuiada | undefined {
   return MISIONES_GUIADAS.find((m) => m.dia === dia);
+}
+
+/* ── Misiones de borrador (días 5-30, antes de la IA): una pregunta clara, un consejo y una plantilla
+   para rellenar. La pieza se guarda como "versión base" y la IA la afina cuando se conecte. Los días de
+   cierre de semana (7, 14, 21, 30) no preguntan: juntan las piezas de la semana en una sola. ── */
+
+export interface GuiaBorrador {
+  dia: number;
+  pregunta: string;
+  acento: string;
+  consejo: string;
+  plantilla: string;
+}
+
+export const GUIAS_BORRADOR: GuiaBorrador[] = [
+  { dia: 5, pregunta: '¿Quién más vende algo parecido?', acento: 'algo parecido', consejo: 'Busca 3 en Google o Instagram y anota en qué eres distinto.', plantilla: 'Los demás ___. Yo, en cambio, ___.' },
+  { dia: 6, pregunta: '¿Qué le preguntarías a un posible cliente?', acento: 'posible cliente', consejo: 'Pregunta por lo que hace hoy, no por lo que haría.', plantilla: '1) ¿Cómo resuelves hoy ___? 2) ¿Qué es lo más difícil de eso? 3) ¿Pagarías por ___?' },
+  { dia: 8, pregunta: '¿Cómo se va a llamar tu negocio?', acento: 'llamar', consejo: 'Corto, fácil de decir y que suene a lo que resuelves.', plantilla: 'Nombre: ___. Lo elegí porque ___.' },
+  { dia: 9, pregunta: '¿Qué frase hace que tu cliente diga «es para mí»?', acento: '«es para mí»', consejo: 'Nombra a quién ayudas y el resultado, en una línea.', plantilla: 'Para ___ que quieren ___: ___.' },
+  { dia: 10, pregunta: '¿Por qué empezaste esto?', acento: 'empezaste', consejo: 'Una historia corta y real conecta más que un currículum.', plantilla: 'Empecé porque ___. Hoy ayudo a ___ para que ___.' },
+  { dia: 11, pregunta: '¿Qué 3 cosas gana tu cliente?', acento: '3 cosas', consejo: 'Resultados que se sienten, no características.', plantilla: '1) ___ 2) ___ 3) ___' },
+  { dia: 12, pregunta: '¿Qué dudas frenan la compra?', acento: 'frenan la compra', consejo: 'Escribe cada duda tal como la diría tu cliente y tu respuesta.', plantilla: '«___» → ___. «___» → ___. «___» → ___.' },
+  { dia: 13, pregunta: '¿Qué dice tu bio para redes?', acento: 'tu bio', consejo: 'En 150 caracteres: a quién ayudas, a qué y cómo contactarte.', plantilla: 'Ayudo a ___ a ___ · ___ · Escríbeme por DM' },
+  { dia: 15, pregunta: '¿En qué partes se divide lo que entregas?', acento: 'partes', consejo: 'De 3 a 5 pasos, en el orden en que tu cliente avanza.', plantilla: 'Parte 1: ___ · Parte 2: ___ · Parte 3: ___' },
+  { dia: 16, pregunta: '¿Cuál es la primera parte de tu producto?', acento: 'primera parte', consejo: 'Lo mínimo para que tu cliente vea un resultado.', plantilla: 'Primera parte: ___. Incluye: ___.' },
+  { dia: 17, pregunta: '¿Cómo se llama tu forma de hacerlo?', acento: 'se llama', consejo: 'Un nombre propio hace que tu método se recuerde.', plantilla: 'El Método ___: ___ pasos para ___.' },
+  { dia: 18, pregunta: '¿Qué regalo acelera la compra?', acento: 'acelera la compra', consejo: 'Algo útil que cueste poco entregar y valga mucho.', plantilla: 'Si compras hoy, te llevas ___ (vale $___).' },
+  { dia: 19, pregunta: '¿Qué garantía quita el miedo a comprar?', acento: 'quita el miedo', consejo: 'Que sea simple y que la puedas cumplir.', plantilla: 'Si en ___ días ___, te devuelvo tu dinero.' },
+  { dia: 20, pregunta: '¿Cómo se ordena tu página de venta?', acento: 'página de venta', consejo: 'Titular, problema, solución, oferta y garantía.', plantilla: 'Titular: ___ · Problema: ___ · Solución: ___ · Oferta: ___ · Garantía: ___' },
+  { dia: 22, pregunta: '¿Qué vas a publicar esta semana?', acento: 'publicar', consejo: 'Ideas que respondan dudas reales de tu cliente.', plantilla: '1) ___ 2) ___ 3) ___ 4) ___ 5) ___ 6) ___ 7) ___' },
+  { dia: 23, pregunta: '¿Qué dice tu video de 30 segundos?', acento: '30 segundos', consejo: 'Gancho en los 3 primeros segundos; cierra con qué hacer.', plantilla: 'Gancho: ___ · Problema: ___ · Solución: ___ · Qué hacer: ___' },
+  { dia: 24, pregunta: '¿Qué mensaje mandas por WhatsApp o DM?', acento: 'WhatsApp o DM', consejo: 'Corto, personal y con una pregunta al final.', plantilla: 'Hola ___, vi que ___. Te cuento que ___. ¿Te interesa que te explique?' },
+  { dia: 25, pregunta: '¿Qué dice tu correo de lanzamiento?', acento: 'lanzamiento', consejo: 'Un asunto que dé curiosidad y un solo enlace.', plantilla: 'Asunto: ___ · ___' },
+  { dia: 26, pregunta: '¿Qué respondes cuando te dicen «está caro»?', acento: '«está caro»', consejo: 'Sin discutir: recuerda el resultado y la garantía.', plantilla: 'Te entiendo. Piensa que ___. Y si no te sirve, ___.' },
+  { dia: 27, pregunta: '¿Qué dice tu primer anuncio?', acento: 'primer anuncio', consejo: 'Empieza con el dolor de tu cliente, no con tu nombre.', plantilla: '¿Te pasa ___? ___ te ayuda a ___. ___.' },
+  { dia: 28, pregunta: '¿Qué haces cada día del lanzamiento?', acento: 'cada día', consejo: 'Una acción concreta por día durante 7 días.', plantilla: 'Día 1: ___ · Día 2: ___ · Día 3: ___ · Día 4: ___ · Día 5: ___ · Día 6: ___ · Día 7: ___' },
+  { dia: 29, pregunta: '¿Cómo sabrás si funciona?', acento: 'si funciona', consejo: 'Una meta de ventas y 2 números que mires cada semana.', plantilla: 'Meta: ___ ventas en ___ días · Miro: ___ y ___' },
+];
+
+export function guiaBorrador(dia: number): GuiaBorrador | undefined {
+  return GUIAS_BORRADOR.find((g) => g.dia === dia);
 }
