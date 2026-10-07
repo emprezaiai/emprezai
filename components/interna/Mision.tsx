@@ -45,7 +45,7 @@ export function Mision() {
         titulo="Hoy ya armaste tu pieza"
         texto={`Mañana se abre el día ${dia.dia}: ${dia.pieza.toLowerCase()}. Un día a la vez es lo que hace que funcione.`}
         href="/app/empresa"
-        cta="Ver Mi Empresa"
+        cta="Ver en Mi Empresa"
       />
     );
   if (dia.dia === 1)
@@ -166,6 +166,7 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
   const [aviso, setAviso] = useState(0);
   const [errorGuardado, setErrorGuardado] = useState(false);
   const [anterior, setAnterior] = useState<string | null>(null);
+  const [origen, setOrigen] = useState<'plantilla' | 'ejemplo'>('plantilla');
   const [campo, sacudir] = useAnimate<HTMLTextAreaElement>();
   const valido = limpiarTexto(texto, LARGO_MAX_BORRADOR).length >= 15 && !texto.includes('___');
   const conTexto = texto.trim().length > 0;
@@ -256,7 +257,7 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
       <motion.div {...entrarBloque(1)} className="hairline-oro relieve-tarjeta mt-4 rounded-[var(--radius-card)] p-4">
         <div className="flex items-center justify-between gap-2">
           <label htmlFor={idCampo} className="text-sm font-semibold text-ink-1">
-            Tu {dia.corto.toLowerCase()}
+            {dia.pieza}
           </label>
           <button
             type="button"
@@ -267,6 +268,7 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
                 return;
               }
               setAnterior(texto);
+              setOrigen('plantilla');
               setTexto(guia.plantilla);
               vibrar();
             }}
@@ -285,6 +287,7 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
             setTexto(ev.target.value);
             setAvisoPlantilla(false);
             setBorradorGuardado(false);
+            setAnterior(null);
           }}
           onKeyDown={(ev) => {
             if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) {
@@ -318,7 +321,7 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
               transition={{ duration: reduce ? 0 : 0.2, ease: EASE_SALIDA }}
               className="flex items-center justify-between gap-2 overflow-hidden text-caption text-ink-2"
             >
-              <span className="pt-2">{texto.includes('___') ? 'Pusimos la plantilla: completa los ___.' : 'Pusimos el ejemplo: cámbialo por lo tuyo.'}</span>
+              <span className="pt-2">{origen === 'plantilla' ? 'Pusimos la plantilla: completa los ___.' : 'Pusimos el ejemplo: cámbialo por lo tuyo.'}</span>
               <button
                 type="button"
                 onClick={() => {
@@ -333,8 +336,8 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
           )}
         </AnimatePresence>
         <p className="mt-2 flex justify-between gap-3 text-caption text-ink-3">
-          <span role="status">{borradorGuardado ? 'Borrador guardado en este celular' : 'Una frase basta · mínimo 15 letras'}</span>
-          <span className="shrink-0 tabular-nums" aria-label={`${texto.length} de ${LARGO_MAX_BORRADOR} caracteres`}>
+          <span role="status">{borradorGuardado ? 'Guardado · mínimo 15 letras' : 'Una frase basta · mínimo 15 letras'}</span>
+          <span className={`shrink-0 tabular-nums ${valido ? 'font-semibold text-green' : ''}`} aria-label={`${texto.length} de ${LARGO_MAX_BORRADOR} caracteres`}>
             {texto.length}/{LARGO_MAX_BORRADOR}
           </span>
         </p>
@@ -356,10 +359,11 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
                 return;
               }
               setAnterior(texto);
+              setOrigen('ejemplo');
               setTexto(ejemplo.texto);
               vibrar();
             }}
-            className="-ml-2 mt-1 flex min-h-11 items-center gap-1 rounded-[var(--radius-pill)] px-2 text-xs font-semibold text-ink-1 active:scale-95"
+            className="-mb-3 -ml-2 mt-1 flex min-h-11 items-center gap-1 rounded-[var(--radius-pill)] px-2 text-xs font-semibold text-ink-1 active:scale-95"
           >
             <PencilLine size={14} className="text-ink-3" aria-hidden="true" />
             Usar como punto de partida
@@ -742,11 +746,18 @@ function MisionGuiadaFlujo({ onGuardada }: { onGuardada: (dia: number) => void }
               <Sparkles size={24} className="shrink-0 text-gold" aria-hidden="true" />
               Armando tu {dia.corto.toLowerCase()}…
             </p>
-            <div className="hairline-oro relieve-tarjeta flex flex-col gap-2 rounded-[var(--radius-card)] p-4">
-              <span className="mb-2 h-3 w-1/3 rounded-full bg-[color-mix(in_oklab,var(--gold)_30%,transparent)] motion-safe:animate-pulse" />
-              {['w-full', 'w-11/12', 'w-4/5', 'w-2/3'].map((a) => (
-                <span key={a} className={`h-3 rounded-full bg-[color-mix(in_oklab,var(--ink-1)_10%,transparent)] motion-safe:animate-pulse ${a}`} />
-              ))}
+            <div className="hairline-oro relieve-tarjeta flex min-h-[275px] flex-col rounded-[var(--radius-card)] p-4">
+              <span className="h-3 w-1/3 rounded-full bg-[color-mix(in_oklab,var(--gold)_30%,transparent)] motion-safe:animate-pulse" />
+              <span className="mt-4 flex flex-col gap-3">
+                {['w-full', 'w-11/12', 'w-full', 'w-4/5', 'w-2/3'].map((a, i) => (
+                  <span key={i} className={`h-4 rounded-full bg-[color-mix(in_oklab,var(--ink-1)_10%,transparent)] motion-safe:animate-pulse ${a}`} />
+                ))}
+              </span>
+              <span className="mt-4 flex flex-col gap-2 border-t border-[var(--line)] pt-4">
+                {['w-full', 'w-3/4'].map((a) => (
+                  <span key={a} className={`h-3 rounded-full bg-[color-mix(in_oklab,var(--ink-1)_8%,transparent)] motion-safe:animate-pulse ${a}`} />
+                ))}
+              </span>
             </div>
             <span aria-hidden="true" className="mx-auto mt-5 block h-3 w-40 rounded-full bg-raised motion-safe:animate-pulse" />
             <span aria-hidden="true" className="mx-auto mt-5 block h-3 w-56 rounded-full bg-raised motion-safe:animate-pulse" />
@@ -987,8 +998,7 @@ function Celebracion({ dia }: { dia: number }) {
           </span>
         </p>
         <SemanaEnNodos dia={dia} siguiente={siguiente} />
-      </div>
-      <div className="barra-inferior sticky bottom-0 z-10 px-4 pt-6">
+        <div className="mt-6 w-full">
         <Link
           ref={refBoton}
           href={`/app/empresa?pieza=${dia}`}
@@ -1000,6 +1010,7 @@ function Celebracion({ dia }: { dia: number }) {
         <Link href="/app" className="mt-1 flex min-h-11 items-center justify-center text-sm font-semibold text-ink-2">
           Volver a Hoy
         </Link>
+        </div>
       </div>
     </main>
   );

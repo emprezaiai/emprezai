@@ -41,3 +41,18 @@ export function hayBorrador(dia: number): boolean {
     return false;
   }
 }
+
+/** En qué va la misión a medias: la pregunta (guiada) o si ya escribió (borrador libre). */
+export function avanceBorrador(dia: number): { tipo: 'guiado'; respondidas: number } | { tipo: 'texto' } | null {
+  const texto = leerBorrador(claveBorradorTexto(dia));
+  if (texto && texto.trim()) return { tipo: 'texto' };
+  const guiado = leerBorrador(claveBorradorGuiado(dia));
+  if (!guiado) return null;
+  try {
+    const d = JSON.parse(guiado) as { paso?: number; resp?: Record<string, string[]> };
+    const respondidas = Math.max(d.paso ?? 0, Object.keys(d.resp ?? {}).length);
+    return respondidas ? { tipo: 'guiado', respondidas } : null;
+  } catch {
+    return null;
+  }
+}

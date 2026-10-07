@@ -8,8 +8,8 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { animate, motion, useReducedMotion } from 'motion/react';
-import { ArrowRight, Bell, CalendarCheck, CheckCircle2, ChevronRight, Flame, LifeBuoy, LockKeyhole, Map as IconoMapa, Puzzle, RotateCcw, Sparkles, WifiOff } from 'lucide-react';
-import { hayBorrador } from '@/lib/borradores';
+import { ArrowRight, Bell, BellRing, CalendarCheck, CheckCircle2, ChevronRight, Flame, LifeBuoy, LockKeyhole, Map as IconoMapa, Puzzle, RotateCcw, Sparkles, WifiOff } from 'lucide-react';
+import { avanceBorrador } from '@/lib/borradores';
 import { estadoRuta, importarPieza1SiFalta, pieza1PorTraer } from '@/lib/cuenta';
 import { RESPONSABLE } from '@/lib/legal';
 import { RUTA, TOTAL_DIAS, diaRuta } from '@/lib/ruta';
@@ -109,7 +109,8 @@ export function Hoy() {
       : 'Hoy empieza tu Método Pieza a Pieza: cada pieza se suma a la siguiente.';
 
   // Si ya empezó la misión y la dejó a medias, el botón lo dice (sigue donde quedó).
-  const enCurso = !e.hechaHoy && !e.terminada && hayBorrador(e.diaActual);
+  const avance = !e.hechaHoy && !e.terminada ? avanceBorrador(e.diaActual) : null;
+  const enCurso = Boolean(avance);
   const textoCta = e.terminada
     ? 'Ver mi negocio completo'
     : e.hechaHoy
@@ -178,7 +179,13 @@ export function Hoy() {
               {e.terminada ? '¡Tu negocio está listo para vender!' : e.hechaHoy ? `¡Pieza ${diaMostrado} lista!` : `Hoy: ${minusculaInicial(hoyRuta.mision)}`}
             </h1>
             <span className="relative mt-2 block text-ayuda text-ink-2">
-              {e.hechaHoy ? 'Ya está guardada en Mi Empresa' : '5 minutos, desde el celular'}
+              {e.hechaHoy
+                ? 'Ya está guardada en Mi Empresa'
+                : avance?.tipo === 'guiado'
+                  ? `Ya respondiste ${avance.respondidas} de 3: te falta poco`
+                  : avance?.tipo === 'texto'
+                    ? 'Tu borrador te espera, tal como lo dejaste'
+                    : '5 minutos, desde el celular'}
             </span>
             <span className="relative mt-4 flex items-center gap-3">
               <span
@@ -191,7 +198,7 @@ export function Hoy() {
               >
                 <motion.span
                   className="block h-full origin-left rounded-full bg-gradient-to-r from-green to-green-light"
-                  style={{ width: `${Math.max(e.piezasListas / TOTAL_DIAS, 0.03) * 100}%` }}
+                  style={{ width: `${(e.piezasListas / TOTAL_DIAS) * 100}%` }}
                   initial={{ scaleX: reduce ? 1 : 0 }}
                   animate={{ scaleX: 1 }}
                   transition={{ duration: reduce ? 0 : 0.7, delay: reduce ? 0 : 0.35, ease: EASE_SALIDA }}
@@ -231,8 +238,8 @@ export function Hoy() {
                   e.racha === 0 ? 'relieve-piedra-apagada' : e.rachaEnRiesgo ? 'relieve-ambar' : 'relieve-oro'
                 }`}
                 /* la llama viva late una vez cuando termina de contar */
-                initial={false}
-                animate={e.racha > 0 && !e.rachaEnRiesgo && !reduce ? { scale: [1, 1.15, 1] } : undefined}
+                initial={{ scale: 1 }}
+                animate={e.racha > 0 && !e.rachaEnRiesgo && !reduce ? { scale: [1, 1.15, 1] } : { scale: 1 }}
                 transition={{ duration: 0.45, delay: 0.95, ease: 'easeOut' }}
               >
                 <Flame size={20} fill={e.racha > 0 ? 'currentColor' : 'none'} strokeWidth={e.racha > 0 ? 1.5 : 1.8} />
@@ -241,11 +248,18 @@ export function Hoy() {
                 <Cuenta valor={e.racha} />
               </span>
               <span className="mt-auto text-xs text-ink-2">{e.racha === 1 ? 'día de racha' : 'días de racha'}</span>
+              <span className="-mt-1 flex items-center gap-1 text-[11px] font-semibold text-ink-3">
+                <BellRing size={11} aria-hidden="true" />
+                {cuenta.momento === 'manana' ? 'aviso de mañana' : cuenta.momento === 'mediodia' ? 'aviso al mediodía' : cuenta.momento === 'noche' ? 'aviso de noche' : 'tu aviso'}
+              </span>
             </Link>
           </li>
           <li>
             <Link href="/app/empresa" className="tarjeta-relieve flex h-full flex-col gap-2 rounded-[var(--radius-card)] p-3 transition-transform duration-150 active:scale-[0.97]">
-              <span aria-hidden="true" className="relieve-verde flex size-10 items-center justify-center rounded-[var(--radius-chip)]">
+              <span
+                aria-hidden="true"
+                className={`${e.piezasListas ? 'relieve-verde' : 'relieve-piedra-apagada'} flex size-10 items-center justify-center rounded-[var(--radius-chip)]`}
+              >
                 <Puzzle size={20} strokeWidth={2.2} />
               </span>
               <span className="font-display text-precio leading-none font-extrabold text-ink-1">
@@ -255,7 +269,7 @@ export function Hoy() {
             </Link>
           </li>
           <li>
-            <Link href="/app/ruta" className="tarjeta-relieve flex h-full flex-col gap-2 rounded-[var(--radius-card)] p-3 transition-transform duration-150 active:scale-[0.97]">
+            <div className="tarjeta-relieve-base flex h-full flex-col gap-2 rounded-[var(--radius-card)] p-3">
               <span aria-hidden="true" className="relieve-piedra flex size-10 items-center justify-center rounded-[var(--radius-chip)]">
                 <CalendarCheck size={20} strokeWidth={2.2} />
               </span>
@@ -276,7 +290,7 @@ export function Hoy() {
                 ))}
               </span>
               <span className="mt-auto text-xs text-ink-2">semana {semanaDeHoy}</span>
-            </Link>
+            </div>
           </li>
         </motion.ul>
         {/* 4. EL INSIGHT en la voz del Método (con el estado de la racha si está en riesgo) */}
@@ -302,10 +316,21 @@ export function Hoy() {
           </span>
         </motion.p>
 
+        <p role="status" aria-live="polite" className="sr-only">
+          {reintento === 'ok' && !faltaPieza1
+            ? 'Listo: tu pieza 1 ya está en Mi Empresa.'
+            : faltaPieza1 && reintento === 'fallo2'
+              ? 'Tu pieza 1 sigue sin entrar. Escríbenos y lo resolvemos contigo.'
+              : faltaPieza1 && reintento === 'fallo'
+                ? 'Tu pieza 1 sigue sin entrar: libera espacio y vuelve a tocar Reintentar.'
+                : !enLinea
+                  ? 'Sin conexión: puedes hacer la misión igual; todo se guarda en este celular.'
+                  : ''}
+        </p>
         <div>
           {faltaPieza1 ? (
             <motion.div {...entrar(5)} className="mt-4 flex items-center gap-3 rounded-[var(--radius-card)] border border-[var(--line)] bg-sunken p-3">
-              <p role="status" className="min-w-0 flex-1 text-caption text-ink-2">
+              <p className="min-w-0 flex-1 text-caption text-ink-2">
                 {reintento === 'fallo2' ? (
                   <>
                     Sigue sin entrar.{' '}
@@ -340,7 +365,6 @@ export function Hoy() {
             </motion.div>
           ) : reintento === 'ok' ? (
             <motion.p
-              role="status"
               initial={{ opacity: 0, y: reduce ? 0 : 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, ease: EASE_SALIDA }}
@@ -351,7 +375,7 @@ export function Hoy() {
             </motion.p>
           ) : null}
           {!enLinea && (
-            <p role="status" className="mt-4 flex items-center gap-2 text-caption text-ink-2">
+            <p className="mt-4 flex items-center gap-2 text-caption text-ink-2">
               <WifiOff size={16} className="shrink-0 text-ink-3" aria-hidden="true" />
               Sin conexión: puedes hacer la misión igual; todo se guarda en este celular.
             </p>

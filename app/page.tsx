@@ -137,10 +137,10 @@ export default function PaginaDeVentas() {
       <AppPorDentro
         tituloMarked="Tu negocio, [acento]pieza a pieza[/acento]"
         frames={[
-          { label: 'Tu misión de hoy, en 5 minutos', src: '/landing/hoy-v2.png', alt: 'Vista previa: pantalla Hoy con la misión del día' },
-          { label: 'Tu ruta de 30 días', src: '/landing/ruta-v2.png', alt: 'Vista previa: mapa de la ruta de 30 días' },
-          { label: 'La IA armando tu pieza', src: '/landing/mision-v2.png', alt: 'Vista previa: la IA propone 5 nombres para tu negocio' },
-          { label: 'Tu negocio completo', src: '/landing/mi-empresa-v2.png', alt: 'Vista previa: Mi Empresa con las piezas armadas' },
+          { label: 'Tu misión de hoy, en 5 minutos', src: '/landing/app-hoy.png', alt: 'Captura de la app: pantalla Hoy con la misión del día 8 y la racha' },
+          { label: 'Tu ruta de 30 días', src: '/landing/app-ruta.png', alt: 'Captura de la app: mapa de la ruta de 30 días en la semana 2' },
+          { label: 'Tu pieza, armada con tus respuestas', src: '/landing/app-mision.png', alt: 'Captura de la app: el cliente ideal armado con tres respuestas' },
+          { label: 'Tu negocio completo', src: '/landing/app-empresa.png', alt: 'Captura de la app: Mi Empresa con las piezas de la semana 1' },
         ]}
         ctaLabel={CTA_LABEL}
         ctaHref={CTA_HREF}
