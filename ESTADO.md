@@ -1,7 +1,7 @@
 # ESTADO — EMPRESAI
 Última actualización: 2026-10-07 | Sesión actual: 5 (Entrar + app por dentro)
 
-⏸️ CHECKPOINT — Última acción completada (2026-10-07): /login + /app (Hoy, Ruta, Mi Empresa, Perfil, Misión) CONSTRUIDOS y verificados (tsc ✓ lint ✓ build ✓, 3 caminos a 375 y 360 sin desborde ni errores) — revisor-visual EN CURSO en Hoy, Ruta, Mi Empresa, Misión y Entrar / Siguiente acción exacta: aplicar veredictos → capturas reales para el carrusel de la landing → OK de la dueña → Sesión 6 (servicios externos)
+⏸️ CHECKPOINT — Última acción completada (2026-10-07): ronda 4 del revisor recibida en las 5 (Hoy 29/16 · Ruta 30/15 · Mi Empresa 32/16 · Misión 29/15 · Entrar 30/15 — todas NO LISTA) / Siguiente acción exacta: aplicar arreglos ronda 4 (Hoy: fila "Mañana" en día 1; Misión: nota "mejorar desde Mi Empresa" → agregar Editar en la hoja; Ruta: geometría del camino; Entrar: guardar correo) → recapturar → ronda 5 → carrusel landing con capturas reales → OK de la dueña → Sesión 6
 
 ## Qué es esta app (3 líneas máximo)
 App web tipo Duolingo que guía a emprendedores principiantes LATAM a lanzar su negocio/producto digital con IA en 30 días, 5 min/día.

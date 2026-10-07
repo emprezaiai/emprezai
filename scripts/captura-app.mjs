@@ -164,11 +164,15 @@ await pagina.evaluate(() => {
   );
 });
 await pagina.goto(`${baseReal}/login`, { waitUntil: 'load' });
-await espera(900);
+await espera(1500);
+await capturar('22b-entrar-real-inicio');
 await pagina.getByLabel('Tu correo').fill('carlos.ruiz@gmail.com');
 await pagina.getByRole('button', { name: /Guardar mi correo de acceso|Enviarme mi enlace/ }).click();
-await espera(1300);
+await espera(2500);
 await capturar('23-entrar-sin-servidor');
+await pagina.goto(`${baseReal}/login`, { waitUntil: 'load' });
+await espera(1500);
+await capturar('23b-entrar-real-vuelve');
 
 console.log(JSON.stringify({ medidas: medidas.map((m) => `${m.nombre}:${m.desborde}`), errores }, null, 1));
 await navegador.close();

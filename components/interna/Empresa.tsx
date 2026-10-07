@@ -7,8 +7,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, animate, motion, useDragControls, useReducedMotion } from 'motion/react';
-import { ArrowRight, Check, ChevronDown, Copy, Download, LockKeyhole, Share, X } from 'lucide-react';
-import { estadoRuta, fechaLocal, type Cuenta, type PiezaGuardada } from '@/lib/cuenta';
+import { ArrowRight, Check, ChevronDown, Copy, Download, LockKeyhole, PencilLine, Puzzle, Share, X } from 'lucide-react';
+import { editarPieza, estadoRuta, fechaLocal, type Cuenta, type PiezaGuardada } from '@/lib/cuenta';
 import { RUTA, SEMANAS, TOTAL_DIAS, diaRuta } from '@/lib/ruta';
 import { EASE_SALIDA } from '@/components/onboarding/piezas';
 import { useCuentaActiva } from './Marco';
@@ -210,7 +210,7 @@ export function Empresa() {
               onClick={() => abrir(nueva.dia)}
               className="hairline-oro relieve-tarjeta mt-6 block w-full rounded-[var(--radius-card)] p-4 text-left transition-transform duration-150 active:scale-[0.99]"
             >
-              <span className="flex items-center justify-between gap-2 text-xs font-bold tracking-[0.08em] uppercase">
+              <span className="flex items-center justify-between gap-2 text-xs font-bold tracking-[0.04em] uppercase">
                 <span className="truncate text-ink-3">{rotulo(nueva)}</span>
                 <span className="flex shrink-0 items-center gap-1 text-gold">
                   {recienGuardada && (
@@ -227,16 +227,31 @@ export function Empresa() {
                   Nueva · Día {nueva.dia}
                 </span>
               </span>
-              <span className="mt-2 block text-lg leading-snug font-semibold text-pretty text-ink-1">{resumenDe(nueva)}</span>
+              <span className="mt-2 block font-display text-xl leading-snug font-extrabold text-pretty text-ink-1">{resumenDe(nueva)}</span>
               <span className="mt-2 block text-xs font-semibold text-ink-3">Toca para verla completa y copiarla</span>
             </motion.button>
+
+            {siguiente && !e.hechaHoy && (
+              <motion.div {...entrar(2)}>
+                <Link
+                  href="/app/mision"
+                  className="mt-3 flex items-center gap-3 rounded-[var(--radius-card)] border border-dashed border-gold p-4 transition-transform duration-150 active:scale-[0.99]"
+                >
+                  <span className="min-w-0 flex-1 text-sm">
+                    <span className="block font-semibold text-ink-1">Hoy · Día {siguiente.dia}</span>
+                    <span className="block text-pretty text-ink-2">{siguiente.pieza} · 5 minutos</span>
+                  </span>
+                  <ArrowRight size={18} className="shrink-0 text-gold" aria-hidden="true" />
+                </Link>
+              </motion.div>
+            )}
 
             {/* El resto, por semana: la actual abierta, las cerradas plegadas */}
             {grupos.map((g, gi) => {
               const abiertaSemana = abiertas.has(g.semana.numero);
               const completa = RUTA.filter((d) => d.semana === g.semana.numero).every((d) => cuenta.piezas.some((p) => p.dia === d.dia));
               return (
-                <motion.section key={g.semana.numero} {...entrar(2 + gi)} className="mt-6" aria-label={`Semana ${g.semana.numero}`}>
+                <motion.section key={g.semana.numero} {...entrar(3 + gi)} className="mt-6" aria-label={`Semana ${g.semana.numero}`}>
                   <button
                     type="button"
                     aria-expanded={abiertaSemana}
@@ -254,7 +269,9 @@ export function Empresa() {
                     <span className="flex-1 font-display text-lg font-bold text-ink-1">
                       Semana {g.semana.numero} · {g.semana.tema}
                     </span>
-                    <span className="text-xs text-ink-3 tabular-nums">{g.piezas.length}</span>
+                    <span className="text-xs text-ink-3 tabular-nums">
+                      {cuenta.piezas.filter((p) => diaRuta(p.dia).semana === g.semana.numero).length}/{RUTA.filter((d) => d.semana === g.semana.numero).length}
+                    </span>
                     <ChevronDown size={18} className={`text-ink-3 transition-transform duration-200 ${abiertaSemana ? 'rotate-180' : ''}`} aria-hidden="true" />
                   </button>
                   <AnimatePresence initial={false}>
@@ -295,16 +312,7 @@ export function Empresa() {
 
         {/* Lo que viene: la de hoy (acción) + fantasmas bloqueados */}
         {siguiente && nueva && (
-          <motion.div {...entrar(2 + grupos.length)} className="mt-6 flex flex-col gap-3">
-            {!e.hechaHoy && (
-              <Link href="/app/mision" className="flex items-center gap-3 rounded-[var(--radius-card)] border border-dashed border-gold p-4 transition-transform duration-150 active:scale-[0.99]">
-                <span className="min-w-0 flex-1 text-sm">
-                  <span className="block font-semibold text-ink-1">Hoy · Día {siguiente.dia}</span>
-                  <span className="block text-pretty text-ink-2">{siguiente.pieza} · 5 minutos</span>
-                </span>
-                <ArrowRight size={18} className="shrink-0 text-gold" aria-hidden="true" />
-              </Link>
-            )}
+          <motion.div {...entrar(3 + grupos.length)} className="mt-6 flex flex-col gap-3">
             {(fantasmas.length ? fantasmas.filter((d) => e.hechaHoy || d.dia !== siguiente.dia) : e.hechaHoy ? [siguiente] : []).map((d, i) => (
               <div key={d.dia} className="flex items-center gap-3 rounded-[var(--radius-card)] border border-dashed border-[var(--line)] bg-sunken p-4">
                 <LockKeyhole size={18} className="shrink-0 text-ink-3" aria-hidden="true" />
@@ -314,6 +322,12 @@ export function Empresa() {
                 </p>
               </div>
             ))}
+            {fantasmas.length > 0 && (
+              <p className="mt-1 flex items-start gap-2 text-caption text-ink-2">
+                <Puzzle size={16} className="mt-0.5 shrink-0 text-ink-3" aria-hidden="true" />
+                Al día 30 aquí estará tu negocio completo: 30 piezas listas para copiar y usar.
+              </p>
+            )}
           </motion.div>
         )}
       </div>
@@ -333,14 +347,20 @@ export function Empresa() {
         )}
       </AnimatePresence>
 
-      <AnimatePresence>{piezaAbierta && <HojaPieza pieza={piezaAbierta} onCerrar={cerrar} />}</AnimatePresence>
+      <AnimatePresence>
+        {piezaAbierta && <HojaPieza pieza={piezaAbierta} onCerrar={cerrar} onEditar={(texto) => Boolean(editarPieza(cuenta, piezaAbierta.dia, texto))} />}
+      </AnimatePresence>
     </main>
   );
 }
 
 /* Detalle de una pieza: texto completo, cómo usarla, copiar. */
-function HojaPieza({ pieza, onCerrar }: { pieza: PiezaGuardada; onCerrar: () => void }) {
+function HojaPieza({ pieza, onCerrar, onEditar }: { pieza: PiezaGuardada; onCerrar: () => void; onEditar: (texto: string) => boolean }) {
   const reduce = useReducedMotion();
+  const [editando, setEditando] = useState(false);
+  const [borrador, setBorrador] = useState(pieza.contenido);
+  const [errorEdicion, setErrorEdicion] = useState('');
+  const campoEdicion = useRef<HTMLTextAreaElement>(null);
   const arrastre = useDragControls();
   const hoja = useRef<HTMLDivElement>(null);
   const cerrar = useRef<HTMLButtonElement>(null);
@@ -352,7 +372,7 @@ function HojaPieza({ pieza, onCerrar }: { pieza: PiezaGuardada; onCerrar: () => 
       if (ev.key === 'Escape') onCerrar();
       // El foco no se escapa de la hoja mientras está abierta.
       if (ev.key === 'Tab' && hoja.current) {
-        const enfocables = hoja.current.querySelectorAll<HTMLElement>('button, a[href]');
+        const enfocables = hoja.current.querySelectorAll<HTMLElement>('button, a[href], textarea');
         const primero = enfocables[0];
         const ultimo = enfocables[enfocables.length - 1];
         if (ev.shiftKey && document.activeElement === primero) {
@@ -381,6 +401,19 @@ function HojaPieza({ pieza, onCerrar }: { pieza: PiezaGuardada; onCerrar: () => 
     const t = window.setTimeout(() => setCopiado('no'), 2400);
     return () => window.clearTimeout(t);
   }, [copiado]);
+
+  function guardarEdicion() {
+    if (!borrador.trim()) {
+      setErrorEdicion('Escribe algo antes de guardar, o toca Cancelar.');
+      return;
+    }
+    if (!onEditar(borrador)) {
+      setErrorEdicion('No pudimos guardar en este celular. Libera espacio e intenta otra vez.');
+      return;
+    }
+    setErrorEdicion('');
+    setEditando(false);
+  }
 
   async function copiar() {
     try {
@@ -416,13 +449,13 @@ function HojaPieza({ pieza, onCerrar }: { pieza: PiezaGuardada; onCerrar: () => 
         <div
           aria-hidden="true"
           onPointerDown={(ev) => arrastre.start(ev)}
-          className="-mx-4 -mt-4 mb-1 flex h-8 cursor-grab touch-none items-center justify-center"
+          className="sticky -top-4 z-10 -mx-4 -mt-4 mb-1 flex h-8 cursor-grab touch-none items-center justify-center bg-raised"
         >
           <span className="block h-1 w-10 rounded-full bg-ink-3" />
         </div>
         <div className="flex items-start gap-3">
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-bold tracking-[0.08em] text-green uppercase">Día {pieza.dia} · lista</p>
+            <p className="text-xs font-bold tracking-[0.04em] text-green uppercase">Día {pieza.dia} · {pieza.editadaEn ? 'tu versión' : 'lista'}</p>
             <h2 id="titulo-pieza" className="mt-1 font-display text-xl font-extrabold text-ink-1">
               {pieza.titulo}
             </h2>
@@ -432,22 +465,84 @@ function HojaPieza({ pieza, onCerrar }: { pieza: PiezaGuardada; onCerrar: () => 
             type="button"
             onClick={onCerrar}
             aria-label="Cerrar"
-            className="flex size-11 shrink-0 items-center justify-center rounded-full text-ink-2 transition-colors duration-150 hover:bg-raised-2"
+            className="-mr-2 mt-2 flex size-11 shrink-0 items-center justify-center rounded-full text-ink-2 transition-colors duration-150 hover:bg-raised-2"
           >
             <X size={22} aria-hidden="true" />
           </button>
         </div>
-        <p className="mt-4 text-lg leading-snug font-semibold text-pretty break-words text-ink-1">{pieza.contenido}</p>
+        {editando ? (
+          <div className="mt-4">
+            <label htmlFor="editar-pieza" className="text-sm font-semibold text-ink-1">
+              Tu versión
+            </label>
+            <textarea
+              id="editar-pieza"
+              ref={campoEdicion}
+              value={borrador}
+              onChange={(ev) => {
+                setBorrador(ev.target.value);
+                if (errorEdicion) setErrorEdicion('');
+              }}
+              rows={6}
+              aria-invalid={Boolean(errorEdicion)}
+              aria-describedby={errorEdicion ? 'editar-pieza-error' : undefined}
+              className={`mt-2 w-full resize-none rounded-[var(--radius-chip)] border bg-sunken p-4 text-base leading-snug text-ink-1 focus:outline-none ${
+                errorEdicion ? 'border-danger' : 'border-[var(--line)] focus:border-ink-3'
+              }`}
+            />
+            {errorEdicion && (
+              <p id="editar-pieza-error" role="alert" className="mt-1 text-caption text-danger">
+                {errorEdicion}
+              </p>
+            )}
+          </div>
+        ) : (
+          <p className="mt-4 text-lg leading-snug font-semibold text-pretty break-words text-ink-1">{pieza.contenido}</p>
+        )}
         {pieza.detalle?.map((d) => (
           <p key={d.rotulo} className="mt-4 border-t border-[var(--line)] pt-4 text-ayuda leading-snug text-ink-2">
             <strong className="font-semibold text-ink-1">{d.rotulo}:</strong> {d.valor}
           </p>
         ))}
-        {pieza.base && <p className="mt-4 text-caption text-ink-3">Versión base, armada con tus respuestas.</p>}
-        <button type="button" onClick={copiar} className="boton-oro mt-6 flex h-14 w-full items-center justify-center gap-2 rounded-[var(--radius-pill)] font-display text-boton font-bold">
-          {copiado === 'si' ? <Check size={20} aria-hidden="true" /> : <Copy size={20} aria-hidden="true" />}
-          {copiado === 'si' ? '¡Copiada!' : 'Copiar pieza'}
-        </button>
+        {!editando && pieza.base && <p className="mt-4 text-caption text-ink-3">Versión base, armada con tus respuestas. Ajústala con tus palabras cuando quieras.</p>}
+        {editando ? (
+          <>
+            <button type="button" onClick={guardarEdicion} className="boton-oro mt-6 flex h-14 w-full items-center justify-center gap-2 rounded-[var(--radius-pill)] font-display text-boton font-bold">
+              <Check size={20} aria-hidden="true" />
+              Guardar mi versión
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setEditando(false);
+                setBorrador(pieza.contenido);
+                setErrorEdicion('');
+              }}
+              className="mt-2 flex min-h-11 w-full items-center justify-center text-sm font-semibold text-ink-2 transition-transform duration-150 active:scale-[0.97]"
+            >
+              Cancelar
+            </button>
+          </>
+        ) : (
+          <>
+            <button type="button" onClick={copiar} className="boton-oro mt-6 flex h-14 w-full items-center justify-center gap-2 rounded-[var(--radius-pill)] font-display text-boton font-bold">
+              {copiado === 'si' ? <Check size={20} aria-hidden="true" /> : <Copy size={20} aria-hidden="true" />}
+              {copiado === 'si' ? '¡Copiada!' : 'Copiar pieza'}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setBorrador(pieza.contenido);
+                setEditando(true);
+                window.setTimeout(() => campoEdicion.current?.focus(), 0);
+              }}
+              className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-[var(--radius-pill)] border border-[var(--line)] bg-raised-2 font-display text-base font-bold text-ink-1 transition-transform duration-150 active:scale-[0.98]"
+            >
+              <PencilLine size={18} aria-hidden="true" />
+              Editar con mis palabras
+            </button>
+          </>
+        )}
         <p role="status" className={copiado === 'error' ? 'mt-2 text-center text-caption text-warning' : 'sr-only'}>
           {copiado === 'error' ? 'No se pudo copiar: mantén presionado el texto para copiarlo.' : copiado === 'si' ? 'Pieza copiada' : ''}
         </p>
@@ -461,10 +556,13 @@ function CuentaPiezas({ valor }: { valor: number }) {
   const reduce = useReducedMotion();
   const nodo = useRef<HTMLSpanElement>(null);
   useEffect(() => {
-    if (!nodo.current || reduce) return;
+    if (!nodo.current) return;
+    if (reduce) {
+      nodo.current.textContent = String(valor);
+      return;
+    }
     const control = animate(0, valor, {
       duration: 0.6,
-      delay: 0.2,
       ease: 'easeOut',
       onUpdate: (v) => {
         if (nodo.current) nodo.current.textContent = String(Math.round(v));
@@ -472,5 +570,5 @@ function CuentaPiezas({ valor }: { valor: number }) {
     });
     return () => control.stop();
   }, [valor, reduce]);
-  return <span ref={nodo}>{valor}</span>;
+  return <span ref={nodo}>{reduce ? valor : 0}</span>;
 }

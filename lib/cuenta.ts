@@ -26,6 +26,8 @@ export interface PiezaGuardada {
   creadaEn: string;
   /** Versión base (sin IA o de respaldo): se puede rehacer. */
   base?: boolean;
+  /** La persona la ajustó con sus palabras desde Mi Empresa. */
+  editadaEn?: string;
 }
 
 export interface Cuenta {
@@ -225,6 +227,18 @@ export function guardarPieza(cuenta: Cuenta, pieza: Omit<PiezaGuardada, 'fecha' 
   return guardarCuenta(actualizada) ? actualizada : null;
 }
 
+/** Cambia el texto de una pieza ya guardada. Conserva su fecha (la racha no se mueve).
+ *  Devuelve null si no se pudo guardar en este celular. */
+export function editarPieza(cuenta: Cuenta, dia: number, contenido: string): Cuenta | null {
+  const texto = contenido.trim();
+  if (!texto) return null;
+  const piezas = cuenta.piezas.map((p) =>
+    p.dia === dia ? { ...p, contenido: texto, resumen: texto === p.contenido ? p.resumen : undefined, base: false, editadaEn: new Date().toISOString() } : p,
+  );
+  const actualizada = { ...cuenta, piezas };
+  return guardarCuenta(actualizada) ? actualizada : null;
+}
+
 /* ── Datos de EJEMPLO (Carlos, día 8) para capturas y demos: nunca se mezclan con la cuenta real ── */
 
 export function activarDemo(): void {
@@ -262,14 +276,20 @@ export function activarDemo(): void {
   window.dispatchEvent(new Event(EVENTO));
 }
 
-/** Si armó la pieza 1 en el recorrido DESPUÉS de crear la cuenta, la trae a Mi Empresa. */
-export function importarPieza1SiFalta(cuenta: Cuenta): void {
-  if (cuenta.piezas.some((p) => p.dia === 1)) return;
+/** ¿Hay una pieza 1 del recorrido que todavía no llegó a la cuenta? */
+export function pieza1PorTraer(cuenta: Cuenta): boolean {
+  return !cuenta.piezas.some((p) => p.dia === 1) && Boolean(leerOnboarding()?.primeraPieza);
+}
+
+/** Si armó la pieza 1 en el recorrido DESPUÉS de crear la cuenta, la trae a Mi Empresa.
+ *  Devuelve false solo si había pieza que traer y no se pudo guardar (celular sin espacio). */
+export function importarPieza1SiFalta(cuenta: Cuenta): boolean {
+  if (cuenta.piezas.some((p) => p.dia === 1)) return true;
   const o = leerOnboarding();
   const p = o?.primeraPieza;
-  if (!p) return;
+  if (!p) return true;
   const r = o?.respuestas ?? {};
-  guardarCuenta({
+  return guardarCuenta({
     ...cuenta,
     piezas: [
       {

@@ -1,120 +1,132 @@
 # VEREDICTO revisor-visual — pantalla-principal (Hoy, M0)
-Fecha: 2026-10-07 16:00
+Fecha: 2026-10-07 18:00
 Screenshot: docs/revisiones/pantalla-principal-375.png
-Usabilidad: 30/40
-Craft: 15/20
+Usabilidad: 29/40
+Craft: 16/20
 Copy (si vende): N-A
 Fidelidad (si hubo referencia): FIEL
 Veredicto: NO LISTA
-Top defectos: 1) la tercera ficha ("piezas de la semana") tiene puntos vacíos #231D2E sobre #1A1622 (contraste de 1,1:1) y no lleva número: el día 8 se ve vacía y rompe el ritmo de las 3 fichas · 2) con la pieza de hoy hecha hay 4 accesos al mismo destino (tarjeta, CTA dorado, botón central verde y la 1ª fila, que repite la pieza de la tarjeta) y dos "primarios" de distinto color · 3) en Marco no hay MotionConfig reducedMotion="user" ni transición entre pestañas (pendiente de la ronda anterior) · 4) crearCuenta, importarPieza1SiFalta y Perfil ignoran el false de guardarCuenta: si falla el guardado al entrar, se vuelve a /login sin aviso, y Perfil dice "Listo" aunque no haya guardado · 5) en los días pendientes con racha en riesgo, M4 + insight suman 4 líneas, justo en el límite del gate
+Top defectos: 1) REGRESIÓN en el día 1 hecho: volvió el vacío muerto (unos 155px CSS entre el insight y la barra, a 375 y a 360) porque la fila bloqueada de "Mañana" está dentro de `ultimas.length > 0 &&` (Hoy.tsx:259) y al sacar la pieza de hoy, `ultimas` queda vacía · 2) las flechas doradas de las filas son un desvío de FICHA-ARTE línea 33 (el dorado va SOLO en CTA, misión, nodo, dato héroe y botón central) sin excepción anotada; en el estado hecho, el chevron dorado pesa más que el CTA secundario, y en el día 8 hay 5 superficies doradas en la vista · 3) en la tercera ficha, la fila de puntos baja la etiqueta "esta semana" unos 16px respecto de "días de racha" y "piezas listas": las 3 etiquetas no comparten línea · 4) importarPieza1SiFalta sigue ignorando el false de guardarCuenta (cuenta.ts:266-272), y Acceso.tsx:110 ignora el null de crearCuenta (rebote mudo a /login, solo en la ruta de demostración) · 5) la tarjeta héroe con tabIndex=-1 sigue siendo un enlace para el lector de pantalla y contiene el h1: se anuncia como enlace sin poder alcanzarse con Tab
 
 ## Detalle de puntaje
-Usabilidad: h1:3 h2:3 h3:3 h4:3 h5:3 h6:3 h7:3 h8:3 h9:3 h10:3
-Craft: jerarquía:3 profundidad:3 identidad:3 movimiento:3 encaje:3
+Usabilidad: h1:3 h2:3 h3:3 h4:3 h5:3 h6:3 h7:3 h8:2 h9:3 h10:3
+Craft: jerarquía:3 profundidad:3 identidad:3 movimiento:4 encaje:3
 
-Capturas puntuadas: pantalla-principal-375.png, app/17-hoy-demo-dia8-arriba.png, app/17-hoy-demo-dia8-final.png,
-app/04-hoy-dia1-hecho-arriba.png, app/04-hoy-dia1-hecho-final.png, app/09-hoy-dia2-pendiente.png,
-app/16-hoy-dia2-hecho-arriba.png, app/16-hoy-dia2-hecho-final.png, app-360/17-hoy-demo-dia8-arriba.png.
-Código: components/interna/Hoy.tsx, components/interna/Marco.tsx, app/app/error.tsx, lib/cuenta.ts, app/globals.css
-(+ grep de guardarCuenta/guardarPieza en Mision.tsx y Perfil.tsx).
+Capturas puntuadas:
+- pantalla-principal-375.png
+- app/17-hoy-demo-dia8-arriba.png y app/17-hoy-demo-dia8-final.png
+- app/04-hoy-dia1-hecho.png (no existen las variantes -arriba/-final que se citaron; se puntuó la única captura)
+- app/09-hoy-dia2-pendiente.png
+- app/16-hoy-dia2-hecho-arriba.png y app/16-hoy-dia2-hecho-final.png
+- app-360/04-hoy-dia1-hecho.png
+
+Código: components/interna/Hoy.tsx, components/interna/Marco.tsx, app/app/template.tsx, lib/cuenta.ts,
+components/interna/Perfil.tsx, components/acceso/Acceso.tsx.
 
 ## Gate de carga cognitiva
-Falla 0 de 8. Queda en el límite el ítem "texto por bloque en 3-4 líneas": en el día 8 y el día 2 pendiente, M4 + insight
-suman exactamente 4 líneas a 375 y a 360. El CTA está en la primera vista. Ningún elemento parece interactivo sin
-serlo (la fila bloqueada de mañana lleva a /app/ruta).
+Falla 0 de 8:
+- El bloque de racha en riesgo baja a 2 líneas.
+- Hay una sola acción primaria por estado (CTA dorado si falta la pieza, botón central verde si está hecha).
+- El "qué sigue" está en el insight.
+- Ningún elemento parece interactivo sin serlo.
 
-## CTA héroe vivo (los 4 se cumplen)
-Contraste: #1A1206 sobre el degradé #FFD978→#FFC23D da unos 11:1, y el dorado contra #0F0D16 supera 3:1. Tap:
-.boton-oro:active con translateY 2px en 120ms. Nunca disabled: es un Link. Mide 56px (h-14) y ocupa todo el ancho,
-en la primera vista. Nota: en el estado "hecho", el CTA dorado y el botón central verde llevan al mismo sitio y
-compiten como primarios (hallazgo 2).
+Nota: en el día 1 hecho, el "qué sigue" solo vive en el texto. La fila de mañana, que lo hacía visible, desapareció (defecto 1).
+
+## CTA héroe vivo
+Estado pendiente (los 4 se cumplen):
+- Contraste: .boton-oro con #1A1206 sobre el degradé dorado, unos 11:1.
+- Tap: :active con translateY.
+- Habilitado: es un Link, nunca está disabled.
+- Tamaño: h-14 (56px), ancho completo, en la primera vista.
+
+Estado hecho: el primario es el botón central verde (64px, check oscuro sobre #3DDC97, active:scale-95). El CTA pasa a secundario piedra. Correcto.
 
 ## Test de fidelidad (referencia-usuario-1.jpg = contrato de composición · public/landing/hoy-v2.png = tour aprobado)
-- Modo: OK (oscuro)
-- Hue del acento: OK (#FFC23D, más #3DDC97 como 2ª nota)
-- Clase tipográfica display: OK (Bricolage, grotesk)
-- Radios: OK (tarjetas 20 · píldoras 999 · chips 12)
-- Densidad: FALLO LEVE. El insight de 2-4 líneas entre los datos y las filas no existe en hoy-v2, y la 3ª ficha de
-  hoy-v2 trae número ("34 min en total"), mientras que aquí es una fila de puntos casi invisible.
-- Sombras/profundidad: OK. Relieve con canto, cubos con halo, radial dorado y fila hundida con borde punteado.
+- Modo: OK (oscuro).
+- Hue del acento: OK (#FFC23D, con #3DDC97 como 2ª nota).
+- Clase tipográfica display: OK (Bricolage, grotesk).
+- Radios: OK (tarjetas 20, píldoras 999, chips 12).
+- Densidad: FALLO LEVE. El insight entre los datos y las filas no existe en hoy-v2. La 3ª ficha ya tiene número, como en el tour.
+- Sombras y profundidad: OK (relieve con canto, cubos con halo, radial dorado, fila hundida punteada).
+
 Resultado: 1 de 6 fallos → FIEL.
-Valores de FICHA-ARTE comprobados en screenshot y código: #0F0D16 / #1A1622 / #231D2E / #0A0910, tinta
-#EFEAF5 / #BDB4CB / #998FA8, Bricolage + Instrument, radios 20/999/12. La escala ahora cumple la ficha: label 12,
-body 15, title 17-18 y display 24. Desvío vigente: las flechas de las filas son piedra y en el tour aprobado eran
-doradas (sin anotar en FICHA-ARTE).
+
+Valores de FICHA-ARTE comprobados: #0F0D16, #1A1622, #231D2E, #0A0910, ink #EFEAF5/#BDB4CB/#998FA8, Bricolage + Instrument y radios 20/999/12. Desvío vigente: las flechas doradas de las filas (defecto 2). Coinciden con el tour, pero contradicen la regla de uso del acento de la ficha, y no hay excepción anotada como sí la hay para §2 de la landing y la insignia de planes.
 
 ## Hallazgos por severidad
 
 ### ALTA
-1. Hoy.tsx:211-227, la tercera ficha. Los puntos vacíos usan bg-raised-2 (#231D2E) sobre la tarjeta (#1A1622 con un
-   velo blanco del 5%), con un contraste aproximado de 1,1:1. Un indicador gráfico con significado necesita ≥3:1.
-   En el día 8, que es la captura convencional, la ficha se ve vacía: ícono, nada y "piezas de la semana". Las otras
-   dos fichas llevan un número display de 24px y esta un punto de 8px, así que el ritmo de las 3 se rompe a simple vista.
-   FIX: puntos vacíos como aro de 1,5px en ink-3 (#998FA8) sin relleno, y "2/7" en text-precio a la izquierda de la
-   fila (o arriba), para que las 3 fichas compartan el nivel numérico.
+1. **Regresión del día 1 hecho.** Ubicación: Hoy.tsx:259 y 277 (capturas app/04 y app-360/04).
+   - Problema: la fila "Mañana · Día 2 · 5 min" con candado se renderiza dentro de `{ultimas.length > 0 && (...)}`. Con hechaHoy en el día 1, el filtro nuevo de la línea 68 saca la pieza 1, `ultimas` queda vacía y desaparecen la lista y la fila de mañana. Queda un hueco negro de unos 310px de imagen (155px CSS) sobre la barra.
+   - Por qué importa: era el TOP 1 de la revisión 2, corregido en la 3, y es el primer día que vive todo usuario.
+   - FIX: condición `(ultimas.length > 0 || (e.hechaHoy && siguiente))` para renderizar el `<motion.ul>`.
 
 ### MEDIA
-2. Estado "hecho" (04 y 16). Tarjeta héroe (Hoy.tsx:116), CTA "Ver mi pieza de hoy" (174), botón central verde
-   (Marco.tsx:95) y la 1ª fila ("Tu cliente ideal · Día 2 · lista", que es la misma pieza de la tarjeta) llevan
-   todos a /app/empresa?pieza=N. Son 4 entradas y 4 paradas de tabulación al mismo sitio, con dos "primarios" de
-   color distinto (dorado y verde) en la misma vista.
-   FIX: con hechaHoy, sacar de `ultimas` la pieza de hoy (mostrar la anterior + la de mañana bloqueada), quitar el
-   foco a la tarjeta (tabIndex={-1} + aria-hidden en el Link) y dejar el CTA como secundario (estilo piedra) o
-   cambiarlo por la acción de mañana ("Avisarme mañana a las 19:00").
-3. Marco.tsx:130-136 (pendiente de la ronda anterior). El layoutId con spring del indicador activo no respeta
-   reduced-motion: no hay MotionConfig en app/app/layout.tsx. Tampoco hay transición entre pestañas (no hay
-   template.tsx). FIX: <MotionConfig reducedMotion="user"> en el layout de /app y fade de 200ms en
-   app/app/template.tsx.
-4. lib/cuenta.ts:179 y 272, Perfil.tsx:39. guardarCuenta ya devuelve boolean y Mision lo usa bien, pero:
-   - crearCuenta devuelve la cuenta aunque no se haya guardado. Marco lee null y manda a /login sin decir nada:
-     un bucle mudo.
-   - importarPieza1SiFalta ignora el fallo.
-   - Perfil muestra "Listo: tu misión será…" aunque no haya guardado, que es un falso éxito.
-   FIX: crearCuenta debe devolver null si falla, el login debe mostrar "No pudimos guardar en este celular. Libera
-   espacio o sal del modo incógnito y toca Reintentar", y Perfil debe mostrar "Listo" solo si guardó.
+2. **Flechas doradas de las filas.** Ubicación: Hoy.tsx:271 (`relieve-oro`) frente a FICHA-ARTE:33.
+   - Estado hecho (16): el círculo dorado de "Tu frase de negocio" es el elemento más saturado de la vista y supera al CTA secundario.
+   - Día 8: hay dorado en la etiqueta, el borde del héroe, el CTA, 2 chevrons, el botón central y la pestaña. El acento deja de señalar "la acción".
+   - FIX: anotar en FICHA-ARTE la excepción "chevron de fila = dorado (tour aprobado)" o pasarlos a relieve-piedra. Como mínimo, en estado hecho, que ninguna fila supere al CTA.
+3. **Ficha "esta semana" desalineada.** Ubicación: Hoy.tsx:228-240.
+   - Problema: la fila de puntos (h-2 + gap-2) empuja la etiqueta unos 16px por debajo de las otras dos. En el día 8 se ve a simple vista, con los tres números alineados y las etiquetas en escalera.
+   - FIX: `mt-auto` en las 3 etiquetas, o reservar una fila h-2 vacía en las fichas 1 y 2, o poner los puntos en la misma línea que el "0/7".
 
 ### BAJA
-5. Hoy.tsx:232-242. Con la racha en riesgo, el bloque en negrita + insight ocupa 4 líneas (día 8 y día 2
-   pendiente), en el límite del gate y en el punto donde la densidad se separa de hoy-v2.
-   FIX: cuando rachaEnRiesgo, reemplazar el insight por una sola frase: "La llama está en modo siesta: tu
-   {pieza de hoy} la vuelve a prender." (máx 2 líneas).
-6. Hoy.tsx:111 (pendiente de la ronda anterior). El h1 sigue siendo "Buenos días" y la misión no es un encabezado.
-   FIX: saludo a <p> y título de la misión a <h1>.
-7. Hoy.tsx:257 (pendiente). Las flechas de las filas son piedra y en el tour aprobado eran doradas. Anotar la
-   decisión en FICHA-ARTE o volver al dorado.
+4. **Fallos de guardado que siguen mudos.** Ubicación: lib/cuenta.ts:266-272 y components/acceso/Acceso.tsx:110.
+   - importarPieza1SiFalta ignora el false: si no guarda, la pieza 1 no llega a Mi Empresa y nadie lo dice.
+   - entrarDemostracion llama a crearCuenta sin mirar el null y hace router.replace('/app'), que rebota mudo a /login. Solo pasa en la demo.
+   - FIX: importarPieza1SiFalta devuelve boolean y Hoy muestra "No pudimos traer tu primera pieza a este celular. Libera espacio y toca Reintentar". En Acceso, `if (!crearCuenta(email)) { setErrorCodigo('No pudimos guardar en este celular...'); return; }`.
+5. **Tarjeta héroe fuera del orden de Tab.** Ubicación: Hoy.tsx:119-121.
+   - Problema: con tabIndex=-1 sigue siendo un `<a>` con el h1 dentro. El lector la anuncia como enlace que no se alcanza con Tab.
+   - FIX: hacer la tarjeta un `<div>` y dejar el CTA como único Link (el tap sobre la tarjeta puede quedar con onClick → router.push).
 
-## Re-revisión 3: qué se corrigió
-Verificado en screenshot y código, contra los 5 TOP DEFECTOS de la revisión 2:
-- [CORREGIDO] 1. Vacío muerto del día 1 hecho. Debajo de la pieza aparece la fila hundida y punteada "Tu cliente
-  ideal · Mañana · Día 2 · 5 min" con candado (Hoy.tsx:263-278). Ya no queda hueco sobre la barra a 375 ni a 360.
-  El subtítulo dice "Ya está guardada en Mi Empresa".
-- [CORREGIDO] 2. La línea M4 está dentro del insight, en negrita ink-1 al inicio, bajo el mismo ícono y la misma
-  sangría, dentro de entrar(4). Ya no hay dos bloques desalineados ni aparición fuera del stagger.
-  Queda: 4 líneas en total (hallazgo 5).
-- [PARCIAL] 3. La etiqueta ya dice "piezas de la semana" y el número se cambió por 7 puntos con spring escalonado.
-  Desaparece el "1 · 1 · 1/7", pero los puntos vacíos son casi invisibles (1,1:1) y la ficha pierde el nivel
-  numérico que tienen las otras dos (hallazgo 1). Racha = piezas sigue repitiéndose en la semana 1 ("1 · 1",
-  "2 · 2"), algo aceptable porque son conceptos distintos.
-- [CORREGIDO] 4. Escala tipográfica: fecha 12, saludo 18 bold, cuerpo 15, CTA 17 y display 24 para la misión y los
-  números. Cumple la ficha (24-28 / 16-19 / 13-15 / 10.5-12) y en la vista entrecerrada el héroe es la misión.
-- [CORREGIDO] 5. guardarCuenta devuelve boolean y guardarPieza devuelve null si falla. Mision.tsx (184, 294 y 438)
-  muestra <ErrorGuardado>. error.tsx tiene "Escribir a soporte" (mailto) + Reintentar + Ir al inicio.
-  Quedan sin cubrir crearCuenta, importarPieza1SiFalta y Perfil (hallazgo 4).
-- [CORREGIDO] Extra: el botón central pasa a verde con check y abre la pieza cuando está hecha (Marco.tsx:82-99).
-  Ya no llama a una misión terminada. Agrega una entrada más al mismo destino (hallazgo 2).
-Movimiento (eje 4) verificado en código:
-- stagger entrar(0-5): OK
-- conteo con Cuenta: OK
-- barra con scaleX y puntos con spring: OK
-- tap con active:scale y translateY: OK
-- cubos flotando con reduce: OK
-- transición entre pestañas: FALTA (solo se mueve el indicador)
-- modales: no aplican
-- celebración: fuera de esta pantalla
-- reduced-motion: OK en Hoy, FALTA en el indicador de la barra
-Balance: 30/40 (antes 29) · 15/20 (igual) · FIEL. Sigue NO LISTA: faltan 6 puntos de usabilidad y 1 de craft.
-El camino más corto:
-- hallazgo 1: sube encaje y jerarquía
-- hallazgo 3: sube movimiento a 4 y cierra el gate de craft
-- hallazgos 2 y 5: suben h8 y h4
-- hallazgo 4: sube h1 y h9
+## Re-revisión 4: qué se corrigió
+Verificado en screenshot y código contra los 5 TOP DEFECTOS y los pendientes de la revisión 3:
+
+**[CORREGIDO] 1. Tercera ficha**
+- "0/7", "1/7" y "2/7" van en text-precio con "/7" en ink-3. Los puntos vacíos son aro de 1,5px en ink-3, visibles en todas las capturas. La etiqueta dice "esta semana".
+- Las 3 fichas comparten nivel numérico.
+- Efecto colateral: la etiqueta queda desalineada (hallazgo 3).
+
+**[CORREGIDO CON REGRESIÓN] 2. Pieza hecha**
+- La fila ya no repite la pieza de hoy (línea 68).
+- La tarjeta tiene tabIndex=-1 (con la nota del hallazgo 5).
+- El CTA es secundario piedra y el único primario es el botón central verde.
+- Pero el filtro dejó sin lista el día 1 hecho, y con ella la fila de mañana (hallazgo 1).
+
+**[CORREGIDO] 3. Movimiento**
+- `<MotionConfig reducedMotion="user">` envuelve toda la app (Marco.tsx:58), así que el spring del indicador activo respeta reduced-motion.
+- app/app/template.tsx hace un fundido de opacidad en 200ms con easeOut, sin bloquear. La barra queda fuera del template y persiste.
+
+**[PARCIAL] 4. Fallos de guardado**
+- crearCuenta devuelve null si no guarda (cuenta.ts:180).
+- Perfil muestra "Listo" solo si guardó, con aviso en role=status y aria-live (Perfil.tsx:39-44 y 74).
+- Quedan importarPieza1SiFalta y la ruta de demo de Acceso (hallazgo 4).
+
+**[CORREGIDO] 5. Racha en riesgo**
+- Una sola frase de 2 líneas a 375: "La llama está en modo siesta: {pieza} la vuelve a prender."
+- La ficha de racha muestra la llama apagada (aro ink-2), que es coherente con el texto.
+
+**Pendientes de la revisión 3**
+- h1 = misión: CORREGIDO (Hoy.tsx:146; el saludo pasa a `<p>`).
+- Flechas doradas: aplicadas como en el tour, pero sin anotar en FICHA-ARTE (hallazgo 2).
+
+**Movimiento (eje 4), verificado una por una en código**
+- Stagger entrar(0-5): OK.
+- Conteo con Cuenta: OK.
+- Barra con scaleX y puntos con spring: OK.
+- Tap con active:scale: OK.
+- Transición entre pestañas: OK (template).
+- Modales: no aplican.
+- Celebración: en el flujo de misión.
+- Reduced-motion: OK en Hoy y en toda la app vía MotionConfig.
+
+**Balance:** 29/40 (antes 30) · 16/20 (antes 15) · FIEL.
+- El craft pasa el gate.
+- La usabilidad baja un punto por la regresión del vacío del día 1 (h8: 2).
+- Sigue NO LISTA: faltan 7 puntos de usabilidad.
+
+**Camino más corto**
+- Hallazgo 1 (1 línea): devuelve h8 a 3.
+- Hallazgos 2 y 3: suben h4 y h8, y el encaje.
+- Hallazgos 4 y 5: suben h9 y h1.
+- Para llegar a 36, además hacen falta 4s reales, que hoy no hay en ninguna heurística: lenguaje, reconocer y ayuda contextual están en 3 porque la pantalla funciona bien, pero no es ejemplar.

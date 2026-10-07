@@ -13,7 +13,7 @@ import { useEffect, useId, useRef, useState, useSyncExternalStore } from 'react'
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { ArrowRight, KeyRound, LoaderCircle, LockKeyhole, MailCheck, RotateCcw } from 'lucide-react';
+import { ArrowRight, CheckCircle2, KeyRound, LoaderCircle, LockKeyhole, MailCheck, RotateCcw } from 'lucide-react';
 import { LogoEmpresai } from '@/components/app/LogoEmpresai';
 import { EASE_SALIDA, RutaMini, TituloAcento, vibrar } from '@/components/onboarding/piezas';
 import { crearCuenta, useCuenta } from '@/lib/cuenta';
@@ -29,6 +29,24 @@ const CORREO_VALIDO = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 const suscribirNada = () => () => {};
 
+// Mientras el acceso no abre, el correo de compra queda guardado en este celular (y vuelve escrito).
+const CLAVE_CORREO = 'empresai_correo_acceso';
+function leerCorreo(): string {
+  try {
+    return localStorage.getItem(CLAVE_CORREO) ?? '';
+  } catch {
+    return '';
+  }
+}
+function guardarCorreo(correo: string): boolean {
+  try {
+    localStorage.setItem(CLAVE_CORREO, correo);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function Acceso() {
   const cuenta = useCuenta();
   const router = useRouter();
@@ -41,7 +59,10 @@ export function Acceso() {
     () => Boolean(leerEstado()?.primeraPieza),
     () => false,
   );
-  const [email, setEmail] = useState('');
+  const correoGuardado = useSyncExternalStore(suscribirNada, leerCorreo, () => '');
+  const [escrito, setEmail] = useState<string | null>(null);
+  const email = escrito ?? correoGuardado;
+  const [noGuardado, setNoGuardado] = useState(false);
   const [codigo, setCodigo] = useState('');
   const [estado, setEstado] = useState<'inicio' | 'enviando' | 'enviado' | 'pronto' | 'error'>('inicio');
   const [demo, setDemo] = useState(false);
@@ -81,7 +102,9 @@ export function Acceso() {
     setEstado('enviando');
     // Sesión 6: aquí se pide al servidor el enlace + código (límite de intentos; mismo mensaje exista o no el correo).
     const enDemo = demoPermitida();
+    const quedaGuardado = ACCESO_REAL || enDemo ? true : guardarCorreo(limpio);
     window.setTimeout(() => {
+      setNoGuardado(!quedaGuardado);
       setEmail(limpio);
       setDemo(enDemo);
       setEstado(ACCESO_REAL || enDemo ? 'enviado' : 'pronto');
@@ -107,7 +130,10 @@ export function Acceso() {
 
   function entrarDemostracion() {
     if (!demoPermitida()) return;
-    crearCuenta(email);
+    if (!crearCuenta(email)) {
+      setErrorCodigo('No pudimos guardar tu cuenta en este celular. Libera espacio e intenta otra vez.');
+      return;
+    }
     router.replace('/app');
   }
 
@@ -131,15 +157,30 @@ export function Acceso() {
 
         <AnimatePresence mode="wait" initial={false}>
           {estado === 'pronto' ? (
-            <motion.section key="pronto" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-1 flex-col pt-8" aria-live="polite">
-              <TituloAcento texto="El acceso abre muy pronto" acento="muy pronto" className="text-pregunta" />
+            <motion.section
+              key="pronto"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex flex-1 flex-col justify-center py-8"
+              aria-live="polite"
+            >
+              <span aria-hidden="true" className="relieve-verde flex size-16 items-center justify-center rounded-full">
+                <CheckCircle2 size={30} strokeWidth={2.2} />
+              </span>
+              <TituloAcento
+                texto={noGuardado ? 'Anota tu correo de acceso' : 'Tu correo de acceso quedó guardado'}
+                acento={noGuardado ? 'correo de acceso' : 'quedó guardado'}
+                className="mt-6 text-pregunta"
+              />
               <p className="mt-2 text-base text-ink-2">
-                Estamos terminando de activar la entrada a la app. Guarda este correo: es el que usarás para entrar,{' '}
-                <strong className="font-semibold [overflow-wrap:anywhere] text-ink-1">{email}</strong>.
+                Estamos terminando de abrir la entrada a la app. Cuando abra, entras con{' '}
+                <strong className="font-semibold [overflow-wrap:anywhere] text-ink-1">{email}</strong>
+                {noGuardado ? ' (este celular no tiene espacio para recordarlo).' : ' y aquí ya estará escrito.'}
               </p>
               {tienePieza && (
                 <p className="mt-4 flex items-start gap-2 text-caption text-ink-2">
-                  <LockKeyhole size={16} className="mt-0.5 shrink-0 text-green" aria-hidden="true" />
+                  <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-green" aria-hidden="true" />
                   Tu pieza 1 queda guardada en este celular: al entrar, pasa a tu cuenta sola.
                 </p>
               )}
@@ -149,6 +190,9 @@ export function Acceso() {
               >
                 Ya pagué: pedir mi acceso
               </a>
+              <p className="mt-2 text-center text-caption text-ink-2">
+                o escríbenos a <span className="font-semibold text-ink-1 select-all">{RESPONSABLE.emailContacto}</span>
+              </p>
               <button
                 type="button"
                 onClick={() => setEstado('inicio')}
@@ -157,7 +201,18 @@ export function Acceso() {
                 Corregir mi correo
               </button>
               <div className="mt-8">
-                <RutaMini destacada titulo="Tu ruta te espera" respuestas={tienePieza ? [{ texto: 'Pieza 1 lista', tipo: 'logro' }] : [{ texto: '5 minutos al día', tipo: 'freno' }]} />
+                <RutaMini
+                  destacada
+                  titulo="Tu ruta te espera"
+                  respuestas={
+                    tienePieza
+                      ? [
+                          { texto: 'Pieza 1 lista', tipo: 'logro' },
+                          { texto: 'Mañana: tu cliente ideal · 5 min', tipo: 'freno' },
+                        ]
+                      : [{ texto: '5 minutos al día', tipo: 'freno' }]
+                  }
+                />
               </div>
             </motion.section>
           ) : estado === 'enviado' ? (
@@ -332,7 +387,10 @@ export function Acceso() {
                 <p className="mt-2 flex items-start gap-2 text-caption text-ink-2">
                   <LockKeyhole size={16} className="mt-0.5 shrink-0 text-ink-3" aria-hidden="true" />
                   <span>
-                    Sin contraseñas: te llega un enlace de un solo uso. <strong className="font-semibold text-ink-1">Tu idea es tuya:</strong> solo tú ves lo que
+                    {ACCESO_REAL || demoPermitida()
+                      ? 'Sin contraseñas: te llega un enlace de un solo uso. '
+                      : 'Sin contraseñas: cuando abra el acceso, te llegará un enlace de un solo uso. '}
+                    <strong className="font-semibold text-ink-1">Tu idea es tuya:</strong> solo tú ves lo que
                     armas.
                   </span>
                 </p>

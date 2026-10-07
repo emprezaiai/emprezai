@@ -354,12 +354,13 @@ body {
 
 /* Piedra apagada y OPACA para lo bloqueado (el camino de puntos no se ve a través del nodo). */
 .relieve-piedra-apagada {
-  background: linear-gradient(160deg, #2c2638, #1f1a29);
-  color: #7d7390;
+  --cara-1: #2c2638; --cara-2: #1f1a29; --canto: #120f19; --tinta: #7d7390;
+  background: linear-gradient(160deg, var(--cara-1), var(--cara-2));
+  color: var(--tinta);
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.08),
     inset 0 -2px 0 rgb(0 0 0 / 0.2),
-    0 2px 0 #120f19,
+    0 2px 0 var(--canto),
     0 8px 14px -8px rgb(0 0 0 / 0.7);
 }
 

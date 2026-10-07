@@ -9,7 +9,7 @@
 
 import { Fragment, useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
-import { AnimatePresence, animate, motion, useReducedMotion } from 'motion/react';
+import { AnimatePresence, animate, motion, useAnimate, useReducedMotion } from 'motion/react';
 import { ArrowLeft, ArrowRight, Check, Flame, Lightbulb, PencilLine, RotateCcw, Sparkles, WandSparkles, Zap } from 'lucide-react';
 import { estadoRuta, guardarPieza, type Cuenta, type PiezaGuardada } from '@/lib/cuenta';
 import { guiaBorrador, misionGuiada, type ContextoMision, type PiezaCompuesta } from '@/lib/misiones';
@@ -137,7 +137,7 @@ function SeArmaCon({ usa, piezasHechas }: { usa: number[]; piezasHechas: Set<num
 
 function ErrorGuardado({ visible }: { visible: boolean }) {
   return (
-    <p role="alert" className={visible ? 'mx-4 mt-4 rounded-[var(--radius-chip)] bg-raised-2 px-3 py-2 text-caption text-danger' : 'sr-only'}>
+    <p role="alert" className={visible ? 'mt-4 rounded-[var(--radius-chip)] bg-raised-2 px-3 py-2 text-caption text-danger' : 'sr-only'}>
       {visible ? 'No pudimos guardar tu pieza en este celular. Revisa que no estés en modo incógnito o sin espacio, e inténtalo otra vez.' : ''}
     </p>
   );
@@ -163,7 +163,9 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
   const [aviso, setAviso] = useState(0);
   const [errorGuardado, setErrorGuardado] = useState(false);
   const [anterior, setAnterior] = useState<string | null>(null);
+  const [campo, sacudir] = useAnimate<HTMLTextAreaElement>();
   const valido = limpiarTexto(texto, LARGO_MAX_BORRADOR).length >= 15 && !texto.includes('___');
+  const plantillaPuesta = Boolean(guia && texto.includes(guia.plantilla));
 
   useEffect(() => {
     if (anterior === null) return;
@@ -185,6 +187,7 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
     if (!valido) {
       setAviso((n) => n + 1);
       vibrar(30);
+      if (!reduce && campo.current) sacudir(campo.current, { x: [0, -6, 6, -4, 4, 0] }, { duration: 0.3 });
       return;
     }
     const contenido = texto.replace(/\s+/g, ' ').trim();
@@ -235,19 +238,20 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
           Tu {dia.corto.toLowerCase()}
           <button
             type="button"
+            disabled={plantillaPuesta}
             onClick={() => {
               setAnterior(texto);
               setTexto(texto.trim() ? `${texto.trim()}\n${guia.plantilla}` : guia.plantilla);
               vibrar();
             }}
-            className="flex min-h-11 items-center gap-1 rounded-[var(--radius-pill)] px-3 text-xs font-semibold text-gold active:scale-95"
+            className="-mr-2 flex min-h-11 items-center gap-1 rounded-[var(--radius-pill)] px-2 text-xs font-semibold text-gold active:scale-95 disabled:text-ink-3 disabled:active:scale-100"
           >
             <WandSparkles size={14} aria-hidden="true" />
             Usar plantilla
           </button>
         </label>
         <textarea
-          key={aviso}
+          ref={campo}
           id={idCampo}
           value={texto}
           maxLength={LARGO_MAX_BORRADOR}
@@ -255,25 +259,34 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
           rows={5}
           placeholder="Escríbelo aquí con tus palabras, o toca «Usar plantilla»."
           className={`mt-1 w-full resize-none rounded-[var(--radius-chip)] border bg-sunken px-4 py-3 text-base leading-snug text-ink-1 placeholder:text-ink-3 focus:outline-none ${
-            aviso && !valido ? 'sacudir border-danger focus:border-danger' : 'border-[var(--line)] focus:border-gold'
+            aviso && !valido ? 'border-danger focus:border-danger' : 'border-[var(--line)] focus:border-gold'
           }`}
         />
-        {anterior !== null && (
-          <p role="status" className="mt-2 flex items-center justify-between gap-2 px-1 text-caption text-ink-2">
-            Pusimos la plantilla: completa los ___.
-            <button
-              type="button"
-              onClick={() => {
-                setTexto(anterior);
-                setAnterior(null);
-              }}
-              className="flex min-h-11 items-center px-2 font-semibold text-ink-1 underline underline-offset-4"
+        <AnimatePresence initial={false}>
+          {anterior !== null && (
+            <motion.p
+              role="status"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: reduce ? 0 : 0.2, ease: EASE_SALIDA }}
+              className="flex items-center justify-between gap-2 overflow-hidden px-1 text-caption text-ink-2"
             >
-              Deshacer
-            </button>
-          </p>
-        )}
-        <p className="mt-2 px-1 text-caption text-ink-3">Es tu versión base: la puedes mejorar cuando quieras desde Mi Empresa.</p>
+              <span className="pt-2">Pusimos la plantilla: completa los ___.</span>
+              <button
+                type="button"
+                onClick={() => {
+                  if (anterior !== null) setTexto(anterior);
+                  setAnterior(null);
+                }}
+                className="-mr-2 mt-2 flex min-h-11 items-center px-2 font-semibold text-ink-1 underline underline-offset-4"
+              >
+                Deshacer
+              </button>
+            </motion.p>
+          )}
+        </AnimatePresence>
+        <p className="mt-2 px-1 text-caption text-ink-3">Es tu versión base: la puedes editar cuando quieras desde Mi Empresa.</p>
       </div>
 
       {usadas.length > 0 && (
@@ -485,7 +498,7 @@ function MisionGuiadaFlujo({ onGuardada }: { onGuardada: (dia: number) => void }
     <main className="flex min-h-dvh flex-1 flex-col">
       <div className="px-4">
         <EncabezadoMision dia={dia} />
-        {fase !== 'preguntas' && <SeArmaCon usa={dia.usa} piezasHechas={hechas} />}
+        {(fase !== 'preguntas' || paso === 0) && <SeArmaCon usa={dia.usa} piezasHechas={hechas} />}
 
         {/* Lo ya respondido: se toca para cambiarlo */}
         {fase === 'preguntas' && paso > 0 && (
@@ -519,10 +532,10 @@ function MisionGuiadaFlujo({ onGuardada }: { onGuardada: (dia: number) => void }
             className="mt-6 px-4"
             aria-label={pregunta.pregunta}
           >
-            <p className="text-xs font-semibold text-ink-3 tabular-nums">
+            <p className="sr-only">
               Paso {paso + 1} de {mision.preguntas.length}
             </p>
-            <TituloAcento texto={pregunta.pregunta} acento={pregunta.acento} as="h1" className="mt-1 text-pregunta" />
+            <TituloAcento texto={pregunta.pregunta} acento={pregunta.acento} as="h1" className="text-pregunta" />
             <p className="mt-2 flex items-start gap-2 text-caption text-ink-2">
               <Lightbulb size={16} className="mt-0.5 shrink-0 text-ink-3" aria-hidden="true" />
               {pregunta.consejo}
@@ -638,9 +651,15 @@ function MisionGuiadaFlujo({ onGuardada }: { onGuardada: (dia: number) => void }
         )}
 
         {fase === 'resultado' && pieza && (
-          <motion.section key="resultado" initial={{ opacity: 0, y: reduce ? 0 : 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: EASE_SALIDA }} className="mt-6 px-4">
+          <motion.section
+            key="resultado"
+            initial={{ opacity: 0, y: reduce ? 0 : 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, ease: EASE_SALIDA }}
+            className="flex flex-1 flex-col justify-center px-4 py-6"
+          >
             <article className="hairline-oro relieve-tarjeta rounded-[var(--radius-card)] p-4">
-              <p className="text-xs font-bold tracking-[0.08em] text-gold uppercase">
+              <p className="text-xs font-bold tracking-[0.04em] text-gold uppercase">
                 Pieza {dia.dia} · {dia.corto}
               </p>
               <p className="mt-2 text-lg leading-snug font-semibold text-pretty break-words text-ink-1">{pieza.contenido}</p>
@@ -670,16 +689,14 @@ function MisionGuiadaFlujo({ onGuardada }: { onGuardada: (dia: number) => void }
           </motion.section>
         )}
       </AnimatePresence>
-      <ErrorGuardado visible={errorGuardado} />
+      <div className="px-4">
+        <ErrorGuardado visible={errorGuardado} />
+      </div>
 
       {fase === 'preguntas' && !pregunta.multiple && (
         <div className="barra-inferior sticky bottom-0 z-10 mt-auto px-4 pt-6">
-          <div className="flex gap-1" aria-hidden="true">
-            {mision.preguntas.map((q, i) => (
-              <span key={q.id} className={`h-1.5 flex-1 rounded-full ${i < paso ? 'bg-green' : i === paso ? 'bg-gold' : 'bg-raised-2'}`} />
-            ))}
-          </div>
-          <p className="mt-2 text-center text-caption text-ink-2">Toca una opción y seguimos · al final se guarda en Mi Empresa</p>
+          <p className="text-center text-caption text-ink-2">Toca una opción y seguimos</p>
+          <Tramos total={mision.preguntas.length} paso={paso} />
         </div>
       )}
 
@@ -693,7 +710,12 @@ function MisionGuiadaFlujo({ onGuardada }: { onGuardada: (dia: number) => void }
               vibrar(30);
             }
           }}
-          nota={avisoMultiple ? <span className="text-danger">Elige al menos una.</span> : `${elegidas.length} elegida${elegidas.length === 1 ? '' : 's'}`}
+          nota={
+            <>
+              {avisoMultiple ? <span className="text-danger">Elige al menos una.</span> : `${elegidas.length} elegida${elegidas.length === 1 ? '' : 's'}`}
+              <Tramos total={mision.preguntas.length} paso={paso} />
+            </>
+          }
         >
           Continuar
           <ArrowRight size={20} aria-hidden="true" />
@@ -714,7 +736,11 @@ function Cuenta({ valor }: { valor: number }) {
   const reduce = useReducedMotion();
   const nodo = useRef<HTMLSpanElement>(null);
   useEffect(() => {
-    if (!nodo.current || reduce) return;
+    if (!nodo.current) return;
+    if (reduce) {
+      nodo.current.textContent = String(valor);
+      return;
+    }
     const control = animate(0, valor, {
       duration: 0.6,
       delay: 0.5,
@@ -727,7 +753,18 @@ function Cuenta({ valor }: { valor: number }) {
   }, [valor, reduce]);
   return (
     <span ref={nodo} className="tabular-nums">
-      {valor}
+      {reduce ? valor : 0}
+    </span>
+  );
+}
+
+/* Progreso de la misión guiada: un tramo por pregunta (verde = hecha, dorado = la de ahora). */
+function Tramos({ total, paso }: { total: number; paso: number }) {
+  return (
+    <span className="mt-2 flex gap-1" aria-hidden="true">
+      {Array.from({ length: total }, (_, i) => (
+        <span key={i} className={`h-1.5 flex-1 rounded-full ${i < paso ? 'bg-green' : i === paso ? 'bg-gold' : 'bg-raised-2'}`} />
+      ))}
     </span>
   );
 }

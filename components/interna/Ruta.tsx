@@ -16,7 +16,10 @@ import { useCuentaActiva } from './Marco';
 
 // Zigzag del camino (desplazamiento horizontal en px desde el centro) y paso vertical.
 const ZIGZAG = [-90, 0, 90, 0, -90, 0, 90];
-const PASO = 96;
+const PASO = 124;
+// Centro del primer nodo y aire bajo la etiqueta del último (deja espacio al rótulo "HOY · 5 MIN").
+const ARRIBA = 64;
+const ABAJO = 76;
 const ANCHO = 320;
 
 type EstadoNodo = 'hecho' | 'hoy' | 'manana' | 'bloqueado';
@@ -93,19 +96,23 @@ export function Ruta() {
           const dias = RUTA.filter((d) => d.semana === s.numero);
           const completa = dias.every((d) => hecho.has(d.dia));
           const actual = s.numero === semanaActual;
-          const alto = dias.length * PASO + 24;
-          const puntos = dias.map((_, i) => ({ x: ANCHO / 2 + ZIGZAG[i % ZIGZAG.length], y: i * PASO + 72 }));
+          const alto = (dias.length - 1) * PASO + ARRIBA + ABAJO;
+          const puntos = dias.map((_, i) => ({ x: ANCHO / 2 + ZIGZAG[i % ZIGZAG.length], y: i * PASO + ARRIBA }));
+          const radio = (dia: number) => (estadoDe(dia) === 'hoy' ? 40 : 32);
+          // Cada tramo sale por el COSTADO del nodo (hacia el siguiente) y baja en curva hasta su tapa:
+          // nunca cruza las etiquetas, que van debajo de cada nodo.
           const camino = puntos
             .slice(1)
             .map((p, j) => {
               const a = puntos[j];
-              const desde = { x: a.x, y: a.y + 70 };
-              const hasta = { x: p.x, y: p.y - 34 };
-              return `M ${desde.x} ${desde.y} Q ${(desde.x + hasta.x) / 2} ${hasta.y} ${hasta.x} ${hasta.y}`;
+              const lado = Math.sign(p.x - a.x) || 1;
+              const desde = { x: a.x + lado * (radio(dias[j].dia) + 8), y: a.y };
+              const hasta = { x: p.x, y: p.y - radio(dias[j + 1].dia) - (estadoDe(dias[j + 1].dia) === 'hoy' ? 40 : 8) };
+              return `M ${desde.x} ${desde.y} C ${p.x} ${desde.y} ${p.x} ${desde.y} ${hasta.x} ${hasta.y}`;
             })
             .join(' ');
           return (
-            <section key={s.numero} aria-label={`Semana ${s.numero}: ${s.tema}`} className="scroll-mt-20 pb-8">
+            <section key={s.numero} aria-label={`Semana ${s.numero}: ${s.tema}`} className="scroll-mt-20 pb-14">
               <div
                 className={`rounded-[var(--radius-card)] p-4 ${
                   actual ? 'bg-gradient-to-b from-gold-light to-gold text-on-gold shadow-[0_4px_0_var(--gold-deep)]' : 'tarjeta-relieve'
@@ -119,7 +126,7 @@ export function Ruta() {
                 <p className={`mt-1 text-sm ${actual ? 'opacity-80' : 'text-ink-2'}`}>{s.meta}</p>
               </div>
 
-              <div className="relative mx-auto mt-4" style={{ width: ANCHO, height: alto }}>
+              <div className="relative mx-auto mt-3" style={{ width: ANCHO, height: alto }}>
                 <svg aria-hidden="true" className="absolute inset-0" width={ANCHO} height={alto} viewBox={`0 0 ${ANCHO} ${alto}`}>
                   <defs>
                     <clipPath id={`revelar-${s.numero}`}>
@@ -283,13 +290,13 @@ export function Ruta() {
             {e.hechaHoy || e.terminada ? <Check size={20} strokeWidth={3} /> : <Puzzle size={20} strokeWidth={2.2} />}
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-xs font-semibold text-ink-3">
+            <span className="block truncate text-xs font-semibold text-ink-3">
               {e.terminada
                 ? '¡Ruta completa!'
                 : e.hechaHoy
                   ? 'Pieza de hoy lista'
                   : e.rachaEnRiesgo
-                    ? `Hazla y sigues con ${e.racha} ${e.racha === 1 ? 'día' : 'días'}`
+                    ? `Racha de ${e.racha} en juego`
                     : `Hoy · Día ${hoy.dia} · 5 min`}
             </span>
             <span className="line-clamp-2 font-display text-base leading-snug font-bold text-ink-1">
@@ -316,10 +323,13 @@ function CuentaRuta({ valor }: { valor: number }) {
   const reduce = useReducedMotion();
   const nodo = useRef<HTMLSpanElement>(null);
   useEffect(() => {
-    if (!nodo.current || reduce) return;
+    if (!nodo.current) return;
+    if (reduce) {
+      nodo.current.textContent = String(valor);
+      return;
+    }
     const control = animate(0, valor, {
       duration: 0.6,
-      delay: 0.2,
       ease: 'easeOut',
       onUpdate: (v) => {
         if (nodo.current) nodo.current.textContent = String(Math.round(v));
@@ -327,5 +337,5 @@ function CuentaRuta({ valor }: { valor: number }) {
     });
     return () => control.stop();
   }, [valor, reduce]);
-  return <span ref={nodo}>{valor}</span>;
+  return <span ref={nodo}>{reduce ? valor : 0}</span>;
 }

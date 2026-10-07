@@ -5,11 +5,12 @@
 // 3 datos · filas en píldora) con los colores de la Opción C (FICHA-ARTE).
 // Orden M0: el dato de hoy → la acción de 1 toque (visible sin bajar) → la racha → el insight.
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { animate, motion, useReducedMotion } from 'motion/react';
-import { ArrowRight, Bell, CalendarCheck, ChevronRight, Flame, LifeBuoy, LockKeyhole, Puzzle, Sparkles } from 'lucide-react';
-import { estadoRuta } from '@/lib/cuenta';
+import { ArrowRight, Bell, CalendarCheck, ChevronRight, Flame, LifeBuoy, LockKeyhole, Puzzle, RotateCcw, Sparkles } from 'lucide-react';
+import { estadoRuta, importarPieza1SiFalta, pieza1PorTraer } from '@/lib/cuenta';
 import { RESPONSABLE } from '@/lib/legal';
 import { RUTA, TOTAL_DIAS, diaRuta } from '@/lib/ruta';
 import { EASE_SALIDA } from '@/components/onboarding/piezas';
@@ -50,7 +51,7 @@ function Cuenta({ valor }: { valor: number }) {
   }, [valor, reduce]);
   return (
     <span ref={nodo} className="tabular-nums">
-      {valor}
+      {reduce ? valor : 0}
     </span>
   );
 }
@@ -58,6 +59,9 @@ function Cuenta({ valor }: { valor: number }) {
 export function Hoy() {
   const cuenta = useCuentaActiva();
   const reduce = useReducedMotion();
+  const router = useRouter();
+  const [reintento, setReintento] = useState<'' | 'fallo'>('');
+  const faltaPieza1 = pieza1PorTraer(cuenta);
   const e = estadoRuta(cuenta);
   const hoyRuta = diaRuta(e.diaActual);
   const diaMostrado = e.hechaHoy ? e.piezasListas : e.diaActual;
@@ -116,10 +120,9 @@ export function Hoy() {
 
         {/* 1. EL DATO DE HOY: la misión (o lo que ya armaste). Toda la tarjeta lleva a la acción. */}
         <motion.div {...entrar(1)}>
-          <Link
-            href={destinoHeroe}
-            tabIndex={-1}
-            className={`heroe-hoy relative mt-4 block overflow-hidden rounded-[var(--radius-card)] p-4 transition-transform duration-150 active:scale-[0.99] ${
+          <div
+            onClick={() => router.push(destinoHeroe)}
+            className={`heroe-hoy relative mt-4 block cursor-pointer overflow-hidden rounded-[var(--radius-card)] p-4 transition-transform duration-150 active:scale-[0.99] ${
               e.hechaHoy ? 'tarjeta-relieve' : 'tarjeta-relieve-oro'
             }`}
           >
@@ -170,7 +173,7 @@ export function Hoy() {
                 {e.piezasListas}/{TOTAL_DIAS}
               </span>
             </span>
-          </Link>
+          </div>
         </motion.div>
 
         {/* 2. LA ACCIÓN DE 1 TOQUE (siempre visible sin bajar) */}
@@ -202,7 +205,7 @@ export function Hoy() {
               <span className="font-display text-precio leading-none font-extrabold text-ink-1">
                 <Cuenta valor={e.racha} />
               </span>
-              <span className="text-xs text-ink-2">{e.racha === 1 ? 'día de racha' : 'días de racha'}</span>
+              <span className="mt-auto text-xs text-ink-2">{e.racha === 1 ? 'día de racha' : 'días de racha'}</span>
             </Link>
           </li>
           <li>
@@ -213,7 +216,7 @@ export function Hoy() {
               <span className="font-display text-precio leading-none font-extrabold text-ink-1">
                 <Cuenta valor={e.piezasListas} />
               </span>
-              <span className="text-xs text-ink-2">{e.piezasListas === 1 ? 'pieza lista' : 'piezas listas'}</span>
+              <span className="mt-auto text-xs text-ink-2">{e.piezasListas === 1 ? 'pieza lista' : 'piezas listas'}</span>
             </Link>
           </li>
           <li>
@@ -225,7 +228,7 @@ export function Hoy() {
                 <Cuenta valor={enSemana} />
                 <span className="text-base text-ink-3">/{diasSemana}</span>
               </span>
-              <span className="flex h-2 items-center gap-1" aria-label={`${enSemana} de ${diasSemana} piezas de la semana ${semanaDeHoy}`}>
+              <span className="-mt-1 flex h-2 items-center gap-1" aria-label={`${enSemana} de ${diasSemana} piezas de la semana ${semanaDeHoy}`}>
                 {Array.from({ length: diasSemana }, (_, i) => (
                   <motion.span
                     key={i}
@@ -237,7 +240,7 @@ export function Hoy() {
                   />
                 ))}
               </span>
-              <span className="text-xs text-ink-2">esta semana</span>
+              <span className="mt-auto text-xs text-ink-2">esta semana</span>
             </Link>
           </li>
         </motion.ul>
@@ -255,8 +258,26 @@ export function Hoy() {
           </span>
         </motion.p>
 
+        {faltaPieza1 && (
+          <motion.div {...entrar(5)} role="status" className="mt-4 flex items-center gap-3 rounded-[var(--radius-card)] border border-[var(--line)] bg-sunken p-3">
+            <p className="min-w-0 flex-1 text-caption text-ink-2">
+              {reintento === 'fallo'
+                ? 'Sigue sin entrar: libera espacio en el celular y vuelve a tocar.'
+                : 'Tu pieza 1 todavía no pasó a Mi Empresa. Suele ser falta de espacio en el celular.'}
+            </p>
+            <button
+              type="button"
+              onClick={() => setReintento(importarPieza1SiFalta(cuenta) ? '' : 'fallo')}
+              className="flex min-h-11 shrink-0 items-center gap-1 rounded-[var(--radius-pill)] border border-[var(--line)] bg-raised-2 px-3 text-sm font-semibold text-ink-1 transition-transform duration-150 active:scale-[0.97]"
+            >
+              <RotateCcw size={16} aria-hidden="true" />
+              Reintentar
+            </button>
+          </motion.div>
+        )}
+
         {/* Filas en píldora: tus últimas piezas */}
-        {ultimas.length > 0 && (
+        {(ultimas.length > 0 || (e.hechaHoy && siguiente)) && (
           <motion.ul {...entrar(5)} className="mt-4 flex flex-col gap-3" aria-label="Tus últimas piezas">
             {ultimas.map((p) => (
               <li key={p.dia}>
@@ -268,7 +289,7 @@ export function Hoy() {
                     <span className="block truncate font-display text-ayuda font-bold text-ink-1">{p.titulo}</span>
                     <span className="block text-xs text-ink-3">Día {p.dia} · lista</span>
                   </span>
-                  <span aria-hidden="true" className="relieve-oro flex size-11 shrink-0 items-center justify-center rounded-full">
+                  <span aria-hidden="true" className="relieve-piedra flex size-11 shrink-0 items-center justify-center rounded-full">
                     <ChevronRight size={20} strokeWidth={2.4} />
                   </span>
                 </Link>
