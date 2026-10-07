@@ -1,50 +1,48 @@
 # VEREDICTO revisor-visual — entrar (login)
-Fecha: 2026-10-07 22:00
+Fecha: 2026-10-07 23:30
 Screenshot: docs/revisiones/entrar-375.png
-Usabilidad: 30/40
+Usabilidad: 31/40
 Craft: 15/20
 Copy (si vende): 15/20
 Fidelidad (si hubo referencia): N-A
 Veredicto: NO LISTA
-Top defectos: (1) sin servidor, el botón "Guardar mi correo de acceso" no guarda nada (Acceso.tsx:65-91 no escribe en localStorage ni en un servidor) y el texto de debajo sigue diciendo "te llega un enlace de un solo uso" (L335); ninguna captura muestra ese estado real del inicio · (2) "El acceso abre muy pronto" no da plazo ni promete avisar, y el correo de soporte solo existe dentro del mailto: si el teléfono no tiene app de correo, el comprador se queda sin dirección · (3) en la 23 quedan ~190px vacíos abajo y en la 01 ~115px; además, en "pronto" la fila de chips lleva un solo chip y la mitad derecha queda vacía · (4) la 23 (375 y 360) se capturó a mitad de la animación: el chip "Pieza 1 lista" sale semitransparente y encogido, así que la evidencia no muestra el estado final · (5) más de 3 tamaños de texto, y en la 23 el candado significa dos cosas opuestas: verde = "pieza guardada", gris = "día bloqueado"
+Top defectos: (1) quien ya pagó no puede entrar, y el estado "pronto" no le dice cómo se va a enterar de que abrió ni qué lo protege mientras tanto: falta "te avisamos a {email}" (Hotmart ya tiene ese correo) y la garantía nombrada · (2) al volver con el correo ya guardado (23b), la pantalla es idéntica a la primera visita: no reconoce que ya lo guardó y lo hace repetir el ciclo "Guardar" → "pronto" · (3) el soporte visible es un correo personal de Hotmail (adrianachacon15@hotmail.com, lib/legal.ts:7): para alguien que acaba de pagar y no puede entrar, parece poco serio · (4) siguen 6 tamaños de texto (pregunta, base, boton, sm, caption, xs); el eyebrow y los chips de RutaMini siguen en text-xs (piezas.tsx:283, 307, 328) · (5) en el inicio quedan unos 95px vacíos abajo a 375, y el candado gris del texto de privacidad (Acceso.tsx:388) significa "privado" justo encima de los candados de "día bloqueado" de la ruta
 
-Detalle usabilidad: h1:3 h2:3 h3:3 h4:3 h5:3 h6:3 h7:3 h8:3 h9:3 h10:3
+Detalle usabilidad: h1:3 h2:3 h3:3 h4:3 h5:3 h6:3 h7:3 h8:3 h9:4 h10:3
 Detalle craft: jerarquía:3 profundidad:3 identidad:3 movimiento:3 encaje:3
 Detalle copy: idea:3 especificidad:3 emoción:3 oferta:3 acción:3
-Fidelidad: N-A. La referencia de la dueña solo cubre "Hoy". Contra FICHA-ARTE: fondo #0F0D16, dorado #FFC23D, verde #3DDC97, Bricolage + Instrument Sans, tarjeta 18-22px y píldoras 999px: todo coincide. El foco del input ya es neutro (`focus:border-ink-3`, L200 y L302), así que el dorado queda dentro de la lista de usos de L33. Sin desvíos visibles.
+Fidelidad: N-A (no hay referencia para esta pantalla). Contra FICHA-ARTE: fondo #0F0D16, dorado #FFC23D, verde #3DDC97, Bricolage + Instrument Sans, tarjeta 18-22px y píldoras 999px. Todo coincide en 375 y 360. Falla la escala de la ficha: el label debería ir a 10.5-12px y, con solo 3 niveles, la pantalla usa 6 tamaños.
 
-Gate de carga cognitiva: 1 falla de 8, no es sobrecarga. Falla "cero elementos que parezcan hacer algo y no lo hagan": en el estado real, "Guardar mi correo de acceso" no guarda nada.
-CTA héroe vivo (inicio): cumple los 4. Dorado sobre #0F0D16 ≈12:1; `.boton-oro:active` responde; solo se deshabilita mientras envía (L317); 56px de alto a ancho completo. En "pronto" la acción es un botón secundario de 48px a ancho completo con `active:scale-[0.97]` (L148). Es aceptable: ahí la acción principal es pedir ayuda, no convertir.
-Sub-checks de copy: message-match NO VERIFICABLE (falta el dato del 34). Garantía nombrada: N/A, aquí no hay CTA de compra.
+Gate de carga cognitiva: 0 fallas de 8. En "pronto" hay 3 acciones apiladas (botón secundario, correo escrito, "Corregir"), pero solo una pesa como botón.
+CTA héroe vivo (inicio): cumple los 4. Dorado sobre #0F0D16 ≈12:1; `.boton-oro` responde al toque; solo se deshabilita mientras envía (L372); 56px de alto a ancho completo.
+Sub-checks de copy: message-match NO VERIFICABLE (falta el dato del 34). Garantía nombrada: no aparece. Aquí no hay CTA de compra, pero quien pagó y no puede entrar debería verla (defecto 1).
+
+## Re-revisión 5: qué se corrigió (contra los 6 defectos de la ronda 4)
+1. Correo guardado de verdad y rellenado al volver → CORREGIDO. `guardarCorreo` escribe en localStorage (L41-48, L105) y `useSyncExternalStore` lo lee al volver (L62-64). La 23b muestra el campo con "carlos.ruiz@gmail.com". Si no hay espacio, cae a "Anota tu correo de acceso" (L172-179). Caption honesto → CORREGIDO: "cuando abra el acceso, te llegará un enlace…" (L390-392), visible en entrar-375.png. Captura del inicio real → CORREGIDO (22b, entrar-375).
+2. Soporte escrito en pantalla → CORREGIDO. "o escríbenos a {emailContacto}" en texto seleccionable (L193-195). Plazo y aviso → SIN CORREGIR. Que no haya fecha es legítimo (no se inventa), pero tampoco se promete avisar, y sí se podría: el comprador es de Hotmart y su correo ya se conoce (defecto 1).
+3. Contenido de "pronto" centrado y ruta completa → CORREGIDO. `justify-center` (L165) y los 2 chips (L209-212). En la 23 a 375 el hueco de abajo bajó a unos 65px. Sigue habiendo unos 95px vacíos en el inicio (defecto 5).
+4. Captura 23 tras la animación → CORREGIDO. Ahora espera 2500 ms (captura-app.mjs:171) y el chip "Pieza 1 lista" sale con opacidad y escala completas.
+5. Ícono de guardado distinto del candado → CORREGIDO en "pronto" (`CheckCircle2`, L183). Eyebrow al tamaño del caption → SIN CORREGIR (defecto 4). El choque de candados pasó al inicio (defecto 5, severidad baja).
+6. Acento sobre algo real → CORREGIDO. "quedó guardado" describe un hecho verificable, no una vaguedad.
+Balance: h9 sube de 3 a 4. Errores ejemplares: el formato inválido trae un ejemplo, sin conexión dice que revises la red, el código pide copiarlo tal cual y el callejón de "pronto" tiene 2 salidas más el correo escrito. Usabilidad 31/40. Craft y copy no cambian (15/20 y 15/20). El techo actual es estructural: sin acceso real, h1 y h10 no pasan de 3 porque quien pagó se queda esperando sin plazo ni aviso.
 
 ## Hallazgos por severidad
 
 ### ALTO
-1. **Acceso.tsx:327 + 335 + 65-91. El inicio real promete dos cosas que no pasan.** Fuera de la demo, el CTA dice "Guardar mi correo de acceso", pero `enviar()` solo cambia el estado: el correo no se escribe en localStorage ni se manda a ningún lado. Si el comprador vuelve mañana, el campo está vacío. Justo debajo, el caption dice "Sin contraseñas: te llega un enlace de un solo uso", y hoy no llega nada. Ninguna captura muestra este estado: la 01 y la 02 se tomaron en localhost con la demo y dicen "Enviarme mi enlace". → FIX: guardar el correo de verdad (localStorage + rellenar el campo al volver) y, mientras `!ACCESO_REAL`, cambiar el caption a "Cuando abra el acceso, te llegará un enlace de un solo uso"; capturar el inicio por [::1].
+1. **"Pronto" (captura 23, L176-179): espera sin aviso ni protección.** "Estamos terminando de abrir la entrada a la app" deja a quien pagó sin saber cómo se va a enterar ni qué pasa si tarda. La ficha da el material: Obj. 4, "te avisamos" / "garantía". → FIX: "Te avisamos a {email} el día que abra. Y si no te sirve, te cubre la garantía de {N} días de Hotmart." Solo si la dueña se compromete a avisar a los compradores de Hotmart. Si no, al menos la garantía con nombre y plazo.
 
 ### MEDIO
-2. **Captura 23, L135-151. "Muy pronto" sin plazo y soporte solo por mailto.** "Ya pagué: pedir mi acceso" resuelve el callejón, pero depende de que el teléfono tenga una app de correo configurada, y la dirección no aparece escrita en la pantalla. Tampoco hay una fecha ni la promesa de avisarle. → FIX: debajo del botón, "o escríbenos a {emailContacto}" en texto seleccionable, y "Abre antes del {fecha}" en el párrafo.
-3. **Captura 23 (375 y 360): ~190px vacíos debajo de la tarjeta, ~115px en la 01.** El vacío ya no queda a mitad de pantalla, pero ahora queda abajo. Además, en "pronto" la fila de chips tiene solo "Pieza 1 lista" (L160) y la mitad derecha queda vacía. → FIX: centrar en vertical el contenido de "pronto" (`justify-center` en la sección flex-1) y repetir el chip "Mañana: tu cliente ideal · 5 min" igual que en el inicio.
-4. **scripts/captura-app.mjs:170. La captura 23 sale a mitad de la animación.** 700ms de envío + 250ms de salida + 0,3s de retraso de RutaMini + 0,35s + 0,35s del chip suman unos 2s, pero el script espera 1300ms. El chip "Pieza 1 lista" sale semitransparente y más chico que en la 01. → FIX: `espera(2500)` antes de `capturar('23-…')`.
+2. **Inicio al volver (23b): no reconoce el estado.** Con `correoGuardado` presente, la pantalla repite título, CTA "Guardar mi correo de acceso" y caption de primera visita. El usuario vuelve a apretar y cae otra vez en "pronto". → FIX: si `correoGuardado && !ACCESO_REAL`, abrir directo en "pronto" o poner sobre el campo "Ya guardaste este correo: el acceso aún no abre".
+3. **"o escríbenos a adrianachacon15@hotmail.com" (L194, lib/legal.ts:7).** Un Hotmail personal con número, como única vía de soporte de un producto pago, resta confianza justo en el momento de mayor ansiedad. → FIX: una dirección del dominio (soporte@…) o, como mínimo, un alias neutro.
 
 ### BAJO
-5. **Jerarquía y semántica de íconos.** Hay más de 3 tamaños: text-pregunta, base, boton, sm, caption y el eyebrow xs (es el defecto 8 de la revisión 3, sin tocar). En la 23, el `LockKeyhole` verde (L142) significa "guardado" y, a pocos píxeles, el mismo candado gris significa "bloqueado" en los días 2-5. → FIX: `CheckCircle2` o `ShieldCheck` para "Tu pieza 1 queda guardada", y el eyebrow de RutaMini al mismo tamaño que el caption.
-6. **"El acceso abre muy pronto": "muy pronto" va en dorado.** El acento resalta una vaguedad, no un beneficio. → FIX: resaltar el plazo concreto cuando exista ("abre el 15 de octubre").
+4. **Escala tipográfica: 6 tamaños, la ficha pide 3 niveles.** text-pregunta, base, boton, sm (label y "Corregir"), caption y xs (eyebrow, días y chips de RutaMini, piezas.tsx:283/307/328). Viene sin tocar desde la revisión 3. → FIX: label y "Corregir" a caption, y el xs de RutaMini a caption.
+5. **Inicio a 375: unos 95px vacíos bajo el texto de la ruta, y candados con dos sentidos.** El `LockKeyhole` gris de privacidad (L388) queda sobre los candados de "día bloqueado". → FIX: `justify-center` también en la sección del inicio (L319) y `ShieldCheck` para "Tu idea es tuya".
 
 ## Traza del copy (FICHA-AVATAR)
 - "Entra a tu ruta de 30 días": Deseo 1. OK.
-- "Usa el mismo correo con el que pagaste en Hotmart: así guardas tu pieza 1 y tu plan": Objeción 5 (pago por Hotmart) + aversión a la pérdida. OK.
-- "Tu idea es tuya: solo tú ves lo que armas": Objeción 6, frase literal. OK.
-- "Mañana: tu cliente ideal · 5 min" y "Tu negocio, pieza a pieza…": frases obligatorias de L66. OK.
-- "Tu pieza 1 queda guardada en este celular": aversión a la pérdida, igual que en el inicio. OK.
-- "Ya pagué: pedir mi acceso": primera persona y orientado a la acción, pero no sale de ningún campo de la ficha (la ansiedad post-pago no está en Objeciones).
-- "El acceso abre muy pronto / Estamos terminando de activar…": sigue sin campo de origen y sin dato concreto. La especificidad se queda en 3.
-
-## Re-revisión 4: qué se corrigió
-Verificado defecto por defecto contra el veredicto anterior (29/40 · 14/20 · 15/20):
-1. "El acceso abre muy pronto" como callejón sin salida → CORREGIDO. Tiene "Ya pagué: pedir mi acceso" (mailto a soporte con el correo de compra en el cuerpo, L146-151) y "Corregir mi correo" (vuelve al inicio con el correo conservado, L152-158). Quedan sin resolver el plazo, la promesa de aviso y la dirección visible (hallazgo 2). h9 sube de 2 a 3.
-2. ~320px vacíos a mitad de pantalla → CORREGIDO A MEDIAS. RutaMini va con `mt-8` (L159) en "pronto" y `mt-10` en el inicio (L341), y el hueco del medio desapareció. El vacío pasó abajo: ~190px en la 23 y ~115px en la 01 (hallazgo 3). Encaje sube de 2 a 3.
-3. "Pronto" sin la pieza 1 en la captura → CORREGIDO. El script siembra `primeraPieza` en el origen [::1] (captura-app.mjs:153-165) y la 23 muestra "Tu pieza 1 queda guardada…". Se tomó a mitad de la animación (hallazgo 4).
-4. Botones que prometen un envío que no ocurre → CORREGIDO A MEDIAS. "Usar otro correo" pasó a "Corregir mi correo" en "pronto". El CTA cambia a "Guardar mi correo de acceso" cuando no hay demo (L327), pero no guarda nada y el caption L335 sigue prometiendo el enlace. El defecto cambió de forma, pero sigue ahí (hallazgo 1), y no hay captura de ese rótulo.
-5. Éxito falso latente + foco dorado → CORREGIDO. `ACCESO_REAL = false as boolean` está fijo (L24) y ya no depende de una variable de entorno. "enviado" solo se alcanza con ACCESO_REAL o con la demo restringida a localhost/127.0.0.1 (L26, L87, L109). El foco es `focus:border-ink-3` en los dos inputs (L200, L302).
-Balance: usabilidad +1 (h9 de 2 a 3) → 30/40; craft +1 (encaje de 2 a 3) → 15/20; copy sin cambios, 15/20. No pasa el gate doble (30/40 < 36, 15/20 < 16) ni el de copy (15/20 < 16).
+- "Usa el mismo correo con el que pagaste en Hotmart: así guardas tu pieza 1 y tu plan": Obj. 5 + aversión a la pérdida. OK. Ojo: hoy la pieza no pasa a ninguna cuenta; "pronto" lo aclara ("queda guardada en este celular").
+- "Sin contraseñas… Tu idea es tuya: solo tú ves lo que armas": Obj. 6, frase literal. OK.
+- "Tu negocio, pieza a pieza: hoy ya sabes qué hacer, y en 5 minutos está hecho": frase obligatoria + ancla emocional (L66, L68). OK.
+- "Tu correo de acceso quedó guardado": hecho verificable. No sale de ningún campo, pero es estado del sistema, no venta.
+- "Ya pagué: pedir mi acceso" y "Estamos terminando de abrir…": sin campo de origen. Para cerrar la traza, conectar con Obj. 4 (aviso + garantía, defecto 1).

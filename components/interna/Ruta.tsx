@@ -33,6 +33,7 @@ export function Ruta() {
   const [llamado, setLlamado] = useState(0);
   const semanaActual = diaRuta(e.hechaHoy ? Math.max(e.piezasListas, 1) : e.diaActual).semana;
   const refHoy = useRef<HTMLLIElement>(null);
+  const refSemana = useRef<HTMLElement>(null);
   const hecho = new Set(cuenta.piezas.map((p) => p.dia));
 
   function irAHoy(suave = true) {
@@ -41,7 +42,13 @@ export function Ruta() {
 
   useEffect(() => {
     // Abre la ruta en el día que toca (no en el día 1 si ya vas en la semana 3).
-    if (e.diaActual > 2) irAHoy(false);
+    if (e.diaActual <= 2) return;
+    const seccion = refSemana.current;
+    const nodo = refHoy.current;
+    // 64 = encabezado; 280 = tarjeta fija + barra de abajo
+    if (seccion && nodo && nodo.getBoundingClientRect().bottom - seccion.getBoundingClientRect().top + 64 < window.innerHeight - 280) {
+      seccion.scrollIntoView({ block: 'start' });
+    } else irAHoy(false);
     // Solo al entrar.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -65,13 +72,16 @@ export function Ruta() {
   return (
     <main className="fondo-puntos-ruta">
       <header className="sticky top-0 z-10 flex h-16 items-center gap-2 border-b border-[var(--line)] bg-[var(--surface-base)] px-4">
-        <p className="flex items-center gap-1 text-sm text-ink-2">
-          <Flame size={18} className={e.rachaEnRiesgo ? 'text-ink-2' : 'text-gold'} fill={e.rachaEnRiesgo ? 'none' : 'currentColor'} aria-hidden="true" />
+        <p className="flex h-9 items-center gap-1 rounded-[var(--radius-pill)] border border-[var(--line)] px-3 text-sm text-ink-2">
+          <span className="relative flex">
+            <Flame size={18} className={e.rachaEnRiesgo ? 'text-ink-2' : 'text-gold'} fill={e.rachaEnRiesgo ? 'none' : 'currentColor'} aria-hidden="true" />
+            {e.rachaEnRiesgo && <span aria-hidden="true" className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-warning ring-2 ring-[var(--surface-base)]" />}
+          </span>
           <span className="font-display text-base font-extrabold text-ink-1 tabular-nums">{e.racha}</span>
           {e.racha === 1 ? 'día' : 'días'}
           {e.rachaEnRiesgo && <span className="sr-only">(hoy falta tu pieza para mantenerla)</span>}
         </p>
-        <p className="flex items-center gap-1 text-sm text-ink-2">
+        <p className="flex h-9 items-center gap-1 rounded-[var(--radius-pill)] border border-[var(--line)] px-3 text-sm text-ink-2">
           <Puzzle size={18} className="text-green" aria-hidden="true" />
           <span className="font-display text-base font-extrabold text-ink-1 tabular-nums">
             <CuentaRuta valor={e.piezasListas} />/{TOTAL_DIAS}
@@ -96,8 +106,9 @@ export function Ruta() {
           const dias = RUTA.filter((d) => d.semana === s.numero);
           const completa = dias.every((d) => hecho.has(d.dia));
           const actual = s.numero === semanaActual;
-          const alto = (dias.length - 1) * PASO + ARRIBA + ABAJO;
-          const puntos = dias.map((_, i) => ({ x: ANCHO / 2 + ZIGZAG[i % ZIGZAG.length], y: i * PASO + ARRIBA }));
+          const arriba = ARRIBA + (estadoDe(dias[0].dia) === 'hoy' ? 28 : 0);
+          const alto = (dias.length - 1) * PASO + arriba + ABAJO;
+          const puntos = dias.map((_, i) => ({ x: ANCHO / 2 + ZIGZAG[i % ZIGZAG.length], y: i * PASO + arriba }));
           const radio = (dia: number) => (estadoDe(dia) === 'hoy' ? 40 : 32);
           // Cada tramo sale por el COSTADO del nodo (hacia el siguiente) y baja en curva hasta su tapa:
           // nunca cruza las etiquetas, que van debajo de cada nodo.
@@ -108,11 +119,16 @@ export function Ruta() {
               const lado = Math.sign(p.x - a.x) || 1;
               const desde = { x: a.x + lado * (radio(dias[j].dia) + 8), y: a.y };
               const hasta = { x: p.x, y: p.y - radio(dias[j + 1].dia) - (estadoDe(dias[j + 1].dia) === 'hoy' ? 40 : 8) };
-              return `M ${desde.x} ${desde.y} C ${p.x} ${desde.y} ${p.x} ${desde.y} ${hasta.x} ${hasta.y}`;
+              return `M ${desde.x} ${desde.y} C ${desde.x + lado * 48} ${desde.y} ${hasta.x} ${hasta.y - 48} ${hasta.x} ${hasta.y}`;
             })
             .join(' ');
           return (
-            <section key={s.numero} aria-label={`Semana ${s.numero}: ${s.tema}`} className="scroll-mt-20 pb-14">
+            <section
+              key={s.numero}
+              ref={actual ? refSemana : undefined}
+              aria-label={`Semana ${s.numero}: ${s.tema}`}
+              className="scroll-mt-20 pb-14"
+            >
               <div
                 className={`rounded-[var(--radius-card)] p-4 ${
                   actual ? 'bg-gradient-to-b from-gold-light to-gold text-on-gold shadow-[0_4px_0_var(--gold-deep)]' : 'tarjeta-relieve'

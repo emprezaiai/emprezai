@@ -1,48 +1,53 @@
 # VEREDICTO revisor-visual — Mi Empresa
-Fecha: 2026-10-07 18:45
+Fecha: 2026-10-07 21:00
 Screenshot: docs/revisiones/mi-empresa-375.png
-Usabilidad: 32/40
+Usabilidad: 34/40
 Craft: 16/20
 Copy (si vende): N-A
 Fidelidad (si hubo referencia): FIEL
 Veredicto: NO LISTA
-Top defectos: (1) la acción del día («Hoy · Día 8») sigue al fondo, a casi dos pantallas de scroll · (2) «Semana 1» marca semana completa pero su contador dice 6 de una semana de 7 piezas · (3) en el día 1 quedan unos 105px de vacío muerto bajo los fantasmas · (4) el resumen de la pieza nueva y el encabezado de semana pesan igual (los dos text-lg), así que la protagonista no domina · (5) encaje: el tracking del rótulo es .08em en la tarjeta héroe y .04em en el mosaico, y la X de la hoja sigue flotando entre el label y el título
+Top defectos: (1) al editar una pieza, tocar fuera de la hoja, arrastrarla o pulsar Escape cierra todo y borra lo escrito sin avisar · (2) «Guardar mi versión» reemplaza la versión base para siempre: no hay deshacer ni forma de volver a la original, y si guardas sin cambiar nada igual queda marcada como «tu versión» · (3) el tirador fijo de la hoja tiene un fondo liso que tapa la luz superior de la tarjeta; queda una franja más oscura con un corte visible justo encima de «DÍA 5 · LISTA», que queda pegado a 4px · (4) al guardar la edición, la única señal es el cambio de rótulo a «tu versión»: no hay un «Guardada» visible · (5) jerarquía: en pantalla conviven 5 tamaños de texto (28/20/18/14/12) y el encabezado de semana (18 bold) sigue muy cerca del resumen de la pieza nueva (20 extrabold)
 
 ## Detalle de la puntuación
-USABILIDAD: 32/40 (h1:3 h2:3 h3:4 h4:3 h5:3 h6:4 h7:3 h8:3 h9:3 h10:3)
+USABILIDAD: 34/40 (h1:3 h2:3 h3:3 h4:4 h5:3 h6:4 h7:3 h8:3 h9:4 h10:4)
 CRAFT:      16/20 (jerarquía:3 profundidad:3 identidad:3 movimiento:4 encaje:3)
 COPY:       N/A (no vende)
-FIDELIDAD:  FIEL (0 de 6 fallos. Mismo modo oscuro, dorado #FFC23D, Bricolage en display, radios de 18-22px y relieve con sombra difusa. La densidad es algo menor que en la referencia: más aire entre la tarjeta héroe y el mosaico por el encabezado de semana, pero es de la misma familia. Diferencias menores sin fallo: la barra usa píldoras en lugar de rectángulos y la tarjeta héroe lleva la línea «Toca para verla…».)
+FIDELIDAD:  FIEL (0 de 6 fallos. Mismo modo oscuro, dorado #FFC23D, Bricolage en display, radios de 18-22px y píldoras, relieve con sombra difusa y la misma densidad)
 
-Gate de carga cognitiva: 0 de 8 fallos. Al límite: la Semana 1 abierta muestra 6 tarjetas, una más que el tope de 4-5, pero están agrupadas y se pliegan.
-Capturas revisadas: mi-empresa-375.png, app/19-empresa-demo-dia8-arriba.png y -final.png, app/20-empresa-demo-detalle-arriba.png y -final.png, app/06-empresa-dia1.png, app-360/19-empresa-demo-dia8-arriba.png, app-360/20-empresa-demo-detalle-final.png y la referencia public/landing/mi-empresa-v2.png.
-Código revisado: components/interna/Empresa.tsx, components/interna/Marco.tsx (MotionConfig reducedMotion="user" y layoutId de la navegación), lib/cuenta.ts (fecha, base, fechaLocal) y FICHA-ARTE.md.
+Gate de carga cognitiva: 0 de 8 fallos. Queda al límite la Semana 1 abierta, con 6 tarjetas agrupadas que se pliegan.
+Capturas revisadas: mi-empresa-375.png, app/06-empresa-dia1.png, app/19-empresa-demo-dia8-final.png, app/20-empresa-demo-detalle-arriba.png y -final.png, app-360/06-empresa-dia1-final.png y app-360/19-empresa-demo-dia8-arriba.png.
+Código revisado: components/interna/Empresa.tsx, lib/cuenta.ts (editarPieza, guardarCuenta y el evento de suscripción), app/globals.css (.tarjeta-relieve, .hairline-oro, .relieve-tarjeta) y FICHA-ARTE.md.
 
 ## Hallazgos por severidad
 
 ### MEDIA
-1. [Bloque «Hoy · Día 8», al final de la pantalla] En el estado del día 8, la única acción de la pantalla queda debajo de la tarjeta héroe y de las 6 tarjetas de la semana, fuera de la primera vista (19-empresa-demo-dia8-final.png). Lo compensa el botón central de la navegación, pero en la pantalla no se ve qué sigue sin hacer scroll. Archivo: Empresa.tsx:297-318. Fix: subir la tarjeta punteada «Hoy · Día N» justo debajo de la tarjeta héroe, antes de los grupos.
-2. [Encabezado «Semana 1 · Tu idea, validada»] Muestra el check de semana completa junto a «6», pero la semana tiene 7 piezas porque la del día 7 está arriba, en la tarjeta héroe. Un usuario atento puede pensar que le falta una. Archivo: Empresa.tsx:257. Fix: mostrar el total de la semana, «7/7» (las piezas de la ruta de esa semana que están guardadas), en vez de g.piezas.length.
-3. [Día 1, bajo el tercer fantasma] Entre «Día 4 · Tu precio» y la barra de navegación quedan unos 105px de vacío muerto (06-empresa-dia1.png). Fix: agregar debajo de los fantasmas una línea que enseñe, por ejemplo «Al día 30 aquí estará tu negocio completo: 30 piezas listas para copiar», o mostrar un 4º fantasma.
-4. [Jerarquía, tarjeta héroe frente al encabezado de semana] Con el cambio a text-lg, el encabezado de semana (display bold, 18px) pesa igual o más que el resumen de la pieza nueva (body semibold, 18px). Al entrecerrar los ojos, «Semana 1 · Tu idea, validada» compite con la protagonista. Los 4 niveles existen (28/18/14/12), pero el nivel 2 tiene tres ocupantes con el mismo peso. Archivo: Empresa.tsx:230 y :254. Fix: poner el resumen de la tarjeta héroe en font-display text-xl extrabold, o bajar el encabezado de semana a font-semibold.
+1. [Hoja de una pieza, modo edición] El velo (onClick={onCerrar}, Empresa.tsx:428), Escape (:372), el arrastre del tirador (:444-446) y la X cierran la hoja con la edición a medias. `borrador` vive dentro de HojaPieza, así que lo escrito se pierde sin aviso. En un celular, tocar el velo por accidente es fácil. Fix: si `editando && borrador !== pieza.contenido`, pedir confirmación («¿Descartar tus cambios?») o conservar el borrador en el estado del padre o en sessionStorage.
+2. [Hoja, «Guardar mi versión»] editarPieza (lib/cuenta.ts:236) sobrescribe `contenido` y pone `base: false`. La versión armada con las respuestas se pierde y no hay deshacer ni un «volver a la versión base». Además, si se guarda sin cambiar el texto, igual se fija `editadaEn` y el rótulo pasa a «tu versión». Fix: guardar `original` la primera vez que se edita y ofrecer «Volver a la versión base». Si `texto === p.contenido`, no tocar nada y solo cerrar el modo edición.
 
 ### BAJA
-5. [Encaje] El rótulo usa tracking-[0.08em] en la tarjeta héroe (:213) y en la hoja (:425), y tracking-[0.04em] en el mosaico (:281): son variantes accidentales del mismo label. Además, la X de la hoja (items-start, :423 y :430) queda centrada en el espacio entre «DÍA 5 · LISTA» y «Tu competencia», no en el título (20-empresa-demo-detalle-arriba.png). Fix: unificar el tracking del label en .04em y alinear la X con el título (self-end, o mt-3 en el botón).
-6. [Hoja de detalle, tirador] La zona de arrastre está dentro del contenedor con scroll, sin sticky. Cuando una pieza larga se desplaza hacia abajo, el tirador sale de la vista y solo quedan la X, Escape y el velo para cerrar. Fix: poner sticky top-0 en la zona del tirador, con el mismo fondo de la hoja.
-7. [Identidad en estático] El tick verde y el resorte existen, pero solo el día en que se guarda la pieza. En la captura del día 8, el mosaico sigue siendo tarjeta oscura con label y texto, y el dispositivo propio de la ficha (rayo y nodos en relieve) solo aparece en el botón central. No impide el gate.
-8. [Esqueleto de carga] Sigue el esqueleto genérico del Marco. No se verificó de nuevo. Es aceptable.
+3. [Hoja, zona del tirador] La banda fija (:452) usa `bg-raised` liso. La hoja es `.tarjeta-relieve`, con un degradé blanco del 5% arriba, así que la banda queda más oscura que el cuerpo de la hoja y se ve un corte horizontal justo encima de «DÍA 5 · LISTA» (20-empresa-demo-detalle-arriba.png, y≈975 en la captura). Con mb-1, el rótulo queda a 4px de ese corte. Fix: quitar el fondo liso de la hoja y ponerle a la banda el mismo degradé (o pasar el degradé a un pseudo-elemento fijo), y subir a mb-2 o mb-3.
+4. [Hoja, después de guardar] guardarEdicion (:405-416) cierra el modo edición sin confirmar nada, mientras que copiar sí dice «¡Copiada!». Fix: mostrar «Guardada» durante 2 s en el botón o en el rótulo, con el mismo patrón de `copiado`.
+5. [Jerarquía] En la pantalla hay 28 (h1), 20 (resumen de la pieza nueva), 18 (título «Mi Empresa» y encabezado de semana), 14 y 12. La protagonista ya domina por el peso, pero 20 frente a 18 no se distingue bien al entrecerrar los ojos. Fix: bajar el encabezado de semana a text-base semibold, o subir el resumen de la pieza nueva a text-2xl.
+6. [Identidad en estático] El mosaico sigue siendo tarjeta oscura con rótulo y texto. El rayo y los nodos en relieve solo se ven en el botón central. No impide el gate.
+7. [Movimiento, modo edición] El cambio entre el texto y el campo de edición (:473-501) es un corte seco, sin transición. Fix: AnimatePresence con un fundido de 200ms.
+8. [Rótulo de la tarjeta héroe] «IDEA EN 1 PÁG.» es una abreviatura. Mejor «Idea en 1 página» o «Tu idea en 1 página».
 
-## Re-revisión 4: qué se corrigió
+## Re-revisión 5: qué se corrigió
 | # anterior | Defecto | Estado | Evidencia |
 |---|---|---|---|
-| 1 | 6 tamaños de texto, jerarquía sin 4 niveles | CORREGIDO | Empresa.tsx:254 usa text-lg. En pantalla quedan pregunta/lg/sm/xs = 4 niveles. Queda el empate dentro del nivel 2 (hallazgo 4) |
-| 2 | La hoja se arrastra completa y compite con el scroll | CORREGIDO | useDragControls + dragListener={false} (:406-408) y una zona de 32px con touch-none que arranca el arrastre (:416-420). Con dragListener={false}, Motion no fija touch-action en el contenedor, así que el texto largo hace scroll normal. Queda el tirador sin sticky (hallazgo 6) |
-| 3 | La firma se repite en cada visita y no hay tick | CORREGIDO | recienGuardada = fecha === fechaLocal() && !reduce (:48). El resorte (:206-208), el destello (:171-177) y el Check verde (:216-226) quedan condicionados a eso. Se ve en 06-empresa-dia1.png (tick verde en «NUEVA · DÍA 1»). En el día 8 entra con la animación normal |
-| 4 | Rótulos sin respaldo a 360px | CORREGIDO | truncate + tracking .04em (:281). En app-360/19 se leen completos VALIDACIÓN, COMPETENCIA, CLIENTE IDEAL y TU FRASE. Queda la variante de tracking frente a la tarjeta héroe (hallazgo 5) |
-| 5 | entrar(4) choca con las semanas y «7 de 30» no cuenta | CORREGIDO | entrar(2 + grupos.length) (:298). CuentaPiezas anima de 0 a N con animate() de Motion y respeta reduced motion (:460-476) |
-| 6 (BAJA) | Contador «6» en una semana completa de 7 | NO CORREGIDO | :257 (hallazgo 2) |
-| 7 (BAJA) | X de la hoja desalineada | NO CORREGIDO | :423 sigue con items-start (hallazgo 5) |
-| 8 (BAJA) | «Hoy» al fondo | NO CORREGIDO | :297 (hallazgo 1) |
-| extra | La hoja prometía IA | CORREGIDO | :446 dice «Versión base, armada con tus respuestas.» |
+| 1 | «Hoy · Día 8» al fondo | CORREGIDO | Empresa.tsx:234-247: la tarjeta va justo debajo de la pieza nueva. Se ve en la primera vista a 375 y a 360 |
+| 2 | Contador «6» en una semana completa | CORREGIDO | :273 cuenta las piezas guardadas de la semana sobre el total de la ruta. En pantalla dice «7/7» |
+| 3 | Vacío muerto bajo los fantasmas en el día 1 | CORREGIDO | :325-330 agrega una línea con ícono de pieza: «Al día 30 aquí estará tu negocio completo…» (06-empresa-dia1.png, también a 360) |
+| 4 | El resumen de la pieza nueva empata con el encabezado de semana | CORREGIDO A MEDIAS | :230 usa font-display text-xl extrabold y ya domina, pero queda la cercanía 20/18 (hallazgo 5) |
+| 5 | Tracking de rótulo desigual y X desalineada | CORREGIDO | El tracking es .04em en la tarjeta héroe (:213), en el mosaico (:298) y en la hoja (:458). La X (:468, mt-2) ya queda a la altura del título |
+| 6 | El tirador de la hoja no se queda fijo | CORREGIDO, CON EFECTO SECUNDARIO | :452 tiene sticky -top-4, pero su fondo liso crea el corte de la franja (hallazgo 3) |
+| nuevo | Editar con mis palabras | IMPLEMENTADO CON FALLOS | Cancelar, validación de vacío y error de guardado con solución están bien. La fecha se conserva (lib/cuenta.ts:236 no toca `fecha`), así que la racha no se mueve. La cuenta se actualiza por el evento (:90). Fallan la pérdida silenciosa del borrador y la sobrescritura sin deshacer (hallazgos 1 y 2) |
 
-Delta: 31/40 → 32/40 (h3 sube de 3 a 4: la hoja se cierra con la X, Escape, el velo, el botón atrás y el arrastre desde el tirador, sin bloquear el scroll, y el foco vuelve al origen). 15/20 → 16/20 (movimiento sube de 3 a 4: las 7 baseline verificadas, con stagger sin choques, conteo, barras, tap, layoutId en la navegación, hoja suave y tick de celebración, más MotionConfig reducedMotion="user"). Craft ya pasa el umbral (≥16/20). Usabilidad sigue 4 puntos por debajo de 36/40. El camino más corto es subir la acción del día (hallazgo 1), corregir el contador de semana (hallazgo 2), llenar el vacío del día 1 (hallazgo 3) y unificar las variantes de label (hallazgo 5).
+Delta: 32/40 → 34/40.
+- Suben 1 punto cada uno: h4 a 4 (sin variantes accidentales y el contador ya es coherente), h9 a 4 (los errores de edición, copia y compartir dicen qué pasó y qué hacer) y h10 a 4 (el día 1 enseña lo que viene).
+- Baja 1 punto: h3, de 4 a 3, porque la edición sobrescribe sin deshacer y la hoja se cierra con el borrador a medias.
+- Se mantienen h5 en 3, ahora por el borrador que se pierde, y h8 en 3 por los dos dorados que llevan a la misma misión (el botón central y la tarjeta «Hoy») y el mosaico de 6.
+
+Craft se queda en 16/20: se corrigieron el tracking y la X, pero aparece el corte de la banda del tirador.
+
+Para llegar a 36/40, lo más corto es proteger el borrador (hallazgo 1) y guardar la versión original con «Volver a la versión base» (hallazgo 2). Eso recupera h3 y h5.

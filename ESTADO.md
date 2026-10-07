@@ -1,7 +1,7 @@
 # ESTADO — EMPRESAI
 Última actualización: 2026-10-07 | Sesión actual: 5 (Entrar + app por dentro)
 
-⏸️ CHECKPOINT — Última acción completada (2026-10-07): ronda 4 del revisor recibida en las 5 (Hoy 29/16 · Ruta 30/15 · Mi Empresa 32/16 · Misión 29/15 · Entrar 30/15 — todas NO LISTA) / Siguiente acción exacta: aplicar arreglos ronda 4 (Hoy: fila "Mañana" en día 1; Misión: nota "mejorar desde Mi Empresa" → agregar Editar en la hoja; Ruta: geometría del camino; Entrar: guardar correo) → recapturar → ronda 5 → carrusel landing con capturas reales → OK de la dueña → Sesión 6
+⏸️ CHECKPOINT — Última acción completada (2026-10-07): arreglos de la ronda 4 aplicados y commiteados (2a6a75d; tsc ✓ lint ✓ build ✓, capturas 375/360 sin desborde ni errores) — revisor-visual RONDA 5 en curso en Hoy, Ruta, Mi Empresa, Misión y Entrar / Siguiente acción exacta: aplicar veredictos ronda 5 → carrusel de la landing con capturas reales (quita el claim «La IA usó…» del día 8) → OK de la dueña → Sesión 6
 
 ## Qué es esta app (3 líneas máximo)
 App web tipo Duolingo que guía a emprendedores principiantes LATAM a lanzar su negocio/producto digital con IA en 30 días, 5 min/día.
@@ -122,6 +122,7 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 - Framework: Next.js App Router (landing con SEO + rutas de servidor para la IA) — 2026-09-29
 - Stack: React + TS + Tailwind v4 + shadcn/ui + Lucide + motion (51 pineado) · Supabase · Vercel · Resend · Hotmart
 - Idioma UI: solo español (LATAM neutro, tuteo)
+- App por dentro (Sesión 5): rótulos `corto` ≤16 en lib/ruta.ts · días 5-30 = borrador guiado con plantilla (sin IA hasta Sesión 6) · cierres 7/14/21/30 compilan la semana · ACCESO_REAL=false hasta /api/acceso (correo guardado en localStorage `empresai_correo_acceso`) · botón central: rayo dorado → misión / check verde → pieza de hoy · MotionConfig reducedMotion=user + template con fundido 200ms · editarPieza conserva la fecha (no mueve la racha) — 2026-10-07
 - Auth: magic link + código de 6 dígitos por email (Hotmart-first, 26); passkey ofrecida tras la primera victoria; sin contraseñas. Rate limit en endpoints de auth.
 - Estado anónimo del onboarding en localStorage versionado ({v, respuestas, primeraPieza}) → migra a la cuenta al primer login (26).
 - IA: Claude vía servidor (BFF), nunca en el navegador. AI_MODEL=claude-sonnet-5-5 (generación de piezas), modelo en env var. Salida estructurada. Prompt caching del sistema. max_tokens limitado. Tabla ai_calls + kill-switch de gasto (30/31). Texto síncrono con streaming.

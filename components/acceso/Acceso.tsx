@@ -13,7 +13,7 @@ import { useEffect, useId, useRef, useState, useSyncExternalStore } from 'react'
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { ArrowRight, CheckCircle2, KeyRound, LoaderCircle, LockKeyhole, MailCheck, RotateCcw } from 'lucide-react';
+import { ArrowRight, CheckCircle2, KeyRound, LoaderCircle, MailCheck, RotateCcw, ShieldCheck } from 'lucide-react';
 import { LogoEmpresai } from '@/components/app/LogoEmpresai';
 import { EASE_SALIDA, RutaMini, TituloAcento, vibrar } from '@/components/onboarding/piezas';
 import { crearCuenta, useCuenta } from '@/lib/cuenta';
@@ -316,7 +316,7 @@ export function Acceso() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, x: reduce ? 0 : -16 }}
               transition={{ duration: 0.25 }}
-              className="flex flex-1 flex-col pt-8"
+              className="flex flex-1 flex-col justify-center py-8"
             >
               <motion.div {...entrar(1)}>
                 <TituloAcento texto="Entra a tu ruta de 30 días" acento="tu ruta" className="text-pregunta" />
@@ -337,6 +337,12 @@ export function Acceso() {
                 <label htmlFor={idCampo} className="text-sm font-semibold text-ink-1">
                   Tu correo
                 </label>
+                {!ACCESO_REAL && !demoPermitida() && correoGuardado && email === correoGuardado && (
+                  <p className="flex items-start gap-2 text-caption text-ink-2">
+                    <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-green" aria-hidden="true" />
+                    Ya guardaste este correo. El acceso todavía no abre: cuando abra, entras con él.
+                  </p>
+                )}
                 <input
                   ref={campo}
                   id={idCampo}
@@ -385,7 +391,7 @@ export function Acceso() {
                   )}
                 </button>
                 <p className="mt-2 flex items-start gap-2 text-caption text-ink-2">
-                  <LockKeyhole size={16} className="mt-0.5 shrink-0 text-ink-3" aria-hidden="true" />
+                  <ShieldCheck size={16} className="mt-0.5 shrink-0 text-ink-3" aria-hidden="true" />
                   <span>
                     {ACCESO_REAL || demoPermitida()
                       ? 'Sin contraseñas: te llega un enlace de un solo uso. '

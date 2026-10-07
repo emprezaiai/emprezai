@@ -28,6 +28,8 @@ export interface PiezaGuardada {
   base?: boolean;
   /** La persona la ajustó con sus palabras desde Mi Empresa. */
   editadaEn?: string;
+  /** Texto y resumen de la versión base, guardados la primera vez que se edita (para volver a ella). */
+  original?: { contenido: string; resumen?: string };
 }
 
 export interface Cuenta {
@@ -232,9 +234,33 @@ export function guardarPieza(cuenta: Cuenta, pieza: Omit<PiezaGuardada, 'fecha' 
 export function editarPieza(cuenta: Cuenta, dia: number, contenido: string): Cuenta | null {
   const texto = contenido.trim();
   if (!texto) return null;
+  const actual = cuenta.piezas.find((p) => p.dia === dia);
+  if (!actual) return null;
+  if (texto === actual.contenido) return cuenta; // sin cambios: no se toca la pieza
   const piezas = cuenta.piezas.map((p) =>
-    p.dia === dia ? { ...p, contenido: texto, resumen: texto === p.contenido ? p.resumen : undefined, base: false, editadaEn: new Date().toISOString() } : p,
+    p.dia === dia
+      ? {
+          ...p,
+          contenido: texto,
+          resumen: undefined,
+          base: false,
+          editadaEn: new Date().toISOString(),
+          original: p.original ?? { contenido: p.contenido, resumen: p.resumen },
+        }
+      : p,
   );
+  const actualizada = { ...cuenta, piezas };
+  return guardarCuenta(actualizada) ? actualizada : null;
+}
+
+/** Vuelve a la versión base de una pieza editada. Devuelve null si no se pudo guardar. */
+export function restaurarPieza(cuenta: Cuenta, dia: number): Cuenta | null {
+  const piezas = cuenta.piezas.map((p) => {
+    if (p.dia !== dia || !p.original) return p;
+    const { original, editadaEn: _editada, ...resto } = p;
+    void _editada;
+    return { ...resto, contenido: original.contenido, resumen: original.resumen, base: true };
+  });
   const actualizada = { ...cuenta, piezas };
   return guardarCuenta(actualizada) ? actualizada : null;
 }

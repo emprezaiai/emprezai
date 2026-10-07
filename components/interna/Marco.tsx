@@ -99,7 +99,7 @@ function NavInferior() {
           <Link
             href={hecha && cuenta ? `/app/empresa?pieza=${Math.max(...cuenta.piezas.map((p) => p.dia))}` : '/app/mision'}
             aria-label={hecha ? 'Ver la pieza de hoy' : 'Misión de hoy'}
-            className={`${hecha ? 'boton-central-hecho' : 'boton-central'} -mt-8 flex size-16 items-center justify-center rounded-full transition-transform duration-150 active:scale-95`}
+            className={`${hecha ? 'boton-central-hecho' : ruta.startsWith('/app/ruta') ? 'boton-central-quieto' : 'boton-central'} -mt-8 flex size-16 items-center justify-center rounded-full transition-transform duration-150 active:scale-95`}
           >
             {hecha ? <Check size={30} strokeWidth={3} aria-hidden="true" /> : <Zap size={28} fill="currentColor" strokeWidth={0} aria-hidden="true" />}
           </Link>

@@ -7,8 +7,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, animate, motion, useDragControls, useReducedMotion } from 'motion/react';
-import { ArrowRight, Check, ChevronDown, Copy, Download, LockKeyhole, PencilLine, Puzzle, Share, X } from 'lucide-react';
-import { editarPieza, estadoRuta, fechaLocal, type Cuenta, type PiezaGuardada } from '@/lib/cuenta';
+import { ArrowRight, Check, ChevronDown, Copy, Download, LockKeyhole, PencilLine, Puzzle, RotateCcw, Share, X } from 'lucide-react';
+import { editarPieza, estadoRuta, restaurarPieza, fechaLocal, type Cuenta, type PiezaGuardada } from '@/lib/cuenta';
 import { RUTA, SEMANAS, TOTAL_DIAS, diaRuta } from '@/lib/ruta';
 import { EASE_SALIDA } from '@/components/onboarding/piezas';
 import { useCuentaActiva } from './Marco';
@@ -266,7 +266,7 @@ export function Empresa() {
                     className="flex min-h-11 w-full items-center gap-2 text-left"
                   >
                     {completa && <Check size={16} strokeWidth={3} className="text-green" aria-hidden="true" />}
-                    <span className="flex-1 font-display text-lg font-bold text-ink-1">
+                    <span className="flex-1 font-display text-base font-semibold text-ink-1">
                       Semana {g.semana.numero} · {g.semana.tema}
                     </span>
                     <span className="text-xs text-ink-3 tabular-nums">
@@ -348,19 +348,44 @@ export function Empresa() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {piezaAbierta && <HojaPieza pieza={piezaAbierta} onCerrar={cerrar} onEditar={(texto) => Boolean(editarPieza(cuenta, piezaAbierta.dia, texto))} />}
+        {piezaAbierta && (
+          <HojaPieza
+            pieza={piezaAbierta}
+            onCerrar={cerrar}
+            onEditar={(texto) => Boolean(editarPieza(cuenta, piezaAbierta.dia, texto))}
+            onRestaurar={() => Boolean(restaurarPieza(cuenta, piezaAbierta.dia))}
+          />
+        )}
       </AnimatePresence>
     </main>
   );
 }
 
 /* Detalle de una pieza: texto completo, cómo usarla, copiar. */
-function HojaPieza({ pieza, onCerrar, onEditar }: { pieza: PiezaGuardada; onCerrar: () => void; onEditar: (texto: string) => boolean }) {
+function HojaPieza({
+  pieza,
+  onCerrar,
+  onEditar,
+  onRestaurar,
+}: {
+  pieza: PiezaGuardada;
+  onCerrar: () => void;
+  onEditar: (texto: string) => boolean;
+  onRestaurar: () => boolean;
+}) {
   const reduce = useReducedMotion();
   const [editando, setEditando] = useState(false);
   const [borrador, setBorrador] = useState(pieza.contenido);
   const [errorEdicion, setErrorEdicion] = useState('');
   const campoEdicion = useRef<HTMLTextAreaElement>(null);
+  const [confirmarSalida, setConfirmarSalida] = useState(false);
+  const [guardada, setGuardada] = useState<'' | 'tuya' | 'base'>('');
+  const conCambios = editando && borrador.trim() !== pieza.contenido;
+  // Cerrar con cambios sin guardar pide confirmación (velo, Escape, X o arrastre).
+  const pedirCierre = useCallback(() => {
+    if (conCambios) setConfirmarSalida(true);
+    else onCerrar();
+  }, [conCambios, onCerrar]);
   const arrastre = useDragControls();
   const hoja = useRef<HTMLDivElement>(null);
   const cerrar = useRef<HTMLButtonElement>(null);
@@ -369,7 +394,7 @@ function HojaPieza({ pieza, onCerrar, onEditar }: { pieza: PiezaGuardada; onCerr
   useEffect(() => {
     cerrar.current?.focus();
     const tecla = (ev: KeyboardEvent) => {
-      if (ev.key === 'Escape') onCerrar();
+      if (ev.key === 'Escape') pedirCierre();
       // El foco no se escapa de la hoja mientras está abierta.
       if (ev.key === 'Tab' && hoja.current) {
         const enfocables = hoja.current.querySelectorAll<HTMLElement>('button, a[href], textarea');
@@ -386,7 +411,13 @@ function HojaPieza({ pieza, onCerrar, onEditar }: { pieza: PiezaGuardada; onCerr
     };
     window.addEventListener('keydown', tecla);
     return () => window.removeEventListener('keydown', tecla);
-  }, [onCerrar]);
+  }, [pedirCierre]);
+
+  useEffect(() => {
+    if (!guardada) return;
+    const t = window.setTimeout(() => setGuardada(''), 2400);
+    return () => window.clearTimeout(t);
+  }, [guardada]);
 
   useEffect(() => {
     const anterior = document.body.style.overflow;
@@ -413,6 +444,17 @@ function HojaPieza({ pieza, onCerrar, onEditar }: { pieza: PiezaGuardada; onCerr
     }
     setErrorEdicion('');
     setEditando(false);
+    setConfirmarSalida(false);
+    if (borrador.trim() !== pieza.contenido) setGuardada('tuya');
+  }
+
+  function volverABase() {
+    if (!onRestaurar()) {
+      setErrorEdicion('No pudimos guardar en este celular. Libera espacio e intenta otra vez.');
+      return;
+    }
+    setErrorEdicion('');
+    setGuardada('base');
   }
 
   async function copiar() {
@@ -425,7 +467,7 @@ function HojaPieza({ pieza, onCerrar, onEditar }: { pieza: PiezaGuardada; onCerr
   }
 
   return (
-    <motion.div className="velo-oscuro fixed inset-0 z-30 flex items-end justify-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onCerrar}>
+    <motion.div className="velo-oscuro fixed inset-0 z-30 flex items-end justify-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={pedirCierre}>
       <motion.div
         ref={hoja}
         role="dialog"
@@ -442,20 +484,22 @@ function HojaPieza({ pieza, onCerrar, onEditar }: { pieza: PiezaGuardada; onCerr
         dragConstraints={{ top: 0, bottom: 0 }}
         dragElastic={{ top: 0, bottom: 0.6 }}
         onDragEnd={(_, info) => {
-          if (info.offset.y > 100) onCerrar();
+          if (info.offset.y > 100) pedirCierre();
         }}
         className="tarjeta-relieve max-h-[85dvh] w-full max-w-md overflow-y-auto rounded-t-[var(--radius-card)] px-4 pt-4 pb-[max(16px,env(safe-area-inset-bottom))]"
       >
         <div
           aria-hidden="true"
           onPointerDown={(ev) => arrastre.start(ev)}
-          className="sticky -top-4 z-10 -mx-4 -mt-4 mb-1 flex h-8 cursor-grab touch-none items-center justify-center bg-raised"
+          className="sticky -top-4 z-10 -mx-4 -mt-4 mb-3 flex h-8 cursor-grab touch-none items-center justify-center bg-[color-mix(in_oklab,white_5%,var(--surface-raised))]"
         >
           <span className="block h-1 w-10 rounded-full bg-ink-3" />
         </div>
         <div className="flex items-start gap-3">
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-bold tracking-[0.04em] text-green uppercase">Día {pieza.dia} · {pieza.editadaEn ? 'tu versión' : 'lista'}</p>
+            <p role="status" className="text-xs font-bold tracking-[0.04em] text-green uppercase">
+              Día {pieza.dia} · {guardada === 'tuya' ? '¡Tu versión quedó guardada!' : guardada === 'base' ? 'Volviste a la versión base' : pieza.editadaEn ? 'tu versión' : 'lista'}
+            </p>
             <h2 id="titulo-pieza" className="mt-1 font-display text-xl font-extrabold text-ink-1">
               {pieza.titulo}
             </h2>
@@ -463,7 +507,7 @@ function HojaPieza({ pieza, onCerrar, onEditar }: { pieza: PiezaGuardada; onCerr
           <button
             ref={cerrar}
             type="button"
-            onClick={onCerrar}
+            onClick={pedirCierre}
             aria-label="Cerrar"
             className="-mr-2 mt-2 flex size-11 shrink-0 items-center justify-center rounded-full text-ink-2 transition-colors duration-150 hover:bg-raised-2"
           >
@@ -505,6 +549,30 @@ function HojaPieza({ pieza, onCerrar, onEditar }: { pieza: PiezaGuardada; onCerr
           </p>
         ))}
         {!editando && pieza.base && <p className="mt-4 text-caption text-ink-3">Versión base, armada con tus respuestas. Ajústala con tus palabras cuando quieras.</p>}
+        {confirmarSalida && (
+          <div role="alertdialog" aria-labelledby="titulo-descartar" className="mt-4 rounded-[var(--radius-chip)] border border-[var(--line)] bg-sunken p-3">
+            <p id="titulo-descartar" className="text-sm font-semibold text-ink-1">
+              ¿Descartar tus cambios?
+            </p>
+            <p className="mt-1 text-caption text-ink-2">Si cierras ahora, se pierde lo que escribiste.</p>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmarSalida(false)}
+                className="flex h-11 items-center justify-center rounded-[var(--radius-pill)] border border-[var(--line)] bg-raised-2 text-sm font-semibold text-ink-1 transition-transform duration-150 active:scale-[0.97]"
+              >
+                Seguir editando
+              </button>
+              <button
+                type="button"
+                onClick={onCerrar}
+                className="flex h-11 items-center justify-center rounded-[var(--radius-pill)] text-sm font-semibold text-danger transition-transform duration-150 active:scale-[0.97]"
+              >
+                Descartar
+              </button>
+            </div>
+          </div>
+        )}
         {editando ? (
           <>
             <button type="button" onClick={guardarEdicion} className="boton-oro mt-6 flex h-14 w-full items-center justify-center gap-2 rounded-[var(--radius-pill)] font-display text-boton font-bold">
@@ -541,6 +609,21 @@ function HojaPieza({ pieza, onCerrar, onEditar }: { pieza: PiezaGuardada; onCerr
               <PencilLine size={18} aria-hidden="true" />
               Editar con mis palabras
             </button>
+            {pieza.original && (
+              <button
+                type="button"
+                onClick={volverABase}
+                className="mt-1 flex min-h-11 w-full items-center justify-center gap-2 text-sm font-semibold text-ink-2 transition-transform duration-150 active:scale-[0.97]"
+              >
+                <RotateCcw size={16} aria-hidden="true" />
+                Volver a la versión base
+              </button>
+            )}
+            {errorEdicion && (
+              <p role="alert" className="mt-1 text-center text-caption text-danger">
+                {errorEdicion}
+              </p>
+            )}
           </>
         )}
         <p role="status" className={copiado === 'error' ? 'mt-2 text-center text-caption text-warning' : 'sr-only'}>

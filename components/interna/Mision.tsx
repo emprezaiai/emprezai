@@ -165,7 +165,8 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
   const [anterior, setAnterior] = useState<string | null>(null);
   const [campo, sacudir] = useAnimate<HTMLTextAreaElement>();
   const valido = limpiarTexto(texto, LARGO_MAX_BORRADOR).length >= 15 && !texto.includes('___');
-  const plantillaPuesta = Boolean(guia && texto.includes(guia.plantilla));
+  const conTexto = texto.trim().length > 0;
+  const errorCampo = aviso > 0 && !valido ? (texto.includes('___') ? 'Completa los espacios ___ con tus palabras.' : 'Escribe al menos una frase.') : '';
 
   useEffect(() => {
     if (anterior === null) return;
@@ -210,13 +211,7 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
       accion={
         <BotonPrincipal
           onClick={guardar}
-          nota={
-            aviso > 0 && !valido ? (
-              <span className="text-danger">{texto.includes('___') ? 'Completa los espacios ___ con tus palabras.' : 'Escribe al menos una frase.'}</span>
-            ) : (
-              'Se guarda como tu pieza de hoy'
-            )
-          }
+          nota="Se guarda como tu pieza de hoy"
         >
           Guardar en Mi Empresa
           <ArrowRight size={20} aria-hidden="true" />
@@ -234,14 +229,16 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
       </motion.div>
 
       <div className="hairline-oro relieve-tarjeta mt-4 rounded-[var(--radius-card)] p-3">
-        <label htmlFor={idCampo} className="flex items-center justify-between gap-2 px-1 text-sm font-semibold text-ink-1">
-          Tu {dia.corto.toLowerCase()}
+        <div className="flex items-center justify-between gap-2 px-1">
+          <label htmlFor={idCampo} className="text-sm font-semibold text-ink-1">
+            Tu {dia.corto.toLowerCase()}
+          </label>
           <button
             type="button"
-            disabled={plantillaPuesta}
+            disabled={conTexto}
             onClick={() => {
               setAnterior(texto);
-              setTexto(texto.trim() ? `${texto.trim()}\n${guia.plantilla}` : guia.plantilla);
+              setTexto(guia.plantilla);
               vibrar();
             }}
             className="-mr-2 flex min-h-11 items-center gap-1 rounded-[var(--radius-pill)] px-2 text-xs font-semibold text-gold active:scale-95 disabled:text-ink-3 disabled:active:scale-100"
@@ -249,7 +246,7 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
             <WandSparkles size={14} aria-hidden="true" />
             Usar plantilla
           </button>
-        </label>
+        </div>
         <textarea
           ref={campo}
           id={idCampo}
@@ -257,11 +254,18 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
           maxLength={LARGO_MAX_BORRADOR}
           onChange={(ev) => setTexto(ev.target.value)}
           rows={5}
+          aria-invalid={Boolean(errorCampo)}
+          aria-describedby={errorCampo ? `${idCampo}-error` : undefined}
           placeholder="Escríbelo aquí con tus palabras, o toca «Usar plantilla»."
           className={`mt-1 w-full resize-none rounded-[var(--radius-chip)] border bg-sunken px-4 py-3 text-base leading-snug text-ink-1 placeholder:text-ink-3 focus:outline-none ${
             aviso && !valido ? 'border-danger focus:border-danger' : 'border-[var(--line)] focus:border-gold'
           }`}
         />
+        {errorCampo && (
+          <p id={`${idCampo}-error`} role="alert" className="mt-1 px-1 text-caption text-danger">
+            {errorCampo}
+          </p>
+        )}
         <AnimatePresence initial={false}>
           {anterior !== null && (
             <motion.p
@@ -288,6 +292,14 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
         </AnimatePresence>
         <p className="mt-2 px-1 text-caption text-ink-3">Es tu versión base: la puedes editar cuando quieras desde Mi Empresa.</p>
       </div>
+
+      <section className="tarjeta-relieve-base mt-4 rounded-[var(--radius-card)] p-3" aria-labelledby="titulo-ejemplo">
+        <h2 id="titulo-ejemplo" className="flex items-center gap-2 text-sm font-semibold text-ink-2">
+          <Lightbulb size={16} className="shrink-0 text-gold" aria-hidden="true" />
+          Así lo hizo Ana (tortas por encargo)
+        </h2>
+        <p className="mt-1 text-sm leading-snug text-ink-1">{guia.ejemplo}</p>
+      </section>
 
       {usadas.length > 0 && (
         <section className="mt-6" aria-labelledby="titulo-repaso">
@@ -529,7 +541,7 @@ function MisionGuiadaFlujo({ onGuardada }: { onGuardada: (dia: number) => void }
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: reduce ? 0 : -20 }}
             transition={{ duration: 0.25, ease: EASE_SALIDA }}
-            className="mt-6 px-4"
+            className="flex flex-1 flex-col justify-center px-4 py-6"
             aria-label={pregunta.pregunta}
           >
             <p className="sr-only">
@@ -658,6 +670,7 @@ function MisionGuiadaFlujo({ onGuardada }: { onGuardada: (dia: number) => void }
             transition={{ duration: 0.35, ease: EASE_SALIDA }}
             className="flex flex-1 flex-col justify-center px-4 py-6"
           >
+            <TituloAcento texto={`Así queda tu ${dia.corto.toLowerCase()}`} acento={dia.corto.toLowerCase()} as="h1" className="mb-4 text-pregunta" />
             <article className="hairline-oro relieve-tarjeta rounded-[var(--radius-card)] p-4">
               <p className="text-xs font-bold tracking-[0.04em] text-gold uppercase">
                 Pieza {dia.dia} · {dia.corto}
@@ -681,7 +694,7 @@ function MisionGuiadaFlujo({ onGuardada }: { onGuardada: (dia: number) => void }
               Cambiar mis respuestas
             </button>
             {RUTA[dia.dia] && (
-              <p className="mt-2 flex items-start gap-2 text-caption text-ink-2">
+              <p className="mt-2 flex items-start justify-center gap-2 text-center text-caption text-ink-2">
                 <Sparkles size={16} className="mt-0.5 shrink-0 text-ink-3" aria-hidden="true" />
                 Mañana, el día {dia.dia + 1} ({RUTA[dia.dia].pieza.toLowerCase()}) usa esta pieza.
               </p>
@@ -871,7 +884,7 @@ function Celebracion({ dia }: { dia: number }) {
             </strong>{' '}
             {e.racha === 1 ? 'día' : 'días'}
           </span>
-          <span aria-hidden="true">·</span>
+          <span aria-hidden="true" className="size-1 self-center rounded-full bg-ink-3" />
           <span>
             <strong className="font-display text-lg text-ink-1">
               <Cuenta valor={e.piezasListas} />
