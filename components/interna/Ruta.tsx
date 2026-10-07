@@ -31,6 +31,35 @@ export function Ruta() {
   const [aviso, setAviso] = useState('');
   const [hoyVisible, setHoyVisible] = useState(true);
   const [llamado, setLlamado] = useState(0);
+  const [verGuia, setVerGuia] = useState(() => {
+    try {
+      return localStorage.getItem('empresai_guia_ruta') !== 'vista';
+    } catch {
+      return false;
+    }
+  });
+
+  function cerrarGuia() {
+    setVerGuia(false);
+    try {
+      localStorage.setItem('empresai_guia_ruta', 'vista');
+    } catch {
+      // Sin almacenamiento: se vuelve a mostrar la próxima vez.
+    }
+  }
+
+  useEffect(() => {
+    if (!aviso) return;
+    const t = window.setTimeout(() => setAviso(''), 4000);
+    const tecla = (ev: KeyboardEvent) => {
+      if (ev.key === 'Escape') setAviso('');
+    };
+    window.addEventListener('keydown', tecla);
+    return () => {
+      window.clearTimeout(t);
+      window.removeEventListener('keydown', tecla);
+    };
+  }, [aviso]);
   const semanaActual = diaRuta(e.hechaHoy ? Math.max(e.piezasListas, 1) : e.diaActual).semana;
   const refHoy = useRef<HTMLLIElement>(null);
   const refSemana = useRef<HTMLElement>(null);
@@ -72,21 +101,30 @@ export function Ruta() {
   return (
     <main className="fondo-puntos-ruta">
       <header className="sticky top-0 z-10 flex h-16 items-center gap-2 border-b border-[var(--line)] bg-[var(--surface-base)] px-4">
-        <p className="flex h-9 items-center gap-1 rounded-[var(--radius-pill)] border border-[var(--line)] px-3 text-sm text-ink-2">
+        <Link
+          href="/app/perfil#recordatorio"
+          aria-label={`Racha de ${e.racha} ${e.racha === 1 ? 'día' : 'días'}${e.rachaEnRiesgo ? ', en juego hoy' : ''}. Ver tu recordatorio diario`}
+          className={`flex h-9 items-center gap-1 rounded-[var(--radius-pill)] border px-3 text-sm transition-transform duration-150 active:scale-[0.97] ${
+            e.rachaEnRiesgo ? 'border-[color-mix(in_oklab,var(--warning)_45%,transparent)] text-warning' : 'border-[var(--line)] text-ink-2'
+          }`}
+        >
           <span className="relative flex">
-            <Flame size={18} className={e.rachaEnRiesgo ? 'text-ink-2' : 'text-gold'} fill={e.rachaEnRiesgo ? 'none' : 'currentColor'} aria-hidden="true" />
-            {e.rachaEnRiesgo && <span aria-hidden="true" className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-warning ring-2 ring-[var(--surface-base)]" />}
+            <Flame size={18} className={e.rachaEnRiesgo ? 'text-warning' : 'text-gold'} fill={e.rachaEnRiesgo ? 'none' : 'currentColor'} aria-hidden="true" />
           </span>
           <span className="font-display text-base font-extrabold text-ink-1 tabular-nums">{e.racha}</span>
           {e.racha === 1 ? 'día' : 'días'}
-          {e.rachaEnRiesgo && <span className="sr-only">(hoy falta tu pieza para mantenerla)</span>}
-        </p>
-        <p className="flex h-9 items-center gap-1 rounded-[var(--radius-pill)] border border-[var(--line)] px-3 text-sm text-ink-2">
+          {e.rachaEnRiesgo && <span aria-hidden="true">· hoy</span>}
+        </Link>
+        <Link
+          href="/app/empresa"
+          aria-label={`${e.piezasListas} de ${TOTAL_DIAS} piezas. Ver Mi Empresa`}
+          className="flex h-9 items-center gap-1 rounded-[var(--radius-pill)] border border-[var(--line)] px-3 text-sm text-ink-2 transition-transform duration-150 active:scale-[0.97]"
+        >
           <Puzzle size={18} className="text-green" aria-hidden="true" />
           <span className="font-display text-base font-extrabold text-ink-1 tabular-nums">
             <CuentaRuta valor={e.piezasListas} />/{TOTAL_DIAS}
           </span>
-        </p>
+        </Link>
         {!hoyVisible && (
           <motion.button
             type="button"
@@ -102,6 +140,26 @@ export function Ruta() {
       </header>
 
       <div className="px-4 pt-2">
+        <AnimatePresence initial={false}>
+          {verGuia && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: reduce ? 0 : 0.2, ease: EASE_SALIDA }}
+              className="overflow-hidden"
+            >
+              <p className="mb-4 flex items-start gap-2 rounded-[var(--radius-chip)] border border-[var(--line)] bg-sunken py-2 pr-1 pl-3 text-caption text-ink-2">
+                <span className="flex-1 pt-1">
+                  Cada día se abre una pieza nueva de 5 minutos. Toca un día <strong className="font-semibold text-green">hecho</strong> para ver su pieza.
+                </span>
+                <button type="button" onClick={cerrarGuia} aria-label="Cerrar la guía" className="flex size-8 shrink-0 items-center justify-center rounded-full text-ink-2">
+                  <X size={16} aria-hidden="true" />
+                </button>
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
         {SEMANAS.map((s) => {
           const dias = RUTA.filter((d) => d.semana === s.numero);
           const completa = dias.every((d) => hecho.has(d.dia));
@@ -119,7 +177,7 @@ export function Ruta() {
               const lado = Math.sign(p.x - a.x) || 1;
               const desde = { x: a.x + lado * (radio(dias[j].dia) + 8), y: a.y };
               const hasta = { x: p.x, y: p.y - radio(dias[j + 1].dia) - (estadoDe(dias[j + 1].dia) === 'hoy' ? 40 : 8) };
-              return `M ${desde.x} ${desde.y} C ${desde.x + lado * 48} ${desde.y} ${hasta.x} ${hasta.y - 48} ${hasta.x} ${hasta.y}`;
+              return `M ${desde.x} ${desde.y} C ${desde.x + lado * 48} ${desde.y} ${hasta.x - lado * 40} ${hasta.y - 40} ${hasta.x} ${hasta.y}`;
             })
             .join(' ');
           return (
@@ -137,6 +195,9 @@ export function Ruta() {
                 <p className={`flex items-center gap-2 text-xs font-bold tracking-[0.08em] uppercase ${actual ? '' : completa ? 'text-green' : 'text-ink-3'}`}>
                   {completa && <Check size={14} strokeWidth={3} aria-hidden="true" />}
                   Semana {s.numero} de 4
+                  <span className={`ml-auto tracking-normal normal-case ${actual ? '' : 'text-ink-3'}`}>
+                    {dias.filter((d) => hecho.has(d.dia)).length} de {dias.length} listas
+                  </span>
                 </p>
                 <h2 className={`mt-1 font-display text-xl leading-tight font-extrabold ${actual ? '' : 'text-ink-1'}`}>{s.tema}</h2>
                 <p className={`mt-1 text-sm ${actual ? 'opacity-80' : 'text-ink-2'}`}>{s.meta}</p>

@@ -7,9 +7,9 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { animate, motion, useReducedMotion } from 'motion/react';
 import { ArrowRight, Bell, CalendarCheck, CheckCircle2, ChevronRight, Flame, LifeBuoy, LockKeyhole, Puzzle, RotateCcw, Sparkles } from 'lucide-react';
+import { hayBorrador } from '@/lib/borradores';
 import { estadoRuta, importarPieza1SiFalta, pieza1PorTraer } from '@/lib/cuenta';
 import { RESPONSABLE } from '@/lib/legal';
 import { RUTA, TOTAL_DIAS, diaRuta } from '@/lib/ruta';
@@ -59,8 +59,8 @@ function Cuenta({ valor }: { valor: number }) {
 export function Hoy() {
   const cuenta = useCuentaActiva();
   const reduce = useReducedMotion();
-  const router = useRouter();
-  const [reintento, setReintento] = useState<'' | 'fallo' | 'ok'>('');
+  const [reintento, setReintento] = useState<'' | 'fallo' | 'fallo2' | 'ok'>('');
+  const [reintentando, setReintentando] = useState(false);
 
   useEffect(() => {
     if (reintento !== 'ok') return;
@@ -94,9 +94,16 @@ export function Hoy() {
       ? `El Método Pieza a Pieza ya tiene ${lista(usadas)}: hoy arma ${minusculaInicial(hoyRuta.pieza)} con eso.`
       : 'Hoy empieza tu Método Pieza a Pieza: cada pieza se suma a la siguiente.';
 
-  const destinoHeroe = e.terminada ? '/app/empresa' : e.hechaHoy ? `/app/empresa?pieza=${diaMostrado}` : '/app/mision';
-  const textoCta = e.terminada ? 'Ver mi negocio completo' : e.hechaHoy ? `Ver mi negocio · ${e.piezasListas}/${TOTAL_DIAS}` : 'Empezar la misión de hoy';
-  const destinoCta = e.hechaHoy || e.terminada ? '/app/empresa' : '/app/mision';
+  // Si ya empezó la misión y la dejó a medias, el botón lo dice (sigue donde quedó).
+  const enCurso = !e.hechaHoy && !e.terminada && hayBorrador(e.diaActual);
+  const textoCta = e.terminada
+    ? 'Ver mi negocio completo'
+    : e.hechaHoy
+      ? 'Ver lo que sigue en mi ruta'
+      : enCurso
+        ? 'Seguir donde lo dejé'
+        : 'Empezar la misión de hoy';
+  const destinoCta = e.terminada ? '/app/empresa' : e.hechaHoy ? '/app/ruta' : '/app/mision';
 
   return (
     <main>
@@ -125,11 +132,10 @@ export function Hoy() {
           <p className="font-display text-lg font-bold text-ink-1">{saludo()}</p>
         </motion.div>
 
-        {/* 1. EL DATO DE HOY: la misión (o lo que ya armaste). Toda la tarjeta lleva a la acción. */}
+        {/* 1. EL DATO DE HOY: la misión (o lo que ya armaste). La acción es el botón de abajo. */}
         <motion.div {...entrar(1)}>
           <div
-            onClick={() => router.push(destinoHeroe)}
-            className={`heroe-hoy relative mt-4 block cursor-pointer overflow-hidden rounded-[var(--radius-card)] p-4 transition-transform duration-150 active:scale-[0.99] ${
+            className={`heroe-hoy relative mt-4 block overflow-hidden rounded-[var(--radius-card)] p-4 ${
               e.hechaHoy ? 'tarjeta-relieve' : 'tarjeta-relieve-oro'
             }`}
           >
@@ -154,7 +160,7 @@ export function Hoy() {
               Día {diaMostrado} de {TOTAL_DIAS} · {e.hechaHoy ? 'Listo' : `Semana ${hoyRuta.semana}`}
             </span>
             <h1 className="relative mt-2 block font-display text-2xl leading-tight font-extrabold text-ink-1">
-              <span aria-hidden="true" className="float-right h-8 w-24" />
+              <span aria-hidden="true" className="float-right h-[1lh] w-24" />
               {e.terminada ? '¡Tu negocio está listo para vender!' : e.hechaHoy ? `¡Pieza ${diaMostrado} lista!` : `Hoy: ${minusculaInicial(hoyRuta.mision)}`}
             </h1>
             <span className="relative mt-2 block text-ayuda text-ink-2">
@@ -189,7 +195,7 @@ export function Hoy() {
           <Link
             href={destinoCta}
             className={`flex h-14 items-center justify-center gap-2 rounded-[var(--radius-pill)] font-display text-boton font-bold ${
-              e.hechaHoy || e.terminada ? 'border border-[var(--line)] bg-raised-2 text-ink-1 transition-transform duration-150 active:scale-[0.98]' : 'boton-oro'
+              e.hechaHoy || e.terminada ? 'fila-pildora text-ink-1 transition-transform duration-150 active:scale-[0.98]' : 'boton-oro'
             }`}
           >
             {textoCta}
@@ -202,7 +208,7 @@ export function Hoy() {
           <li>
             <Link href="/app/ruta" className="tarjeta-relieve flex h-full flex-col gap-2 rounded-[var(--radius-card)] p-3 transition-transform duration-150 active:scale-[0.97]">
               {e.rachaEnRiesgo ? (
-                <span aria-hidden="true" className="flex size-10 items-center justify-center rounded-[var(--radius-chip)] border-[1.5px] border-ink-2 text-ink-2">
+                <span aria-hidden="true" className="flex size-10 items-center justify-center rounded-[var(--radius-chip)] border-[1.5px] border-warning text-warning">
                   <Flame size={20} strokeWidth={1.8} />
                 </span>
               ) : (
@@ -248,7 +254,7 @@ export function Hoy() {
                   />
                 ))}
               </span>
-              <span className="mt-auto text-xs text-ink-2">esta semana</span>
+              <span className="mt-auto text-xs text-ink-2">semana {semanaDeHoy}</span>
             </Link>
           </li>
         </motion.ul>
@@ -259,13 +265,15 @@ export function Hoy() {
             {e.rachaEnRiesgo ? (
               usadas.length ? (
                 <>
-                  <strong className="font-semibold text-ink-1">La llama espera:</strong> el Método ya tiene {lista(usadas)}; hoy arma{' '}
-                  {minusculaInicial(hoyRuta.pieza)} con eso.
+                  <strong className="font-semibold text-ink-1">
+                    Tu racha de {e.racha} {e.racha === 1 ? 'día' : 'días'} sigue si hoy armas {minusculaInicial(hoyRuta.pieza)}.
+                  </strong>{' '}
+                  El Método ya tiene {lista(usadas)} para ayudarte.
                 </>
               ) : (
-                <>
-                  <strong className="font-semibold text-ink-1">La llama espera:</strong> {minusculaInicial(hoyRuta.pieza)} la vuelve a prender.
-                </>
+                <strong className="font-semibold text-ink-1">
+                  Tu racha de {e.racha} {e.racha === 1 ? 'día' : 'días'} sigue si hoy armas {minusculaInicial(hoyRuta.pieza)}.
+                </strong>
               )
             ) : (
               insight
@@ -273,30 +281,49 @@ export function Hoy() {
           </span>
         </motion.p>
 
-        {faltaPieza1 && (
-          <motion.div {...entrar(5)} role="status" className="mt-4 flex items-center gap-3 rounded-[var(--radius-card)] border border-[var(--line)] bg-sunken p-3">
-            <p className="min-w-0 flex-1 text-caption text-ink-2">
-              {reintento === 'fallo'
-                ? 'Sigue sin entrar: libera espacio en el celular y vuelve a tocar.'
-                : 'Tu pieza 1 todavía no pasó a Mi Empresa. Suele ser falta de espacio en el celular.'}
+        <div role="status" aria-live="polite">
+          {faltaPieza1 ? (
+            <motion.div {...entrar(5)} className="mt-4 flex items-center gap-3 rounded-[var(--radius-card)] border border-[var(--line)] bg-sunken p-3">
+              <p className="min-w-0 flex-1 text-caption text-ink-2">
+                {reintento === 'fallo2' ? (
+                  <>
+                    Sigue sin entrar.{' '}
+                    <a
+                      href={`mailto:${RESPONSABLE.emailContacto}?subject=${encodeURIComponent('Mi pieza 1 no pasa a Mi Empresa')}`}
+                      className="font-semibold text-ink-1 underline underline-offset-4"
+                    >
+                      Escríbenos
+                    </a>{' '}
+                    y lo resolvemos contigo.
+                  </>
+                ) : reintento === 'fallo' ? (
+                  'Sigue sin entrar: libera espacio en el celular y vuelve a tocar.'
+                ) : (
+                  'Tu pieza 1 todavía no pasó a Mi Empresa. Suele ser falta de espacio en el celular.'
+                )}
+              </p>
+              <button
+                type="button"
+                disabled={reintentando}
+                onClick={() => {
+                  setReintentando(true);
+                  const ok = importarPieza1SiFalta(cuenta);
+                  setReintento(ok ? 'ok' : reintento === '' ? 'fallo' : 'fallo2');
+                  window.setTimeout(() => setReintentando(false), 800);
+                }}
+                className="flex min-h-11 shrink-0 items-center gap-1 rounded-[var(--radius-pill)] border border-[var(--line)] bg-raised-2 px-3 text-sm font-semibold text-ink-1 transition-transform duration-150 active:scale-[0.97] disabled:opacity-60"
+              >
+                <RotateCcw size={16} aria-hidden="true" />
+                Reintentar
+              </button>
+            </motion.div>
+          ) : reintento === 'ok' ? (
+            <p className="mt-4 flex items-center gap-2 text-caption text-green">
+              <CheckCircle2 size={16} aria-hidden="true" />
+              Listo: tu pieza 1 ya está en Mi Empresa.
             </p>
-            <button
-              type="button"
-              onClick={() => setReintento(importarPieza1SiFalta(cuenta) ? 'ok' : 'fallo')}
-              className="flex min-h-11 shrink-0 items-center gap-1 rounded-[var(--radius-pill)] border border-[var(--line)] bg-raised-2 px-3 text-sm font-semibold text-ink-1 transition-transform duration-150 active:scale-[0.97]"
-            >
-              <RotateCcw size={16} aria-hidden="true" />
-              Reintentar
-            </button>
-          </motion.div>
-        )}
-
-        {reintento === 'ok' && !faltaPieza1 && (
-          <p role="status" className="mt-4 flex items-center gap-2 text-caption text-green">
-            <CheckCircle2 size={16} aria-hidden="true" />
-            Listo: tu pieza 1 ya está en Mi Empresa.
-          </p>
-        )}
+          ) : null}
+        </div>
 
         {/* Filas en píldora: tus últimas piezas */}
         {(ultimas.length > 0 || (e.hechaHoy && siguiente)) && (
@@ -319,10 +346,7 @@ export function Hoy() {
             ))}
             {e.hechaHoy && siguiente && (
               <li>
-                <Link
-                  href="/app/ruta"
-                  className="flex min-h-16 items-center gap-3 rounded-[var(--radius-pill)] border border-dashed border-[var(--line)] bg-sunken py-2 pr-2 pl-5 transition-transform duration-150 active:scale-[0.98]"
-                >
+                <div className="flex min-h-16 items-center gap-3 rounded-[var(--radius-pill)] border border-dashed border-[var(--line)] bg-sunken py-2 pr-2 pl-5">
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-display text-ayuda font-bold text-ink-1">{siguiente.pieza}</span>
                     <span className="block text-xs text-ink-3">Mañana · Día {siguiente.dia} · 5 min</span>
@@ -330,7 +354,7 @@ export function Hoy() {
                   <span aria-hidden="true" className="relieve-piedra-apagada flex size-11 shrink-0 items-center justify-center rounded-full">
                     <LockKeyhole size={18} />
                   </span>
-                </Link>
+                </div>
               </li>
             )}
           </motion.ul>

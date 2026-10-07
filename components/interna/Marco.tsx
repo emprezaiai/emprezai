@@ -35,6 +35,7 @@ const DESTINOS = [
 
 export function Marco({ children }: { children: ReactNode }) {
   const cuenta = useCuenta();
+  const pathname = usePathname();
   const router = useRouter();
 
   useEffect(() => {
@@ -52,7 +53,7 @@ export function Marco({ children }: { children: ReactNode }) {
     router.replace('/login');
   }, [cuenta, router]);
 
-  if (!cuenta) return <EsqueletoApp />;
+  if (!cuenta) return pathname.startsWith('/app/ruta') ? <EsqueletoRuta /> : <EsqueletoApp />;
 
   return (
     <MotionConfig reducedMotion="user">
@@ -99,9 +100,9 @@ function NavInferior() {
           <Link
             href={hecha && cuenta ? `/app/empresa?pieza=${Math.max(...cuenta.piezas.map((p) => p.dia))}` : '/app/mision'}
             aria-label={hecha ? 'Ver la pieza de hoy' : 'Misión de hoy'}
-            className={`${hecha ? 'boton-central-hecho' : ruta.startsWith('/app/ruta') ? 'boton-central-quieto' : 'boton-central'} -mt-8 flex size-16 items-center justify-center rounded-full transition-transform duration-150 active:scale-95`}
+            className={`${ruta.startsWith('/app/ruta') ? 'boton-central-quieto' : hecha ? 'boton-central-hecho' : 'boton-central'} -mt-8 flex size-16 items-center justify-center rounded-full transition-transform duration-150 active:scale-95`}
           >
-            {hecha ? <Check size={30} strokeWidth={3} aria-hidden="true" /> : <Zap size={28} fill="currentColor" strokeWidth={0} aria-hidden="true" />}
+            {hecha ? <Check size={30} strokeWidth={3} className={ruta.startsWith('/app/ruta') ? 'text-green' : undefined} aria-hidden="true" /> : <Zap size={28} fill="currentColor" strokeWidth={0} aria-hidden="true" />}
           </Link>
         </li>
         {DESTINOS.slice(2).map((d) => (
@@ -144,6 +145,28 @@ function ItemNav({
         <span className="relative whitespace-nowrap">{etiqueta}</span>
       </Link>
     </li>
+  );
+}
+
+function EsqueletoRuta() {
+  const zigzag = [-90, 0, 90, 0];
+  return (
+    <div className="fondo-recorrido min-h-dvh" aria-busy="true" aria-label="Cargando tu ruta">
+      <div className="mx-auto flex w-full max-w-md flex-col px-4">
+        <div className="flex h-16 items-center gap-2">
+          <div className="h-9 w-24 rounded-full bg-raised" />
+          <div className="h-9 w-20 rounded-full bg-raised" />
+        </div>
+        <div className="mt-2 h-24 rounded-[var(--radius-card)] bg-raised motion-safe:animate-pulse" />
+        <div className="relative mx-auto mt-6 w-[320px]">
+          {zigzag.map((x, i) => (
+            <div key={i} className="flex justify-center" style={{ transform: `translateX(${x}px)`, marginTop: i ? 60 : 0 }}>
+              <div className="size-16 rounded-full bg-raised motion-safe:animate-pulse" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 

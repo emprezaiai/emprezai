@@ -38,7 +38,7 @@ export const RUTA: DiaRuta[] = [
   { dia: 4, corto: 'Precio', semana: 1, pieza: 'Tu precio', mision: 'Pon el precio de lanzamiento', usa: [2, 3] },
   { dia: 5, corto: 'Competencia', semana: 1, pieza: 'Tu competencia', mision: 'Mira a 3 competidores y encuentra tu hueco', usa: [3, 4] },
   { dia: 6, corto: 'Validación', semana: 1, pieza: 'Tus preguntas de validación', mision: 'Prepara 3 preguntas para validar con personas reales', usa: [2, 3] },
-  { dia: 7, corto: 'Idea en 1 pág.', semana: 1, pieza: 'Tu idea en 1 página', mision: 'Cierra la semana: tu idea en una página', usa: [1, 2, 3, 4, 5, 6], cierre: true },
+  { dia: 7, corto: 'Idea en 1 página', semana: 1, pieza: 'Tu idea en 1 página', mision: 'Cierra la semana: tu idea en una página', usa: [1, 2, 3, 4, 5, 6], cierre: true },
   { dia: 8, corto: 'Nombre', semana: 2, pieza: 'El nombre de tu negocio', mision: 'Crea el nombre de tu negocio', usa: [2, 3] },
   { dia: 9, corto: 'Mensaje', semana: 2, pieza: 'Tu mensaje principal', mision: 'Escribe la frase que vende', usa: [1, 8] },
   { dia: 10, corto: 'Historia', semana: 2, pieza: 'Tu historia', mision: 'Cuenta por qué empezaste', usa: [2, 8] },

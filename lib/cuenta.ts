@@ -30,6 +30,8 @@ export interface PiezaGuardada {
   editadaEn?: string;
   /** Texto y resumen de la versión base, guardados la primera vez que se edita (para volver a ella). */
   original?: { contenido: string; resumen?: string };
+  /** La versión de la persona, guardada al volver a la base (para poder recuperarla). */
+  tuVersion?: string;
 }
 
 export interface Cuenta {
@@ -246,6 +248,7 @@ export function editarPieza(cuenta: Cuenta, dia: number, contenido: string): Cue
           base: false,
           editadaEn: new Date().toISOString(),
           original: p.original ?? { contenido: p.contenido, resumen: p.resumen },
+          tuVersion: undefined,
         }
       : p,
   );
@@ -259,7 +262,7 @@ export function restaurarPieza(cuenta: Cuenta, dia: number): Cuenta | null {
     if (p.dia !== dia || !p.original) return p;
     const { original, editadaEn: _editada, ...resto } = p;
     void _editada;
-    return { ...resto, contenido: original.contenido, resumen: original.resumen, base: true };
+    return { ...resto, contenido: original.contenido, resumen: original.resumen, base: true, tuVersion: p.contenido };
   });
   const actualizada = { ...cuenta, piezas };
   return guardarCuenta(actualizada) ? actualizada : null;
@@ -279,7 +282,7 @@ export function activarDemo(): void {
     ['Tu cliente ideal', 'Dueños de negocio de 35 a 50 años que llevan todo en papel. Les quita el sueño no saber cuánto ganan. Están en Facebook y WhatsApp.', 'Dueños de 35 a 50 que llevan todo en papel'],
     ['Tu oferta', 'Mini curso de 7 días para dominar Excel en tu negocio, sin fórmulas raras: 7 videos cortos y una plantilla lista para usar.', 'Curso de 7 días + plantilla lista'],
     ['Tu precio', '$19 pago único de lanzamiento. Sube a $29 después de los primeros 10 alumnos.', '$19 de lanzamiento, luego $29'],
-    ['Tu competencia', '3 cursos analizados: todos duran más de 10 horas y enseñan Excel general. Tu hueco: solo lo que un dueño de negocio usa, en 7 días.', 'Ellos: +10 horas. Tú: 7 días al grano'],
+    ['Tu competencia', '3 cursos analizados: todos duran más de 10 horas y enseñan Excel general. Tu hueco: solo lo que un dueño de negocio usa, en 7 días.', 'Ellos: +10 horas. Tú: 7\u00a0días al grano'],
     ['Tus preguntas de validación', '1) ¿Cómo llevas hoy tus ventas y gastos? 2) ¿Qué es lo más difícil de eso? 3) ¿Pagarías por resolverlo en Excel en una semana?', '3 preguntas para hablar con dueños reales'],
     ['Tu idea en 1 página', 'Excel para dueños de negocio en 7 días · para quien lleva todo en papel · $19 de lanzamiento · validado en 3 conversaciones.', 'Excel en 7 días · $19 · validado'],
   ];

@@ -126,6 +126,28 @@ await capturar('15-mision2-celebracion');
 await ir('/app', 1600);
 await capturar('16-hoy-dia2-hecho');
 
+// Racha rota (vuelve 3 días después) y cuenta sin piezas: estados que solo existían en el código
+await pagina.evaluate(() => {
+  const c = JSON.parse(localStorage.getItem('empresai_cuenta'));
+  const hace = (n) => {
+    const d = new Date();
+    d.setDate(d.getDate() - n);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  };
+  c.piezas = c.piezas.map((p, i) => ({ ...p, fecha: hace(4 - i) }));
+  localStorage.setItem('empresai_cuenta', JSON.stringify(c));
+});
+await ir('/app', 1600);
+await capturar('16b-hoy-racha-rota');
+await pagina.evaluate(() => {
+  const c = JSON.parse(localStorage.getItem('empresai_cuenta'));
+  c.piezas = [];
+  localStorage.setItem('empresai_cuenta', JSON.stringify(c));
+  localStorage.removeItem('empresai_onboarding');
+});
+await ir('/app', 1600);
+await capturar('16c-hoy-sin-piezas');
+
 // ── Camino C: datos de ejemplo (Carlos, día 8) ──
 await pagina.evaluate(() => {
   localStorage.clear();

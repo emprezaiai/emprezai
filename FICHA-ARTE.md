@@ -36,6 +36,7 @@
 - Display: Bricolage Grotesque (700/800) · Body: Instrument Sans (400/600/700) · Escala: display 24-28px / title 16-19px / body 13-15px / label 10.5-12px
 - EXCEPCIÓN APROBADA por la dueña (2026-10-02): en §2 de la landing los dolores usan fichas "noche" (cara oscura, ícono ENCENDIDO en dorado, sin halo) para que no se vean apagados; la frase clave del dolor va en blanco bold (el dorado de texto sigue reservado a acción/beneficio). Fuera de §2, dolor = piedra.
 - EXCEPCIÓN (2026-10-06, etiqueta elegida por la dueña): en la pantalla de planes, la insignia "Mejor valor · ahorras $39.89" va en dorado sólido (es el dato héroe de la oferta, regla 50 §C2: el ahorro compite en peso con el CTA). Solo esa insignia; el resto del dorado sigue la lista de arriba.
+- EXCEPCIÓN (2026-10-07, del tour aprobado por la dueña): la llama de la RACHA viva va en relieve dorado (ficha de racha en Hoy y su chip en Ruta) — es el dato héroe del hábito; en riesgo pasa a ámbar de aviso. Las flechas de filas y los íconos de los otros datos siguen en piedra/verde.
 - Material en relieve (app/globals.css): .relieve-oro (acción) · .relieve-verde (logro) · .relieve-piedra (dolor/neutro) · .relieve-noche (dolores de §2) · .tarjeta-relieve / -base / -oro / .tarjeta-dolor · .fondo-puntos
 - Extensiones de la landing (components/landing/tokens.css): CTA final sobre #231D2E · chips 12px · relieve del CTA 0 4px 0 #B8860F
 - Radio: tarjetas 18-22px · filas/CTA/chips en píldora 999px · chips de ícono 10-14px · Profundidad: superficie con

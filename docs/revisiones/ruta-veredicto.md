@@ -1,88 +1,98 @@
 # VEREDICTO revisor-visual — Ruta
-Fecha: 2026-10-07 22:40
+Fecha: 2026-10-07 23:30
 Screenshot: docs/revisiones/ruta-375.png
 Usabilidad: 31/40
 Craft: 16/20
 Copy (si vende): N-A
 Fidelidad (si hubo referencia): FIEL
 Veredicto: NO LISTA
-Top defectos: (1) cuando hoy es el primer día de la semana (días 1, 8, 15 y 22), la píldora "HOY · 5 MIN" queda pegada al borde inferior de la banda dorada, con 1-2px de aire, a 375 y a 360 · (2) en el día 8 hay 4 masas doradas en pantalla: la banda, el nodo, "Empezar" y el botón central, que compiten con la única acción primaria · (3) al abrir en el día 8, arriba queda la etiqueta "Validación" suelta bajo el encabezado, con su nodo oculto, y unos 200px casi vacíos a la izquierda; la referencia abre con la banda arriba · (4) el encabezado usa texto suelto en lugar de los chips con borde de la referencia, y la llama gris sin relleno no se entiende como "en riesgo" sin leer la tarjeta · (5) el camino es un codo en ángulo recto con tramos horizontales largos (Día 28→29, unos 140px) en lugar de la S diagonal de la referencia
+Top defectos: (1) las píldoras de racha y piezas del encabezado ahora tienen borde y forma de botón (igual que los botones de Hoy.tsx:286), pero son <p> y no hacen nada al tocarlas; es una regresión del arreglo 4 y rompe la regla 11 · (2) cuando la pieza de hoy está lista (día 1, a 375 y a 360) hay tres caminos a Mi Empresa en la misma vista (el botón de la tarjeta, el botón central verde y la pestaña), y el botón central verde, la masa más fuerte de la pantalla, compite con la tarjeta; además hay 3 masas verdes · (3) el esqueleto de carga ("Cargando tu ruta", Marco.tsx:150-170) tiene la forma de Hoy (círculos, una tarjeta héroe y una grilla de 3), no la de Ruta (banda y nodos en zigzag) · (4) el punto ámbar de la llama se lee como un aviso de notificación, no como "racha en riesgo"; la banda de la semana no dice cuánto llevas de ella · (5) el fondo de la FICHA (brillo dorado arriba a la derecha y verde abajo a la izquierda) no se ve en Ruta: fondo-recorrido mide lo que toda la página y queda tapado por el encabezado opaco, así que el fondo visible es un color plano con puntos
 
 ## Detalle de puntuación
 Usabilidad: h1:3 h2:3 h3:3 h4:3 h5:3 h6:4 h7:3 h8:3 h9:3 h10:3
 Craft: jerarquía:3 profundidad:3 identidad:3 movimiento:4 encaje:3
 
-Gate de carga cognitiva: 0 fallas.
-- Hay una sola acción primaria ("Empezar"). El nodo de hoy solo hace pulsar la tarjeta.
-- Las semanas agrupan 7-8 nodos y cada uno va etiquetado.
+Gate de carga cognitiva: 1 falla, no crítica.
+- La falla: "cero elementos que parezcan interactivos y no hagan nada". Las píldoras del encabezado parecen botones y no hacen nada.
+- Lo demás pasa:
+  - Las semanas agrupan los nodos y cada uno va etiquetado.
+  - Hay 1 acción primaria ("Empezar").
+  - El paso siguiente es obvio.
 
 CTA héroe vivo ("Empezar"): cumple los 4.
-- Contraste: OK.
-- Tap: OK (.boton-oro:active).
-- Nunca deshabilitado: OK.
-- Área: OK (h-12, en la zona del pulgar).
+- Contraste: botón dorado sobre la tarjeta oscura, muy por encima de 3:1.
+- Tap: .boton-oro:active.
+- Nunca deshabilitado.
+- Área: h-12, en la zona del pulgar.
 
 Test de fidelidad contra public/landing/ruta-v2.png: 0 de 6 fallos = FIEL.
-- Coinciden: modo, hue, clase de la display, radios y profundidad.
-- Densidad: un poco menor por las etiquetas bajo cada nodo, pero dentro de la misma familia.
+- Coinciden: modo, hue del dorado, clase de la display, radios, densidad y profundidad en relieve.
+- La apertura con la banda arriba y las píldoras del encabezado ya replican la referencia.
 - Diferencias que no son de token:
-  - Chips del encabezado.
-  - Trazo en S diagonal en la referencia; aquí es un codo.
-  - CTA de ancho completo, separado de la tarjeta.
-  - Composición inicial con la banda arriba.
+  - El trazo entra en vertical a la tapa del nodo; en la referencia entra en diagonal.
+  - El CTA va dentro de la tarjeta; en la referencia es de ancho completo.
 
-## Re-revisión 5: qué se corrigió
-Verificado defecto por defecto contra el veredicto anterior (30/40 · 15/20):
-1. Línea pequeña de la tarjeta en 1 línea: CORREGIDO.
-   - Ahora dice "Racha de 7 en juego", con truncate (Ruta.tsx:293-300). Cabe en 1 línea a 375 y a 360.
-   - El título sigue en 2 líneas ("El nombre de tu / negocio"), con line-clamp-2. Es aceptable y la referencia hace lo mismo.
-2. Camino por el costado hasta la tapa del siguiente nodo: CORREGIDO.
-   - Sale del costado a la altura del centro y baja a la tapa del siguiente (Ruta.tsx:104-113); si el siguiente es hoy, llega 40px más arriba para no tapar la píldora.
-   - PASO 124. Ya no cruza ninguna etiqueta en dia1, dia8 ni final (375 y 360).
-   - Residuo: la forma es un codo recto, no la S de la referencia (ver defecto 5).
-3. Banda más cerca de sus días: CORREGIDO, con un efecto nuevo.
-   - alto = (n-1)*PASO + ARRIBA + ABAJO. Quedan unos 66px hasta la etiqueta anterior y unos 44px hasta su primer nodo, así que la proximidad ahora agrupa bien.
-   - Efecto nuevo: si ese primer nodo es hoy, la píldora (-top-8 sobre un nodo de 80px) termina a unos 4px del borde de la tarjeta y queda casi tocando la sombra de la banda.
-4. 7/30 que arranca en 0: CORREGIDO.
-   - Renderiza 0 de inicio cuando !reduce y anima sin delay (Ruta.tsx:322-341). Ya no hay parpadeo.
-5. relieve-piedra-apagada con variables: CORREGIDO.
-   - Usa --cara-1/--cara-2/--canto/--tinta (globals.css:356-358), el mismo patrón de .relieve-oro, .relieve-verde y .relieve-piedra.
-   - Los hex siguen definidos dentro de cada clase de relieve y no en :root. Es consistente con el sistema, pero .relieve-noche (globals.css:107-109) todavía usa hex directos sin variables.
+## Re-revisión 6: los 5 defectos de la ronda 5, uno por uno
+1. Aire entre la banda y la píldora "HOY · 5 MIN": CORREGIDO.
+   - Ruta.tsx:109 suma 28px a ARRIBA cuando el primer día de la semana es hoy.
+   - En ruta-375 y en app-360/18-arriba quedan unos 30px entre el canto de la banda y la píldora.
+2. Botón central en noche dentro de Ruta: CORREGIDO, solo cuando la pieza de hoy está pendiente.
+   - Marco.tsx:102 usa .boton-central-quieto, y globals.css:107-127 ya usa variables --cara/--canto (también .relieve-noche).
+   - En el día 8 quedan 3 masas doradas (banda, nodo y Empezar), más el rayo y el aro del botón central.
+   - Residuo: con la pieza ya hecha, el botón central pasa a verde lleno con brillo y vuelve a competir (defecto 2).
+3. Apertura con la banda de la semana arriba: CORREGIDO.
+   - Ruta.tsx:43-54 desplaza a la sección con block:'start' si hoy cabe sobre la tarjeta y, si no, centra en hoy.
+   - En el día 8 la banda queda arriba, como en la referencia. Ya no aparece "Validación" suelta.
+4. Encabezado en píldoras con aviso ámbar: CORREGIDO, con una regresión.
+   - Píldoras rounded-pill con border var(--line), y punto bg-warning cuando la racha está en riesgo (Ruta.tsx:75-89).
+   - Regresión: ahora parecen tocables y son <p> sin acción (defecto 1).
+   - El punto sin texto se confunde con una notificación (defecto 4).
+5. Camino en S diagonal: CORREGIDO EN LO SUSTANCIAL.
+   - Los controles son ahora (desde.x + lado*48, desde.y) y (hasta.x, hasta.y - 48), en Ruta.tsx:122.
+   - El codo de 90° pasó a ser un arco suave; el tramo 28→29 ya se lee como una curva continua.
+   - Residuo bajo: la segunda mitad de cada tramo cae en vertical (unos 60px de puntos en columna) y no entra en diagonal como en la referencia.
+   - Pendiente de la ronda 5 que sigue igual: "Idea en 1 pág." (lib/ruta.ts:41) sigue siendo una abreviatura.
 
-## Por qué el movimiento sube a 4
-Las 2 condiciones del veredicto anterior se cumplen:
-- El conteo ya no parpadea.
-- El camino tiene una geometría que vale la pena revelar.
-Verificado en el código, baseline por baseline:
-- Stagger: OK (Ruta.tsx:199-201).
-- Conteo: OK.
-- Revelado del camino: OK (clipPath, Ruta.tsx:132-141).
-- Tap: OK (active:scale-95).
-- Aviso: OK (AnimatePresence).
-- Pulso de hoy: OK.
-- Reduce: OK en cada animación.
-- Celebración: no aplica en esta pantalla.
+## Qué tendría que pasar para que cada heurística llegue a 4
+- h1 Estado del sistema (3→4):
+  - Un esqueleto propio de Ruta (banda más 4 círculos en zigzag) en lugar del de Hoy.
+  - Que la banda muestre el avance de la semana ("0 de 7").
+  - Que el aviso de racha se lea sin la tarjeta: texto "hoy" junto a "7 días", o la llama en ámbar.
+- h2 Lenguaje (3→4): eliminar la abreviatura "Idea en 1 pág." ("Tu idea, resumida") y revisar que ninguna etiqueta corta use siglas ni puntos.
+- h3 Control (3→4):
+  - Que el aviso de nodo bloqueado se cierre solo (unos 4s) además de con la X, y que se cierre con Escape.
+  - Que el botón "Ir a mi día" tenga una etiqueta visible la primera vez.
+- h4 Consistencia (3→4):
+  - Que las píldoras del encabezado se comporten igual que las píldoras con borde del resto de la app, es decir, que sean tocables.
+  - Que el botón central no cambie de color según la pestaña sin una regla que el usuario pueda ver.
+- h5 Prevención (3→4): que los nodos bloqueados digan cuándo se abren antes de tocarlos (por ejemplo, la píldora "Mañana" sobre el nodo de mañana) para que el usuario no tenga que tocar para descubrirlo.
+- h6 Reconocer (4): se mantiene.
+- h7 Flexibilidad (3→4):
+  - Que tocar la píldora de piezas lleve a Mi Empresa y la de racha al detalle de la racha.
+  - Que un nodo hecho muestre una vista previa de la pieza con un toque largo, o atajos equivalentes.
+- h8 Minimalista (3→4):
+  - Con la pieza hecha, un solo camino a Mi Empresa: el botón central en noche dentro de Ruta también en ese estado, o quitar el botón de la tarjeta.
+  - Ninguna píldora decorativa con forma de botón.
+- h9 Errores (3→4): que Ruta tenga su propio estado de error u offline (por ejemplo, "no pudimos cargar tu ruta, reintentar") en lugar de depender solo del marco.
+- h10 Ayuda (3→4): en la primera visita, una línea que enseñe la mecánica ("cada día desbloquea una pieza de tu negocio") cerca de la banda, que se pueda cerrar.
 
 ## Hallazgos por severidad
 
 ### ALTA
-1. Píldora "HOY · 5 MIN" pegada a la banda en el primer día de cada semana (ruta-375.png y app-360/18-arriba). Se ve como una etiqueta colgada de la tarjeta de la semana.
-   Archivo: Ruta.tsx:21 y 100.
-   Fix: sumar 28px a ARRIBA cuando estadoDe(dias[0].dia) === 'hoy'.
-2. Cuatro masas doradas en la vista del día 8 (banda, nodo, Empezar y botón central). Baja la h8.
-   Fix: en /app/ruta, mostrar el botón central en .relieve-noche (oscuro con ícono dorado), porque la tarjeta ya tiene "Empezar".
+1. Píldoras de racha y piezas que parecen botones y no hacen nada (Ruta.tsx:75-89).
+   Fix: convertirlas en Link (piezas → /app/empresa, racha → /app/perfil) con active:scale-[0.97], o quitarles el borde para que se lean como texto.
+2. Estado "pieza hecha" (05-ruta-dia1): botón central verde lleno, más el chip verde de la tarjeta, más el nodo verde, y tres caminos a Mi Empresa.
+   Fix: en /app/ruta usar .boton-central-quieto también cuando hecha=true, con el check en verde.
 
 ### MEDIA
-3. Encuadre inicial.
-   - scrollIntoView con block:center deja "Validación" huérfana bajo el encabezado, con dos puntos del camino sin nodo, y un hueco arriba a la izquierda.
-   - Fix: al entrar, desplazar a la section de la semana actual con block:'start' (scroll-mt-20 ya existe) siempre que hoy quede visible sobre la tarjeta. Así se replica la composición de la referencia, con la banda arriba.
-4. Encabezado.
-   - La racha y las piezas son texto suelto; en la referencia van en chips con borde.
-   - La llama gris en contorno no comunica "en riesgo" por sí sola.
-   - Fix: chips rounded-pill con borde var(--line), y la llama gris con un punto ámbar (--aviso) o el texto "7 días · hoy" cuando rachaEnRiesgo.
+3. El esqueleto de carga tiene la forma de Hoy.
+   Fix: un EsqueletoRuta con una banda de 96px y 4 círculos de 64px en zigzag.
+4. El punto ámbar se puede leer como notificación.
+   Fix: cuando la racha está en riesgo, mostrar "7 días · hoy" en text-warning en lugar de solo el punto.
+5. El fondo de la FICHA no se ve en Ruta (solo puntos sobre un color plano).
+   Fix: poner el radial dorado y el verde en position:fixed (o background-attachment:fixed) en la main de Ruta.
 
 ### BAJA
-5. El trazo C usa los dos controles en (p.x, desde.y). Resultado: un codo de 90° con tramos horizontales largos (Día 28→29), no la S diagonal de la referencia.
-   Fix: controles (desde.x + lado*48, desde.y) y (hasta.x, hasta.y - 48).
-6. "Idea en 1 pág." es una abreviatura en la etiqueta del día 7.
-   Fix: "Idea en una hoja" o "Tu idea, resumida".
+6. La segunda mitad de cada tramo cae en vertical.
+   Fix: el segundo control en (hasta.x - lado*40, hasta.y - 40) para que el tramo entre en diagonal, como en la referencia.
+7. "Idea en 1 pág." es una abreviatura (lib/ruta.ts:41).
