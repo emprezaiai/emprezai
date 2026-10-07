@@ -263,7 +263,9 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
                   data-plan={id}
                   tabIndex={activo ? 0 : -1}
                   onClick={() => elegirPlan(id)}
-                  className={`relative flex min-h-20 items-center gap-3 rounded-[var(--radius-card)] border border-[var(--line)] px-4 py-4 text-left transition-colors duration-200 active:scale-[0.99] ${
+                  className={`relative flex min-h-20 items-center gap-3 rounded-[var(--radius-card)] border border-[var(--line)] px-4 pb-4 text-left transition-colors duration-200 active:scale-[0.99] ${
+                    id === 'anual' ? 'pt-6' : 'pt-4'
+                  } ${
                     activo ? 'tarjeta-relieve-oro' : 'tarjeta-relieve'
                   }`}
                 >
@@ -280,7 +282,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
                       initial={{ scale: reduce ? 1 : 0.8, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       transition={{ type: 'spring', bounce: 0.3, duration: 0.4, delay: reduce ? 0 : 0.5 }}
-                      className="absolute -top-3 right-4 rounded-[var(--radius-chip)] bg-gradient-to-b from-gold-light to-gold px-2 py-1 text-caption font-extrabold tracking-[0.04em] text-on-gold uppercase shadow-[0_2px_0_var(--gold-deep)]"
+                      className="absolute -top-3 right-4 rounded-[var(--radius-chip)] bg-gradient-to-b from-gold-light to-gold px-2 py-1 text-caption font-extrabold tracking-[0.04em] whitespace-nowrap text-on-gold uppercase shadow-[0_2px_0_var(--gold-deep)]"
                     >
                       Mejor valor · ahorras {AHORRO_ANUAL}
                     </motion.span>
@@ -349,7 +351,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
           </motion.section>
 
           {/* La Garantía Sin Preguntas */}
-          <motion.section {...entrar(4)} className="hairline-oro mt-6 flex items-start gap-3 rounded-[var(--radius-card)] p-4">
+          <motion.section {...entrar(4)} className="hairline-oro relieve-tarjeta mt-6 flex items-start gap-3 rounded-[var(--radius-card)] p-4">
             <span className="relieve-verde flex size-10 shrink-0 items-center justify-center rounded-[var(--radius-chip)]" aria-hidden="true">
               <ShieldCheck size={20} strokeWidth={2.2} />
             </span>
@@ -373,7 +375,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
             </li>
           </ul>
 
-          <div className="mt-2 flex flex-col items-center">
+          <div className="mt-4 flex flex-col items-center">
             <Link
               href={volver}
               className="flex min-h-11 items-center px-3 text-sm font-medium whitespace-nowrap text-ink-3 underline-offset-4 transition-colors duration-150 hover:text-ink-2 hover:underline"
@@ -388,7 +390,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
             </a>
           </div>
 
-          <nav aria-label="Condiciones" className="mt-2 flex items-center justify-center gap-4 text-xs text-ink-3">
+          <nav aria-label="Condiciones" className="flex items-center justify-center gap-4 text-sm text-ink-3">
             {[
               { href: '/terminos', texto: 'Términos' },
               { href: '/privacidad', texto: 'Privacidad' },
