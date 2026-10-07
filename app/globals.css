@@ -158,9 +158,11 @@ body {
     0 18px 32px -16px rgb(255 194 61 / 0.25);
 }
 
-:focus-visible {
-  outline: 2px solid var(--gold);
-  outline-offset: 2px;
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+  }
 }
 
 /* ============================================================================
@@ -321,4 +323,31 @@ body {
 .fondo-puntos-ruta {
   background-image: radial-gradient(rgb(255 255 255 / 0.06) 1px, transparent 1.2px);
   background-size: 24px 24px;
+}
+
+/* Resplandor de los cubos (detalle firma de la referencia, SOLO en la tarjeta héroe de Hoy). */
+.cubo-verde {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.25),
+    0 14px 24px -12px rgb(0 0 0 / 0.8),
+    0 0 28px -6px rgb(61 220 151 / 0.55);
+}
+.cubo-oro {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.25),
+    0 14px 24px -12px rgb(0 0 0 / 0.8),
+    0 0 28px -6px rgb(255 194 61 / 0.6);
+}
+/* Brillo radial detrás de los cubos (como en el tour aprobado). */
+.heroe-hoy::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(220px 170px at 92% 8%, rgb(255 194 61 / 0.2), transparent 70%);
+}
+
+/* Velo detrás de la tarjeta fija de la Ruta: el mapa se desvanece en vez de asomar entre la tarjeta y la barra. */
+.velo-tarjeta-fija {
+  background: linear-gradient(180deg, transparent, var(--surface-base) 28px);
 }

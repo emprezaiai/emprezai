@@ -13,6 +13,11 @@ import { activarDemo, importarPieza1SiFalta, useCuenta, type Cuenta } from '@/li
 
 const ContextoCuenta = createContext<Cuenta | null>(null);
 
+// Los datos de ejemplo (?demo=carlos) solo existen en la versión de prueba local: en producción
+// nadie entra a la app sin cuenta (fail-closed).
+const DEMO_PERMITIDA = process.env.NEXT_PUBLIC_VISTA_PREVIA === '1';
+const pideDemo = () => DEMO_PERMITIDA && new URLSearchParams(window.location.search).get('demo') === 'carlos';
+
 /** La cuenta dentro de la app (el Marco garantiza que existe). */
 export function useCuentaActiva(): Cuenta {
   const c = useContext(ContextoCuenta);
@@ -32,7 +37,7 @@ export function Marco({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    if (new URLSearchParams(window.location.search).get('demo') === 'carlos') activarDemo();
+    if (pideDemo()) activarDemo();
   }, []);
 
   useEffect(() => {
@@ -42,7 +47,7 @@ export function Marco({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (cuenta !== null) return;
     // Sin cuenta: si viene con ?demo=carlos, la demo se carga en el efecto de arriba.
-    if (new URLSearchParams(window.location.search).get('demo') === 'carlos') return;
+    if (pideDemo()) return;
     router.replace('/login');
   }, [cuenta, router]);
 
@@ -76,7 +81,7 @@ function NavInferior() {
       aria-label="Secciones"
       className="nav-inferior fixed inset-x-0 bottom-0 z-20 mx-auto w-full max-w-md px-2 pb-[max(8px,env(safe-area-inset-bottom))]"
     >
-      <ul className="relative grid h-16 grid-cols-5 items-center">
+      <ul className="relative grid h-16 grid-cols-[1fr_1fr_88px_1fr_1fr] items-center">
         {DESTINOS.slice(0, 2).map((d) => (
           <ItemNav key={d.href} {...d} activo={activo(d.href)} />
         ))}

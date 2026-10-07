@@ -18,6 +18,8 @@ export interface PiezaGuardada {
   dia: number;
   titulo: string;
   contenido: string;
+  /** Resumen corto y completo (≤60 caracteres) para el mosaico de Mi Empresa. */
+  resumen?: string;
   detalle?: DetallePieza[];
   /** Día calendario local en que se completó (YYYY-MM-DD): de aquí sale la racha. */
   fecha: string;
@@ -152,6 +154,7 @@ export function crearCuenta(email: string): Cuenta {
           dia: 1,
           titulo: 'Tu frase de negocio',
           contenido: p.frase,
+          resumen: r.cliente && r.resultado ? `Ayudo a ${r.cliente} a ${r.resultado}` : undefined,
           detalle: [{ rotulo: 'Tu prueba de hoy', valor: p.prueba }],
           fecha: fechaLocal(new Date(p.creadaEn)),
           creadaEn: p.creadaEn,
@@ -228,18 +231,18 @@ export function activarDemo(): void {
     return;
   }
   const hoy = fechaLocal();
-  const contenidos: [string, string][] = [
-    ['Tu frase de negocio', 'Mini curso de Excel: ayudo a dueños de negocio a usarlo paso a paso en su día a día sin cursos eternos de pura teoría.'],
-    ['Tu cliente ideal', 'Dueños de negocio de 35 a 50 años que llevan todo en papel. Les quita el sueño no saber cuánto ganan. Están en Facebook y WhatsApp.'],
-    ['Tu oferta', 'Mini curso de 7 días para dominar Excel en tu negocio, sin fórmulas raras: 7 videos cortos y una plantilla lista para usar.'],
-    ['Tu precio', '$19 pago único de lanzamiento. Sube a $29 después de los primeros 10 alumnos.'],
-    ['Tu competencia', '3 cursos analizados: todos duran más de 10 horas y enseñan Excel general. Tu hueco: solo lo que un dueño de negocio usa, en 7 días.'],
-    ['Tus preguntas de validación', '1) ¿Cómo llevas hoy tus ventas y gastos? 2) ¿Qué es lo más difícil de eso? 3) ¿Pagarías por resolverlo en Excel en una semana?'],
-    ['Tu idea en 1 página', 'Excel para dueños de negocio en 7 días · para quien lleva todo en papel · $19 de lanzamiento · validado en 3 conversaciones.'],
+  const contenidos: [string, string, string][] = [
+    ['Tu frase de negocio', 'Mini curso de Excel: ayudo a dueños de negocio a usarlo paso a paso en su día a día sin cursos eternos de pura teoría.', 'Excel paso a paso para dueños de negocio'],
+    ['Tu cliente ideal', 'Dueños de negocio de 35 a 50 años que llevan todo en papel. Les quita el sueño no saber cuánto ganan. Están en Facebook y WhatsApp.', 'Dueños de 35 a 50 que llevan todo en papel'],
+    ['Tu oferta', 'Mini curso de 7 días para dominar Excel en tu negocio, sin fórmulas raras: 7 videos cortos y una plantilla lista para usar.', 'Curso de 7 días + plantilla lista'],
+    ['Tu precio', '$19 pago único de lanzamiento. Sube a $29 después de los primeros 10 alumnos.', '$19 de lanzamiento, luego $29'],
+    ['Tu competencia', '3 cursos analizados: todos duran más de 10 horas y enseñan Excel general. Tu hueco: solo lo que un dueño de negocio usa, en 7 días.', 'Ellos: +10 horas. Tú: 7 días al grano'],
+    ['Tus preguntas de validación', '1) ¿Cómo llevas hoy tus ventas y gastos? 2) ¿Qué es lo más difícil de eso? 3) ¿Pagarías por resolverlo en Excel en una semana?', '3 preguntas para hablar con dueños reales'],
+    ['Tu idea en 1 página', 'Excel para dueños de negocio en 7 días · para quien lleva todo en papel · $19 de lanzamiento · validado en 3 conversaciones.', 'Excel en 7 días · $19 · validado'],
   ];
-  const piezas: PiezaGuardada[] = contenidos.map(([titulo, contenido], i) => {
+  const piezas: PiezaGuardada[] = contenidos.map(([titulo, contenido, resumen], i) => {
     const fecha = sumarDias(hoy, i - contenidos.length);
-    return { dia: i + 1, titulo, contenido, fecha, creadaEn: `${fecha}T19:${String(10 + i).padStart(2, '0')}:00` };
+    return { dia: i + 1, titulo, contenido, resumen, fecha, creadaEn: `${fecha}T19:${String(10 + i).padStart(2, '0')}:00` };
   });
   const demo: Cuenta = {
     v: 1,
@@ -259,8 +262,10 @@ export function activarDemo(): void {
 /** Si armó la pieza 1 en el recorrido DESPUÉS de crear la cuenta, la trae a Mi Empresa. */
 export function importarPieza1SiFalta(cuenta: Cuenta): void {
   if (cuenta.piezas.some((p) => p.dia === 1)) return;
-  const p = leerOnboarding()?.primeraPieza;
+  const o = leerOnboarding();
+  const p = o?.primeraPieza;
   if (!p) return;
+  const r = o?.respuestas ?? {};
   guardarCuenta({
     ...cuenta,
     piezas: [
@@ -268,6 +273,7 @@ export function importarPieza1SiFalta(cuenta: Cuenta): void {
         dia: 1,
         titulo: 'Tu frase de negocio',
         contenido: p.frase,
+        resumen: r.cliente && r.resultado ? `Ayudo a ${r.cliente} a ${r.resultado}` : undefined,
         detalle: [{ rotulo: 'Tu prueba de hoy', valor: p.prueba }],
         fecha: fechaLocal(new Date(p.creadaEn)),
         creadaEn: p.creadaEn,

@@ -78,7 +78,7 @@ await pagina.getByLabel('Tu correo').fill('carlos.ruiz@gmail.com');
 await pagina.getByRole('button', { name: /Enviarme mi enlace/ }).click();
 await espera(1300);
 await capturar('03-entrar-revisa-correo');
-await pagina.getByRole('button', { name: /Abrir el enlace/ }).click();
+await pagina.getByRole('button', { name: /Entrar en modo demostración/ }).click();
 await pagina.waitForURL('**/app');
 await espera(1600);
 await capturar('04-hoy-dia1-hecho');
