@@ -121,7 +121,7 @@ await capturar('13-mision2-armando');
 await espera(1800);
 await capturar('14-mision2-resultado');
 await pagina.getByRole('button', { name: /Guardar en Mi Empresa/ }).click();
-await espera(1400);
+await espera(2600);
 await capturar('15-mision2-celebracion');
 await ir('/app', 1600);
 await capturar('16-hoy-dia2-hecho');
@@ -153,11 +153,20 @@ await pagina.goto(`${baseReal}/login`, { waitUntil: 'load' });
 await pagina.evaluate(() => {
   localStorage.clear();
   sessionStorage.clear();
+  localStorage.setItem(
+    'empresai_onboarding',
+    JSON.stringify({
+      v: 1,
+      paso: 'pieza',
+      respuestas: { areaFinal: 'servicios', idea: 'Manejo de redes sociales para negocios locales', momento: 'noche' },
+      primeraPieza: { titulo: 'Tu frase de negocio', frase: 'Manejo de redes sociales: ayudo a negocios locales a conseguir clientes por redes.', idea: 'Manejo de redes', area: 'servicios', prueba: '—', creadaEn: new Date().toISOString() },
+    }),
+  );
 });
 await pagina.goto(`${baseReal}/login`, { waitUntil: 'load' });
 await espera(900);
 await pagina.getByLabel('Tu correo').fill('carlos.ruiz@gmail.com');
-await pagina.getByRole('button', { name: /Enviarme mi enlace/ }).click();
+await pagina.getByRole('button', { name: /Guardar mi correo de acceso|Enviarme mi enlace/ }).click();
 await espera(1300);
 await capturar('23-entrar-sin-servidor');
 

@@ -147,7 +147,8 @@ export function useCuenta(): Cuenta | null | undefined {
 
 /* ── Crear la cuenta al entrar: migra lo armado en el recorrido de inicio ── */
 
-export function crearCuenta(email: string): Cuenta {
+/** Crea la cuenta en este celular. Devuelve null si el celular no dejó guardar. */
+export function crearCuenta(email: string): Cuenta | null {
   const onboarding = leerOnboarding();
   const r = onboarding?.respuestas ?? {};
   const p = onboarding?.primeraPieza;
@@ -176,8 +177,7 @@ export function crearCuenta(email: string): Cuenta {
     respuestas: r,
     piezas,
   };
-  guardarCuenta(cuenta);
-  return cuenta;
+  return guardarCuenta(cuenta) ? cuenta : null;
 }
 
 /* ── Reglas de la ruta ── */

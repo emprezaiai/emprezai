@@ -1,73 +1,89 @@
 # VEREDICTO revisor-visual — Ruta
-Fecha: 2026-10-07 16:00
+Fecha: 2026-10-07 18:30
 Screenshot: docs/revisiones/ruta-375.png
-Usabilidad: 28/40
+Usabilidad: 29/40
 Craft: 14/20
 Copy (si vende): N-A
 Fidelidad (si hubo referencia): FIEL
 Veredicto: NO LISTA
-Top defectos: (1) los nodos bloqueados tienen opacity-60 y la línea de puntos se ve a través de la piedra (Días 3, 4, 9, 10 y 26-29) · (2) tres disparadores dorados hacia /app/mision (nodo de hoy, "Empezar" y botón central); con la pieza ya hecha, el botón central dorado sigue llamando a la misión mientras la tarjeta manda a Mi Empresa · (3) hay dos "Hoy" con acciones distintas en la misma vista: el botón del encabezado y la pestaña de la barra · (4) los nombres de las piezas se cortan con "…", incluido el de hoy ("nombre de tu…") · (5) asoma contenido junto al botón central (día 8) y el ojo-ceja "Hoy ya armaste tu pieza" se parte en 2 líneas (día 1)
+Top defectos: (1) al final del scroll queda un hueco muerto de unos 130px entre la tarjeta fija y la barra, porque se suman dos paddings (pb-24 del velo y pb-28 de Marco) · (2) el encabezado translúcido deja ver el nodo verde del Día 6 como una mancha borrosa, y la etiqueta "Día 6" aparece cortada al abrir en el día 8 · (3) con la misión pendiente siguen 3 disparadores dorados hacia /app/mision (nodo de hoy, "Empezar" y botón central) más la banda dorada: 4 masas doradas en la misma vista · (4) faltan movimientos base: el 7/30 no cuenta, el camino no se dibuja y el aviso aparece de golpe · (5) quedan medias lunas de puntos recortadas junto a las etiquetas (Día 9, 27 y 29), y la llama gris de la racha sigue sin explicación visible
 
 ## Detalle de puntuación
-Usabilidad: h1:3 h2:3 h3:3 h4:2 h5:3 h6:3 h7:3 h8:2 h9:3 h10:3
-Craft: jerarquía:3 profundidad:3 identidad:3 movimiento:3 encaje:2
+Usabilidad: h1:3 h2:3 h3:3 h4:3 h5:3 h6:3 h7:3 h8:2 h9:3 h10:3
+Craft: jerarquía:3 profundidad:3 identidad:3 movimiento:2 encaje:3
 
 Gate de carga cognitiva: 1 falla (no es crítico).
-- FALLA "una acción primaria": el nodo de hoy, "Empezar" y el botón central son tres disparadores dorados de la misma acción. En el estado del día 1 con la pieza hecha, el botón central dorado (que va a /app/mision) compite con la acción neutra de la tarjeta, "Mi Empresa".
-- Ya no falla "elementos que parecen interactivos y no hacen nada": la racha y las piezas son texto plano.
+- FALLA "una acción primaria" en el estado del día 8: el nodo de hoy, "Empezar" y el botón central son tres disparadores dorados de la misma acción. FICHA-ARTE permite el dorado en los tres; lo que falla es que se repita la acción, no el color.
+- En el estado del día 1 con la pieza hecha ya no falla: el botón central verde y la tarjeta neutra son coherentes entre sí.
 
-CTA héroe vivo ("Empezar" de la tarjeta fija): contraste OK (dorado sobre superficie oscura) · tap OK (.boton-oro:active con translateY) · no está deshabilitado OK · área OK (h-12 = 48px, en la zona del pulgar; no ocupa el ancho completo como en la referencia, pero cumple el ancla).
+CTA héroe vivo ("Empezar" de la tarjeta fija):
+- Contraste: OK.
+- Tap: OK (.boton-oro:active).
+- Nunca deshabilitado: OK.
+- Área táctil: OK (h-12, en la zona del pulgar).
 
-Test de fidelidad contra public/landing/ruta-v2.png: modo OK · hue del acento OK · clase tipográfica display OK · radios OK · densidad OK (PASO 96 y ±90 se acercan a la referencia) · profundidad y sombras OK con una reserva: en la referencia la piedra es opaca, y aquí la opacidad deja ver el trazo. 0 de 6 fallos = FIEL. Diferencias que no son de token: en la referencia el CTA es de ancho completo y está separado de la tarjeta, y el halo del nodo de hoy es fijo, no un pulso.
+Test de fidelidad contra public/landing/ruta-v2.png: 0 de 6 fallos = FIEL.
+- Modo: OK.
+- Hue del acento: OK.
+- Clase tipográfica display: OK (grotesk Bricolage).
+- Radios: OK.
+- Densidad: OK.
+- Profundidad: OK. La piedra de los bloqueados ahora es opaca, como en la referencia.
+- Diferencias que no son de token: en la referencia la racha y las piezas van en chips con borde (aquí son texto suelto) y el CTA es de ancho completo y separado de la tarjeta.
 
-## Re-revisión 2: qué se corrigió
-Verificado defecto por defecto contra el veredicto anterior (27/40 · 13/20 · NO FIEL):
-1. Acción cuádruple y dorado regado: PARCIAL. El ícono de la tarjeta ya es neutro (relieve-piedra con pieza). Siguen tres accesos dorados a /app/mision: el nodo de hoy, "Empezar" y el botón central de Marco.tsx:89-95, que no reacciona a hechaHoy.
-2. Línea de puntos sobre las etiquetas: CORREGIDO en las etiquetas (fondo surface-base, Ruta.tsx:188). Aparece un defecto nuevo: el trazo se ve a través de los nodos bloqueados por `opacity-60` (Ruta.tsx:130).
-3. Composición infiel: CORREGIDO. PASO 96, zigzag ±90, bloqueados en piedra con relieve. Al abrir en el día 8 se centra el día de hoy y el Día 7 hecho queda a la vista.
-4. La tarjeta tapa el mapa: PARCIAL. El velo degradado tapa lo que pasa detrás de la tarjeta, pero entre la tarjeta y la barra, junto al botón central, todavía asoman restos ("…s" y un punto del trazo) en 18-ruta-demo-dia8-arriba.png a 375 y a 360.
-5. Clamp roto: CORREGIDO. El título queda en 2 líneas como máximo. Ahora es el ojo-ceja "Hoy ya armaste tu pieza" el que se parte en 2 líneas (Ruta.tsx:227-228, no tiene clamp ni texto corto).
-6. Ojo-ceja contradictorio: CORREGIDO ("Hoy ya armaste tu pieza" / "Mañana: tu cliente ideal").
-7. CTA de 44px: CORREGIDO (h-12).
-8. Reconocer vs recordar: PARCIAL. Ya se ve el nombre de la pieza, pero line-clamp-1 en 120px trunca varias: "nombre de tu…" (justo el de hoy), "preguntas de…", "respuesta a "está…", "negocio, listo par…" y "correo de…".
-9. "Semana 2 de 4" duplicado: CORREGIDO.
-10. Chips con apariencia de botón: CORREGIDO (texto plano).
-11. Aviso que nunca se cierra: CORREGIDO (X de 32px). Aparece sin animación de entrada.
-12. Llama gris sin explicación: NO CORREGIDO. La explicación es solo sr-only (Ruta.tsx:58), así que quien ve la pantalla no entiende por qué la llama de "7 días" está apagada.
-13. Volver a hoy: CORREGIDO con el botón "Hoy". Problemas nuevos: se ve siempre, aunque hoy ya esté en pantalla, y su nombre choca con la pestaña "Hoy" de la barra, que lleva a otra pantalla.
-14. Animaciones base: NO CORREGIDO. No hay conteo de 7/30 ni el trazo del camino se dibuja al entrar.
+## Re-revisión 3: qué se corrigió
+Verificado defecto por defecto contra el veredicto anterior (28/40 · 14/20 · FIEL):
+1. El trazo se veía a través de los nodos bloqueados: CORREGIDO. .relieve-piedra-apagada es opaca (globals.css:356-364) y no se ve el trazo sobre los candados en los Días 3, 4, 9, 10 ni 26-29. Queda un residuo menor: los puntos que el fondo de la etiqueta recorta a medias dejan medias lunas junto a "Día 9", "Día 27" y "Día 29".
+2. Dorado triplicado y botón central que no leía el estado: PARCIAL.
+   - Con la pieza hecha, el botón central pasa a verde con check y abre la pieza (Marco.tsx:95-99). Es coherente con la tarjeta.
+   - Con la misión pendiente siguen tres accesos dorados a /app/mision. Fue una decisión consciente, pero sigue fallando el gate de "una acción primaria".
+   - Nota técnica: el enlace usa `?pieza=${e.piezasListas}` (un conteo) en lugar del número de día de la pieza de hoy. Hoy da el mismo resultado solo porque las piezas son consecutivas.
+3. Dos "Hoy" con acciones distintas: CORREGIDO. Ahora es solo el ícono LocateFixed con aria-label "Ir a mi día", y aparece solo cuando el nodo de hoy sale de la vista (IntersectionObserver en Ruta.tsx:44-50). Se ve en las capturas -final y no se ve con hoy centrado.
+4. Nombres de pieza truncados: CORREGIDO. Se usa `corto` (16 caracteres o menos) sin clamp: "Nombre", "Plan de 7 días", "«Está caro»". Ya no hay "…".
+5. Asomes junto al botón central y ojo-ceja en 2 líneas: CORREGIDO. No asoma nada entre la tarjeta y la barra a 375 ni a 360, y "Pieza de hoy lista" cabe en 1 línea. Efecto secundario nuevo: al final del scroll, el velo con pb-24 se suma al pb-28 del contenedor de Marco y deja unos 130px de fondo vacío bajo la tarjeta (en 18-...-final y 05-...-final).
+
+Hallazgos anteriores de severidad baja:
+- Llama gris sin explicación: NO CORREGIDO (sigue solo en sr-only).
+- Hueco bajo la banda de la semana 1: NO CORREGIDO (y = i*PASO + 72; quedan unos 55px).
+- "Día 6" cortado y mancha verde bajo el encabezado: NO CORREGIDO.
+- Conteo del 7/30 y dibujo del camino: NO CORREGIDO.
+
+## Por qué el movimiento baja a 2
+Verificado en el código, baseline por baseline:
+- Stagger de entrada: OK (Ruta.tsx:165-167).
+- Tap: OK (active:scale-95).
+- Transición de tabs: OK (layoutId en Marco).
+- Firma de pulso en el nodo de hoy, con reduce: OK.
+- Conteo del número héroe: FALTA. El 7/30 es estático (Ruta.tsx:71-73).
+- Dibujo del trazo: FALTA. El path es estático (Ruta.tsx:117).
+- Aparición suave del aviso: FALTA. Entra de golpe (Ruta.tsx:218).
+- Reduce-motion: el botón de ubicar anima scale 0.8 sin consultar reduce (Ruta.tsx:80).
+
+Son 3 de las 6 baseline aplicables que faltan en la pantalla cuyo dato héroe y gráfico principal son justamente el número y el camino.
 
 ## Hallazgos por severidad
 
 ### ALTA
-1. El trazo se ve a través de los nodos bloqueados. Con `relieve-piedra opacity-60`, la piedra queda semitransparente y la línea de puntos se ve encima de los candados en los Días 3, 4, 9, 10, 26, 27, 28 y 29. Se nota sin buscarlo y rompe la lectura de "piedra en relieve".
-   Archivos: components/interna/Ruta.tsx:130.
-   Fix: quitar la opacidad y crear una variante .relieve-piedra-apagada con --cara-1/--cara-2/--tinta más oscuras (opacas).
-2. Dorado triplicado hacia la misma acción, y el botón central no lee el estado del día. En el día 8 hay cuatro masas doradas: la banda de la semana, el nodo de hoy, "Empezar" y el botón central, y tres de ellas llevan a /app/mision. En el día 1 con la pieza hecha, el botón central dorado invita a una misión ya terminada mientras la tarjeta manda a Mi Empresa.
-   Archivos: components/interna/Marco.tsx:89-95.
-   Fix: cuando hechaHoy, el botón central pasa a relieve-verde con check (o a piedra) y lleva a la pieza de hoy.
+1. Hueco muerto bajo la tarjeta fija al final del scroll. Al llegar al Día 30 quedan unos 130px de fondo vacío entre la tarjeta y la barra, a 375 y a 360. Se nota sin buscarlo.
+   Archivos: Ruta.tsx:216 (pb-24) + Marco.tsx:71 (pb-28).
+   Fix: quitar el pb-28 del contenedor cuando la pantalla tiene tarjeta fija (o darle -mb-28 al velo), de modo que el padding inferior se aplique una sola vez.
+2. Encabezado translúcido. Al abrir en el día 8, el nodo verde del Día 6 se ve como una mancha borrosa bajo la racha, y "Día 6" sale cortado por arriba.
+   Archivos: Ruta.tsx:62 y :34.
+   Fix: fondo opaco var(--surface-base) con hairline inferior, y scroll-margin-top de unos 120px en el nodo de hoy (o centrar con un offset).
 
 ### MEDIA
-3. Dos "Hoy" con acciones distintas. El botón del encabezado centra el mapa en el día de hoy; la pestaña "Hoy" de la barra lleva a /app. Además, el botón del encabezado se ve siempre, aunque el nodo de hoy ya esté en pantalla.
-   Archivos: components/interna/Ruta.tsx:66-73.
-   Fix: dejar solo el ícono LocateFixed con aria-label "Ir a mi día" y mostrarlo únicamente cuando el nodo de hoy sale de vista (IntersectionObserver sobre refHoy).
-4. Nombres de pieza truncados. Con line-clamp-1 en 120px se cortan "nombre de tu…", "preguntas de…", "respuesta a "está…", "negocio, listo par…" y "correo de…". La etiqueta del nodo de hoy no coincide con la tarjeta ("El nombre de tu negocio").
-   Archivos: components/interna/Ruta.tsx:190 y lib/ruta.ts.
-   Fix: añadir un campo `corto` de ≤16 caracteres por día en lib/ruta.ts y usarlo sin clamp.
-5. Asomes junto al botón central. En el día 8 (a 375 y a 360), "…s" y un punto del trazo asoman a los lados del botón central, entre la tarjeta y la barra.
-   Archivos: components/interna/Ruta.tsx:203 y app/globals.css:351-353.
-   Fix: extender el velo hasta el borde inferior (sticky bottom-0 con padding-bottom igual al alto de la barra) para que el fondo base llegue debajo de la tarjeta.
-6. El ojo-ceja se parte en 2 líneas. "Hoy ya armaste tu pieza" ocupa 2 líneas a 375 y a 360, y la tarjeta crece a 4 líneas de texto al lado del botón.
-   Archivos: components/interna/Ruta.tsx:228.
-   Fix: usar "Pieza de hoy lista", o "Día 1 · lista".
+3. Tres disparadores dorados de la misma acción en el día 8 (gate de una acción primaria).
+   Fix: el nodo de hoy conserva el dorado y el pulso, pero su toque centra la tarjeta fija en vez de navegar; o, si la referencia exige el central, mantener solo "Empezar" + central.
+4. Faltan movimientos base: el conteo del 7/30, el dibujo del camino de la semana actual y la entrada del aviso.
+   Archivos: Ruta.tsx:71-73, :117, :218.
+   Fix: useCountUp con reduce; motion.path con pathLength de 0 a 1 en 600ms solo en semanaActual; AnimatePresence en el aviso (y de 8 a 0, 200ms).
 
 ### BAJA
-7. La llama gris sigue sin explicación visible (Ruta.tsx:55-58).
+5. Medias lunas de puntos recortadas junto a "Día 9", "Día 27" y "Día 29" (el fondo de la etiqueta corta un punto a la mitad).
+   Fix: cortar el trazo por segmentos de borde de nodo a borde de etiqueta, o enmascarar con un rect de radio completo y padding de 6px.
+6. La llama gris de la racha sigue sin explicación visible (Ruta.tsx:64-67).
    Fix: cuando rachaEnRiesgo, que el ojo-ceja de la tarjeta diga "Hazla hoy y sigues con 7 días".
-8. Hueco muerto bajo la banda de la semana 1 (~50px antes del Día 1, en 05-ruta-dia1-arriba), porque el primer punto está en y=72.
-   Archivos: components/interna/Ruta.tsx:82.
+7. Hueco de unos 55px entre la banda de la semana 1 y el Día 1 (Ruta.tsx:95).
    Fix: y = i * PASO + 44.
-9. En el día 8, el encabezado corta "Día 6" a la mitad al abrir, y el verde del nodo 6 se transparenta como una mancha bajo el encabezado.
-   Fix: centrar con un offset, o usar block 'nearest' con scroll-margin-top de 120px en el nodo de hoy.
-10. Faltan movimientos base: el conteo de 7/30 y el dibujo del camino (pathLength de 0 a 1) en la semana actual, ambos respetando reduce. El aviso aparece de golpe.
-    Archivos: components/interna/Ruta.tsx:62-64, :104 y :204.
+8. .relieve-piedra-apagada usa hex sueltos (#2c2638, #1f1a29, #7d7390, #120f19) en lugar de tokens.
+   Fix: declararlos como --piedra-apagada-* en :root.

@@ -6,9 +6,9 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { AnimatePresence, animate, motion, useDragControls, useReducedMotion } from 'motion/react';
 import { ArrowRight, Check, ChevronDown, Copy, Download, LockKeyhole, Share, X } from 'lucide-react';
-import { estadoRuta, type Cuenta, type PiezaGuardada } from '@/lib/cuenta';
+import { estadoRuta, fechaLocal, type Cuenta, type PiezaGuardada } from '@/lib/cuenta';
 import { RUTA, SEMANAS, TOTAL_DIAS, diaRuta } from '@/lib/ruta';
 import { EASE_SALIDA } from '@/components/onboarding/piezas';
 import { useCuentaActiva } from './Marco';
@@ -45,6 +45,7 @@ export function Empresa() {
   const e = estadoRuta(cuenta);
   const piezas = [...cuenta.piezas].sort((a, b) => b.dia - a.dia);
   const [nueva, ...resto] = piezas;
+  const recienGuardada = Boolean(nueva && nueva.fecha === fechaLocal() && !reduce);
   const [abierta, setAbierta] = useState<number | null>(null);
   const [aviso, setAviso] = useState('');
   const semanaActual = diaRuta(e.terminada ? TOTAL_DIAS : e.diaActual).semana;
@@ -167,7 +168,7 @@ export function Empresa() {
                   transition={{ duration: 0.25, delay: reduce ? 0 : 0.2 + i * 0.015 }}
                   className={`h-3 flex-1 rounded-full ${lista ? 'bg-green' : actual ? 'bg-gold' : 'bg-raised-2'}`}
                 >
-                  {nueva && dia === nueva.dia && !reduce && (
+                  {recienGuardada && dia === nueva.dia && (
                     <motion.span
                       className="block size-full rounded-full bg-green-light"
                       initial={{ opacity: 0 }}
@@ -181,7 +182,7 @@ export function Empresa() {
           </div>
           <p className="mt-2 flex justify-between gap-2 text-xs text-ink-3">
             <span className="tabular-nums">
-              {e.piezasListas} de {TOTAL_DIAS} piezas
+              <CuentaPiezas valor={e.piezasListas} /> de {TOTAL_DIAS} piezas
             </span>
             <span className="truncate">
               Semana {semana.numero} · {semana.tema}
@@ -202,16 +203,29 @@ export function Empresa() {
           <>
             {/* La pieza más nueva, destacada */}
             <motion.button
-              initial={{ opacity: 0, scale: reduce ? 1 : 0.94, y: reduce ? 0 : 10 }}
+              initial={recienGuardada ? { opacity: 0, scale: 0.94, y: 10 } : { opacity: 0, y: reduce ? 0 : 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ type: 'spring', bounce: 0.25, duration: 0.55, delay: reduce ? 0 : 0.15 }}
+              transition={recienGuardada ? { type: 'spring', bounce: 0.25, duration: 0.55, delay: 0.15 } : { duration: 0.4, delay: reduce ? 0 : 0.1, ease: EASE_SALIDA }}
               type="button"
               onClick={() => abrir(nueva.dia)}
               className="hairline-oro relieve-tarjeta mt-6 block w-full rounded-[var(--radius-card)] p-4 text-left transition-transform duration-150 active:scale-[0.99]"
             >
               <span className="flex items-center justify-between gap-2 text-xs font-bold tracking-[0.08em] uppercase">
                 <span className="truncate text-ink-3">{rotulo(nueva)}</span>
-                <span className="shrink-0 text-gold">Nueva · Día {nueva.dia}</span>
+                <span className="flex shrink-0 items-center gap-1 text-gold">
+                  {recienGuardada && (
+                    <motion.span
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: 'spring', bounce: 0.25, duration: 0.45, delay: 0.7 }}
+                      className="flex size-4 items-center justify-center rounded-full bg-green text-on-green"
+                      aria-hidden="true"
+                    >
+                      <Check size={10} strokeWidth={3.5} />
+                    </motion.span>
+                  )}
+                  Nueva · Día {nueva.dia}
+                </span>
               </span>
               <span className="mt-2 block text-lg leading-snug font-semibold text-pretty text-ink-1">{resumenDe(nueva)}</span>
               <span className="mt-2 block text-xs font-semibold text-ink-3">Toca para verla completa y copiarla</span>
@@ -237,7 +251,7 @@ export function Empresa() {
                     className="flex min-h-11 w-full items-center gap-2 text-left"
                   >
                     {completa && <Check size={16} strokeWidth={3} className="text-green" aria-hidden="true" />}
-                    <span className="flex-1 font-display text-base font-bold text-ink-1">
+                    <span className="flex-1 font-display text-lg font-bold text-ink-1">
                       Semana {g.semana.numero} · {g.semana.tema}
                     </span>
                     <span className="text-xs text-ink-3 tabular-nums">{g.piezas.length}</span>
@@ -264,7 +278,7 @@ export function Empresa() {
                               onClick={() => abrir(p.dia)}
                               className="tarjeta-relieve flex h-full w-full flex-col rounded-[var(--radius-card)] p-3 text-left transition-transform duration-150 active:scale-[0.98]"
                             >
-                              <span className="text-xs font-bold tracking-[0.06em] whitespace-nowrap text-ink-3 uppercase">{rotulo(p)}</span>
+                              <span className="block truncate text-xs font-bold tracking-[0.04em] text-ink-3 uppercase">{rotulo(p)}</span>
                               <span className="mt-1 line-clamp-3 text-sm leading-snug font-semibold text-ink-1">{resumenDe(p)}</span>
                               <span className="mt-auto pt-2 text-xs font-semibold text-green">Día {p.dia}</span>
                             </button>
@@ -281,7 +295,7 @@ export function Empresa() {
 
         {/* Lo que viene: la de hoy (acción) + fantasmas bloqueados */}
         {siguiente && nueva && (
-          <motion.div {...entrar(4)} className="mt-6 flex flex-col gap-3">
+          <motion.div {...entrar(2 + grupos.length)} className="mt-6 flex flex-col gap-3">
             {!e.hechaHoy && (
               <Link href="/app/mision" className="flex items-center gap-3 rounded-[var(--radius-card)] border border-dashed border-gold p-4 transition-transform duration-150 active:scale-[0.99]">
                 <span className="min-w-0 flex-1 text-sm">
@@ -327,6 +341,7 @@ export function Empresa() {
 /* Detalle de una pieza: texto completo, cómo usarla, copiar. */
 function HojaPieza({ pieza, onCerrar }: { pieza: PiezaGuardada; onCerrar: () => void }) {
   const reduce = useReducedMotion();
+  const arrastre = useDragControls();
   const hoja = useRef<HTMLDivElement>(null);
   const cerrar = useRef<HTMLButtonElement>(null);
   const [copiado, setCopiado] = useState<'no' | 'si' | 'error'>('no');
@@ -389,6 +404,8 @@ function HojaPieza({ pieza, onCerrar }: { pieza: PiezaGuardada; onCerrar: () => 
         transition={{ duration: 0.3, ease: EASE_SALIDA }}
         onClick={(ev) => ev.stopPropagation()}
         drag={reduce ? false : 'y'}
+        dragControls={arrastre}
+        dragListener={false}
         dragConstraints={{ top: 0, bottom: 0 }}
         dragElastic={{ top: 0, bottom: 0.6 }}
         onDragEnd={(_, info) => {
@@ -396,7 +413,13 @@ function HojaPieza({ pieza, onCerrar }: { pieza: PiezaGuardada; onCerrar: () => 
         }}
         className="tarjeta-relieve max-h-[85dvh] w-full max-w-md overflow-y-auto rounded-t-[var(--radius-card)] px-4 pt-4 pb-[max(16px,env(safe-area-inset-bottom))]"
       >
-        <span aria-hidden="true" className="mx-auto mb-3 block h-1 w-10 rounded-full bg-ink-3" />
+        <div
+          aria-hidden="true"
+          onPointerDown={(ev) => arrastre.start(ev)}
+          className="-mx-4 -mt-4 mb-1 flex h-8 cursor-grab touch-none items-center justify-center"
+        >
+          <span className="block h-1 w-10 rounded-full bg-ink-3" />
+        </div>
         <div className="flex items-start gap-3">
           <div className="min-w-0 flex-1">
             <p className="text-xs font-bold tracking-[0.08em] text-green uppercase">Día {pieza.dia} · lista</p>
@@ -420,7 +443,7 @@ function HojaPieza({ pieza, onCerrar }: { pieza: PiezaGuardada; onCerrar: () => 
             <strong className="font-semibold text-ink-1">{d.rotulo}:</strong> {d.valor}
           </p>
         ))}
-        {pieza.base && <p className="mt-4 text-caption text-ink-3">Versión armada con tus respuestas. La IA la afina cuando se conecte.</p>}
+        {pieza.base && <p className="mt-4 text-caption text-ink-3">Versión base, armada con tus respuestas.</p>}
         <button type="button" onClick={copiar} className="boton-oro mt-6 flex h-14 w-full items-center justify-center gap-2 rounded-[var(--radius-pill)] font-display text-boton font-bold">
           {copiado === 'si' ? <Check size={20} aria-hidden="true" /> : <Copy size={20} aria-hidden="true" />}
           {copiado === 'si' ? '¡Copiada!' : 'Copiar pieza'}
@@ -431,4 +454,23 @@ function HojaPieza({ pieza, onCerrar }: { pieza: PiezaGuardada; onCerrar: () => 
       </motion.div>
     </motion.div>
   );
+}
+
+/* El número de piezas cuenta de 0 a su valor (baseline 2 de 22). */
+function CuentaPiezas({ valor }: { valor: number }) {
+  const reduce = useReducedMotion();
+  const nodo = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    if (!nodo.current || reduce) return;
+    const control = animate(0, valor, {
+      duration: 0.6,
+      delay: 0.2,
+      ease: 'easeOut',
+      onUpdate: (v) => {
+        if (nodo.current) nodo.current.textContent = String(Math.round(v));
+      },
+    });
+    return () => control.stop();
+  }, [valor, reduce]);
+  return <span ref={nodo}>{valor}</span>;
 }

@@ -7,7 +7,7 @@
 // · Cierres de semana (7, 14, 21, 30): juntan las piezas de la semana en una sola, sin preguntas.
 // Al guardar: celebración con la pieza como protagonista que "vuela" a Mi Empresa (firma de FICHA-ARTE).
 
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { Fragment, useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, animate, motion, useReducedMotion } from 'motion/react';
 import { ArrowLeft, ArrowRight, Check, Flame, Lightbulb, PencilLine, RotateCcw, Sparkles, WandSparkles, Zap } from 'lucide-react';
@@ -57,10 +57,11 @@ export function Mision() {
 
 /* ── Piezas comunes ── */
 
-function Pantalla({ children, accion }: { children: ReactNode; accion?: ReactNode }) {
+function Pantalla({ children, accion, encabezado, centrado = false }: { children: ReactNode; accion?: ReactNode; encabezado?: ReactNode; centrado?: boolean }) {
   return (
     <main className="flex min-h-dvh flex-1 flex-col">
-      <div className="px-4">{children}</div>
+      {encabezado && <div className="px-4">{encabezado}</div>}
+      <div className={`px-4 ${centrado ? 'flex flex-1 flex-col justify-center py-8' : ''}`}>{children}</div>
       {accion}
     </main>
   );
@@ -81,9 +82,8 @@ function BarraAccion({ href, children }: { href: string; children: ReactNode }) 
 function Aviso({ titulo, texto, href, cta }: { titulo: string; texto: string; href: string; cta: string }) {
   const cuenta = useCuentaActiva();
   return (
-    <Pantalla accion={<BarraAccion href={href}>{cta}</BarraAccion>}>
-      <EncabezadoMision />
-      <div className="tarjeta-relieve mt-8 rounded-[var(--radius-card)] p-6 text-center">
+    <Pantalla accion={<BarraAccion href={href}>{cta}</BarraAccion>} encabezado={<EncabezadoMision />} centrado>
+      <div className="tarjeta-relieve rounded-[var(--radius-card)] p-6 text-center">
         <span aria-hidden="true" className="relieve-verde mx-auto flex size-16 items-center justify-center rounded-full">
           <Check size={30} strokeWidth={3} />
         </span>
@@ -162,7 +162,14 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
   });
   const [aviso, setAviso] = useState(0);
   const [errorGuardado, setErrorGuardado] = useState(false);
+  const [anterior, setAnterior] = useState<string | null>(null);
   const valido = limpiarTexto(texto, LARGO_MAX_BORRADOR).length >= 15 && !texto.includes('___');
+
+  useEffect(() => {
+    if (anterior === null) return;
+    const t = window.setTimeout(() => setAnterior(null), 5000);
+    return () => window.clearTimeout(t);
+  }, [anterior]);
 
   useEffect(() => {
     try {
@@ -229,7 +236,8 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
           <button
             type="button"
             onClick={() => {
-              setTexto(guia.plantilla);
+              setAnterior(texto);
+              setTexto(texto.trim() ? `${texto.trim()}\n${guia.plantilla}` : guia.plantilla);
               vibrar();
             }}
             className="flex min-h-11 items-center gap-1 rounded-[var(--radius-pill)] px-3 text-xs font-semibold text-gold active:scale-95"
@@ -245,12 +253,27 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
           maxLength={LARGO_MAX_BORRADOR}
           onChange={(ev) => setTexto(ev.target.value)}
           rows={5}
-          placeholder={guia.plantilla}
+          placeholder="Escríbelo aquí con tus palabras, o toca «Usar plantilla»."
           className={`mt-1 w-full resize-none rounded-[var(--radius-chip)] border bg-sunken px-4 py-3 text-base leading-snug text-ink-1 placeholder:text-ink-3 focus:outline-none ${
             aviso && !valido ? 'sacudir border-danger focus:border-danger' : 'border-[var(--line)] focus:border-gold'
           }`}
         />
-        <p className="mt-2 px-1 text-caption text-ink-3">Versión base: cuando conectemos la IA, aquí te la arma en segundos con tus piezas.</p>
+        {anterior !== null && (
+          <p role="status" className="mt-2 flex items-center justify-between gap-2 px-1 text-caption text-ink-2">
+            Pusimos la plantilla: completa los ___.
+            <button
+              type="button"
+              onClick={() => {
+                setTexto(anterior);
+                setAnterior(null);
+              }}
+              className="flex min-h-11 items-center px-2 font-semibold text-ink-1 underline underline-offset-4"
+            >
+              Deshacer
+            </button>
+          </p>
+        )}
+        <p className="mt-2 px-1 text-caption text-ink-3">Es tu versión base: la puedes mejorar cuando quieras desde Mi Empresa.</p>
       </div>
 
       {usadas.length > 0 && (
@@ -314,7 +337,13 @@ function CierreSemana({ onGuardada }: { onGuardada: (dia: number) => void }) {
         <p className="mt-2 text-ayuda text-ink-2">Revisa lo que armaste. Al guardarlo queda como una sola pieza, lista para compartir.</p>
       </motion.div>
       <ul className="hairline-oro relieve-tarjeta mt-4 flex flex-col gap-3 rounded-[var(--radius-card)] p-4">
-        {piezas.map((p) => (
+        {piezas.map((p, i) => (
+          <Fragment key={p.dia}>
+          {(i === 0 || diaRuta(piezas[i - 1].dia).semana !== diaRuta(p.dia).semana) && dia.dia === 30 && (
+            <li key={`s${p.dia}`} className="pt-1 text-xs font-bold tracking-[0.08em] text-ink-3 uppercase">
+              Semana {diaRuta(p.dia).semana}
+            </li>
+          )}
           <li key={p.dia} className="flex items-start gap-3">
             <span aria-hidden="true" className="relieve-verde mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full">
               <Check size={12} strokeWidth={3} />
@@ -326,6 +355,7 @@ function CierreSemana({ onGuardada }: { onGuardada: (dia: number) => void }) {
               <span className="text-ink-1">{p.resumen ?? p.contenido}</span>
             </span>
           </li>
+          </Fragment>
         ))}
       </ul>
       <ErrorGuardado visible={errorGuardado} />
@@ -642,6 +672,17 @@ function MisionGuiadaFlujo({ onGuardada }: { onGuardada: (dia: number) => void }
       </AnimatePresence>
       <ErrorGuardado visible={errorGuardado} />
 
+      {fase === 'preguntas' && !pregunta.multiple && (
+        <div className="barra-inferior sticky bottom-0 z-10 mt-auto px-4 pt-6">
+          <div className="flex gap-1" aria-hidden="true">
+            {mision.preguntas.map((q, i) => (
+              <span key={q.id} className={`h-1.5 flex-1 rounded-full ${i < paso ? 'bg-green' : i === paso ? 'bg-gold' : 'bg-raised-2'}`} />
+            ))}
+          </div>
+          <p className="mt-2 text-center text-caption text-ink-2">Toca una opción y seguimos · al final se guarda en Mi Empresa</p>
+        </div>
+      )}
+
       {/* El botón principal, fijo abajo como en el recorrido de inicio */}
       {fase === 'preguntas' && pregunta.multiple && !escribiendo && (
         <BotonPrincipal
@@ -691,7 +732,10 @@ function Cuenta({ valor }: { valor: number }) {
   );
 }
 
-/* ── Celebración: la pieza es la protagonista; al encenderse el tick, una copia "vuela" a Mi Empresa ── */
+/* ── Celebración: la pieza es la protagonista; una copia vuela hasta "Ver en Mi Empresa" y al llegar
+   se enciende el tick verde (firma de FICHA-ARTE). Al cerrar semana, confeti (solo ahí). ── */
+const CONFETI = Array.from({ length: 18 }, (_, i) => i);
+
 function Celebracion({ dia }: { dia: number }) {
   const cuenta: Cuenta = useCuentaActiva();
   const reduce = useReducedMotion();
@@ -699,25 +743,49 @@ function Celebracion({ dia }: { dia: number }) {
   const d = diaRuta(dia);
   const pieza = cuenta.piezas.find((p) => p.dia === dia);
   const siguiente = dia < RUTA.length ? diaRuta(dia + 1) : undefined;
+  const refTarjeta = useRef<HTMLElement>(null);
+  const refBoton = useRef<HTMLAnchorElement>(null);
+  const [vuelo, setVuelo] = useState<number | null>(null);
+  const [enEmpresa, setEnEmpresa] = useState(Boolean(reduce));
+
+  useEffect(() => {
+    if (reduce) return;
+    const t = window.setTimeout(() => {
+      const a = refTarjeta.current?.getBoundingClientRect();
+      const b = refBoton.current?.getBoundingClientRect();
+      if (a && b) setVuelo(b.top + b.height / 2 - (a.top + 28));
+      else setEnEmpresa(true);
+    }, 900);
+    return () => window.clearTimeout(t);
+  }, [reduce]);
+
   return (
     <main className="flex min-h-dvh flex-1 flex-col">
-      <div className="flex flex-col items-center px-4 pt-10 text-center" aria-live="polite">
+      <div className="flex flex-1 flex-col items-center justify-center px-4 py-8 text-center" aria-live="polite">
         <p className="text-xs font-bold tracking-[0.08em] text-green uppercase">{d.cierre ? `¡Semana ${d.semana} completa!` : `Día ${dia} listo`}</p>
         <h1 className="mt-1 font-display text-pregunta font-extrabold text-ink-1">¡Pieza {dia} guardada!</h1>
 
         <div className="relative mt-6 w-full">
           {!reduce &&
-            CHISPAS.map((g) => (
-              <motion.span
-                key={g}
-                aria-hidden="true"
-                className="absolute top-1/2 left-1/2 size-2 rounded-full bg-gold"
-                initial={{ x: 0, y: 0, opacity: 0 }}
-                animate={{ x: Math.cos((g * Math.PI) / 180) * 150, y: Math.sin((g * Math.PI) / 180) * 70, opacity: [0, 1, 0] }}
-                transition={{ duration: 0.8, delay: 0.25, ease: EASE_SALIDA }}
-              />
-            ))}
+            (d.cierre ? CONFETI : CHISPAS).map((g, i) => {
+              const ang = d.cierre ? (i / CONFETI.length) * 360 : g;
+              return (
+                <motion.span
+                  key={`${g}-${i}`}
+                  aria-hidden="true"
+                  className={`absolute top-1/2 left-1/2 rounded-full ${d.cierre && i % 2 ? 'size-1.5 bg-green' : 'size-2 bg-gold'}`}
+                  initial={{ x: 0, y: 0, opacity: 0 }}
+                  animate={{
+                    x: Math.cos((ang * Math.PI) / 180) * (d.cierre ? 170 : 150),
+                    y: Math.sin((ang * Math.PI) / 180) * (d.cierre ? 120 : 70) + (d.cierre ? 40 : 0),
+                    opacity: [0, 1, 0],
+                  }}
+                  transition={{ duration: d.cierre ? 1.2 : 0.8, delay: 0.25, ease: EASE_SALIDA }}
+                />
+              );
+            })}
           <motion.article
+            ref={refTarjeta}
             initial={{ opacity: 0, scale: reduce ? 1 : 0.85, y: reduce ? 0 : 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ type: 'spring', bounce: 0.25, duration: 0.6 }}
@@ -725,26 +793,31 @@ function Celebracion({ dia }: { dia: number }) {
           >
             <p className="flex items-center justify-between gap-2 text-xs font-bold tracking-[0.08em] uppercase">
               <span className="text-gold">{d.corto}</span>
-              <motion.span
-                initial={{ scale: reduce ? 1 : 0 }}
-                animate={{ scale: 1 }}
-                transition={reduce ? { duration: 0 } : { type: 'spring', bounce: 0.25, duration: 0.5, delay: 0.9 }}
-                className="flex shrink-0 items-center gap-1 text-green"
-              >
-                <Check size={14} strokeWidth={3} aria-hidden="true" />
-                En Mi Empresa
-              </motion.span>
+              {enEmpresa && (
+                <motion.span
+                  initial={{ scale: reduce ? 1 : 0 }}
+                  animate={{ scale: 1 }}
+                  transition={reduce ? { duration: 0 } : { type: 'spring', bounce: 0.25, duration: 0.5 }}
+                  className="flex shrink-0 items-center gap-1 text-green"
+                >
+                  <Check size={14} strokeWidth={3} aria-hidden="true" />
+                  En Mi Empresa
+                </motion.span>
+              )}
             </p>
             <p className="mt-2 line-clamp-3 text-base leading-snug font-semibold text-ink-1">{pieza?.resumen ?? pieza?.contenido}</p>
           </motion.article>
-          {/* Firma de FICHA-ARTE: la pieza vuela hacia "Mi Empresa" (el botón de abajo) */}
-          {!reduce && (
+          {vuelo !== null && !enEmpresa && (
             <motion.span
               aria-hidden="true"
-              className="pointer-events-none absolute top-4 left-1/2 flex h-7 -translate-x-1/2 items-center gap-1 rounded-full bg-gold px-3 text-xs font-bold text-on-gold shadow-[0_2px_0_var(--gold-deep)]"
+              className="pointer-events-none absolute top-4 left-1/2 z-20 flex h-7 -translate-x-1/2 items-center gap-1 rounded-full bg-gold px-3 text-xs font-bold text-on-gold shadow-[0_2px_0_var(--gold-deep)]"
               initial={{ opacity: 0, y: 0, scale: 1 }}
-              animate={{ opacity: [0, 1, 1, 0], y: [0, 0, 380, 420], scale: [1, 1, 0.7, 0.5] }}
-              transition={{ duration: 1.1, delay: 1.1, times: [0, 0.15, 0.85, 1], ease: EASE_SALIDA }}
+              animate={{ opacity: [0, 1, 1, 0], y: [0, 0, vuelo, vuelo], scale: [1, 1, 0.7, 0.5] }}
+              transition={{ duration: 0.9, times: [0, 0.15, 0.85, 1], ease: EASE_SALIDA }}
+              onAnimationComplete={() => {
+                setEnEmpresa(true);
+                vibrar(20);
+              }}
             >
               <Sparkles size={12} />
               Pieza {dia}
@@ -776,8 +849,12 @@ function Celebracion({ dia }: { dia: number }) {
           </p>
         )}
       </div>
-      <div className="barra-inferior sticky bottom-0 z-10 mt-auto px-4 pt-6">
-        <Link href={`/app/empresa?pieza=${dia}`} className="boton-oro flex h-14 items-center justify-center gap-2 rounded-[var(--radius-pill)] font-display text-boton font-bold">
+      <div className="barra-inferior sticky bottom-0 z-10 px-4 pt-6">
+        <Link
+          ref={refBoton}
+          href={`/app/empresa?pieza=${dia}`}
+          className="boton-oro flex h-14 items-center justify-center gap-2 rounded-[var(--radius-pill)] font-display text-boton font-bold"
+        >
           Ver en Mi Empresa
           <ArrowRight size={20} aria-hidden="true" />
         </Link>

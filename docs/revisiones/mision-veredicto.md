@@ -1,49 +1,61 @@
-# VEREDICTO revisor-visual — Misión del día (misión guiada día 2 + aviso + día 8 IA + celebración)
-Fecha: 2026-10-07 18:30
+# VEREDICTO revisor-visual — Misión del día (guiada día 2 + celebración + aviso + borrador día 8)
+Fecha: 2026-10-07 20:45
 Screenshot: docs/revisiones/mision-375.png
 Usabilidad: 28/40
 Craft: 15/20
 Copy (si vende): N-A
 Fidelidad (si hubo referencia): FIEL
 Veredicto: NO LISTA
-Top defectos: (1) desde el día 5 la misión no se puede completar: la ruta se detiene, la racha se rompe y "Te avisamos" no tiene ningún mecanismo detrás · (2) vacío muerto en P1/P2 (35%), en la celebración (tercio inferior) y en el aviso "ya hecha" (50%) · (3) la concordancia del retrato sigue rota ("Dueños… no le llegan") · (4) la firma de FICHA-ARTE "la pieza vuela a Mi Empresa" no está implementada · (5) desencajes: el título salta de 16 a 24px entre fases, la opción marcada se desplaza ~1.5px y hay una franja clara bajo la barra inferior
+Top defectos: (1) el día 8 que vende la landing (mision-v2.png: "La IA usó…", 5 nombres generados) se entrega como un formulario con ___, y la pantalla dice "cuando conectemos la IA", un texto que habla del avance del desarrollo y no del mundo de la usuaria · (2) sigue el vacío muerto: ~33% bajo la tarjeta en P1/P2, ~38% entre la semana y el CTA en "Hoy ya armaste tu pieza" y ~30% en la celebración · (3) la pieza que "vuela" no llega a Mi Empresa: se desplaza un valor fijo (y:380px), se apaga en el vacío ~140px por encima del botón y el tick se enciende antes del vuelo · (4) "Usar plantilla" borra lo que la usuaria ya escribió sin pedir confirmación y sin deshacer; además el placeholder es idéntico a la plantilla, así que al tocar el botón casi no cambia nada · (5) el cierre del día 30 lista las 29 piezas en una sola tarjeta y los cierres de semana no tienen el confetti que pide FICHA-ARTE
 
 ## Detalle de puntaje
-Usabilidad: h1:2 h2:3 h3:3 h4:3 h5:3 h6:3 h7:3 h8:2 h9:3 h10:3 = 28/40
+Usabilidad: h1:3 h2:3 h3:2 h4:3 h5:3 h6:3 h7:3 h8:2 h9:3 h10:3 = 28/40
 Craft: jerarquía:3 profundidad:3 identidad:3 movimiento:3 encaje:3 = 15/20
-Gate de carga cognitiva: 0-1 fallas de 8, sin sobrecarga. La pregunta 3 sigue con 7 opciones (6 redes + "Otra cosa"), pero la rejilla de 2 columnas con círculos vacíos la vuelve fácil de recorrer, así que cuenta como media falla.
-CTA héroe vivo: cumple los 4. Contraste #FFC23D sobre #0F0D16 ≈ 11:1. Tiene estado al tocar (`.boton-oro:active` + whileTap 0.98). "Continuar" nunca arranca deshabilitado: al tocarlo sin elegir avisa "Elige al menos una". Mide 56px de alto, a todo el ancho y fijo abajo.
-Test de fidelidad (referencia public/landing/mision-v2.png, 1 de 6 fallos): modo ✓ · hue del acento ✓ · clase de la display ✓ (Bricolage, grotesk) · radios ✓ (píldora permitida por FICHA-ARTE §Radio) · sombras/relieve ✓ · densidad ✗. En P1 y P2 las opciones siguen sueltas, sin la tarjeta contenedora con hairline de la referencia, y queda un 35% vacío abajo. La pregunta 3 y el resultado ya anclan el CTA abajo, como la referencia.
-Verificado en código: reduced-motion en todo el flujo ✓ · aria-live en "armando" y en la celebración ✓ · Enter y Escape en "Otra cosa" ✓ · borrador en sessionStorage ✓ · doble toque bloqueado con `bloqueado` + `disabled` ✓ · conteo 0→N con `animate()` ✓ · conector verde con scaleX ✓ · BotonPrincipal/barra-inferior compartidos con el recorrido ✓ · aviso "te avisamos" sin mecanismo ✗ (grep sin resultados) · la pieza no "vuela" ✗.
+Gate de carga cognitiva: 1 falla de 8, sin sobrecarga. La pregunta 3 tiene 7 opciones (en rejilla, se recorre bien) y el cierre del día 30 junta 29 ítems en una sola lista (CierreSemana, Mision.tsx:282 con `dia.dia === 30 ? cuenta.piezas`). Esto último se verificó en el código; no hay captura.
+CTA héroe vivo: cumple los 4 en todos los estados. #FFC23D sobre #0F0D16 da ≈11:1. Tiene estado al tocar (`.boton-oro:active` translateY(2px) + whileTap). "Guardar en Mi Empresa" nunca arranca deshabilitado: al tocarlo valida y avisa "Completa los espacios ___". Mide 56px, va a todo el ancho y está fijo abajo en la pregunta 3, el resultado, el borrador, la celebración y el aviso.
+Test de fidelidad (referencia public/landing/mision-v2.png, 1 de 6 fallos):
+- modo ✓
+- hue del acento ✓
+- clase de la display ✓ (Bricolage, grotesk)
+- radios ✓ (la píldora en las opciones está permitida por FICHA-ARTE §Radio)
+- sombras/relieve ✓
+- densidad ✗ (parcial): las opciones ya van en una tarjeta con hairline, como la referencia, pero P1/P2 dejan un tercio vacío y sin barra inferior, mientras que la referencia llena hasta el CTA.
+Verificado en código:
+- reduced-motion: chispas, vuelo, stagger y `.sacudir` ✓
+- aria-live en "armando" y en la celebración ✓
+- error de guardado con `role="alert"` y sin celebración falsa ✓ (lib/cuenta.ts:220-226 devuelve null)
+- chips de respuestas con `disabled={bloqueado}` ✓
+- borde de 2px en los dos estados de `.opcion-recorrido` ✓ (globals.css:184/196)
+- encabezado compacto de 16px en todas las fases ✓
+- GUIAS_BORRADOR cubre 5-6, 8-13, 15-20 y 22-29, y los cierres van en 7, 14, 21 y 30 ✓
+- "te avisamos" eliminado de Mision.tsx ✓
+- `base: true` se guarda, pero nada lo consume todavía: "la IA la afinará" sigue siendo una promesa sin mecanismo
 
-## Re-revisión 2: qué se corrigió
-1. Lenguaje de desarrollo en el día 8 → CORREGIDO a medias. El texto ya habla en el mundo de la usuaria y hay una acción principal fija ("Repasar mis piezas") con la lista de piezas que usa la IA. Lo que sigue: la misión no se puede completar (ver ALTA 1).
-2. Botón principal suelto en la página → CORREGIDO en la pregunta 3 y en el resultado (barra-inferior sticky; a 360px "Continuar" se ve sin hacer scroll). PENDIENTE en la celebración y en el aviso "ya hecha": el CTA sigue en medio del contenido y abajo queda vacío.
-3. Pregunta 3 sin señal de selección múltiple → CORREGIDO. Rejilla de 2 columnas, círculo vacío de 24px en cada opción y "N elegidas" debajo del CTA.
-4. Jerarquía de la pregunta → CORREGIDO. Encabezado compacto de 16px, text-pregunta de 28px y TituloAcento con 1-3 palabras en dorado. Efecto colateral: el título salta a 24px al pasar a "armando".
-5. Celebración → CORREGIDO a medias. La pieza es la protagonista, el tick "En Mi Empresa" se enciende con resorte, hay chispas, el conteo va de 0 a N y el conector es verde. PENDIENTE: la pieza no "vuela" a Mi Empresa (firma de FICHA-ARTE:46-47).
-6. Concordancia del retrato → NO CORREGIDO. Se cambiaron los rótulos ("Su mayor dolor / Su meta / Canales"), pero la opción de dolor sigue en singular ("no le llegan clientes nuevos") con un sujeto plural ("Dueños de pequeños negocios"). Se ve en la captura 14 y se guarda en Mi Empresa.
-7. Respuestas que se pierden al salir → CORREGIDO (borrador en sessionStorage, Mision.tsx:181-206).
-8. Bombilla desalineada → CORREGIDO (`items-start` + `mt-0.5`).
-9. Conector gris → CORREGIDO (segmento verde con scaleX animado).
-10. Chips de respuesta largos o con otro estilo → CORREGIDO a medias. `truncate` ✓ y píldora ✓, pero siguen sin el prefijo del tema ("Edad:", "Dolor:").
-11. Doble toque → CORREGIDO. Queda una carrera menor: los chips de respuestas anteriores siguen activos durante los 300 ms del temporizador. Si se toca uno, `setPaso(i)` y `setPaso(paso + 1)` compiten.
-12. Escape en "Otra cosa" → CORREGIDO.
+## Re-revisión 3: qué se corrigió
+1. Ruta frenada en el día 5 y "te avisamos" sin mecanismo → CORREGIDO. Del día 5 al 29 hay un borrador guiado que sí guarda la pieza (validación de ___ al tocar el botón). Los días 7, 14, 21 y 30 cierran la semana. Se quitó la promesa del aviso. Problema nuevo: la nota "cuando conectemos la IA, aquí te la arma en segundos" (Mision.tsx:253) es una promesa con fecha abierta, en lenguaje de desarrollo, y deja a la vista que el mecanismo que vende la landing para el día 8 todavía no existe (ver ALTA 1).
+2. Vacío muerto y CTA suelto en la celebración y el aviso → CORREGIDO A MEDIAS. El CTA ya va en la barra inferior (mt-auto) en todos los estados y P1/P2 agrupan las opciones en una tarjeta con hairline ✓. Pero el bloque no se centró: el hueco solo cambió de lugar, ahora entre el contenido y el botón (capturas 07, 10, 11 y 15).
+3. Concordancia del retrato → CORREGIDO. Los dolores ya no llevan pronombre ("faltan clientes nuevos"), y la captura 14 concuerda.
+4. Firma "la pieza vuela a Mi Empresa" → CORREGIDO A MEDIAS. Hay un chip "Pieza N" que se mueve, pero con un desplazamiento fijo (Mision.tsx:746, `y: [0, 0, 380, 420]`) que no apunta al botón: a 375×812 se apaga unos 140px antes de llegar, y en pantallas más altas queda todavía más lejos. Además el tick "En Mi Empresa" se enciende a los 0.9s, antes de que salga el vuelo (1.1s), al revés de lo que pide FICHA-ARTE:46-47 (primero vuela y al aterrizar se enciende el tick). En la captura 15 el chip queda congelado a media opacidad en el vacío y parece un elemento perdido.
+5. Desencajes (salto del título, borde que se corre al marcar, franja bajo la barra) → CORREGIDO. El encabezado mide 16px en todo el flujo, el borde es de 2px en los dos estados y la barra llega al borde (capturas 12, 14 y 21).
+Otros del veredicto anterior:
+- carrera de los chips durante el avance de 300 ms → CORREGIDO
+- viuda en el título del día 8 → CORREGIDO (al ser compacto, entra en una línea)
+- prefijo de tema en los chips de respuesta ("Edad:", "Dolor:") → NO CORREGIDO
 
 ## Hallazgos por severidad
 
 ### ALTA
-1. Mision.tsx:44 y 109-163 + lib/cuenta.ts:206 (captura 21) — Del día 5 en adelante no hay forma de guardar la pieza. Como `diaActual = piezasListas + 1`, una clienta real queda detenida en el día 5, su racha se rompe al día siguiente sin ningún aviso, y 26 de los 30 días de la ruta que pagó no se pueden hacer. Además, "Te avisamos apenas esté lista" promete un aviso que no existe: un grep en lib/, components/ y app/ no encuentra ningún mecanismo. Y la referencia de la landing (mision-v2.png) vende el día 8 funcionando, con 5 nombres generados. → FIX: implementar la misión con IA (o una misión guiada de respaldo para los días 5 y siguientes que sí guarde la pieza) antes de vender. Mientras tanto, congelar la racha en los días bloqueados y no prometer un aviso sin mecanismo.
-2. Celebración (captura 15) y Aviso (Mision.tsx:49-65, captura 07) — Hay vacío muerto: el tercio inferior en la celebración y la mitad inferior en "Hoy ya armaste tu pieza". El CTA va dentro del contenido y no en la barra inferior, a diferencia del resultado y de la pregunta 3: es el mismo flujo con dos ubicaciones para el botón. En P1 y P2 (capturas 10-11) también queda un 35% vacío bajo las opciones. → FIX: usar `mt-auto` + barra-inferior para el CTA de la celebración y del aviso, y centrar el bloque en el alto disponible. En P1/P2, agrupar las opciones en una tarjeta con hairline, como la referencia.
+1. Borrador del día 8 (capturas 21-22, Mision.tsx:253). La referencia de la landing (mision-v2.png) vende el día 8 con "La IA usó: Tu oferta · Tu cliente ideal" y 5 nombres generados para elegir. La app entrega un textarea con "Nombre: ___. Lo elegí porque ___." y explica "cuando conectemos la IA…". Quien compró por esa imagen se encuentra con otro producto, y la nota habla del avance del desarrollo, no del mundo de la usuaria. → FIX: antes de vender, conectar la IA en los días 8 y siguientes, o retirar de la landing la imagen y el claim del día 8 con IA (gate 61 de claims). Mientras tanto, cambiar la nota por algo sin fecha, como "Escríbelo a tu manera; luego lo puedes rehacer".
+2. Aviso "Hoy ya armaste tu pieza" (captura 07), celebración (captura 15) y P1/P2 (capturas 10-11). Sigue habiendo un hueco vacío de 30-38% del alto de la pantalla, solo que ahora está entre el contenido y el CTA. → FIX: centrar el bloque en el alto disponible (contenedor `flex-1 flex flex-col justify-center`) o llenarlo con valor: en el aviso, la tarjeta de la pieza de mañana con lo que va a usar; en P1/P2, una barra inferior con el progreso de 3 pasos.
 
 ### MEDIA
-3. lib/misiones.ts:61 y 80 (captura 14) — "Dueños de pequeños negocios… Su mayor dolor: no le llegan clientes nuevos": la concordancia sigue rota en la pieza que se guarda. El día 3 (línea 116) da por hecho que el sujeto es plural ("que quieren"), así que se rompe si la respuesta del cliente está en singular. → FIX: redactar las opciones de dolor sin pronombre ("Faltan clientes nuevos", "No saber cuánto gana") o conjugar le/les según el número del sujeto.
-4. Mision.tsx:543-562 (captura 15) — Falta la firma de motion de FICHA-ARTE ("al guardar una pieza, vuela a 'Mi Empresa' y el tick se enciende en verde"): la tarjeta aparece en su lugar y no viaja a ningún lado. → FIX: después de que se encienda el tick, animar la tarjeta hacia el CTA "Ver en Mi Empresa" (translate + scale, o un layoutId compartido) y que el tick se encienda al aterrizar.
-5. Mision.tsx:281 (capturas 12→13) — Dentro del mismo flujo, el título de la misión pasa de 16px (preguntas) a 24px (armando y resultado). El encabezado "salta" justo cuando se arma la pieza. → FIX: mantener el encabezado compacto durante todo el flujo guiado; el protagonista del resultado es la pieza, no el título.
+3. Mision.tsx:742-751 (captura 15). El vuelo no tiene destino real y el tick se enciende antes que el vuelo. → FIX: medir el botón con un ref (getBoundingClientRect) para calcular el desplazamiento, o usar un `layoutId` compartido con un destino en la barra. Encender el tick en `onAnimationComplete` del vuelo.
+4. Mision.tsx:231-234 y 248 (capturas 21→22). "Usar plantilla" hace `setTexto(guia.plantilla)` sin mirar lo que ya hay: sobrescribe lo escrito sin confirmar ni ofrecer deshacer (h3). Además el placeholder es la misma plantilla, así que tocar el botón solo cambia el texto de gris a blanco y parece que no hizo nada. → FIX: placeholder distinto (un ejemplo real, como "Ej.: Celda Clara, porque…"). Si ya hay texto, insertar la plantilla al final o mostrar "Plantilla puesta · Deshacer" durante 5 s.
+5. Mision.tsx:282 y 316-330 (solo en código, sin captura). El cierre del día 30 lista las 29 piezas en una sola tarjeta, muy por encima de 4-5 ítems por grupo. Los cierres de semana y el día 30 celebran solo con chispas, sin el confetti que FICHA-ARTE:24 reserva para esos hitos. → FIX: en el día 30, agrupar por semana (4 filas plegables con "6 piezas"); en los cierres, añadir confetti respetando reduced-motion. Y capturar el día 7 y el día 30 para la próxima revisión.
 
 ### BAJA
-6. globals.css:184 vs 196 (captura 12) — La opción no marcada tiene borde de 1px y la marcada de 2px, así que al marcar, el texto y el círculo se desplazan ~1.5px ("Instagram" y "WhatsApp" quedan corridos respecto a "Facebook" y "TikTok"). → FIX: un borde de 2px en ambos estados (transparente/rgba en el no marcado), o marcar con un inset box-shadow.
-7. Barra inferior (capturas 12, 14 y 21) — Debajo de `.barra-inferior` asoma una franja de unos 32px con el fondo radial más claro, y se ve un corte horizontal bajo el CTA. → FIX: que la barra llegue al borde de la ventana (quitar el padding inferior del contenedor padre o extender el degradé con `pb` + safe-area).
-8. Mision.tsx:117 (captura 21) — "Crea el nombre de tu / negocio" deja una viuda en el título de 24px. → FIX: `text-balance` en el título del encabezado.
-9. Mision.tsx:296 — Los chips de respuestas anteriores no tienen prefijo de tema, y con selección múltiple el truncado oculta qué pregunta fue. → FIX: un prefijo corto ("Edad:", "Dolor:", "Redes:").
-10. Mision.tsx:291 — Los chips de respuestas no se bloquean durante el temporizador de 300 ms (carrera entre `setPaso`). → FIX: `disabled={bloqueado}` en esos chips.
+6. Captura 21. El rótulo "Tu nombre" queda a ~3px del borde izquierdo del textarea y "Usar plantilla" a ~15px del borde derecho: el encabezado del campo no está alineado de forma simétrica con el textarea. → FIX: `px-1` en los dos lados y quitar el `px-3` del botón, o compensarlo con `-mr-2`.
+7. Mision.tsx:140 dentro de `Pantalla` (px-4). El error de guardado lleva `mx-4` además del padding del contenedor, así que queda con 32px de margen lateral en vez de 16. → FIX: quitar `mx-4` cuando se renderiza dentro de `Pantalla`.
+8. Mision.tsx:242. `key={aviso}` vuelve a montar el textarea en cada intento fallido: pierde el foco y la posición del cursor justo cuando hay que corregir. → FIX: reiniciar la sacudida con una clase o un `animate` en lugar de cambiar el `key`.
+9. Mision.tsx:473 (captura 12). Los chips de respuestas siguen sin el prefijo del tema. → FIX: "Edad: 30-45", "Dolor: faltan clientes".
+10. Celebración (captura 15). Es el único estado sin el encabezado con flecha de volver; la salida es el enlace de texto "Volver a Hoy". Es aceptable, pero no es igual al resto del flujo. → FIX opcional: mantener el EncabezadoMision sin título.

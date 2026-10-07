@@ -7,7 +7,7 @@
 import { createContext, useContext, useEffect, type ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { motion } from 'motion/react';
+import { MotionConfig, motion } from 'motion/react';
 import { Briefcase, Check, House, Map as IconoMapa, UserRound, Zap } from 'lucide-react';
 import { activarDemo, estadoRuta, importarPieza1SiFalta, useCuenta, type Cuenta } from '@/lib/cuenta';
 
@@ -55,20 +55,25 @@ export function Marco({ children }: { children: ReactNode }) {
   if (!cuenta) return <EsqueletoApp />;
 
   return (
+    <MotionConfig reducedMotion="user">
     <ContextoCuenta.Provider value={cuenta}>
       <div className="fondo-recorrido min-h-dvh overflow-x-clip">
         <ContenidoConNav>{children}</ContenidoConNav>
       </div>
     </ContextoCuenta.Provider>
+    </MotionConfig>
   );
 }
 
 /* En la misión no hay barra (modo foco, como una lección de Duolingo): solo volver. */
 function ContenidoConNav({ children }: { children: ReactNode }) {
-  const enMision = usePathname().startsWith('/app/mision');
+  const ruta = usePathname();
+  const enMision = ruta.startsWith('/app/mision');
+  // La Ruta trae su propia tarjeta fija con el espacio de la barra: no se suma otro.
+  const conTarjetaFija = ruta.startsWith('/app/ruta');
   return (
     <>
-      <div className={`mx-auto flex min-h-dvh w-full max-w-md flex-col ${enMision ? '' : 'pb-28'}`}>{children}</div>
+      <div className={`mx-auto flex min-h-dvh w-full max-w-md flex-col ${enMision || conTarjetaFija ? '' : 'pb-28'}`}>{children}</div>
       {!enMision && <NavInferior />}
     </>
   );
@@ -92,7 +97,7 @@ function NavInferior() {
         ))}
         <li className="flex justify-center">
           <Link
-            href={hecha && e ? `/app/empresa?pieza=${e.piezasListas}` : '/app/mision'}
+            href={hecha && cuenta ? `/app/empresa?pieza=${Math.max(...cuenta.piezas.map((p) => p.dia))}` : '/app/mision'}
             aria-label={hecha ? 'Ver la pieza de hoy' : 'Misión de hoy'}
             className={`${hecha ? 'boton-central-hecho' : 'boton-central'} -mt-8 flex size-16 items-center justify-center rounded-full transition-transform duration-150 active:scale-95`}
           >

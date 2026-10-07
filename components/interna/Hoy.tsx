@@ -64,7 +64,10 @@ export function Hoy() {
   const siguiente = !e.terminada ? diaRuta(e.hechaHoy ? e.diaActual : e.diaActual + 1) : undefined;
   // "tu cliente ideal y tu oferta" (con posesivo: se lee natural y no exige concordar)
   const usadas = hoyRuta.usa.filter((d) => cuenta.piezas.some((p) => p.dia === d)).map((d) => minusculaInicial(RUTA[d - 1].pieza));
-  const ultimas = [...cuenta.piezas].sort((a, b) => b.dia - a.dia).slice(0, 2);
+  const ultimas = [...cuenta.piezas]
+    .filter((p) => !(e.hechaHoy && p.dia === diaMostrado))
+    .sort((a, b) => b.dia - a.dia)
+    .slice(0, 2);
   const semanaDeHoy = diaRuta(Math.max(diaMostrado, 1)).semana;
   const enSemana = cuenta.piezas.filter((p) => diaRuta(p.dia).semana === semanaDeHoy).length;
   const diasSemana = RUTA.filter((d) => d.semana === semanaDeHoy).length;
@@ -108,13 +111,14 @@ export function Hoy() {
       <div className="px-4">
         <motion.div {...entrar(0)}>
           <p className="text-xs text-ink-3">{fechaLarga()}</p>
-          <h1 className="font-display text-lg font-bold text-ink-1">{saludo()}</h1>
+          <p className="font-display text-lg font-bold text-ink-1">{saludo()}</p>
         </motion.div>
 
         {/* 1. EL DATO DE HOY: la misión (o lo que ya armaste). Toda la tarjeta lleva a la acción. */}
         <motion.div {...entrar(1)}>
           <Link
             href={destinoHeroe}
+            tabIndex={-1}
             className={`heroe-hoy relative mt-4 block overflow-hidden rounded-[var(--radius-card)] p-4 transition-transform duration-150 active:scale-[0.99] ${
               e.hechaHoy ? 'tarjeta-relieve' : 'tarjeta-relieve-oro'
             }`}
@@ -139,9 +143,9 @@ export function Hoy() {
             <span className={`relative block text-xs font-bold tracking-[0.08em] uppercase ${e.hechaHoy ? 'text-green' : 'text-gold'}`}>
               Día {diaMostrado} de {TOTAL_DIAS} · {e.hechaHoy ? 'Listo' : `Semana ${hoyRuta.semana}`}
             </span>
-            <span className="relative mt-2 block pr-24 font-display text-2xl leading-tight font-extrabold text-ink-1">
+            <h1 className="relative mt-2 block pr-24 font-display text-2xl leading-tight font-extrabold text-ink-1">
               {e.terminada ? '¡Tu negocio está listo para vender!' : e.hechaHoy ? `¡Pieza ${diaMostrado} lista!` : `Hoy: ${minusculaInicial(hoyRuta.mision)}`}
-            </span>
+            </h1>
             <span className="relative mt-2 block text-ayuda text-ink-2">
               {e.hechaHoy ? 'Ya está guardada en Mi Empresa' : '5 minutos, desde el celular'}
             </span>
@@ -171,7 +175,12 @@ export function Hoy() {
 
         {/* 2. LA ACCIÓN DE 1 TOQUE (siempre visible sin bajar) */}
         <motion.div {...entrar(2)} className="mt-4">
-          <Link href={destinoHeroe} className="boton-oro flex h-14 items-center justify-center gap-2 rounded-[var(--radius-pill)] font-display text-boton font-bold">
+          <Link
+            href={destinoHeroe}
+            className={`flex h-14 items-center justify-center gap-2 rounded-[var(--radius-pill)] font-display text-boton font-bold ${
+              e.hechaHoy || e.terminada ? 'border border-[var(--line)] bg-raised-2 text-ink-1 transition-transform duration-150 active:scale-[0.98]' : 'boton-oro'
+            }`}
+          >
             {textoCta}
             <ArrowRight size={20} aria-hidden="true" />
           </Link>
@@ -212,7 +221,11 @@ export function Hoy() {
               <span aria-hidden="true" className="relieve-piedra flex size-10 items-center justify-center rounded-[var(--radius-chip)]">
                 <CalendarCheck size={20} strokeWidth={2.2} />
               </span>
-              <span className="flex h-6 items-center gap-1" aria-label={`${enSemana} de ${diasSemana} piezas de la semana ${semanaDeHoy}`}>
+              <span className="font-display text-precio leading-none font-extrabold text-ink-1">
+                <Cuenta valor={enSemana} />
+                <span className="text-base text-ink-3">/{diasSemana}</span>
+              </span>
+              <span className="flex h-2 items-center gap-1" aria-label={`${enSemana} de ${diasSemana} piezas de la semana ${semanaDeHoy}`}>
                 {Array.from({ length: diasSemana }, (_, i) => (
                   <motion.span
                     key={i}
@@ -220,11 +233,11 @@ export function Hoy() {
                     initial={{ scale: reduce ? 1 : 0.4, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ type: 'spring', bounce: 0.25, duration: 0.4, delay: reduce ? 0 : 0.35 + i * 0.04 }}
-                    className={`size-2 rounded-full ${i < enSemana ? 'bg-green' : 'bg-raised-2'}`}
+                    className={`size-2 rounded-full ${i < enSemana ? 'bg-green' : 'border-[1.5px] border-ink-3'}`}
                   />
                 ))}
               </span>
-              <span className="text-xs text-ink-2">piezas de la semana</span>
+              <span className="text-xs text-ink-2">esta semana</span>
             </Link>
           </li>
         </motion.ul>
@@ -232,12 +245,13 @@ export function Hoy() {
         <motion.p {...entrar(4)} className="mt-4 flex items-start gap-2 text-ayuda leading-snug text-ink-2">
           <Sparkles size={18} className="mt-0.5 shrink-0 text-ink-3" aria-hidden="true" />
           <span>
-            {e.rachaEnRiesgo && (
-              <strong className="font-semibold text-ink-1">
-                La llama está en modo siesta: la misión de hoy la vuelve a prender.{' '}
-              </strong>
+            {e.rachaEnRiesgo ? (
+              <>
+                <strong className="font-semibold text-ink-1">La llama está en modo siesta:</strong> {minusculaInicial(hoyRuta.pieza)} la vuelve a prender.
+              </>
+            ) : (
+              insight
             )}
-            {insight}
           </span>
         </motion.p>
 
@@ -254,7 +268,7 @@ export function Hoy() {
                     <span className="block truncate font-display text-ayuda font-bold text-ink-1">{p.titulo}</span>
                     <span className="block text-xs text-ink-3">Día {p.dia} · lista</span>
                   </span>
-                  <span aria-hidden="true" className="relieve-piedra flex size-11 shrink-0 items-center justify-center rounded-full">
+                  <span aria-hidden="true" className="relieve-oro flex size-11 shrink-0 items-center justify-center rounded-full">
                     <ChevronRight size={20} strokeWidth={2.4} />
                   </span>
                 </Link>

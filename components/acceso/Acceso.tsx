@@ -18,8 +18,10 @@ import { LogoEmpresai } from '@/components/app/LogoEmpresai';
 import { EASE_SALIDA, RutaMini, TituloAcento, vibrar } from '@/components/onboarding/piezas';
 import { crearCuenta, useCuenta } from '@/lib/cuenta';
 import { leerEstado } from '@/lib/onboarding';
+import { RESPONSABLE } from '@/lib/legal';
 
-const ACCESO_REAL = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL);
+// Sesión 6: pasa a true SOLO cuando exista /api/acceso (envío real + verificación del código en servidor).
+const ACCESO_REAL = false as boolean;
 const BANDERA_DEMO = !ACCESO_REAL && process.env.NEXT_PUBLIC_VISTA_PREVIA === '1';
 const demoPermitida = () => BANDERA_DEMO && ['localhost', '127.0.0.1'].includes(window.location.hostname);
 const ESPERA_REENVIO = 60;
@@ -141,14 +143,20 @@ export function Acceso() {
                   Tu pieza 1 queda guardada en este celular: al entrar, pasa a tu cuenta sola.
                 </p>
               )}
+              <a
+                href={`mailto:${RESPONSABLE.emailContacto}?subject=${encodeURIComponent('Ya pagué EMPRESAI y quiero entrar')}&body=${encodeURIComponent(`Mi correo de compra: ${email}`)}`}
+                className="mt-6 flex h-12 w-full items-center justify-center rounded-[var(--radius-pill)] border border-[var(--line)] bg-raised-2 font-display text-base font-bold text-ink-1 transition-transform duration-100 active:scale-[0.97]"
+              >
+                Ya pagué: pedir mi acceso
+              </a>
               <button
                 type="button"
                 onClick={() => setEstado('inicio')}
-                className="mt-6 flex min-h-11 items-center text-sm font-semibold text-ink-2 transition-transform duration-100 active:scale-[0.97]"
+                className="mt-2 flex min-h-11 items-center justify-center text-sm font-semibold text-ink-2 transition-transform duration-100 active:scale-[0.97]"
               >
-                Usar otro correo
+                Corregir mi correo
               </button>
-              <div className="mt-auto pt-8">
+              <div className="mt-8">
                 <RutaMini destacada titulo="Tu ruta te espera" respuestas={tienePieza ? [{ texto: 'Pieza 1 lista', tipo: 'logro' }] : [{ texto: '5 minutos al día', tipo: 'freno' }]} />
               </div>
             </motion.section>
@@ -189,7 +197,7 @@ export function Acceso() {
                   aria-invalid={Boolean(errorCodigo)}
                   aria-describedby={errorCodigo ? `${idCodigo}-error` : undefined}
                   className={`h-14 w-full rounded-[var(--radius-pill)] border bg-sunken px-5 text-center font-display text-xl font-bold tracking-[0.3em] text-ink-1 tabular-nums placeholder:font-sans placeholder:text-base placeholder:font-normal placeholder:tracking-normal placeholder:text-ink-3 focus:outline-none ${
-                    errorCodigo ? 'border-danger' : 'border-[var(--line)] focus:border-gold'
+                    errorCodigo ? 'border-danger' : 'border-[var(--line)] focus:border-ink-3'
                   }`}
                 />
                 {errorCodigo && (
@@ -291,7 +299,7 @@ export function Acceso() {
                   aria-describedby={errorCampo ? `${idCampo}-error` : undefined}
                   key={intentos}
                   className={`h-14 w-full rounded-[var(--radius-pill)] border bg-sunken px-5 text-base text-ink-1 placeholder:text-ink-3 focus:outline-none ${
-                    errorCampo ? 'sacudir border-danger' : 'border-[var(--line)] focus:border-gold'
+                    errorCampo ? 'sacudir border-danger' : 'border-[var(--line)] focus:border-ink-3'
                   }`}
                 />
                 {errorCampo && (
@@ -316,7 +324,7 @@ export function Acceso() {
                     </>
                   ) : (
                     <>
-                      Enviarme mi enlace de acceso
+                      {ACCESO_REAL || demoPermitida() ? 'Enviarme mi enlace de acceso' : 'Guardar mi correo de acceso'}
                       <ArrowRight size={20} aria-hidden="true" />
                     </>
                   )}
@@ -330,7 +338,7 @@ export function Acceso() {
                 </p>
               </motion.form>
 
-              <motion.div {...entrar(3)} className="mt-auto pt-8">
+              <motion.div {...entrar(3)} className="mt-10">
                 <RutaMini
                   destacada
                   titulo={tienePieza ? 'Tu ruta te espera' : 'Lo que te espera adentro'}

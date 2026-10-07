@@ -36,7 +36,10 @@ export function Perfil() {
   });
 
   function cambiarMomento(m: IdMomento) {
-    guardarCuenta({ ...cuenta, momento: m });
+    if (!guardarCuenta({ ...cuenta, momento: m })) {
+      setAviso('No pudimos guardar el cambio en este celular. Inténtalo otra vez.');
+      return;
+    }
     vibrar();
     setAviso(`Listo: tu misión será ${NOMBRE_MOMENTO[m]}.`);
   }

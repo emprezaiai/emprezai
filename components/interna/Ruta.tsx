@@ -6,8 +6,9 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { motion, useReducedMotion } from 'motion/react';
+import { AnimatePresence, animate, motion, useReducedMotion } from 'motion/react';
 import { ArrowRight, Check, Clock, Flame, Gift, LocateFixed, LockKeyhole, Puzzle, X, Zap } from 'lucide-react';
+import { vibrar } from '@/components/onboarding/piezas';
 import { estadoRuta } from '@/lib/cuenta';
 import { RUTA, SEMANAS, TOTAL_DIAS, diaRuta } from '@/lib/ruta';
 import { EASE_SALIDA } from '@/components/onboarding/piezas';
@@ -26,6 +27,7 @@ export function Ruta() {
   const e = estadoRuta(cuenta);
   const [aviso, setAviso] = useState('');
   const [hoyVisible, setHoyVisible] = useState(true);
+  const [llamado, setLlamado] = useState(0);
   const semanaActual = diaRuta(e.hechaHoy ? Math.max(e.piezasListas, 1) : e.diaActual).semana;
   const refHoy = useRef<HTMLLIElement>(null);
   const hecho = new Set(cuenta.piezas.map((p) => p.dia));
@@ -59,7 +61,7 @@ export function Ruta() {
 
   return (
     <main className="fondo-puntos-ruta">
-      <header className="sticky top-0 z-10 flex h-16 items-center gap-2 bg-[color-mix(in_oklab,var(--surface-base)_88%,transparent)] px-4 backdrop-blur-md">
+      <header className="sticky top-0 z-10 flex h-16 items-center gap-2 border-b border-[var(--line)] bg-[var(--surface-base)] px-4">
         <p className="flex items-center gap-1 text-sm text-ink-2">
           <Flame size={18} className={e.rachaEnRiesgo ? 'text-ink-2' : 'text-gold'} fill={e.rachaEnRiesgo ? 'none' : 'currentColor'} aria-hidden="true" />
           <span className="font-display text-base font-extrabold text-ink-1 tabular-nums">{e.racha}</span>
@@ -69,7 +71,7 @@ export function Ruta() {
         <p className="flex items-center gap-1 text-sm text-ink-2">
           <Puzzle size={18} className="text-green" aria-hidden="true" />
           <span className="font-display text-base font-extrabold text-ink-1 tabular-nums">
-            {e.piezasListas}/{TOTAL_DIAS}
+            <CuentaRuta valor={e.piezasListas} />/{TOTAL_DIAS}
           </span>
         </p>
         {!hoyVisible && (
@@ -77,7 +79,7 @@ export function Ruta() {
             type="button"
             onClick={() => irAHoy()}
             aria-label="Ir a mi día"
-            initial={{ opacity: 0, scale: 0.8 }}
+            initial={{ opacity: 0, scale: reduce ? 1 : 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             className="tarjeta-relieve ml-auto flex size-11 items-center justify-center rounded-full text-ink-1 transition-transform duration-150 active:scale-95"
           >
@@ -93,10 +95,15 @@ export function Ruta() {
           const actual = s.numero === semanaActual;
           const alto = dias.length * PASO + 24;
           const puntos = dias.map((_, i) => ({ x: ANCHO / 2 + ZIGZAG[i % ZIGZAG.length], y: i * PASO + 72 }));
-          const camino = puntos.reduce(
-            (acc, p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `${acc} Q ${(puntos[i - 1].x + p.x) / 2 + (i % 2 ? 24 : -24)} ${(puntos[i - 1].y + p.y) / 2} ${p.x} ${p.y}`),
-            '',
-          );
+          const camino = puntos
+            .slice(1)
+            .map((p, j) => {
+              const a = puntos[j];
+              const desde = { x: a.x, y: a.y + 70 };
+              const hasta = { x: p.x, y: p.y - 34 };
+              return `M ${desde.x} ${desde.y} Q ${(desde.x + hasta.x) / 2} ${hasta.y} ${hasta.x} ${hasta.y}`;
+            })
+            .join(' ');
           return (
             <section key={s.numero} aria-label={`Semana ${s.numero}: ${s.tema}`} className="scroll-mt-20 pb-8">
               <div
@@ -114,7 +121,27 @@ export function Ruta() {
 
               <div className="relative mx-auto mt-4" style={{ width: ANCHO, height: alto }}>
                 <svg aria-hidden="true" className="absolute inset-0" width={ANCHO} height={alto} viewBox={`0 0 ${ANCHO} ${alto}`}>
-                  <path d={camino} fill="none" stroke="rgb(255 255 255 / 0.14)" strokeWidth="6" strokeLinecap="round" strokeDasharray="0.1 14" />
+                  <defs>
+                    <clipPath id={`revelar-${s.numero}`}>
+                      <motion.rect
+                        x="0"
+                        y="0"
+                        width={ANCHO}
+                        initial={{ height: actual && !reduce ? 0 : alto }}
+                        animate={{ height: alto }}
+                        transition={{ duration: 0.9, delay: 0.2, ease: EASE_SALIDA }}
+                      />
+                    </clipPath>
+                  </defs>
+                  <path
+                    d={camino}
+                    clipPath={`url(#revelar-${s.numero})`}
+                    fill="none"
+                    stroke="rgb(255 255 255 / 0.16)"
+                    strokeWidth="6"
+                    strokeLinecap="round"
+                    strokeDasharray="0.1 14"
+                  />
                 </svg>
                 <ol>
                   {dias.map((d, i) => {
@@ -166,7 +193,7 @@ export function Ruta() {
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ type: 'spring', bounce: 0.25, duration: 0.4, delay: reduce ? 0 : i * 0.05 }}
                         className="absolute flex flex-col items-center"
-                        style={{ left: p.x - 60, top: p.y - tam / 2, width: 120 }}
+                        style={{ left: p.x - 60, top: p.y - tam / 2, width: 120, scrollMarginTop: 120 }}
                       >
                         {grande && (
                           <span className="absolute -top-8 z-10 rounded-[var(--radius-pill)] bg-ink-1 px-3 py-1 text-xs font-extrabold whitespace-nowrap text-[var(--surface-base)] shadow-[0_2px_0_rgb(0_0_0/0.4)]">
@@ -178,9 +205,18 @@ export function Ruta() {
                             {contenido}
                           </Link>
                         ) : estado === 'hoy' ? (
-                          <Link href="/app/mision" aria-label={etiqueta} className="relative block transition-transform duration-150 active:scale-95" style={{ width: tam, height: tam }}>
+                          <button
+                            type="button"
+                            aria-label={`${etiqueta}. Empiézala desde la tarjeta de abajo.`}
+                            onClick={() => {
+                              setLlamado((n) => n + 1);
+                              vibrar();
+                            }}
+                            className="relative block transition-transform duration-150 active:scale-95"
+                            style={{ width: tam, height: tam }}
+                          >
                             {contenido}
-                          </Link>
+                          </button>
                         ) : (
                           <button
                             type="button"
@@ -198,7 +234,7 @@ export function Ruta() {
                             {contenido}
                           </button>
                         )}
-                        <span className="relative mt-1 flex flex-col items-center rounded-[var(--radius-chip)] bg-[var(--surface-base)] px-2 text-center">
+                        <span className="relative mt-1 flex flex-col items-center px-2 text-center">
                           <span className={`text-xs font-bold ${estado === 'hoy' ? 'text-gold' : estado === 'hecho' ? 'text-green' : 'text-ink-3'}`}>Día {d.dia}</span>
                           <span className="text-xs whitespace-nowrap text-ink-2">{d.corto}</span>
                         </span>
@@ -214,20 +250,30 @@ export function Ruta() {
 
       {/* La misión de hoy, siempre a mano */}
       <div className="velo-tarjeta-fija sticky bottom-0 z-10 px-4 pt-6 pb-24">
-        {aviso ? (
-          <div role="status" aria-live="polite" className="mb-2 flex items-start gap-2 rounded-[var(--radius-chip)] bg-raised-2 py-2 pr-1 pl-3 text-caption text-ink-1">
-            <span className="flex-1 pt-1">{aviso}</span>
-            <button type="button" onClick={() => setAviso('')} aria-label="Cerrar aviso" className="flex size-8 shrink-0 items-center justify-center rounded-full text-ink-2">
-              <X size={16} aria-hidden="true" />
-            </button>
-          </div>
-        ) : (
-          <p role="status" aria-live="polite" className="sr-only" />
-        )}
+        <AnimatePresence initial={false}>
+          {aviso && (
+            <motion.div
+              key={aviso}
+              role="status"
+              aria-live="polite"
+              initial={{ opacity: 0, y: reduce ? 0 : 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2, ease: EASE_SALIDA }}
+              className="mb-2 flex items-start gap-2 rounded-[var(--radius-chip)] bg-raised-2 py-2 pr-1 pl-3 text-caption text-ink-1"
+            >
+              <span className="flex-1 pt-1">{aviso}</span>
+              <button type="button" onClick={() => setAviso('')} aria-label="Cerrar aviso" className="flex size-8 shrink-0 items-center justify-center rounded-full text-ink-2">
+                <X size={16} aria-hidden="true" />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
         <motion.div
-          initial={{ opacity: 0, y: reduce ? 0 : 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: reduce ? 0 : 0.3, ease: EASE_SALIDA }}
+          key={llamado}
+          initial={llamado ? { scale: reduce ? 1 : 0.97 } : { opacity: 0, y: reduce ? 0 : 16 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={llamado ? { type: 'spring', bounce: 0.25, duration: 0.4 } : { duration: 0.4, delay: reduce ? 0 : 0.3, ease: EASE_SALIDA }}
           className={`flex items-center gap-3 rounded-[var(--radius-card)] p-3 ${e.hechaHoy || e.terminada ? 'tarjeta-relieve' : 'hairline-oro relieve-tarjeta'}`}
         >
           <span
@@ -238,7 +284,13 @@ export function Ruta() {
           </span>
           <span className="min-w-0 flex-1">
             <span className="block text-xs font-semibold text-ink-3">
-              {e.terminada ? '¡Ruta completa!' : e.hechaHoy ? 'Pieza de hoy lista' : `Hoy · Día ${hoy.dia} · 5 min`}
+              {e.terminada
+                ? '¡Ruta completa!'
+                : e.hechaHoy
+                  ? 'Pieza de hoy lista'
+                  : e.rachaEnRiesgo
+                    ? `Hazla y sigues con ${e.racha} ${e.racha === 1 ? 'día' : 'días'}`
+                    : `Hoy · Día ${hoy.dia} · 5 min`}
             </span>
             <span className="line-clamp-2 font-display text-base leading-snug font-bold text-ink-1">
               {e.terminada ? 'Tu negocio está listo' : e.hechaHoy ? `Mañana: ${hoy.pieza.charAt(0).toLowerCase()}${hoy.pieza.slice(1)}` : hoy.pieza}
@@ -257,4 +309,23 @@ export function Ruta() {
       </div>
     </main>
   );
+}
+
+/* Número que cuenta de 0 a su valor al entrar (baseline 2 de 22). */
+function CuentaRuta({ valor }: { valor: number }) {
+  const reduce = useReducedMotion();
+  const nodo = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    if (!nodo.current || reduce) return;
+    const control = animate(0, valor, {
+      duration: 0.6,
+      delay: 0.2,
+      ease: 'easeOut',
+      onUpdate: (v) => {
+        if (nodo.current) nodo.current.textContent = String(Math.round(v));
+      },
+    });
+    return () => control.stop();
+  }, [valor, reduce]);
+  return <span ref={nodo}>{valor}</span>;
 }
