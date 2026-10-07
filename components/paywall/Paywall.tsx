@@ -282,7 +282,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
                       transition={{ type: 'spring', bounce: 0.3, duration: 0.4, delay: reduce ? 0 : 0.5 }}
                       className="absolute -top-3 right-4 rounded-[var(--radius-chip)] bg-gradient-to-b from-gold-light to-gold px-2 py-1 text-caption font-extrabold tracking-[0.04em] text-on-gold uppercase shadow-[0_2px_0_var(--gold-deep)]"
                     >
-                      Ahorras {AHORRO_ANUAL}
+                      Mejor valor · ahorras {AHORRO_ANUAL}
                     </motion.span>
                   )}
                   <span
