@@ -155,6 +155,11 @@ await pagina.evaluate(() => {
 });
 await ir('/app?demo=carlos', 1800);
 await capturar('17-hoy-demo-dia8');
+// Retomar: con un borrador a medias, el botón dice 'Seguir donde lo dejé'
+await pagina.evaluate(() => localStorage.setItem('empresai_borrador_8', 'Nombre: Excel'));
+await ir('/app', 1600);
+await capturar('17b-hoy-seguir-donde-lo-deje');
+await pagina.evaluate(() => localStorage.removeItem('empresai_borrador_8'));
 await ir('/app/ruta', 1800);
 await capturar('18-ruta-demo-dia8');
 await ir('/app/empresa', 1600);

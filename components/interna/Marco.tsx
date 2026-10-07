@@ -166,6 +166,10 @@ function EsqueletoRuta() {
           ))}
         </div>
       </div>
+      <div className="fixed inset-x-0 bottom-24 mx-auto w-full max-w-md px-4">
+        <div className="h-20 rounded-[var(--radius-card)] bg-raised motion-safe:animate-pulse" />
+      </div>
+      <div className="fixed inset-x-0 bottom-0 mx-auto h-20 w-full max-w-md rounded-t-[var(--radius-card)] bg-raised" />
     </div>
   );
 }

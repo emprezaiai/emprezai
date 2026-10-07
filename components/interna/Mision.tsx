@@ -10,10 +10,10 @@
 import { Fragment, useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, animate, motion, useAnimate, useReducedMotion } from 'motion/react';
-import { ArrowLeft, ArrowRight, BookOpen, Check, Flame, Lightbulb, PencilLine, RotateCcw, Sparkles, WandSparkles, Zap } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, Clock, Flame, Lightbulb, PencilLine, RotateCcw, Sparkles, WandSparkles, Zap } from 'lucide-react';
 import { claveBorradorGuiado, claveBorradorTexto } from '@/lib/borradores';
 import { estadoRuta, guardarPieza, type Cuenta, type PiezaGuardada } from '@/lib/cuenta';
-import { guiaBorrador, misionGuiada, type ContextoMision, type PiezaCompuesta } from '@/lib/misiones';
+import { ejemploPara, guiaBorrador, misionGuiada, type ContextoMision, type PiezaCompuesta } from '@/lib/misiones';
 import { RUTA, diaRuta, type DiaRuta } from '@/lib/ruta';
 import { limpiarTexto } from '@/lib/onboarding';
 import { BotonPrincipal, EASE_SALIDA, TituloAcento, vibrar } from '@/components/onboarding/piezas';
@@ -108,11 +108,13 @@ function EncabezadoMision({ dia }: { dia?: DiaRuta }) {
       </Link>
       {dia && (
         <div className="min-w-0 pt-1">
-          <p className="flex items-center gap-1 text-xs font-bold tracking-[0.08em] text-gold uppercase">
-            <Zap size={12} fill="currentColor" strokeWidth={0} aria-hidden="true" />
+          <p className="flex items-center gap-2 text-xs font-bold tracking-[0.04em] text-gold uppercase">
+            <span aria-hidden="true" className="relieve-oro flex size-5 items-center justify-center rounded-full">
+              <Zap size={11} fill="currentColor" strokeWidth={0} />
+            </span>
             Día {dia.dia} · 5 min
           </p>
-          <p className="font-display text-base leading-tight font-extrabold text-ink-1">{dia.mision}</p>
+          <p className="mt-0.5 font-display text-base leading-tight font-extrabold text-ink-1">{dia.corto}</p>
         </div>
       )}
     </header>
@@ -136,11 +138,11 @@ function SeArmaCon({ usa, piezasHechas }: { usa: number[]; piezasHechas: Set<num
   );
 }
 
-function ErrorGuardado({ visible }: { visible: boolean }) {
+function NotaError() {
   return (
-    <p role="alert" className={visible ? 'mt-4 rounded-[var(--radius-chip)] bg-raised-2 px-3 py-2 text-caption text-danger' : 'sr-only'}>
-      {visible ? 'No pudimos guardar tu pieza en este celular. Revisa que no estés en modo incógnito o sin espacio, e inténtalo otra vez.' : ''}
-    </p>
+    <span role="alert" className="text-danger">
+      No pudimos guardar en este celular. Libera espacio o sal del modo incógnito e inténtalo otra vez.
+    </span>
   );
 }
 
@@ -168,6 +170,9 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
   const valido = limpiarTexto(texto, LARGO_MAX_BORRADOR).length >= 15 && !texto.includes('___');
   const conTexto = texto.trim().length > 0;
   const [avisoPlantilla, setAvisoPlantilla] = useState(false);
+  const [borradorGuardado, setBorradorGuardado] = useState(false);
+  const [verRepaso, setVerRepaso] = useState(false);
+  const ejemplo = guia ? ejemploPara(guia, cuenta.area) : undefined;
   const entrarBloque = (i: number) => ({
     initial: { opacity: 0, y: reduce ? 0 : 10 },
     animate: { opacity: 1, y: 0 },
@@ -192,7 +197,12 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
       localStorage.setItem(clave, texto);
     } catch {
       // Sin almacenamiento: el borrador vive solo en pantalla.
+      return;
     }
+    if (!texto.trim()) return;
+    // Señal de que el texto sobrevive si cierra (aparece al dejar de escribir).
+    const t = window.setTimeout(() => setBorradorGuardado(true), 600);
+    return () => window.clearTimeout(t);
   }, [clave, texto]);
 
   if (!guia) return null;
@@ -225,13 +235,7 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
         <BotonPrincipal
           onClick={guardar}
           nota={
-            errorGuardado ? (
-              <span role="alert" className="text-danger">
-                No pudimos guardar en este celular. Libera espacio o sal del modo incógnito e inténtalo otra vez.
-              </span>
-            ) : (
-              'Se guarda como tu pieza de hoy'
-            )
+            errorGuardado ? <NotaError /> : 'Se guarda como tu pieza de hoy'
           }
         >
           Guardar en Mi Empresa
@@ -249,8 +253,8 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
         </p>
       </motion.div>
 
-      <motion.div {...entrarBloque(1)} className="hairline-oro relieve-tarjeta mt-4 rounded-[var(--radius-card)] p-3">
-        <div className="flex items-center justify-between gap-2 px-1">
+      <motion.div {...entrarBloque(1)} className="hairline-oro relieve-tarjeta mt-4 rounded-[var(--radius-card)] p-4">
+        <div className="flex items-center justify-between gap-2">
           <label htmlFor={idCampo} className="text-sm font-semibold text-ink-1">
             Tu {dia.corto.toLowerCase()}
           </label>
@@ -266,7 +270,7 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
               setTexto(guia.plantilla);
               vibrar();
             }}
-            className={`-mr-2 flex min-h-11 items-center gap-1 rounded-[var(--radius-pill)] px-2 text-xs font-semibold active:scale-95 ${conTexto ? 'text-ink-3' : 'text-ink-1'}`}
+            className="-mr-2 flex min-h-11 items-center gap-1 rounded-[var(--radius-pill)] px-2 text-xs font-semibold text-ink-1 active:scale-95"
           >
             <WandSparkles size={14} className="text-ink-3" aria-hidden="true" />
             Usar plantilla
@@ -280,6 +284,7 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
           onChange={(ev) => {
             setTexto(ev.target.value);
             setAvisoPlantilla(false);
+            setBorradorGuardado(false);
           }}
           onKeyDown={(ev) => {
             if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) {
@@ -296,12 +301,12 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
           }`}
         />
         {errorCampo && (
-          <p id={`${idCampo}-error`} role="alert" className="mt-1 px-1 text-caption text-danger">
+          <p id={`${idCampo}-error`} role="alert" className="mt-1 text-caption text-danger">
             {errorCampo}
           </p>
         )}
-        <p id={`${idCampo}-plantilla`} role="status" className={avisoPlantilla ? 'mt-1 px-1 text-caption text-ink-2' : 'sr-only'}>
-          {avisoPlantilla ? 'La plantilla se pone con el campo vacío: borra tu texto si la quieres usar.' : ''}
+        <p id={`${idCampo}-plantilla`} role="status" className={avisoPlantilla ? 'mt-1 text-caption text-ink-2' : 'sr-only'}>
+          {avisoPlantilla ? 'La plantilla y el ejemplo se ponen con el campo vacío: borra tu texto si los quieres usar.' : ''}
         </p>
         <AnimatePresence initial={false}>
           {anterior !== null && (
@@ -311,9 +316,9 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: reduce ? 0 : 0.2, ease: EASE_SALIDA }}
-              className="flex items-center justify-between gap-2 overflow-hidden px-1 text-caption text-ink-2"
+              className="flex items-center justify-between gap-2 overflow-hidden text-caption text-ink-2"
             >
-              <span className="pt-2">Pusimos la plantilla: completa los ___.</span>
+              <span className="pt-2">{texto.includes('___') ? 'Pusimos la plantilla: completa los ___.' : 'Pusimos el ejemplo: cámbialo por lo tuyo.'}</span>
               <button
                 type="button"
                 onClick={() => {
@@ -327,35 +332,72 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
             </motion.p>
           )}
         </AnimatePresence>
-        <p className="mt-2 flex justify-between gap-3 px-1 text-caption text-ink-3">
-          <span>Es tu primera versión: la mejoras cuando quieras en Mi Empresa.</span>
+        <p className="mt-2 flex justify-between gap-3 text-caption text-ink-3">
+          <span role="status">{borradorGuardado ? 'Borrador guardado en este celular' : 'Una frase basta · mínimo 15 letras'}</span>
           <span className="shrink-0 tabular-nums" aria-label={`${texto.length} de ${LARGO_MAX_BORRADOR} caracteres`}>
             {texto.length}/{LARGO_MAX_BORRADOR}
           </span>
         </p>
+        <p className="mt-1 text-caption text-ink-3">Es tu primera versión: la mejoras cuando quieras en Mi Empresa.</p>
       </motion.div>
 
-      <motion.section {...entrarBloque(2)} className="tarjeta-relieve-base mt-4 rounded-[var(--radius-card)] p-3" aria-labelledby="titulo-ejemplo">
-        <h2 id="titulo-ejemplo" className="flex items-center gap-2 text-sm font-semibold text-ink-2">
-          <BookOpen size={16} className="shrink-0 text-ink-3" aria-hidden="true" />
-          Así lo hizo Ana (tortas por encargo)
-        </h2>
-        <p className="mt-1 text-sm leading-snug text-ink-1">{guia.ejemplo}</p>
-      </motion.section>
+      {ejemplo && (
+        <motion.section {...entrarBloque(2)} className="tarjeta-relieve-base mt-4 rounded-[var(--radius-card)] p-4" aria-labelledby="titulo-ejemplo">
+          <h2 id="titulo-ejemplo" className="flex items-center gap-2 text-sm font-semibold text-ink-2">
+            <BookOpen size={16} className="shrink-0 text-ink-3" aria-hidden="true" />
+            Así lo hizo {ejemplo.quien}
+          </h2>
+          <p className="mt-1 text-sm leading-snug text-ink-1">{ejemplo.texto}</p>
+          <button
+            type="button"
+            onClick={() => {
+              if (conTexto) {
+                setAvisoPlantilla(true);
+                return;
+              }
+              setAnterior(texto);
+              setTexto(ejemplo.texto);
+              vibrar();
+            }}
+            className="-ml-2 mt-1 flex min-h-11 items-center gap-1 rounded-[var(--radius-pill)] px-2 text-xs font-semibold text-ink-1 active:scale-95"
+          >
+            <PencilLine size={14} className="text-ink-3" aria-hidden="true" />
+            Usar como punto de partida
+          </button>
+        </motion.section>
+      )}
 
       {usadas.length > 0 && (
-        <motion.section {...entrarBloque(3)} className="mt-6" aria-labelledby="titulo-repaso">
-          <h2 id="titulo-repaso" className="text-sm font-semibold text-ink-2">
-            Para inspirarte, lo que ya armaste:
+        <motion.section {...entrarBloque(3)} className="mt-4 rounded-[var(--radius-card)] bg-sunken" aria-labelledby="titulo-repaso">
+          <h2 id="titulo-repaso">
+            <button
+              type="button"
+              aria-expanded={verRepaso}
+              onClick={() => setVerRepaso((v) => !v)}
+              className="flex min-h-12 w-full items-center gap-2 px-4 text-left text-sm font-semibold text-ink-2"
+            >
+              <span className="flex-1">Lo que ya armaste ({usadas.map((p) => RUTA[p.dia - 1].corto.toLowerCase()).join(', ')})</span>
+              <ChevronDown size={18} className={`shrink-0 text-ink-3 transition-transform duration-200 ${verRepaso ? 'rotate-180' : ''}`} aria-hidden="true" />
+            </button>
           </h2>
-          <ul className="mt-2 flex flex-col gap-2">
-            {usadas.map((p) => (
-              <li key={p.dia} className="rounded-[var(--radius-chip)] bg-raised px-3 py-2 text-sm">
-                <span className="block text-xs font-semibold text-ink-3">{RUTA[p.dia - 1].corto}</span>
-                <span className="text-ink-1">{p.resumen ?? p.contenido}</span>
-              </li>
-            ))}
-          </ul>
+          <AnimatePresence initial={false}>
+            {verRepaso && (
+              <motion.ul
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: reduce ? 0 : 0.2, ease: EASE_SALIDA }}
+                className="flex flex-col gap-3 overflow-hidden px-4 pb-4"
+              >
+                {usadas.map((p) => (
+                  <li key={p.dia} className="text-sm">
+                    <span className="block text-xs font-semibold text-ink-3">{RUTA[p.dia - 1].corto}</span>
+                    <span className="text-ink-1">{p.resumen ?? p.contenido}</span>
+                  </li>
+                ))}
+              </motion.ul>
+            )}
+          </AnimatePresence>
         </motion.section>
       )}
     </Pantalla>
@@ -391,7 +433,7 @@ function CierreSemana({ onGuardada }: { onGuardada: (dia: number) => void }) {
   return (
     <Pantalla
       accion={
-        <BotonPrincipal onClick={guardar} nota="Se guarda como tu pieza de hoy">
+        <BotonPrincipal onClick={guardar} nota={errorGuardado ? <NotaError /> : 'Se guarda como tu pieza de hoy'}>
           {dia.dia === 30 ? 'Guardar mi negocio completo' : 'Cerrar mi semana'}
           <ArrowRight size={20} aria-hidden="true" />
         </BotonPrincipal>
@@ -424,7 +466,6 @@ function CierreSemana({ onGuardada }: { onGuardada: (dia: number) => void }) {
           </Fragment>
         ))}
       </ul>
-      <ErrorGuardado visible={errorGuardado} />
     </Pantalla>
   );
 }
@@ -699,7 +740,7 @@ function MisionGuiadaFlujo({ onGuardada }: { onGuardada: (dia: number) => void }
           >
             <p className="mb-4 flex items-center gap-2 font-display text-pregunta leading-tight font-extrabold text-ink-1">
               <Sparkles size={24} className="shrink-0 text-gold" aria-hidden="true" />
-              Armando {dia.corto.toLowerCase()}…
+              Armando tu {dia.corto.toLowerCase()}…
             </p>
             <div className="hairline-oro relieve-tarjeta flex flex-col gap-2 rounded-[var(--radius-card)] p-4">
               <span className="mb-2 h-3 w-1/3 rounded-full bg-[color-mix(in_oklab,var(--gold)_30%,transparent)] motion-safe:animate-pulse" />
@@ -707,6 +748,8 @@ function MisionGuiadaFlujo({ onGuardada }: { onGuardada: (dia: number) => void }
                 <span key={a} className={`h-3 rounded-full bg-[color-mix(in_oklab,var(--ink-1)_10%,transparent)] motion-safe:animate-pulse ${a}`} />
               ))}
             </div>
+            <span aria-hidden="true" className="mx-auto mt-5 block h-3 w-40 rounded-full bg-raised motion-safe:animate-pulse" />
+            <span aria-hidden="true" className="mx-auto mt-5 block h-3 w-56 rounded-full bg-raised motion-safe:animate-pulse" />
           </motion.section>
         )}
 
@@ -750,9 +793,6 @@ function MisionGuiadaFlujo({ onGuardada }: { onGuardada: (dia: number) => void }
           </motion.section>
         )}
       </AnimatePresence>
-      <div className="px-4">
-        <ErrorGuardado visible={errorGuardado} />
-      </div>
 
       {fase === 'preguntas' && !pregunta.multiple && (
         <div className="barra-inferior sticky bottom-0 z-10 mt-auto px-4 pt-6">
@@ -782,8 +822,14 @@ function MisionGuiadaFlujo({ onGuardada }: { onGuardada: (dia: number) => void }
           <ArrowRight size={20} aria-hidden="true" />
         </BotonPrincipal>
       )}
+      {fase === 'armando' && (
+        <BotonPrincipal onClick={() => undefined} deshabilitado nota="Se guarda como tu pieza de hoy">
+          Guardar en Mi Empresa
+          <ArrowRight size={20} aria-hidden="true" />
+        </BotonPrincipal>
+      )}
       {fase === 'resultado' && (
-        <BotonPrincipal onClick={guardar} nota="Se guarda como tu pieza de hoy">
+        <BotonPrincipal onClick={guardar} nota={errorGuardado ? <NotaError /> : 'Se guarda como tu pieza de hoy'}>
           Guardar en Mi Empresa
           <ArrowRight size={20} aria-hidden="true" />
         </BotonPrincipal>
@@ -940,12 +986,7 @@ function Celebracion({ dia }: { dia: number }) {
             de {RUTA.length} piezas
           </span>
         </p>
-        <SemanaEnNodos dia={dia} />
-        {siguiente && (
-          <p className="mt-4 text-sm text-ink-3">
-            Mañana · Día {siguiente.dia}: {siguiente.pieza.toLowerCase()}
-          </p>
-        )}
+        <SemanaEnNodos dia={dia} siguiente={siguiente} />
       </div>
       <div className="barra-inferior sticky bottom-0 z-10 px-4 pt-6">
         <Link
@@ -965,7 +1006,7 @@ function Celebracion({ dia }: { dia: number }) {
 }
 
 /* La semana en nodos: se ve cuánto falta para cerrarla (el tramo recorrido, en verde). */
-function SemanaEnNodos({ dia }: { dia: number }) {
+function SemanaEnNodos({ dia, siguiente }: { dia: number; siguiente?: DiaRuta }) {
   const cuenta = useCuentaActiva();
   const reduce = useReducedMotion();
   const semana = diaRuta(dia).semana;
@@ -1003,6 +1044,14 @@ function SemanaEnNodos({ dia }: { dia: number }) {
           );
         })}
       </ol>
+      {siguiente && (
+        <p className="mt-4 flex items-center gap-2 border-t border-[var(--line)] pt-4 text-sm text-ink-2">
+          <Clock size={16} className="shrink-0 text-ink-3" aria-hidden="true" />
+          <span>
+            <strong className="font-semibold text-ink-1">Mañana · Día {siguiente.dia}:</strong> {siguiente.pieza.toLowerCase()}
+          </span>
+        </p>
+      )}
     </div>
   );
 }

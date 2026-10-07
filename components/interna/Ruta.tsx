@@ -7,7 +7,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, animate, motion, useReducedMotion } from 'motion/react';
-import { ArrowRight, Check, Clock, Flame, Gift, LocateFixed, LockKeyhole, Puzzle, X, Zap } from 'lucide-react';
+import { ArrowRight, Bell, Check, Clock, Flame, Gift, LocateFixed, LockKeyhole, Puzzle, X, Zap } from 'lucide-react';
 import { vibrar } from '@/components/onboarding/piezas';
 import { estadoRuta } from '@/lib/cuenta';
 import { RUTA, SEMANAS, TOTAL_DIAS, diaRuta } from '@/lib/ruta';
@@ -17,7 +17,7 @@ import { useCuentaActiva } from './Marco';
 // Zigzag del camino (desplazamiento horizontal en px desde el centro) y paso vertical.
 const ZIGZAG = [-90, 0, 90, 0, -90, 0, 90];
 const PASO = 124;
-// Centro del primer nodo y aire bajo la etiqueta del último (deja espacio al rótulo "HOY · 5 MIN").
+// Centro del primer nodo y aire bajo la etiqueta del último (deja espacio al rótulo "HOY · 5 min").
 const ARRIBA = 64;
 const ABAJO = 76;
 const ANCHO = 320;
@@ -31,6 +31,7 @@ export function Ruta() {
   const [aviso, setAviso] = useState('');
   const [hoyVisible, setHoyVisible] = useState(true);
   const [llamado, setLlamado] = useState(0);
+  const [avisoQuieto, setAvisoQuieto] = useState(false);
   const [verGuia, setVerGuia] = useState(() => {
     try {
       return localStorage.getItem('empresai_guia_ruta') !== 'vista';
@@ -50,7 +51,7 @@ export function Ruta() {
 
   useEffect(() => {
     if (!aviso) return;
-    const t = window.setTimeout(() => setAviso(''), 4000);
+    const t = avisoQuieto ? undefined : window.setTimeout(() => setAviso(''), 4000);
     const tecla = (ev: KeyboardEvent) => {
       if (ev.key === 'Escape') setAviso('');
     };
@@ -59,7 +60,7 @@ export function Ruta() {
       window.clearTimeout(t);
       window.removeEventListener('keydown', tecla);
     };
-  }, [aviso]);
+  }, [aviso, avisoQuieto]);
   const semanaActual = diaRuta(e.hechaHoy ? Math.max(e.piezasListas, 1) : e.diaActual).semana;
   const refHoy = useRef<HTMLLIElement>(null);
   const refSemana = useRef<HTMLElement>(null);
@@ -104,7 +105,7 @@ export function Ruta() {
         <Link
           href="/app/perfil#recordatorio"
           aria-label={`Racha de ${e.racha} ${e.racha === 1 ? 'día' : 'días'}${e.rachaEnRiesgo ? ', en juego hoy' : ''}. Ver tu recordatorio diario`}
-          className={`flex h-9 items-center gap-1 rounded-[var(--radius-pill)] border px-3 text-sm transition-transform duration-150 active:scale-[0.97] ${
+          className={`flex h-11 items-center gap-1 rounded-[var(--radius-pill)] border px-3 text-sm transition-transform duration-150 active:scale-[0.97] ${
             e.rachaEnRiesgo ? 'border-[color-mix(in_oklab,var(--warning)_45%,transparent)] text-warning' : 'border-[var(--line)] text-ink-2'
           }`}
         >
@@ -113,12 +114,12 @@ export function Ruta() {
           </span>
           <span className="font-display text-base font-extrabold text-ink-1 tabular-nums">{e.racha}</span>
           {e.racha === 1 ? 'día' : 'días'}
-          {e.rachaEnRiesgo && <span aria-hidden="true">· hoy</span>}
+          {e.rachaEnRiesgo && <span aria-hidden="true">· en juego</span>}
         </Link>
         <Link
           href="/app/empresa"
           aria-label={`${e.piezasListas} de ${TOTAL_DIAS} piezas. Ver Mi Empresa`}
-          className="flex h-9 items-center gap-1 rounded-[var(--radius-pill)] border border-[var(--line)] px-3 text-sm text-ink-2 transition-transform duration-150 active:scale-[0.97]"
+          className="flex h-11 items-center gap-1 rounded-[var(--radius-pill)] border border-[var(--line)] px-3 text-sm text-ink-2 transition-transform duration-150 active:scale-[0.97]"
         >
           <Puzzle size={18} className="text-green" aria-hidden="true" />
           <span className="font-display text-base font-extrabold text-ink-1 tabular-nums">
@@ -129,12 +130,13 @@ export function Ruta() {
           <motion.button
             type="button"
             onClick={() => irAHoy()}
-            aria-label="Ir a mi día"
+            aria-label="Ir a mi día de hoy"
             initial={{ opacity: 0, scale: reduce ? 1 : 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="tarjeta-relieve ml-auto flex size-11 items-center justify-center rounded-full text-ink-1 transition-transform duration-150 active:scale-95"
+            className="tarjeta-relieve ml-auto flex h-11 items-center gap-1 rounded-[var(--radius-pill)] px-3 text-sm font-semibold text-ink-1 transition-transform duration-150 active:scale-95"
           >
-            <LocateFixed size={18} aria-hidden="true" />
+            <LocateFixed size={16} aria-hidden="true" />
+            Hoy
           </motion.button>
         )}
       </header>
@@ -153,7 +155,7 @@ export function Ruta() {
                 <span className="flex-1 pt-1">
                   Cada día se abre una pieza nueva de 5 minutos. Toca un día <strong className="font-semibold text-green">hecho</strong> para ver su pieza.
                 </span>
-                <button type="button" onClick={cerrarGuia} aria-label="Cerrar la guía" className="flex size-8 shrink-0 items-center justify-center rounded-full text-ink-2">
+                <button type="button" onClick={cerrarGuia} aria-label="Cerrar la guía" className="-my-1 flex size-11 shrink-0 items-center justify-center rounded-full text-ink-2">
                   <X size={16} aria-hidden="true" />
                 </button>
               </p>
@@ -177,7 +179,7 @@ export function Ruta() {
               const lado = Math.sign(p.x - a.x) || 1;
               const desde = { x: a.x + lado * (radio(dias[j].dia) + 8), y: a.y };
               const hasta = { x: p.x, y: p.y - radio(dias[j + 1].dia) - (estadoDe(dias[j + 1].dia) === 'hoy' ? 40 : 8) };
-              return `M ${desde.x} ${desde.y} C ${desde.x + lado * 48} ${desde.y} ${hasta.x - lado * 40} ${hasta.y - 40} ${hasta.x} ${hasta.y}`;
+              return `M ${desde.x} ${desde.y} C ${desde.x + lado * 48} ${desde.y} ${hasta.x - lado * 60} ${hasta.y - 30} ${hasta.x} ${hasta.y}`;
             })
             .join(' ');
           return (
@@ -189,7 +191,7 @@ export function Ruta() {
             >
               <div
                 className={`rounded-[var(--radius-card)] p-4 ${
-                  actual ? 'bg-gradient-to-b from-gold-light to-gold text-on-gold shadow-[0_4px_0_var(--gold-deep)]' : 'tarjeta-relieve'
+                  actual ? 'bg-gradient-to-b from-gold-light to-gold text-on-gold' : 'tarjeta-relieve'
                 }`}
               >
                 <p className={`flex items-center gap-2 text-xs font-bold tracking-[0.08em] uppercase ${actual ? '' : completa ? 'text-green' : 'text-ink-3'}`}>
@@ -281,7 +283,7 @@ export function Ruta() {
                       >
                         {grande && (
                           <span className="absolute -top-8 z-10 rounded-[var(--radius-pill)] bg-ink-1 px-3 py-1 text-xs font-extrabold whitespace-nowrap text-[var(--surface-base)] shadow-[0_2px_0_rgb(0_0_0/0.4)]">
-                            HOY · 5 MIN
+                            HOY · 5 min
                           </span>
                         )}
                         {estado === 'hecho' ? (
@@ -321,6 +323,10 @@ export function Ruta() {
                         <span className="relative mt-1 flex flex-col items-center px-2 text-center">
                           <span className={`text-xs font-bold ${estado === 'hoy' ? 'text-gold' : estado === 'hecho' ? 'text-green' : 'text-ink-3'}`}>Día {d.dia}</span>
                           <span className="text-xs whitespace-nowrap text-ink-2">{d.corto}</span>
+                          {estado === 'manana' && <span className="text-xs whitespace-nowrap text-ink-3">se abre mañana</span>}
+                          {estado === 'bloqueado' && !e.hechaHoy && d.dia === e.diaActual + 1 && (
+                            <span className="text-xs whitespace-nowrap text-ink-3">al terminar el día {e.diaActual}</span>
+                          )}
                         </span>
                       </motion.li>
                     );
@@ -338,6 +344,10 @@ export function Ruta() {
           {aviso && (
             <motion.div
               key={aviso}
+              onPointerEnter={() => setAvisoQuieto(true)}
+              onPointerLeave={() => setAvisoQuieto(false)}
+              onFocus={() => setAvisoQuieto(true)}
+              onBlur={() => setAvisoQuieto(false)}
               role="status"
               aria-live="polite"
               initial={{ opacity: 0, y: reduce ? 0 : 8 }}
@@ -347,7 +357,7 @@ export function Ruta() {
               className="mb-2 flex items-start gap-2 rounded-[var(--radius-chip)] bg-raised-2 py-2 pr-1 pl-3 text-caption text-ink-1"
             >
               <span className="flex-1 pt-1">{aviso}</span>
-              <button type="button" onClick={() => setAviso('')} aria-label="Cerrar aviso" className="flex size-8 shrink-0 items-center justify-center rounded-full text-ink-2">
+              <button type="button" onClick={() => setAviso('')} aria-label="Cerrar aviso" className="-my-1 flex size-11 shrink-0 items-center justify-center rounded-full text-ink-2">
                 <X size={16} aria-hidden="true" />
               </button>
             </motion.div>
@@ -381,13 +391,13 @@ export function Ruta() {
             </span>
           </span>
           <Link
-            href={e.hechaHoy || e.terminada ? '/app/empresa' : '/app/mision'}
+            href={e.terminada ? '/app/empresa' : e.hechaHoy ? '/app/perfil#recordatorio' : '/app/mision'}
             className={`flex h-12 shrink-0 items-center gap-1 rounded-[var(--radius-pill)] px-4 font-display text-sm font-bold ${
               e.hechaHoy || e.terminada ? 'border border-[var(--line)] bg-raised-2 text-ink-1' : 'boton-oro'
             }`}
           >
-            {e.hechaHoy || e.terminada ? 'Mi Empresa' : 'Empezar'}
-            <ArrowRight size={16} aria-hidden="true" />
+            {e.terminada ? 'Mi Empresa' : e.hechaHoy ? 'Recordarme' : 'Empezar'}
+            {e.hechaHoy && !e.terminada ? <Bell size={16} aria-hidden="true" /> : <ArrowRight size={16} aria-hidden="true" />}
           </Link>
         </motion.div>
       </div>

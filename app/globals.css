@@ -81,6 +81,7 @@ body {
    Tarjetas con profundidad: luz en el borde superior + canto + sombra lejana.
    ============================================================================ */
 .relieve-oro,
+.relieve-ambar,
 .relieve-verde,
 .relieve-piedra {
   background: linear-gradient(160deg, var(--cara-1), var(--cara-2));
@@ -92,6 +93,7 @@ body {
     0 10px 18px -8px rgb(0 0 0 / 0.7);
 }
 .relieve-oro { --cara-1: #ffd978; --cara-2: #ffc23d; --canto: #b8860f; --tinta: #1a1206; }
+.relieve-ambar { --cara-1: #ffc183; --cara-2: #ff9f43; --canto: #b3651c; --tinta: #2a1405; }
 .relieve-verde { --cara-1: #7ef3be; --cara-2: #3ddc97; --canto: #1f9c66; --tinta: #0f2a1e; }
 .relieve-piedra {
   --cara-1: #3f3750; --cara-2: #2a2433; --canto: #15121c; --tinta: #d6cde4;
@@ -334,13 +336,20 @@ body {
 
 /* Patrón de puntos de la pantalla Ruta (FICHA-ARTE: 6%). */
 .fondo-puntos-ruta {
-  background-image:
-    radial-gradient(rgb(255 255 255 / 0.06) 1px, transparent 1.2px),
+  position: relative;
+  isolation: isolate;
+  background-image: radial-gradient(rgb(255 255 255 / 0.06) 1px, transparent 1.2px);
+  background-size: 24px 24px;
+}
+.fondo-puntos-ruta::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
     radial-gradient(520px 360px at 85% 22%, rgb(255 194 61 / 0.12), transparent 70%),
     radial-gradient(420px 320px at 0% 100%, rgb(61 220 151 / 0.08), transparent 70%);
-  background-size: 24px 24px, 100% 100%, 100% 100%;
-  background-repeat: repeat, no-repeat, no-repeat;
-  background-attachment: scroll, fixed, fixed;
 }
 
 /* Resplandor de los cubos (detalle firma de la referencia, SOLO en la tarjeta héroe de Hoy). */
@@ -357,6 +366,13 @@ body {
     0 0 28px -6px rgb(255 194 61 / 0.6);
 }
 /* Brillo radial detrás de los cubos (como en el tour aprobado). */
+/* La tarjeta héroe informa (la acción es el botón): sin el canto inferior de lo tocable. */
+.heroe-hoy.tarjeta-relieve,
+.heroe-hoy.tarjeta-relieve-oro {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.07),
+    0 18px 32px -18px rgb(0 0 0 / 0.8);
+}
 .heroe-hoy::before {
   content: '';
   position: absolute;

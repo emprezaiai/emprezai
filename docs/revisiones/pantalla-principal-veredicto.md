@@ -1,46 +1,47 @@
 # VEREDICTO revisor-visual — pantalla-principal (Hoy, M0)
-Fecha: 2026-10-07 22:30
+Fecha: 2026-10-07 23:15
 Screenshot: docs/revisiones/pantalla-principal-375.png
-Usabilidad: 31/40
+Usabilidad: 32/40
 Craft: 16/20
 Copy (si vende): N-A
 Fidelidad (si hubo referencia): FIEL
 Veredicto: NO LISTA
-Top defectos: 1) el título del día 8 sigue en 3 líneas ("Hoy: crea el / nombre de tu / negocio"): el espaciador flotante del h1 mide h-8 (32px) y la línea mide 30px (text-2xl con leading-tight), así que también acorta la segunda línea y deja un vacío a la derecha · 2) en estado hecho hay 4 controles que van a 2 destinos, los dos en Mi Empresa: la tarjeta héroe y el botón central van a la pieza, y el CTA "Ver mi negocio · 2/30" y la pestaña Mi Empresa van a /app/empresa; "qué sigue" solo aparece en la fila punteada · 3) la confirmación de Reintentar es un role=status que se monta junto con su texto y puede no anunciarse; si falla por segunda vez no ofrece salida · 4) en estado hecho, la llama de la racha va en relieve dorado, un uso que no está en la lista de dorado de FICHA-ARTE · 5) en el día 8, "7 días de racha" al lado de "0/7 esta semana" se lee como contradicción; los puntos no dicen qué semana es
+Top defectos: 1) con racha 0 (16b racha rota y 16c sin piezas) la llama va en relieve dorado, encendida, al lado de "0 días de racha"; FICHA-ARTE línea 39 reserva el dorado a la racha VIVA · 2) la racha rota es un estado mudo: en 16b la racha cae a 0 sin una palabra, y el insight sigue con el texto neutro del Método · 3) en el día 1 queda vacío muerto bajo el insight (unos 145px CSS en 16c y unos 95px en 04); el estado sin piezas son tres ceros más una frase y no enseña qué viene · 4) en riesgo, la llama es un chip hueco con borde ámbar entre dos chips en relieve macizo; la fila de 3 fichas pierde peso óptico a la izquierda (pantalla-principal-375, 09) · 5) el role=status envuelve el aviso completo con el botón Reintentar dentro, y el "Listo" aparece sin la entrada animada del resto
 
 ## Detalle de puntaje
-Usabilidad: h1:3 h2:3 h3:3 h4:3 h5:3 h6:4 h7:3 h8:3 h9:3 h10:3
+Usabilidad: h1:3 h2:4 h3:3 h4:3 h5:3 h6:4 h7:4 h8:3 h9:3 h10:2
 Craft: jerarquía:3 profundidad:3 identidad:3 movimiento:4 encaje:3
 
 Capturas puntuadas (todas del build actual):
 - pantalla-principal-375.png
-- app/04, app/09, app/16-arriba, app/16-final y app/17-final (375)
-- app-360/16-arriba y app-360/17-arriba (360)
+- 375: app/04, app/09, app/16-arriba, app/16-final, app/16b-arriba, app/16c, app/17-final
+- 360: app-360/17-arriba
 
-Código: components/interna/Hoy.tsx, components/interna/Marco.tsx, app/globals.css.
+Código: components/interna/Hoy.tsx, components/interna/Marco.tsx, lib/borradores.ts, lib/cuenta.ts (estadoRuta), app/globals.css, components/interna/Mision.tsx (lectura del borrador).
 
 ## Gate de carga cognitiva
 Falla 0 de 8:
 - Hay una acción primaria por estado.
-- El insight ocupa como máximo 3 líneas.
-- "Qué sigue" se ve en la fila de mañana.
-- No hay elementos que parezcan interactivos y no hagan nada.
+- El insight ocupa 3 líneas como máximo.
+- Hay como máximo 2 filas visibles.
+- "Qué sigue" se ve en el CTA y en la fila de mañana.
+- La fila de mañana con candado no es enlace, pero el candado ya comunica "todavía no".
 
 ## CTA héroe vivo
-Estado pendiente (los 4 se cumplen):
+**Estado pendiente: cumple los 4.**
 - Contraste: .boton-oro, unos 11:1.
-- Tap: :active.
+- Tap: :active con translateY.
 - Habilitado: es un Link y nunca está disabled.
 - Tamaño: h-14, ancho completo, en la primera vista.
 
-Estado hecho: el primario es el botón central verde y el CTA pasa a secundario. Es correcto, pero queda la redundancia del defecto 2.
+**Estado hecho:** el CTA usa material fila-pildora con active:scale y va a un destino propio (/app/ruta).
 
 ## Test de fidelidad (referencia-usuario-1.jpg = contrato de composición)
 - Modo: OK.
-- Hue: OK (colores de la C, según el alcance del contrato).
+- Hue: OK, según el alcance del contrato (colores de la C).
 - Display grotesk: OK.
 - Radios 20/999/12: OK.
-- Densidad: FALLO LEVE. El insight entre los datos y las filas no está en la composición de la referencia.
+- Densidad: FALLO LEVE. El insight no está en la composición de la referencia.
 - Profundidad: OK.
 
 Resultado: 1 de 6 fallos → FIEL.
@@ -48,63 +49,89 @@ Resultado: 1 de 6 fallos → FIEL.
 Valores de FICHA-ARTE comprobados en el screenshot:
 - Fondo #0F0D16 con radial dorado.
 - Superficies #1A1622 y #231D2E.
-- Hundido #0A0910 (fila de mañana).
+- Hundido #0A0910.
 - ink 1/2/3.
 - Bricolage + Instrument.
 - Radios 20, 999 y 12.
+- Llama viva dorada y llama en riesgo ámbar.
 
-Único roce con la ficha: la llama dorada en estado hecho (defecto 4).
+Desvío: la llama dorada con racha 0 (defecto 1).
 
-## Re-revisión 6: verificación de los 5 defectos de la ronda 5
+## Re-revisión 7: verificación de lo trabajado
 
-**[CORREGIDO] 1. El insight desaparecía con racha en riesgo**
-- Hoy.tsx:259-269 mantiene la frase del Método dentro de "La llama espera".
-- En pantalla-principal-375 se lee: "el Método ya tiene tu cliente ideal y tu oferta; hoy arma el nombre de tu negocio con eso".
-- En app/09: "ya tiene tu frase de negocio; hoy arma tu cliente ideal con eso".
+**[CORREGIDO] Título del día 8 en 3 líneas**
+- El float ahora mide h-[1lh] (Hoy.tsx:163).
+- "Hoy: crea el / nombre de tu negocio" cabe en 2 líneas a 375 y a 360.
 
-**[PARCIAL] 2. CTA del estado hecho**
-- El CTA ya tiene un destino distinto al de la tarjeta héroe: /app/empresa contra /app/empresa?pieza=N (Hoy.tsx:97-99).
-- Pero ese destino es el mismo de la pestaña Mi Empresa, y la tarjeta héroe sigue yendo al mismo sitio que el botón central (Marco.tsx:100).
-- Ninguno de los 4 controles lleva a "qué sigue".
-- El "2/30" del CTA repite el de la barra.
+**[CORREGIDO] Controles del estado hecho**
+- La tarjeta héroe es un div sin onClick.
+- El CTA "Ver lo que sigue en mi ruta" va a /app/ruta, en material de fila.
+- El botón central va a la pieza.
+- La fila de mañana no es enlace.
+- El "· 2/30" ya no se repite.
 
-**[NO CORREGIDO] 3. Espacio para los cubos solo en la primera línea**
-- Se cambió el pr-24 por un float `h-8 w-24` (Hoy.tsx:157).
-- h-8 mide 32px y la línea mide 30px (24px × 1.25), así que el float invade la segunda línea y la acorta.
-- Cálculo en el día 8: "nombre de tu negocio" mide unos 258px CSS. El ancho útil es unos 309px, pero la segunda línea solo deja unos 213px, así que "negocio" baja a una tercera línea.
-- Se ve en pantalla-principal-375, app/17-final y app-360/17-arriba.
+**[CORREGIDO] Reintentar**
+- Hay un único `role="status"` siempre montado (Hoy.tsx:284).
+- El botón queda disabled durante 800ms, lo que bloquea el doble toque.
+- Al 2º fallo aparece "Escríbenos" con mailto.
+- Matiz: el live region contiene el botón (defecto 5).
 
-**[CORREGIDO] 4. Capturas desactualizadas**
-- app/16-arriba, app/16-final y app-360/16-arriba muestran la flecha piedra y las etiquetas alineadas.
-- Coinciden con el código.
+**[CORREGIDO] Frase llana de la racha**
+- Nuevo texto: "Tu racha de 7 días sigue si hoy armas…".
+- "La llama espera" ya no está.
 
-**[CORREGIDO] 5. Puntos, ritmo y Reintentar**
-- Los puntos llevan `role="img"` con aria-label (Hoy.tsx:239).
-- El -mt-1 ya no está y el ritmo es gap-2 (8px) en las 3 fichas.
-- Reintentar confirma con "Listo: tu pieza 1 ya está en Mi Empresa" durante 2,4s.
-- Queda un matiz: ese aviso es un live region que se monta junto con su contenido (defecto 3 del top).
+**[CORREGIDO] "Seguir donde lo dejé"**
+- hayBorrador (lib/borradores.ts) y Mision.tsx:156/448 leen el mismo borrador, así que el flujo se retoma de verdad.
+- No hay captura de este estado: se verificó solo en el código.
+
+**[CORREGIDO] "semana N" bajo los puntos**
+- Ya no se lee como contradicción frente a "7 días de racha".
+
+**[CORREGIDO CON DEFECTO NUEVO] Llama en ámbar en riesgo**
+- La regla está bien aplicada.
+- Pero el chip pasó a hueco (borde de 1.5px) mientras los otros dos son relieve macizo (defecto 4).
+- Además, con racha 0 la llama cae en la rama dorada (Hoy.tsx:214-217), porque rachaEnRiesgo exige racha > 0 (cuenta.ts:218). Eso causa el defecto 1.
+
+**[EVIDENCIA NUEVA QUE BAJA PUNTAJE] 16b racha rota y 16c sin piezas**
+- Las capturas existen, pero muestran que esos dos estados no hablan:
+  - Racha rota: llama encendida en 0 y ninguna mención a la racha perdida.
+  - Día 1: tres ceros, una línea de insight y vacío debajo.
+- h10 baja a 2.
 
 **Movimiento (eje 4), sin cambios: OK**
 - Stagger entrar(0-5).
 - Conteo con Cuenta.
 - Barra con scaleX y puntos con spring.
-- Tap con active:scale.
-- Transición entre pestañas en el template.
+- active:scale en todo lo tocable.
 - Indicador de la barra con spring.
-- Reduced-motion con useReducedMotion y MotionConfig "user".
+- MotionConfig "user" y useReducedMotion.
+- Única falta: el "Listo" de Reintentar entra sin animación.
 
-**Balance:** 31/40 (antes 30) · 16/20 · FIEL. h6 sube a 4. Sigue NO LISTA: faltan 5 puntos de usabilidad.
+**Balance:** 32/40 (antes 31) · 16/20 · FIEL. Suben h2 (frase llana) y h7 (retomar). Baja h10 con la evidencia nueva. Sigue NO LISTA: faltan 4 puntos de usabilidad.
 
 ## Qué tendría que pasar para que cada criterio llegue a 4
-- **h1 (estado):** un único contenedor `role="status"` siempre montado (vacío) en el que se escriben el fallo, el reintento y el éxito. Que el éxito aparezca con la misma entrada animada que el resto.
-- **h2 (lenguaje):** que "La llama espera" diga qué está en juego en lenguaje llano, por ejemplo "Tu racha de 7 días sigue viva si hoy…". Así nadie tiene que interpretar la metáfora.
-- **h3 (control):** este criterio se gana fuera de esta pantalla. Hoy no tiene acciones destructivas. Para un 4, Hoy tendría que ofrecer "posponer la misión" o "cambiar el recordatorio" con deshacer, sin salir de la pantalla.
-- **h4 (consistencia):** que la tarjeta héroe sea un elemento con rol y foco, igual que las demás tarjetas tocables (hoy es un div con onClick y las otras son Links). Que el CTA secundario del estado hecho use el mismo material que las filas píldora.
-- **h5 (prevención):** bloquear el doble toque en Reintentar (deshabilitarlo mientras corre) e impedir que el CTA lleve a una misión que no se puede empezar sin conexión cuando la misión usa IA.
+- **h1 (estado):** que la llama diga la verdad en los 3 estados:
+  - viva: oro
+  - en riesgo: ámbar
+  - en 0: piedra apagada
+
+  Además, que el éxito de Reintentar entre con la misma animación que el resto. El role=status solo debería contener el texto, no el botón.
+- **h2 (lenguaje):** ya está en 4.
+- **h3 (control):** "posponer la misión" o "cambiar la hora del recordatorio" con deshacer, sin salir de Hoy. Hoy no hay acciones reversibles en la pantalla.
+- **h4 (consistencia):** dos cambios:
+  - la tarjeta héroe no debería compartir el material de las fichas tocables (hoy las 3 fichas son Links y la héroe, igual de elevada, no responde); quitarle el canto inferior de 2px o darle el mismo destino que el CTA, con foco;
+  - el chip de la llama en riesgo en el mismo material de relieve que sus vecinos.
+- **h5 (prevención):** detectar falta de conexión antes de abrir una misión que usa IA. Hoy Mision y Hoy no consultan navigator.onLine; solo lo hacen Paywall y Acceso. Mostrar en Hoy "Sin conexión: la misión de hoy necesita internet".
 - **h6 (reconocer):** ya está en 4.
-- **h7 (flexibilidad):** un default para el experto, como "Seguir donde lo dejé" (retomar la misión a medias) o un acceso directo para abrir la última pieza. Hoy no existe ninguno en el código.
-- **h8 (minimalismo):** en estado hecho, cada control debe tener un destino distinto. Quitar el CTA "Ver mi negocio" (duplica la pestaña) o convertirlo en "qué sigue" (la misión de mañana en /app/ruta), y quitar el "· 2/30" repetido.
-- **h9 (errores):** tras el segundo fallo, ofrecer una salida ("Escríbenos" con el mailto de ayuda) además de "libera espacio".
-- **h10 (ayuda):** dejar como evidencia el estado de día 1 pendiente sin piezas (el texto "Hoy empieza tu Método…") y un estado de racha rota. Hoy solo existen en el código y no se pueden verificar.
-- **Encaje (craft):** la altura del float igual a 1 línea (`h-[1lh]` o h-7).
-- **Jerarquía, profundidad e identidad:** para llegar a 4 necesitan un detalle firma propio en las fichas de datos (hoy son tres tarjetas genéricas iguales). Por ejemplo, la llama o el rayo animados con el material en relieve y una lectura de 4 niveles nítida también en estado hecho.
+- **h7 (flexibilidad):** ya está en 4 (retomar el borrador verificado en el código). Falta la captura del estado "Seguir donde lo dejé" como evidencia.
+- **h8 (minimalismo):** dos ajustes:
+  - en estado hecho, 4 controles van a /app/ruta (CTA, ficha de racha, ficha de semana y pestaña); dar a la ficha de semana otro destino o hacerla informativa;
+  - en pendiente conviven dos dorados que hacen lo mismo (CTA y botón central); aceptable por la referencia, pero el CTA debería ser el único con halo.
+- **h9 (errores):** capturar el aviso de pieza 1 en sus 3 textos (inicial, fallo y fallo2) para verificarlos visualmente. Cubrir también el error de "sin conexión" (h5).
+- **h10 (ayuda):** dos ajustes:
+  - racha rota: un insight propio (por ejemplo, si racha === 0 y hay piezas: "Tu racha vuelve a empezar hoy: arma X y enciende la llama de nuevo");
+  - día 1 sin piezas: llenar el vacío con un adelanto de la semana 1 (una fila hundida "Esta semana armas 7 piezas: frase, cliente, oferta…" hacia /app/ruta) en vez de tres ceros mudos.
+- **Jerarquía:** reducir los tamaños: saludo 18, título 24, números de las fichas, CTA 17 e insight 15 son 5 escalones. Bajar el saludo a body semibold para que se lean 4 niveles nítidos.
+- **Profundidad:** que el nivel hundido aparezca también en pendiente (hoy solo existe en la fila de mañana del estado hecho y en el riel de la barra).
+- **Identidad:** un detalle firma en las fichas de datos. Por ejemplo, la llama viva que pulse una vez al contar, o los puntos de la semana con forma de pieza en vez de círculos genéricos.
+- **Encaje:** chips de las 3 fichas con el mismo material y el mismo peso óptico, y sin vacío muerto bajo el insight en el día 1.

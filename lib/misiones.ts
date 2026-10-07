@@ -200,6 +200,64 @@ export const GUIAS_BORRADOR: GuiaBorrador[] = [
   { dia: 29, pregunta: '¿Cómo sabrás si funciona?', acento: 'si funciona', consejo: 'Una meta de ventas y 2 números que mires cada semana.', plantilla: 'Meta: ___ ventas en ___ días · Miro: ___ y ___', ejemplo: 'Meta: 10 ventas en 30 días · Miro: mensajes recibidos y ventas cerradas' },
 ];
 
+/* Ejemplos resueltos según el rubro de la persona (productos = Ana, el de cada guía). */
+const EJEMPLOS_POR_AREA: Record<'servicios' | 'cursos', { quien: string; dias: Record<number, string> }> = {
+  servicios: { quien: 'Sofía (redes para negocios)', dias: {
+    5: 'Las agencias cobran caro y hacen de todo. Yo solo manejo el Instagram de negocios del barrio, con fotos reales del local.',
+    6: '1) ¿Quién publica hoy en tu Instagram? 2) ¿Qué es lo más difícil de eso? 3) ¿Pagarías por no tener que pensar qué publicar?',
+    8: 'Nombre: Vitrina Local. Lo elegí porque dice que muestro tu negocio y suena cercano.',
+    9: 'Para negocios del barrio que quieren más clientes: tu Instagram al día, sin que tengas que publicar.',
+    10: 'Empecé porque la panadería de mi tía tenía las mejores empanadas y nadie lo sabía. Hoy ayudo a negocios locales para que los encuentren.',
+    11: '1) Clientes nuevos que llegan por Instagram 2) Una hora libre cada día 3) Un perfil del que estás orgulloso',
+    12: '«No tengo tiempo» → Yo lo hago todo. «¿Funciona en mi rubro?» → Te muestro casos parecidos. «¿Y si no veo resultados?» → El primer mes es sin permanencia.',
+    13: 'Ayudo a negocios locales a llenarse de clientes · Instagram sin esfuerzo · Escríbeme por DM',
+    15: 'Parte 1: diagnóstico del perfil · Parte 2: plan de 12 publicaciones · Parte 3: publicar y medir',
+    16: 'Primera parte: diagnóstico de tu perfil. Incluye: 5 cambios rápidos y tu nueva bio.',
+    17: 'El Método Vitrina: 3 pasos para que tu barrio te encuentre.',
+    18: 'Si contratas hoy, te llevas una sesión de fotos del local (vale $40).',
+    19: 'Si en 30 días no crecen tus mensajes, el segundo mes es gratis.',
+    20: 'Titular: Tu negocio, lleno por Instagram · Problema: sin tiempo para publicar · Solución: lo hago por ti · Oferta: plan mensual + fotos · Garantía: segundo mes gratis',
+    22: '1) Antes y después de un perfil 2) 3 errores en Instagram 3) Mi historia 4) Opinión de un cliente 5) Un día publicando 6) Preguntas frecuentes 7) Cupos del mes',
+    23: 'Gancho: «¿Tu Instagram está abandonado?» · Problema: sin tiempo · Solución: lo manejo por ti · Qué hacer: escríbeme por DM',
+    24: 'Hola Marta, vi que tu panadería tiene fotos increíbles. Te cuento que manejo el Instagram de negocios del barrio. ¿Te interesa que te explique?',
+    25: 'Asunto: Tu negocio merece que lo encuentren · Abrí 5 cupos este mes: agenda tu diagnóstico aquí.',
+    26: 'Te entiendo. Piensa que con 2 clientes nuevos al mes ya se paga. Y si no crecen tus mensajes, el segundo mes es gratis.',
+    27: '¿Te pasa que publicas y nadie escribe? Vitrina Local maneja tu Instagram por ti. Escríbeme hoy.',
+    28: 'Día 1: anuncio en historias · Día 2: caso real · Día 3: DM a 10 negocios · Día 4: correo · Día 5: testimonio · Día 6: últimos cupos · Día 7: cierre',
+    29: 'Meta: 5 clientes en 30 días · Miro: diagnósticos agendados y ventas cerradas'
+  } },
+  cursos: { quien: 'Diego (fotos con el celular)', dias: {
+    5: 'Los cursos de fotografía piden cámara profesional. Yo enseño a hacer fotos de producto solo con el celular, en una semana.',
+    6: '1) ¿Cómo haces hoy las fotos de lo que vendes? 2) ¿Qué es lo más difícil de eso? 3) ¿Pagarías por aprender a hacerlas con tu celular?',
+    8: 'Nombre: Foto Fácil. Lo elegí porque promete lo que logras y se recuerda al toque.',
+    9: 'Para emprendedores que venden por redes y quieren fotos que vendan: aprende con tu celular en 7 días.',
+    10: 'Empecé porque mis primeras fotos de producto eran oscuras y no vendía nada. Hoy ayudo a emprendedores para que sus fotos vendan por ellos.',
+    11: '1) Fotos que dan ganas de comprar 2) Ahorro en fotógrafo 3) Confianza para publicar todos los días',
+    12: '«No tengo buena cámara» → Solo usas tu celular. «No tengo tiempo» → 15 minutos al día. «¿Y si no aprendo?» → 7 días de garantía.',
+    13: 'Ayudo a emprendedores a vender con mejores fotos · Solo con tu celular · Escríbeme por DM',
+    15: 'Parte 1: luz natural · Parte 2: fondos y composición · Parte 3: edición en el celular',
+    16: 'Primera parte: luz natural. Incluye: 3 videos cortos y una guía para tu ventana.',
+    17: 'El Método Ventana: 3 pasos para fotos que venden con tu celular.',
+    18: 'Si compras hoy, te llevas 20 fondos listos para imprimir (vale $12).',
+    19: 'Si en 7 días tus fotos no mejoran, te devuelvo tu dinero.',
+    20: 'Titular: Fotos que venden, con tu celular · Problema: fotos oscuras que no venden · Solución: curso de 7 días · Oferta: curso + fondos · Garantía: 7 días',
+    22: '1) Antes y después 2) 3 errores de luz 3) Mi historia 4) Opinión de un alumno 5) Fondo casero 6) Preguntas frecuentes 7) Abren inscripciones',
+    23: 'Gancho: «Esta foto la hice con mi celular» · Problema: fotos que no venden · Solución: el Método Ventana · Qué hacer: escríbeme por DM',
+    24: 'Hola Pedro, vi tus productos en Instagram. Te cuento que enseño a hacer fotos que venden con el celular. ¿Te interesa que te explique?',
+    25: 'Asunto: La foto que vende está en tu bolsillo · Abrí inscripciones del curso: entra aquí.',
+    26: 'Te entiendo. Piensa que una buena foto vende cada día que la publicas. Y si en 7 días no mejoran, te devuelvo tu dinero.',
+    27: '¿Te pasa que tus productos son buenos pero tus fotos no venden? Foto Fácil te enseña con tu celular. Escríbeme hoy.',
+    28: 'Día 1: anuncio en historias · Día 2: antes y después · Día 3: DM a 10 emprendedores · Día 4: correo · Día 5: testimonio · Día 6: últimas plazas · Día 7: cierre',
+    29: 'Meta: 15 alumnos en 30 días · Miro: mensajes recibidos y ventas cerradas'
+  } },
+};
+
+export function ejemploPara(guia: GuiaBorrador, area?: string): { quien: string; texto: string } {
+  const propio = area === 'servicios' || area === 'cursos' ? EJEMPLOS_POR_AREA[area] : undefined;
+  const texto = propio?.dias[guia.dia];
+  return propio && texto ? { quien: propio.quien, texto } : { quien: 'Ana (tortas por encargo)', texto: guia.ejemplo };
+}
+
 export function guiaBorrador(dia: number): GuiaBorrador | undefined {
   return GUIAS_BORRADOR.find((g) => g.dia === dia);
 }
