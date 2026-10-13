@@ -1,7 +1,7 @@
 # ESTADO — EMPRESAI
 Última actualización: 2026-10-07 | Sesión actual: 5 (Entrar + app por dentro)
 
-⏸️ CHECKPOINT — Última acción completada (2026-10-08): app por dentro APROBADA por el revisor — Hoy 36·17, Ruta 36·16, Mi Empresa 36·16, Misión 36·16 (Perfil secundaria, sin revisor); landing re-revisada con capturas reales 37·18·19 y onboarding 36·17·18 siguen LISTAS / Siguiente acción exacta: presentar a la dueña (cierre de Sesión 5) → Sesión 6 (Supabase + acceso real + IA real + Hotmart + Resend); antes de publicar resolver los 🔴 de integridad
+⏸️ CHECKPOINT — Última acción completada (2026-10-13): la dueña aprobó la Sesión 5 y decidió los claims (ver Decisiones de negocio) — SESIÓN 6 (servicios externos) EN CURSO, paso 6.1 GitHub: historial verificado sin secretos, .gitignore cubre .env*/.vercel; sin remote todavía (no hay CLI gh: push por HTTPS con Git Credential Manager) / Siguiente acción exacta: la dueña crea el repo PRIVADO vacío en GitHub y responde "hecho" + el enlace → git remote add origin + push (rama main) → 6.2 Supabase
 
 ## Qué es esta app (3 líneas máximo)
 App web tipo Duolingo que guía a emprendedores principiantes LATAM a lanzar su negocio/producto digital con IA en 30 días, 5 min/día.
@@ -123,6 +123,12 @@ Monetización: suscripción (mensual + anual) con prueba corta. Venta por Hotmar
 
 ## Decisiones de la dueña sobre los planes (2026-10-06)
 - Sin prueba social hasta tener reseñas reales · precio anual $79.99 ($6.67/mes, ahorro real $39.89 = 33%) · insignia "Mejor valor" en vez de "Más popular". Aprobado por la dueña.
+
+## Decisiones de negocio de la dueña (2026-10-13)
+- "La IA arma tu pieza": se MANTIENE en la landing; se cumple al conectar la IA real en la Sesión 6 (sigue 🔴 hasta entonces: no se publica antes).
+- "Nuevas rutas cada mes" (plan anual): se MANTIENE. Ruta del Mes 2 = "Consigue tus Primeros 10 Clientes", habilitada en la base de datos ANTES de que el primer comprador termine sus 30 días (fecha límite = fecha de la 1ª venta + 30 días). ⚠️ La promesa es "cada mes": luego hacen falta Mes 3, 4… a ese ritmo.
+- "Te avisamos antes de cobrar": correo automático el DÍA 5 de la prueba de 7 días (Resend, Sesión 6).
+- Devolución/cancelación: compra de prueba en Hotmart en la Sesión 6 para fijar la redacción exacta del botón de devolución antes de publicar.
 
 ## Decisiones técnicas (NO re-discutir sin pedirlo el usuario)
 - Framework: Next.js App Router (landing con SEO + rutas de servidor para la IA) — 2026-09-29
