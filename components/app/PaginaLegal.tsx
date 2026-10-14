@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import { LogoEmpresai } from './LogoEmpresai';
+import { Marca } from './Marca';
 import { RESPONSABLE, VERSION_LEGAL } from '@/lib/legal';
 
 // Plantilla común de las páginas legales (47): título, fecha de actualización visible y versión.
@@ -9,9 +9,8 @@ export function PaginaLegal({ titulo, resumen, children }: { titulo: string; res
   return (
     <div className="min-h-dvh bg-base font-sans text-ink-1">
       <header className="mx-auto flex h-16 w-full max-w-3xl items-center justify-between px-5">
-        <Link href="/" className="flex items-center gap-2 text-base font-semibold">
-          <LogoEmpresai tamano={24} />
-          EMPREZAI
+        <Link href="/" aria-label="EMPREZAI, inicio" className="flex min-h-11 items-center">
+          <Marca tamano="sm" />
         </Link>
         <Link href="/" className="flex min-h-11 items-center gap-2 px-2 text-sm font-medium text-ink-3 hover:text-ink-1">
           <ArrowLeft size={16} aria-hidden="true" />

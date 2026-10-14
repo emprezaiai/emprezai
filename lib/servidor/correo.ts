@@ -18,7 +18,7 @@ function plantilla({ titulo, parrafos, boton, codigo, pie }: { titulo: string; p
   const html = `<!doctype html><html lang="es"><body style="margin:0;background:#0f0d16;font-family:Segoe UI,Helvetica,Arial,sans-serif;color:#efeaf5">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:32px 16px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#1a1622;border-radius:20px;padding:28px">
-<tr><td style="font-weight:800;font-size:18px;letter-spacing:-0.01em;color:#ffc23d">⚡ EMPREZAI</td></tr>
+<tr><td style="font-family:Montserrat,Segoe UI,Helvetica,Arial,sans-serif;font-weight:800;font-size:20px;letter-spacing:0.01em;color:#efeaf5">EMPREZ<span style="color:#3ddc97">AI</span></td></tr>
 <tr><td style="padding-top:20px;font-size:24px;line-height:1.2;font-weight:800;color:#efeaf5">${escapar(titulo)}</td></tr>
 ${parrafos.map((p) => `<tr><td style="padding-top:12px;font-size:16px;line-height:1.5;color:#bdb4cb">${escapar(p)}</td></tr>`).join('')}
 ${boton ? `<tr><td style="padding-top:24px"><a href="${boton.url}" style="display:inline-block;background:#ffc23d;color:#1a1206;font-weight:700;font-size:17px;text-decoration:none;padding:14px 28px;border-radius:999px">${escapar(boton.texto)}</a></td></tr>` : ''}

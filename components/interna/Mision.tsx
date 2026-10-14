@@ -997,7 +997,7 @@ function Celebracion({ dia, onCerrada }: { dia: number; onCerrada: () => void })
   const nombre = primerNombre(cuenta.nombre);
   // Recién guardada la pieza de hoy, la racha es al menos 1.
   const racha = Math.max(1, e.racha);
-  const cuando = cuenta.momento === 'manana' ? 'Mañana en la mañana' : cuenta.momento === 'mediodia' ? 'Mañana al mediodía' : cuenta.momento === 'noche' ? 'Mañana en la noche' : 'Mañana';
+  const cuando = cuenta.momento === 'manana' ? 'en la mañana' : cuenta.momento === 'mediodia' ? 'al mediodía' : cuenta.momento === 'noche' ? 'en la noche' : '';
   return (
     <>
       <Aviso
@@ -1016,7 +1016,7 @@ function Celebracion({ dia, onCerrada }: { dia: number; onCerrada: () => void })
           <>
             {siguiente ? `${d.pieza} ya está en ` : 'Tu negocio completo ya está en '}
             <strong className="font-semibold whitespace-nowrap text-ink-1">Mi Empresa</strong>
-            {siguiente ? `. ${cuando} se abre el día ${siguiente.dia}: ${siguiente.pieza.toLowerCase()}.` : '.'}
+            {siguiente ? `. Mañana se abre el día ${siguiente.dia}: ${siguiente.pieza.toLowerCase()}.${cuando ? ` Tu momento: ${cuando}.` : ''}` : '.'}
           </>
         }
         insignias={[

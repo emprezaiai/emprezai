@@ -15,6 +15,7 @@ import { RESPONSABLE } from '@/lib/legal';
 import { RUTA, TOTAL_DIAS, diaRuta } from '@/lib/ruta';
 import { EASE_SALIDA } from '@/components/onboarding/piezas';
 import { useCuentaActiva } from './Marco';
+import { Marca } from '@/components/app/Marca';
 
 function fechaLarga(): string {
   const t = new Intl.DateTimeFormat('es', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
@@ -131,7 +132,9 @@ export function Hoy() {
         >
           <LifeBuoy size={20} aria-hidden="true" />
         </a>
-        <p className="font-display text-lg font-extrabold tracking-[-0.01em] text-ink-1">EMPREZAI</p>
+        <p className="flex items-center">
+          <Marca tamano="sm" />
+        </p>
         <Link
           href="/app/perfil#recordatorio"
           aria-label="Tu recordatorio diario"

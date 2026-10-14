@@ -26,7 +26,7 @@ import {
   type Respuestas,
 } from '@/lib/onboarding';
 import { registrarEvento } from '@/lib/eventos';
-import { LogoEmpresai } from '@/components/app/LogoEmpresai';
+import { Marca } from '@/components/app/Marca';
 import { Encabezado, PromesaRecorrido, RutaMini } from './piezas';
 import { PasoPregunta } from './PasoPregunta';
 import { PasoReconocimiento } from './PasoReconocimiento';
@@ -252,8 +252,7 @@ function Flujo({ planInicial }: { planInicial?: Plan }) {
           <Encabezado progreso={progreso(paso, respuestas)} onAtras={atras} />
         ) : (
           <header className="flex h-14 items-center justify-center gap-2">
-            <LogoEmpresai tamano={24} />
-            <span className="font-display text-base font-extrabold tracking-[-0.01em] text-ink-1">EMPREZAI</span>
+            <Marca tamano="sm" />
           </header>
         )}
         <AnimatePresence mode="wait" initial={false} custom={direccion}>

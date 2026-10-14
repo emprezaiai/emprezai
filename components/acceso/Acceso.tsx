@@ -15,7 +15,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { ArrowRight, CheckCircle2, KeyRound, LoaderCircle, MailCheck, RotateCcw, ShieldCheck } from 'lucide-react';
-import { LogoEmpresai } from '@/components/app/LogoEmpresai';
+import { Marca } from '@/components/app/Marca';
 import { EASE_SALIDA, RutaMini, TituloAcento, vibrar } from '@/components/onboarding/piezas';
 import { crearCuenta, useCuenta } from '@/lib/cuenta';
 import { leerEstado } from '@/lib/onboarding';
@@ -215,8 +215,7 @@ export function Acceso() {
       <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-4 pb-8">
         <motion.header {...entrar(0)} className="flex h-16 items-center">
           <Link href="/" className="flex min-h-11 items-center gap-2" aria-label="EMPREZAI, ir al inicio">
-            <LogoEmpresai tamano={28} />
-            <span className="font-display text-lg font-extrabold text-ink-1">EMPREZAI</span>
+            <Marca tamano="md" />
           </Link>
         </motion.header>
 

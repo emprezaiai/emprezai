@@ -18,6 +18,8 @@ export interface EnlaceLegal {
 export interface FooterLegalProps {
   appName: string;
   logo?: ReactNode;
+  /** Marca completa (isotipo + nombre) que reemplaza a logo + appName. */
+  marca?: ReactNode;
   /** Privacidad · Términos · Reembolsos · Aviso de IA (si aplica) — con 47. */
   enlaces: EnlaceLegal[];
   /** Email REAL que alguien lee. */
@@ -25,7 +27,7 @@ export interface FooterLegalProps {
   anio?: number;
 }
 
-export function FooterLegal({ appName, logo, enlaces, soporteEmail, anio }: FooterLegalProps) {
+export function FooterLegal({ appName, logo, marca, enlaces, soporteEmail, anio }: FooterLegalProps) {
   const year = anio ?? new Date().getFullYear();
   return (
     <footer className="py-8 md:py-12">
@@ -33,8 +35,12 @@ export function FooterLegal({ appName, logo, enlaces, soporteEmail, anio }: Foot
         {/* Fila 1: marca chica + enlaces legales */}
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <p className="flex items-center gap-2 text-[13px] font-semibold text-[var(--text-secondary)]">
-            {logo ?? <span aria-hidden="true" className="size-5 rounded-[6px] bg-[var(--text-tertiary)]" />}
-            {appName}
+            {marca ?? (
+              <>
+                {logo ?? <span aria-hidden="true" className="size-5 rounded-[6px] bg-[var(--text-tertiary)]" />}
+                {appName}
+              </>
+            )}
           </p>
           <nav aria-label="Enlaces legales">
             <ul className="-mx-1 flex flex-wrap items-center gap-x-3 gap-y-0">

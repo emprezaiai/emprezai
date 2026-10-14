@@ -53,6 +53,7 @@
   --color-danger: var(--danger);
   --color-warning: var(--warning);
   --font-display: var(--font-bricolage);
+  --font-marca: var(--font-montserrat), var(--font-bricolage);
   --font-sans: var(--font-instrument);
   /* Escala tipográfica del recorrido (50 §A2/C2): caption 13 · botón 17 · pregunta 28 · precio 24 */
   --text-caption: 0.8125rem;

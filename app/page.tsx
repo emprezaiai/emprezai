@@ -38,7 +38,7 @@ import { CtaFinal } from '@/components/landing/CtaFinal';
 import { FooterLegal } from '@/components/landing/FooterLegal';
 import { StickyCtaMobile } from '@/components/landing/ui';
 import { DemoMisionHero } from '@/components/app/DemoMisionHero';
-import { LogoEmpresai } from '@/components/app/LogoEmpresai';
+import { Marca } from '@/components/app/Marca';
 import { useEventoAlMontar } from '@/lib/eventos';
 import { RESPONSABLE } from '@/lib/legal';
 
@@ -62,7 +62,7 @@ export default function PaginaDeVentas() {
       <Hero
         loginHref="/login"
         appName="EMPREZAI"
-        logo={<LogoEmpresai />}
+        marca={<Marca tamano="md" />}
         gancho={
           <span className="inline-flex items-center gap-2 rounded-[var(--radius-chip)] bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] py-1.5 pr-3 pl-1.5 text-[13px] font-semibold text-ink-1">
             <span className="relieve-noche flex size-7 items-center justify-center rounded-[var(--radius-chip)]">
@@ -240,7 +240,7 @@ export default function PaginaDeVentas() {
 
       <FooterLegal
         appName="EMPREZAI"
-        logo={<LogoEmpresai tamano={24} />}
+        marca={<Marca tamano="sm" />}
         soporteEmail={RESPONSABLE.emailContacto}
         enlaces={[
           { label: 'Privacidad', href: '/privacidad' },

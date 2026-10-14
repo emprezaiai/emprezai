@@ -15,6 +15,8 @@ import { MarkedCopy, truncarMarcado, warnCopy } from './MarkedCopy';
 
 export interface HeroProps {
   appName: string;
+  /** Marca completa (isotipo + nombre) que reemplaza a logo + appName. */
+  marca?: ReactNode;
   /** Logo real del proyecto; sin él, marca mínima con el acento. */
   logo?: ReactNode;
   loginHref?: string;
@@ -40,6 +42,7 @@ export interface HeroProps {
 
 export function Hero({
   appName,
+  marca,
   logo,
   loginHref,
   loginLabel = 'Entrar',
@@ -81,9 +84,13 @@ export function Hero({
       <div className="mx-auto w-full max-w-[1140px] px-5">
         {/* Header 64px: marca a la izquierda, SOLO "Entrar" terciario a la derecha (19) */}
         <header className="flex h-16 items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-[16px] font-semibold text-[var(--text-primary)]">
-            {logo ?? <span aria-hidden="true" className="size-6 rounded-[8px] bg-[var(--accent)]" />}
-            {appName}
+          <Link href="/" aria-label={`${appName}, inicio`} className="flex min-h-11 items-center gap-2 text-[16px] font-semibold text-[var(--text-primary)]">
+            {marca ?? (
+              <>
+                {logo ?? <span aria-hidden="true" className="size-6 rounded-[8px] bg-[var(--accent)]" />}
+                {appName}
+              </>
+            )}
           </Link>
           {loginHref && (
             <a href={loginHref} className="px-2 py-3 text-[13px] font-medium text-[var(--text-tertiary)]">

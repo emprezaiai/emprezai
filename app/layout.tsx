@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Instrument_Sans } from "next/font/google";
+import { Bricolage_Grotesque, Instrument_Sans, Montserrat } from "next/font/google";
 import "./globals.css";
 
 const bricolage = Bricolage_Grotesque({
@@ -16,6 +16,14 @@ const instrument = Instrument_Sans({
   display: "swap",
 });
 
+// Letra del LOGO (isotipo de la dueña): solo el nombre "EMPREZAI", nunca texto de interfaz.
+const marca = Montserrat({
+  variable: "--font-montserrat",
+  subsets: ["latin"],
+  weight: ["800"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "EMPREZAI — Arma tu negocio con IA en 30 días, 5 minutos al día",
   description:
@@ -28,7 +36,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="es" className={`${bricolage.variable} ${instrument.variable} antialiased`}>
+    <html lang="es" className={`${bricolage.variable} ${instrument.variable} ${marca.variable} antialiased`}>
       <body className="min-h-dvh">{children}</body>
     </html>
   );

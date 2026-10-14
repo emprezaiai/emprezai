@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { LogoEmpresai } from '@/components/app/LogoEmpresai';
+import { Marca } from '@/components/app/Marca';
 
 // 404 en el idioma y el estilo de la app: siempre con una salida clara (nunca un callejón sin salida).
 export default function NoEncontrada() {
@@ -13,7 +13,7 @@ export default function NoEncontrada() {
           'var(--surface-base)',
       }}
     >
-      <LogoEmpresai tamano={32} />
+      <Marca tamano="lg" />
       <h1 className="mt-8 font-display text-3xl font-extrabold leading-tight">Esta página todavía no existe</h1>
       <p className="mt-3 max-w-sm text-base leading-relaxed text-ink-2">
         Puede que el enlace esté mal escrito o que esta parte de EMPREZAI aún se esté construyendo.
