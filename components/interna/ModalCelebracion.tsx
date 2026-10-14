@@ -7,7 +7,7 @@
 
 import { useEffect, useRef, type ComponentType } from 'react';
 import Link from 'next/link';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { AnimatePresence, animate, motion, useReducedMotion } from 'motion/react';
 import { ArrowRight, Check, X } from 'lucide-react';
 import { EASE_SALIDA, vibrar } from '@/components/onboarding/piezas';
 
@@ -17,7 +17,10 @@ export interface PropsCelebracion {
   abierto: boolean;
   titulo: string;
   subtitulo: string;
-  recompensa: { icono: Icono; texto: string };
+  /** El dato real que se gana hoy: el número cuenta y va en grande ("8" + "días de racha"). */
+  recompensa: { icono: Icono; valor: number; texto: string };
+  /** Qué sigue (la ventana tapa el aviso de abajo: aquí se dice). */
+  siguiente?: string;
   insignias: { icono: Icono; texto: string }[];
   accion: { texto: string; href: string };
   secundaria?: { texto: string; href: string };
@@ -28,7 +31,34 @@ export interface PropsCelebracion {
 
 const PIEZAS_CONFETI = 22;
 
-export function ModalCelebracion({ abierto, titulo, subtitulo, recompensa, insignias, accion, secundaria, hito = false, onCerrar }: PropsCelebracion) {
+/* El número de la recompensa cuenta de 0 a su valor (baseline 2 de 22). */
+function Conteo({ valor }: { valor: number }) {
+  const reduce = useReducedMotion();
+  const nodo = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    if (!nodo.current) return;
+    if (reduce) {
+      nodo.current.textContent = String(valor);
+      return;
+    }
+    const control = animate(0, valor, {
+      duration: 0.6,
+      delay: 0.6,
+      ease: 'easeOut',
+      onUpdate: (v) => {
+        if (nodo.current) nodo.current.textContent = String(Math.round(v));
+      },
+    });
+    return () => control.stop();
+  }, [valor, reduce]);
+  return (
+    <span ref={nodo} className="tabular-nums">
+      {reduce ? valor : 0}
+    </span>
+  );
+}
+
+export function ModalCelebracion({ abierto, titulo, subtitulo, recompensa, siguiente, insignias, accion, secundaria, hito = false, onCerrar }: PropsCelebracion) {
   const reduce = useReducedMotion();
   const caja = useRef<HTMLDivElement>(null);
   const principal = useRef<HTMLAnchorElement>(null);
@@ -73,6 +103,7 @@ export function ModalCelebracion({ abierto, titulo, subtitulo, recompensa, insig
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
+          onClick={onCerrar}
         >
           <motion.div
             ref={caja}
@@ -84,13 +115,14 @@ export function ModalCelebracion({ abierto, titulo, subtitulo, recompensa, insig
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: reduce ? 1 : 0.96 }}
             transition={reduce ? { duration: 0.15 } : { type: 'spring', bounce: 0.25, duration: 0.5 }}
+            onClick={(ev) => ev.stopPropagation()}
             className="tarjeta-relieve relative max-h-full w-full max-w-sm overflow-y-auto rounded-[var(--radius-card)] px-5 pt-5 pb-6 text-center"
           >
             <button
               type="button"
               onClick={onCerrar}
               aria-label="Cerrar"
-              className="absolute top-2 right-2 flex size-11 items-center justify-center rounded-full text-ink-2 transition-colors duration-150 hover:bg-raised-2"
+              className="absolute top-2 right-2 flex size-11 items-center justify-center rounded-full text-ink-2 transition-[background-color,transform] duration-150 hover:bg-raised-2 active:scale-95"
             >
               <X size={20} aria-hidden="true" />
             </button>
@@ -157,12 +189,15 @@ export function ModalCelebracion({ abierto, titulo, subtitulo, recompensa, insig
               initial={{ opacity: 0, scale: reduce ? 1 : 0.85 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={reduce ? { duration: 0 } : { type: 'spring', bounce: 0.25, duration: 0.45, delay: 0.55 }}
-              className="mx-auto mt-5 inline-flex items-center gap-2 rounded-[var(--radius-pill)] border border-[color-mix(in_oklab,var(--gold)_40%,transparent)] bg-[color-mix(in_oklab,var(--gold)_12%,transparent)] py-1.5 pr-4 pl-1.5 font-display text-base font-bold text-ink-1"
+              className="mx-auto mt-5 inline-flex items-center gap-3 rounded-[var(--radius-pill)] border border-[color-mix(in_oklab,var(--gold)_40%,transparent)] bg-[color-mix(in_oklab,var(--gold)_12%,transparent)] py-2 pr-5 pl-2"
             >
-              <span aria-hidden="true" className="relieve-oro flex size-8 items-center justify-center rounded-full">
-                <Recompensa size={16} strokeWidth={2.4} />
+              <span aria-hidden="true" className="relieve-oro flex size-10 items-center justify-center rounded-full">
+                <Recompensa size={20} strokeWidth={1.5} />
               </span>
-              {recompensa.texto}
+              <span className="font-display text-precio leading-none font-extrabold text-ink-1">
+                <Conteo valor={recompensa.valor} />
+              </span>
+              <span className="text-base font-semibold text-ink-1">{recompensa.texto}</span>
             </motion.p>
 
             {/* Tres insignias en la base */}
@@ -170,18 +205,26 @@ export function ModalCelebracion({ abierto, titulo, subtitulo, recompensa, insig
               {insignias.map(({ icono: IconoInsignia, texto }, i) => (
                 <motion.li
                   key={texto}
-                  initial={{ opacity: 0, y: reduce ? 0 : 8 }}
+                  initial={{ opacity: 0, y: reduce ? 0 : 6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: reduce ? 0 : 0.65 + i * 0.07, ease: EASE_SALIDA }}
-                  className="flex flex-col items-center gap-2 rounded-[var(--radius-chip)] bg-sunken px-1 py-3"
+                  transition={{ duration: 0.3, delay: reduce ? 0 : 0.7 + i * 0.07, ease: EASE_SALIDA }}
+                  className="flex flex-col items-center gap-1 text-xs font-semibold whitespace-nowrap text-ink-3"
                 >
-                  <span aria-hidden="true" className="relieve-piedra flex size-10 items-center justify-center rounded-[var(--radius-chip)]">
-                    <IconoInsignia size={18} strokeWidth={2.2} />
-                  </span>
-                  <span className="text-xs leading-tight font-semibold text-ink-1">{texto}</span>
+                  <IconoInsignia size={18} strokeWidth={2} aria-hidden="true" />
+                  {texto}
                 </motion.li>
               ))}
             </ul>
+            {siguiente && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3, delay: reduce ? 0 : 0.85 }}
+                className="mt-4 border-t border-[var(--line)] pt-4 text-caption text-pretty text-ink-2"
+              >
+                {siguiente}
+              </motion.p>
+            )}
 
             <motion.div
               initial={{ opacity: 0, y: reduce ? 0 : 8 }}
@@ -198,7 +241,10 @@ export function ModalCelebracion({ abierto, titulo, subtitulo, recompensa, insig
                 <ArrowRight size={20} aria-hidden="true" />
               </Link>
               {secundaria && (
-                <Link href={secundaria.href} className="mt-1 flex min-h-11 items-center justify-center text-sm font-semibold text-ink-2">
+                <Link
+                href={secundaria.href}
+                className="mt-1 flex min-h-11 items-center justify-center text-sm font-semibold text-ink-2 transition-transform duration-150 active:scale-[0.97]"
+              >
                   {secundaria.texto}
                 </Link>
               )}

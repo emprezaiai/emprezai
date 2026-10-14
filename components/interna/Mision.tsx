@@ -10,7 +10,7 @@
 import { Fragment, useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, animate, motion, useAnimate, useReducedMotion } from 'motion/react';
-import { ArrowLeft, ArrowRight, BookOpen, Brain, Check, ChevronDown, Clock, Lightbulb, PencilLine, RotateCcw, Sparkles, Target, TrendingUp, WandSparkles, Zap } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, Brain, Check, ChevronDown, Clock, Flame, Lightbulb, PencilLine, RotateCcw, Sparkles, Target, TrendingUp, WandSparkles, Zap } from 'lucide-react';
 import { claveBorradorGuiado, claveBorradorTexto } from '@/lib/borradores';
 import { estadoRuta, guardarPieza, type Cuenta, type PiezaGuardada } from '@/lib/cuenta';
 import { ejemploPara, guiaBorrador, misionGuiada, type ContextoMision, type PiezaCompuesta } from '@/lib/misiones';
@@ -980,6 +980,8 @@ function Tramos({ total, paso }: { total: number; paso: number }) {
 }
 
 /* ── Celebración del día: ventana modal reusable sobre el aviso "Hoy ya armaste tu pieza" ── */
+// La llama de la racha va rellena, como en Hoy y en la Ruta (FICHA-ARTE: racha viva en dorado).
+const LlamaRellena = (p: { size?: number; strokeWidth?: number; className?: string }) => <Flame {...p} fill="currentColor" aria-hidden="true" />;
 const primerNombre = (n?: string) => {
   const p = n?.trim().split(/\s+/)[0];
   return p ? p.charAt(0).toUpperCase() + p.slice(1).toLowerCase() : '';
@@ -1004,7 +1006,12 @@ function Celebracion({ dia, onCerrar }: { dia: number; onCerrar: () => void }) {
         hito={Boolean(d.cierre)}
         titulo={nombre ? `¡Excelente, ${nombre}!` : '¡Excelente!'}
         subtitulo="Completaste tu misión de hoy. Tu esfuerzo te acerca a tus metas."
-        recompensa={{ icono: Zap, texto: `Racha actualizada: ${e.racha} ${e.racha === 1 ? 'día' : 'días'}` }}
+        recompensa={{ icono: LlamaRellena, valor: e.racha, texto: e.racha === 1 ? 'día de racha' : 'días de racha' }}
+        siguiente={
+          siguiente
+            ? `${d.pieza} ya está en Mi Empresa. Mañana se abre el día ${siguiente.dia}: ${siguiente.pieza.toLowerCase()}.`
+            : 'Tu negocio completo ya está en Mi Empresa.'
+        }
         insignias={[
           { icono: Brain, texto: 'Más enfoque' },
           { icono: Target, texto: 'Más claridad' },
