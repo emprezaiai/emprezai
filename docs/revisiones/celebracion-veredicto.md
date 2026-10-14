@@ -1,45 +1,42 @@
 # VEREDICTO revisor-visual — celebracion (ventana modal de celebración de logro)
-Fecha: 2026-10-14 18:00
+Fecha: 2026-10-14 20:00
 Screenshot: docs/revisiones/celebracion-375.png
-Usabilidad: 34/40
-Craft: 15/20
+Usabilidad: 35/40
+Craft: 16/20
 Copy (si vende): N-A
 Fidelidad (si hubo referencia): N-A
 Veredicto: NO LISTA
-Top defectos: 1) al cerrar, la ventana desaparece de golpe (no hay animación de salida) y el aviso de abajo se vuelve a montar; 2) "¡Vamos por más!" sigue sin decir adónde lleva, y "más" choca con que la siguiente misión está cerrada hasta mañana; 3) la píldora de racha no se impone como dato principal: el "8" se ve más chico que el título y la pantalla usa 7 tamaños de texto; 4) en la fila de insignias, los márgenes izquierdo y derecho no son iguales y los espacios entre etiquetas tampoco, sobre todo a 360; 5) el centro sigue siendo un check verde genérico y no hay ninguna hairline degradé.
+Top defectos: 1) en la fila de insignias, "Más claridad" queda unos 7px a la izquierda del eje central, mientras el check, el título, la píldora y el botón sí están centrados; 2) en el código, el efecto del modal se vuelve a ejecutar en cada render porque onCerrar es una función nueva cada vez: vuelve a vibrar, le roba el foco al usuario y vuelve a bloquear el scroll; 3) la línea de qué sigue no dice cuándo llega el aviso de mañana, y el subtítulo junto con las 3 insignias siguen siendo frases de póster; 4) la jerarquía todavía usa 6 tamaños de texto, y el check verde de 96px pesa más que el "8"; 5) no hay respaldo si la racha llega en 0, y se vería "0 días de racha".
 
 ## Detalle
-USABILIDAD 34/40: h1:4 h2:3 h3:4 h4:3 h5:4 h6:3 h7:4 h8:3 h9:3 h10:3
-CRAFT 15/20: jerarquía:3 profundidad:3 identidad:3 movimiento:3 encaje:3
+USABILIDAD 35/40: h1:4 h2:3 h3:4 h4:3 h5:4 h6:4 h7:4 h8:3 h9:3 h10:3
+CRAFT 16/20: jerarquía:3 profundidad:3 identidad:3 movimiento:4 encaje:3
 
-Gate de carga cognitiva: 0 fallas. Las insignias ya son una fila plana en ink-3, sin relieve y sin canto: no parecen tocables. Hay 1 acción principal, los bloques de texto ocupan 2 líneas o menos y el qué sigue se entiende.
+Gate de carga cognitiva: 0 fallas. Hay 1 acción principal y 1 secundaria. Los bloques de texto ocupan 3 líneas o menos. Las insignias son planas y no parecen tocables. El qué sigue es obvio.
 
-CTA héroe vivo: PASA los 4. Es dorado sobre #1A1622, con contraste de sobra. .boton-oro responde con :active. Nunca está deshabilitado. Mide h-14 = 56px y ocupa el ancho completo.
+CTA héroe vivo: PASA los 4. Es dorado sobre la tarjeta oscura, con contraste muy por encima de 3:1. .boton-oro responde con :active (translateY 2px y la sombra se reduce). Nunca está deshabilitado. Mide h-14 = 56px y ocupa el ancho completo.
 
-## Ronda 1: los 5 defectos, uno por uno
-1. Insignias que parecían botones → CORREGIDO. Ahora son una fila plana (ModalCelebracion.tsx:204-217), sin fondo ni canto. El texto de la dueña se mantiene.
-2. Rayo en lugar de llama, y confeti y exclamaciones fuera de la ficha → CORREGIDO. LlamaRellena (Flame fill) va dentro de relieve-oro (Mision.tsx:984, ModalCelebracion.tsx:194). La EXCEPCIÓN del 2026-10-14 está anotada en FICHA-ARTE.md:40. El confeti cambia de escala con hito: 12 piezas a 110px en los días normales y 22 piezas a 150px en el cierre de semana.
-3. Faltaba decir qué sigue mañana → CORREGIDO. La línea "{pieza} ya está en Mi Empresa. Mañana se abre el día N: …" se ve a 375 y a 360. Queda abierto que el botón no nombre su destino (ver defecto 2).
-4. La racha no era el dato principal y no contaba → CORREGIDO A MEDIAS. El número va en font-display text-precio, cuenta de 0 al valor (Conteo, l.35-59) y respeta "reducir movimiento". El texto dice "días de racha" y ya no "actualizada". Pero el "8" se ve más chico que el título "¡Excelente, Carlos!", así que el dato no domina.
-5. Encaje de las insignias a 360 → CORREGIDO A MEDIAS. "Más resultados" ya no se parte (whitespace-nowrap). Pero a 360 queda a ~2px del final del separador por la derecha, mientras "Más enfoque" arranca a ~8px por la izquierda. El espacio entre "enfoque" y "Más claridad" es ~26px y entre "claridad" y "Más resultados" es ~20px.
-Menores: tocar el velo ya cierra (l.106). La X tiene active:scale-95 y "Ver mi ruta" tiene active:scale-[0.97]. El anillo hace repeat:1 y termina con opacity 0, así que ya no deja la mancha detrás del check. → los 3 CORREGIDOS.
+## Ronda 2: los 5 defectos, uno por uno
+1. Salida animada → CORREGIDO. Celebracion mantiene un estado local `abierta` (Mision.tsx:993), onCerrar lo pasa a false (l.1026) y setCelebrar(null) se llama en onExitComplete (ModalCelebracion.tsx:100, onSalida). La salida (fade + scale 0.96) se reproduce. El Aviso que vuelve a montarse después no tiene animación de entrada y su contenido es idéntico, así que no hay salto.
+2. "Mi Empresa" nombrado → CORREGIDO. Va en strong semibold ink-1 y whitespace-nowrap (Mision.tsx:1015) y se ve en las 4 capturas. El botón "¡Vamos por más!" se mantiene por contrato de la dueña.
+3. Número de racha dominante + cuerpo a 14px → CORREGIDO. El número es text-[36px] font-extrabold (l.199), más grande que el h2 de 28px. "días de racha", la línea de qué sigue y "Ver mi ruta" están todos en text-sm. Quedan 6 tamaños (ver defecto 4).
+4. Insignias simétricas → CORREGIDO A MEDIAS. Con flex justify-between y px-2, los márgenes quedan en 8px a cada lado y los espacios entre etiquetas son iguales (28px a 375 y ~20px a 360). Pero la etiqueta del medio ya no está sobre el eje central (defecto 1).
+5. Hairline degradé dorada en la píldora → CORREGIDO. .hairline-oro (globals.css:247) usa padding-box/border-box, de dorado a verde, y es la única de la vista. El check verde genérico sigue siendo el protagonista (identidad se queda en 3).
 
 ## TOP DEFECTOS (ubicación → fix)
-1. [Ventana completa, al cerrar con X, velo o Escape] onCerrar hace setCelebrar(null) y Mision devuelve otro árbol (Mision.tsx:41). Eso desmonta el AnimatePresence junto con la ventana: la salida (exit scale 0.96 + fade) nunca se reproduce, la ventana desaparece de golpe y el Aviso de abajo se vuelve a montar → dejar Celebracion montado con un estado local `abierto` que pase a false, y llamar setCelebrar(null) en onExitComplete del AnimatePresence.
-2. [CTA "¡Vamos por más!"] lleva a /app/empresa?pieza=N, pero el texto promete "más" el mismo día en que la siguiente misión está cerrada. Por eso el destino depende de leer la línea de arriba. El texto lo pidió la dueña, así que no se cambia → en la línea de "siguiente", hacer que "Mi Empresa" sea el ancla visual (semibold ink-1). Opcional: un microtexto de 12px bajo el botón, "Abre tu pieza en Mi Empresa".
-3. [Píldora de racha vs título] el "8" (text-precio) se ve más chico que el h2 (text-pregunta). Hay 7 tamaños de texto: título, 16 del subtítulo, número, 16 semibold, 12 de las insignias, caption, botón. El dato real no es el principal → subir el número a un tamaño display igual o mayor que el título, y juntar "días de racha", la línea de qué sigue y "Ver mi ruta" en un solo tamaño de cuerpo de 14px.
-4. [Fila de insignias, a 375 y a 360] cada grid-cols-3 está centrado en su columna y las etiquetas tienen anchos muy distintos. Por eso los márgenes laterales quedan desiguales (~2px vs ~8px a 360) y los espacios entre etiquetas también (~26 vs ~20px) → usar flex justify-between (o justify-evenly) sobre el ancho del separador en lugar de grid-cols-3, o px-1 en la lista con las etiquetas a 11px.
-5. [Insignia central + píldora] el check verde de 96px sigue siendo el protagonista genérico de cualquier app de hábitos. La píldora usa un borde sólido al 40% y la pantalla no tiene ninguna hairline degradé → poner la hairline degradé dorada (padding-box/border-box) solo en la píldora de racha. Opcional: el nodo del día en relieve que pasa a verde con el número del día, en lugar del check suelto.
+1. [Fila de insignias, ítem central] el centro de "Más claridad" está en x≈181px a 375 (el eje es 187.5) y en x≈173px a 360 (el eje es 180), unos 7px corrido hacia la izquierda. Todo lo de arriba y lo de abajo está centrado, y el ícono de diana queda visiblemente desalineado con el check → cambiar el ul a `grid grid-cols-[1fr_auto_1fr]`, con el primero en justify-self-start, el segundo en justify-self-center y el tercero en justify-self-end (los márgenes siguen en 8px y el del medio queda sobre el eje).
+2. [ModalCelebracion.tsx:68-95] las dependencias del efecto son [abierto, onCerrar], y onCerrar es una flecha inline en Mision.tsx:1026. Cada vez que Celebracion se vuelve a renderizar (por ejemplo, cuando useCuentaActiva se actualiza al sincronizar la pieza recién guardada), el efecto se repite: vuelve a llamar a vibrar(40), le devuelve el foco al CTA aunque el usuario esté en la X y vuelve a registrar el listener → guardar onCerrar en un useRef (`const cerrar = useRef(onCerrar); cerrar.current = onCerrar;`) y dejar las dependencias en [abierto].
+3. [Línea de qué sigue, h10] dice qué se abre mañana, pero no cuándo ni cómo se avisa. Además, "Tu esfuerzo te acerca a tus metas" y las 3 insignias son afirmaciones genéricas (contrato de la dueña, no se tocan) → sumar a esa línea la hora del recordatorio real, por ejemplo "Te aviso mañana a las 7 PM". Es el punto más barato para llegar a 36.
+4. [Jerarquía de la ventana] hay 6 tamaños: 36 del número, 28 del título, 17 del botón, 16 del subtítulo, 14 del cuerpo y 12 de las insignias. Al entrecerrar los ojos, el primero que se lee es el check verde de 96px, no el "8" → bajar el check a size-20 (80px) con un anillo proporcional, y el subtítulo a text-[15px] o a text-sm para que quede en el mismo tamaño que el cuerpo.
+5. [Píldora de racha, Mision.tsx:1011] valor: e.racha no tiene piso. Si la fecha local y la fecha guardada no coinciden, se vería "0 días de racha" justo cuando se celebra → `valor: Math.max(1, e.racha)` y elegir el texto en singular o plural sobre ese mismo valor.
 
 ## QUÉ FALTA PARA CADA 4
-- h2 (3→4): "Tu esfuerzo te acerca a tus metas" es una frase de póster. Si la dueña la mantiene, se queda en 3.
-- h4 (3→4): el CTA de la ventana ("¡Vamos por más!" → /app/empresa?pieza=N) y el del aviso de abajo ("Ver en Mi Empresa" → /app/empresa) llevan al mismo lugar con textos distintos. Hay que alinear el destino o el texto.
-- h6 (3→4): defecto 2.
-- h8 (3→4): las 3 insignias son afirmaciones genéricas (contrato de la dueña). Si se mantienen, que no compitan con el dato real.
-- h9 (3→4): no hay respaldo si e.racha llega en 0 justo después de completar (mostraría "0 días de racha"). Usar max(1, racha).
-- h10 (3→4): sumar la hora del recordatorio de mañana a la línea de qué sigue.
-- Jerarquía (3→4): defecto 3.
-- Profundidad (3→4): la hairline degradé de la píldora (defecto 5).
-- Identidad (3→4): defecto 5.
-- Movimiento (3→4): defecto 1 (la salida suave del modal). El resto de las baseline que aplican está presente: stagger de entrada, conteo, spring de entrada, tap, confeti según hito y reducir movimiento.
-- Encaje (3→4): defecto 4.
+- h2 (3→4): la frase de póster del subtítulo (contrato). Si la dueña la mantiene, se queda en 3.
+- h4 (3→4): el CTA de la ventana ("¡Vamos por más!") y el del Aviso de abajo ("Ver en Mi Empresa") llevan al mismo destino con textos distintos, y se ven al mismo tiempo a través del velo.
+- h8 (3→4): defecto 4 (6 tamaños; el check compite con el dato real).
+- h9 (3→4): defecto 5.
+- h10 (3→4): defecto 3.
+- Jerarquía (3→4): defecto 4.
+- Profundidad (3→4): la tarjeta tiene superficie elevada y objetos en relieve, pero no hay un nivel hundido. Por ejemplo, la fila de insignias o la línea de qué sigue podrían ir sobre --surface-sunken (#0A0910 tintado).
+- Identidad (3→4): el check verde suelto de 96px es intercambiable con cualquier app de hábitos. Usar el nodo del día en relieve con su número, o el rayo dorado de la marca.
+- Encaje (3→4): defecto 1.

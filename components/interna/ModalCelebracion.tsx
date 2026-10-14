@@ -64,6 +64,10 @@ export function ModalCelebracion({ abierto, titulo, subtitulo, recompensa, sigui
   const reduce = useReducedMotion();
   const caja = useRef<HTMLDivElement>(null);
   const principal = useRef<HTMLAnchorElement>(null);
+  const cerrar = useRef(onCerrar);
+  useEffect(() => {
+    cerrar.current = onCerrar;
+  }, [onCerrar]);
 
   useEffect(() => {
     if (!abierto) return;
@@ -72,7 +76,7 @@ export function ModalCelebracion({ abierto, titulo, subtitulo, recompensa, sigui
     const anterior = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const tecla = (ev: KeyboardEvent) => {
-      if (ev.key === 'Escape') onCerrar();
+      if (ev.key === 'Escape') cerrar.current();
       if (ev.key === 'Tab' && caja.current) {
         const enfocables = caja.current.querySelectorAll<HTMLElement>('a[href], button');
         const primero = enfocables[0];
@@ -92,7 +96,7 @@ export function ModalCelebracion({ abierto, titulo, subtitulo, recompensa, sigui
       document.body.style.overflow = anterior;
       window.removeEventListener('keydown', tecla);
     };
-  }, [abierto, onCerrar]);
+  }, [abierto]);
 
   const Recompensa = recompensa.icono;
 
@@ -130,7 +134,7 @@ export function ModalCelebracion({ abierto, titulo, subtitulo, recompensa, sigui
             </button>
 
             {/* Insignia central: el check en relieve verde, con anillo que respira y confeti alrededor */}
-            <div className="relative mx-auto mt-4 flex size-28 items-center justify-center">
+            <div className="relative mx-auto mt-4 flex size-24 items-center justify-center">
               {!reduce &&
                 Array.from({ length: hito ? PIEZAS_CONFETI : 12 }, (_, i) => {
                   const total = hito ? PIEZAS_CONFETI : 12;
@@ -158,12 +162,12 @@ export function ModalCelebracion({ abierto, titulo, subtitulo, recompensa, sigui
               )}
               <motion.span
                 aria-hidden="true"
-                className="relieve-verde relative flex size-24 items-center justify-center rounded-full"
+                className="relieve-verde relative flex size-20 items-center justify-center rounded-full"
                 initial={{ scale: reduce ? 1 : 0.4, rotate: reduce ? 0 : -12 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={reduce ? { duration: 0 } : { type: 'spring', bounce: 0.25, duration: 0.6, delay: 0.1 }}
               >
-                <Check size={48} strokeWidth={3.2} />
+                <Check size={40} strokeWidth={3.2} />
               </motion.span>
             </div>
 
@@ -181,7 +185,7 @@ export function ModalCelebracion({ abierto, titulo, subtitulo, recompensa, sigui
               initial={{ opacity: 0, y: reduce ? 0 : 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: reduce ? 0 : 0.42, ease: EASE_SALIDA }}
-              className="mt-2 text-base text-pretty text-ink-2"
+              className="mt-2 text-ayuda text-pretty text-ink-2"
             >
               {subtitulo}
             </motion.p>
@@ -203,14 +207,14 @@ export function ModalCelebracion({ abierto, titulo, subtitulo, recompensa, sigui
             </motion.p>
 
             {/* Tres insignias en la base */}
-            <ul className="mt-5 flex items-start justify-between px-2" aria-label="Lo que sumas hoy">
+            <ul className="mt-5 grid grid-cols-[1fr_auto_1fr] items-start gap-2 px-2" aria-label="Lo que sumas hoy">
               {insignias.map(({ icono: IconoInsignia, texto }, i) => (
                 <motion.li
                   key={texto}
                   initial={{ opacity: 0, y: reduce ? 0 : 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: reduce ? 0 : 0.7 + i * 0.07, ease: EASE_SALIDA }}
-                  className="flex flex-col items-center gap-1 text-xs font-semibold whitespace-nowrap text-ink-3"
+                  className={`flex flex-col items-center gap-1 text-xs font-semibold whitespace-nowrap text-ink-3 ${i === 0 ? 'justify-self-start' : i === insignias.length - 1 ? 'justify-self-end' : 'justify-self-center'}`}
                 >
                   <IconoInsignia size={18} strokeWidth={2} aria-hidden="true" />
                   {texto}

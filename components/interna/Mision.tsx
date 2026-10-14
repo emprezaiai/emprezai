@@ -995,6 +995,9 @@ function Celebracion({ dia, onCerrada }: { dia: number; onCerrada: () => void })
   const d = diaRuta(dia);
   const siguiente = dia < RUTA.length ? diaRuta(dia + 1) : undefined;
   const nombre = primerNombre(cuenta.nombre);
+  // Recién guardada la pieza de hoy, la racha es al menos 1.
+  const racha = Math.max(1, e.racha);
+  const cuando = cuenta.momento === 'manana' ? 'Mañana en la mañana' : cuenta.momento === 'mediodia' ? 'Mañana al mediodía' : cuenta.momento === 'noche' ? 'Mañana en la noche' : 'Mañana';
   return (
     <>
       <Aviso
@@ -1008,12 +1011,12 @@ function Celebracion({ dia, onCerrada }: { dia: number; onCerrada: () => void })
         hito={Boolean(d.cierre)}
         titulo={nombre ? `¡Excelente, ${nombre}!` : '¡Excelente!'}
         subtitulo="Completaste tu misión de hoy. Tu esfuerzo te acerca a tus metas."
-        recompensa={{ icono: LlamaRellena, valor: e.racha, texto: e.racha === 1 ? 'día de racha' : 'días de racha' }}
+        recompensa={{ icono: LlamaRellena, valor: racha, texto: racha === 1 ? 'día de racha' : 'días de racha' }}
         siguiente={
           <>
             {siguiente ? `${d.pieza} ya está en ` : 'Tu negocio completo ya está en '}
             <strong className="font-semibold whitespace-nowrap text-ink-1">Mi Empresa</strong>
-            {siguiente ? `. Mañana se abre el día ${siguiente.dia}: ${siguiente.pieza.toLowerCase()}.` : '.'}
+            {siguiente ? `. ${cuando} se abre el día ${siguiente.dia}: ${siguiente.pieza.toLowerCase()}.` : '.'}
           </>
         }
         insignias={[
