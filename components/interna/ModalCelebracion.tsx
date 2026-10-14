@@ -5,7 +5,7 @@
 // insignias en la base y una sola acción principal. Accesible: diálogo modal con foco en la acción,
 // Escape cierra, el foco no se escapa, y respeta "reducir movimiento".
 
-import { useEffect, useRef, type ComponentType } from 'react';
+import { useEffect, useRef, type ComponentType, type ReactNode } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, animate, motion, useReducedMotion } from 'motion/react';
 import { ArrowRight, Check, X } from 'lucide-react';
@@ -20,13 +20,15 @@ export interface PropsCelebracion {
   /** El dato real que se gana hoy: el número cuenta y va en grande ("8" + "días de racha"). */
   recompensa: { icono: Icono; valor: number; texto: string };
   /** Qué sigue (la ventana tapa el aviso de abajo: aquí se dice). */
-  siguiente?: string;
+  siguiente?: ReactNode;
   insignias: { icono: Icono; texto: string }[];
   accion: { texto: string; href: string };
   secundaria?: { texto: string; href: string };
   /** Hito grande (cierre de semana): más confeti. */
   hito?: boolean;
   onCerrar: () => void;
+  /** Cuando terminó la animación de salida (para desmontar sin cortar de golpe). */
+  onSalida?: () => void;
 }
 
 const PIEZAS_CONFETI = 22;
@@ -58,7 +60,7 @@ function Conteo({ valor }: { valor: number }) {
   );
 }
 
-export function ModalCelebracion({ abierto, titulo, subtitulo, recompensa, siguiente, insignias, accion, secundaria, hito = false, onCerrar }: PropsCelebracion) {
+export function ModalCelebracion({ abierto, titulo, subtitulo, recompensa, siguiente, insignias, accion, secundaria, hito = false, onCerrar, onSalida }: PropsCelebracion) {
   const reduce = useReducedMotion();
   const caja = useRef<HTMLDivElement>(null);
   const principal = useRef<HTMLAnchorElement>(null);
@@ -95,7 +97,7 @@ export function ModalCelebracion({ abierto, titulo, subtitulo, recompensa, sigui
   const Recompensa = recompensa.icono;
 
   return (
-    <AnimatePresence>
+    <AnimatePresence onExitComplete={onSalida}>
       {abierto && (
         <motion.div
           className="velo-oscuro fixed inset-0 z-40 flex items-center justify-center px-4 py-6"
@@ -189,19 +191,19 @@ export function ModalCelebracion({ abierto, titulo, subtitulo, recompensa, sigui
               initial={{ opacity: 0, scale: reduce ? 1 : 0.85 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={reduce ? { duration: 0 } : { type: 'spring', bounce: 0.25, duration: 0.45, delay: 0.55 }}
-              className="mx-auto mt-5 inline-flex items-center gap-3 rounded-[var(--radius-pill)] border border-[color-mix(in_oklab,var(--gold)_40%,transparent)] bg-[color-mix(in_oklab,var(--gold)_12%,transparent)] py-2 pr-5 pl-2"
+              className="hairline-oro mx-auto mt-5 inline-flex items-center gap-3 rounded-[var(--radius-pill)] py-2 pr-5 pl-2"
             >
               <span aria-hidden="true" className="relieve-oro flex size-10 items-center justify-center rounded-full">
                 <Recompensa size={20} strokeWidth={1.5} />
               </span>
-              <span className="font-display text-precio leading-none font-extrabold text-ink-1">
+              <span className="font-display text-[36px] leading-none font-extrabold text-ink-1">
                 <Conteo valor={recompensa.valor} />
               </span>
-              <span className="text-base font-semibold text-ink-1">{recompensa.texto}</span>
+              <span className="text-sm font-semibold text-ink-1">{recompensa.texto}</span>
             </motion.p>
 
             {/* Tres insignias en la base */}
-            <ul className="mt-5 grid grid-cols-3 gap-2" aria-label="Lo que sumas hoy">
+            <ul className="mt-5 flex items-start justify-between px-2" aria-label="Lo que sumas hoy">
               {insignias.map(({ icono: IconoInsignia, texto }, i) => (
                 <motion.li
                   key={texto}
@@ -220,7 +222,7 @@ export function ModalCelebracion({ abierto, titulo, subtitulo, recompensa, sigui
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.3, delay: reduce ? 0 : 0.85 }}
-                className="mt-4 border-t border-[var(--line)] pt-4 text-caption text-pretty text-ink-2"
+                className="mt-4 border-t border-[var(--line)] pt-4 text-sm text-pretty text-ink-2"
               >
                 {siguiente}
               </motion.p>

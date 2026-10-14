@@ -38,7 +38,7 @@ export function Mision() {
   // Al guardar, la cuenta ya dice "hecha hoy": la celebración se sostiene con este estado local.
   const [celebrar, setCelebrar] = useState<number | null>(null);
 
-  if (celebrar) return <Celebracion dia={celebrar} onCerrar={() => setCelebrar(null)} />;
+  if (celebrar) return <Celebracion dia={celebrar} onCerrada={() => setCelebrar(null)} />;
   if (e.terminada) return <Aviso titulo="¡Terminaste tu ruta de 30 días!" texto="Tu negocio completo está en Mi Empresa, listo para vender." href="/app/empresa" cta="Ver mi negocio" />;
   if (e.hechaHoy)
     return (
@@ -987,8 +987,10 @@ const primerNombre = (n?: string) => {
   return p ? p.charAt(0).toUpperCase() + p.slice(1).toLowerCase() : '';
 };
 
-function Celebracion({ dia, onCerrar }: { dia: number; onCerrar: () => void }) {
+function Celebracion({ dia, onCerrada }: { dia: number; onCerrada: () => void }) {
   const cuenta: Cuenta = useCuentaActiva();
+  // Se cierra con su animación de salida y recién después se desmonta.
+  const [abierta, setAbierta] = useState(true);
   const e = estadoRuta(cuenta);
   const d = diaRuta(dia);
   const siguiente = dia < RUTA.length ? diaRuta(dia + 1) : undefined;
@@ -1002,15 +1004,17 @@ function Celebracion({ dia, onCerrar }: { dia: number; onCerrar: () => void }) {
         cta="Ver en Mi Empresa"
       />
       <ModalCelebracion
-        abierto
+        abierto={abierta}
         hito={Boolean(d.cierre)}
         titulo={nombre ? `¡Excelente, ${nombre}!` : '¡Excelente!'}
         subtitulo="Completaste tu misión de hoy. Tu esfuerzo te acerca a tus metas."
         recompensa={{ icono: LlamaRellena, valor: e.racha, texto: e.racha === 1 ? 'día de racha' : 'días de racha' }}
         siguiente={
-          siguiente
-            ? `${d.pieza} ya está en Mi Empresa. Mañana se abre el día ${siguiente.dia}: ${siguiente.pieza.toLowerCase()}.`
-            : 'Tu negocio completo ya está en Mi Empresa.'
+          <>
+            {siguiente ? `${d.pieza} ya está en ` : 'Tu negocio completo ya está en '}
+            <strong className="font-semibold whitespace-nowrap text-ink-1">Mi Empresa</strong>
+            {siguiente ? `. Mañana se abre el día ${siguiente.dia}: ${siguiente.pieza.toLowerCase()}.` : '.'}
+          </>
         }
         insignias={[
           { icono: Brain, texto: 'Más enfoque' },
@@ -1019,7 +1023,8 @@ function Celebracion({ dia, onCerrar }: { dia: number; onCerrar: () => void }) {
         ]}
         accion={{ texto: '¡Vamos por más!', href: `/app/empresa?pieza=${dia}` }}
         secundaria={{ texto: 'Ver mi ruta', href: '/app/ruta' }}
-        onCerrar={onCerrar}
+        onCerrar={() => setAbierta(false)}
+        onSalida={onCerrada}
       />
     </>
   );

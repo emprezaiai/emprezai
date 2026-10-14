@@ -1,90 +1,57 @@
 # VEREDICTO revisor-visual — pantalla-principal (Hoy, M0)
-Fecha: 2026-10-07 23:58
+Fecha: 2026-10-14 12:00
 Screenshot: docs/revisiones/pantalla-principal-375.png
 Usabilidad: 36/40
 Craft: 17/20
 Copy (si vende): N-A
 Fidelidad (si hubo referencia): FIEL
 Veredicto: LISTA
-Top defectos: 1) la ficha de semana (Hoy.tsx:272) ya no es un enlace, pero sigue usando el mismo material de relieve que sus vecinas tocables (tarjeta-relieve-base con canto 0 2px 0, y el chip relieve-piedra con canto): parece un botón que no hace nada → quitarle el canto a la tarjeta y al chip (superficie plana o hundida), así se lee como dato y no como control · 2) fila de 3 fichas: el micro-label "aviso de noche" se parte en 2 líneas, con la campana de 11px colgando a media altura, y empuja "días de racha" unos 37px por encima de "piezas listas" y "semana N" (capturas 375 y 360) → acortar a "19:00" o "de noche" en 1 línea con whitespace-nowrap, y alinear las 3 etiquetas a la misma línea base · 3) jerarquía: los números de las fichas (text-precio, extrabold) pesan casi como el título de la misión al entrecerrar los ojos → bajarlos un escalón (text-2xl→xl) o subir el h1 a 28px · 4) el insight de racha rota (Hoy.tsx:104) es el único insight de riesgo sin arranque en negrita → poner "Tu racha vuelve a empezar hoy." en strong, como el de racha en juego · 5) Hoy no tiene ninguna acción reversible con deshacer, y faltan capturas del aviso de pieza 1 (inicial, fallo, fallo2) y del aviso sin conexión → capturar esos 4 estados; si se quiere un 4 en h3, agregar "recordármelo hoy" con toast "Deshacer"
+Top defectos: 1) la ficha de semana (Hoy.tsx:272-273) no es un enlace, pero usa tarjeta-relieve-base y el chip relieve-piedra con canto, el mismo material que las fichas tocables de al lado: parece un botón que no hace nada (abierto desde la ronda 9) → quitar el canto a la tarjeta y al chip (superficie plana o hundida) · 2) fila de 3 fichas: "aviso de noche" (Hoy.tsx:251-254) se parte en 2 líneas, con la campana de 11px colgando, y deja "días de racha" unos 37px por encima de "piezas listas" y "semana N" (375 y 360, todas las capturas) → acortar a "de noche" con whitespace-nowrap y alinear las 3 etiquetas a la misma línea base · 3) jerarquía: los números de las fichas (text-precio extrabold) pesan casi como el h1 de la misión al entrecerrar los ojos → bajarlos un escalón o subir el h1 a 28px · 4) el insight de racha rota (Hoy.tsx:104, captura 16b) es el único insight de riesgo sin el arranque en negrita → poner "Tu racha vuelve a empezar hoy." en strong · 5) siguen sin capturarse los avisos de la pieza 1 (inicial, fallo, fallo2), el aviso sin conexión ni el nuevo SinConexion del Marco en modo servidor → capturar esos 5 estados
 
 ## Detalle de puntaje
 Usabilidad: h1:4 h2:4 h3:3 h4:3 h5:4 h6:4 h7:4 h8:3 h9:3 h10:4
 Craft: jerarquía:3 profundidad:4 identidad:3 movimiento:4 encaje:3
 
-Capturas puntuadas (todas del build actual):
-- pantalla-principal-375.png
-- 375: app/04, app/16-arriba, app/16b-arriba, app/16c-arriba, app/17-final, app/17b-arriba
-- 360: app-360/09-arriba
+Capturas puntuadas (build actual):
+- pantalla-principal-375.png (día 8, racha en juego)
+- 375: app/16-hoy-dia2-hecho-arriba, app/16b-hoy-racha-rota-arriba
+- 360: app-360/09-hoy-dia2-pendiente-arriba
 
-Código: components/interna/Hoy.tsx, components/interna/Marco.tsx (esqueleto de carga EsqueletoApp), lib/borradores.ts (avanceBorrador), app/globals.css (tarjeta-relieve, tarjeta-relieve-base, relieve-piedra-apagada).
+Código: components/interna/Hoy.tsx, components/interna/Marco.tsx, app/app/layout.tsx.
+
+## Re-revisión 10: regresiones
+- Cambio de marca: la cabecera dice "EMPREZAI" (Hoy.tsx:134) y el asunto del correo de ayuda también (Hoy.tsx:128). El título se ve centrado y no se recorta ni a 375 ni a 360. Sin regresión.
+- Puerta en servidor (app/app/layout.tsx): sin sesión, redirige a /login; sin acceso, a /login?estado=sin-acceso. Es fail-closed: sin Supabase solo se entra con VISTA_PREVIA=1.
+- Marco en modo servidor: muestra el esqueleto (EsqueletoApp) mientras carga y, si falla sin copia local, la pantalla SinConexion con reintentar (Marco.tsx:84-89). Suma a h1 y h9, aunque no hay captura de ese estado.
+- La ventana de celebración vive fuera de Hoy y no cambia su composición.
+- Hoy.tsx no tiene cambios de layout desde la ronda 9: los 5 defectos de afinado siguen abiertos tal cual.
+- Ningún criterio baja.
 
 ## Gate de carga cognitiva
-Falla 1 de 8 (no crítico):
-- Falla el ítem "cero elementos que parezcan interactivos y no hagan nada": la ficha de semana tiene el relieve de las fichas tocables (defecto 1).
-- Hay una acción primaria por estado.
-- El insight ocupa 4 líneas como máximo.
-- Las filas visibles son 1 o 2.
-- "Qué sigue" se entiende en el CTA, en la fila de mañana y en la fila de la semana del día 1.
+Falla 1 de 8 (no crítico): "cero elementos que parezcan interactivos y no hagan nada" (la ficha de semana, defecto 1).
 
 ## CTA héroe vivo
-**Estado pendiente: cumple los 4.**
-- Contraste: .boton-oro, unos 11:1.
-- Tap: :active.
-- Habilitado: es un Link y nunca está disabled.
-- Tamaño: h-14, ancho completo, en la primera vista.
+**Pendiente: cumple los 4.**
+- .boton-oro con contraste de unos 11:1.
+- Responde con :active.
+- Es un Link que nunca está disabled.
+- h-14 a todo el ancho, en la primera vista.
 
-**Estado hecho:** fila-pildora con active:scale-[0.98], h-14.
+**Hecho:** fila-pildora con active:scale-[0.98], h-14.
 
-## Test de fidelidad (referencia-usuario-1.jpg = contrato de composición, colores de la C)
+## Test de fidelidad (referencia-usuario-1.jpg, contrato de composición)
 - Modo: OK.
-- Hue: OK, según el alcance del contrato.
+- Hue (alcance del contrato): OK.
 - Display grotesk: OK.
 - Radios 20/999/12: OK.
-- Densidad: FALLO LEVE. El panel de insight no aparece en la referencia.
+- Densidad: FALLO LEVE (el panel de insight no está en la referencia).
 - Profundidad: OK.
 
-Resultado: 1 de 6 fallos → FIEL.
+Resultado: 1 de 6 → FIEL.
 
-Valores de FICHA-ARTE comprobados en el screenshot:
+FICHA-ARTE comprobada en el screenshot, sin desvíos:
 - Fondo #0F0D16 con radial dorado.
-- Superficies #1A1622 y #231D2E.
-- Hundido #0A0910 en el insight.
-- ink 1/2/3.
-- Bricolage + Instrument.
-- Radios 20, 999 y 12.
-- Verde solo en progreso hecho: con 0 piezas la barra no tiene punto y el chip de piezas está apagado (16c).
-- Llama: oro viva, ámbar en juego, piedra apagada en 0.
-
-Sin desvíos.
-
-## Re-revisión 9: los 5 defectos de la ronda 8, uno por uno
-
-**1. [CORREGIDO] Latido de la llama**
-- Hoy.tsx:241-243 pasa de initial={false} a initial={{ scale: 1 }}, con los keyframes [1, 1.15, 1] y un delay de 0.95s.
-- Motion ahora anima al montar.
-- Solo late con la racha viva; con reduced-motion no se anima.
-
-**2. [CORREGIDO] Verde con 0 piezas**
-- Hoy.tsx:261: con 0 piezas el chip usa relieve-piedra-apagada.
-- Hoy.tsx:201: el ancho es piezas/30 sin mínimo, así que la barra no pinta nada.
-- Se ve en 16c.
-
-**3. [CORREGIDO] Avance del borrador en la tarjeta**
-- Hoy.tsx:184-188 muestra "Ya respondiste N de 3: te falta poco" o "Tu borrador te espera, tal como lo dejaste".
-- Se ve en 17b.
-- Matiz: avanceBorrador usa Math.max(paso, respuestas), así que podría mostrar "3 de 3: te falta poco".
-
-**4. [CORREGIDO] Un único anunciador**
-- Hoy.tsx:319: un solo role=status aria-live=polite, siempre montado, en sr-only, que solo cambia de texto (Listo, fallo, fallo2, sin conexión).
-- Las versiones visibles ya no llevan role.
-
-**5. [CORREGIDO CON MATIZ] Fichas de semana y de racha**
-- La ficha de semana pasó a ser un div informativo, sin destino duplicado.
-- La ficha de racha lleva el micro-label "aviso de {momento}".
-- Matices: la ficha de semana todavía parece tocable (defecto 1) y el micro-label se parte en 2 líneas (defecto 2).
-
-**Balance:** 36/40 (antes 35) · 17/20 (igual) · FIEL.
-- Sube h1: los 3 puntos pedidos están hechos y la carga tiene esqueleto.
-- Pasa el gate doble (≥36 y ≥16) → LISTA.
-- Los defectos de la lista quedan como afinado: ninguno baja un criterio a 2.
+- Superficies #1A1622 y #231D2E; hundido #0A0910.
+- Bricolage y Instrument.
+- Dorado solo en el CTA, la misión, la llama viva y el botón central.
+- Verde solo en el progreso hecho.
