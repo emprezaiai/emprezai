@@ -1,4 +1,4 @@
-// Marca de EMPRESAI: el rayo dorado (dispositivo ownable de FICHA-ARTE) dentro de un chip con relieve.
+// Marca de EMPREZAI: el rayo dorado (dispositivo ownable de FICHA-ARTE) dentro de un chip con relieve.
 import { Zap } from 'lucide-react';
 
 export function LogoEmpresai({ tamano = 28 }: { tamano?: 24 | 28 | 32 }) {

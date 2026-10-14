@@ -21,7 +21,7 @@ export default function ErrorApp({ reset }: { error: Error; reset: () => void })
         Reintentar
       </button>
       <a
-        href={`mailto:${RESPONSABLE.emailContacto}?subject=${encodeURIComponent('Algo no cargó en EMPRESAI')}`}
+        href={`mailto:${RESPONSABLE.emailContacto}?subject=${encodeURIComponent('Algo no cargó en EMPREZAI')}`}
         className="mt-2 flex min-h-11 items-center text-sm font-semibold text-ink-1 underline underline-offset-4"
       >
         Escribir a soporte

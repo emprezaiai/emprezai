@@ -3,7 +3,7 @@ import { Paywall } from '@/components/paywall/Paywall';
 import { esPlan } from '@/lib/onboarding';
 
 export const metadata: Metadata = {
-  title: 'Elige tu plan — EMPRESAI',
+  title: 'Elige tu plan — EMPREZAI',
   description: '7 días gratis para armar tu negocio pieza a pieza con IA.',
   robots: { index: false },
 };

@@ -253,7 +253,7 @@ function Flujo({ planInicial }: { planInicial?: Plan }) {
         ) : (
           <header className="flex h-14 items-center justify-center gap-2">
             <LogoEmpresai tamano={24} />
-            <span className="font-display text-base font-extrabold tracking-[-0.01em] text-ink-1">EMPRESAI</span>
+            <span className="font-display text-base font-extrabold tracking-[-0.01em] text-ink-1">EMPREZAI</span>
           </header>
         )}
         <AnimatePresence mode="wait" initial={false} custom={direccion}>

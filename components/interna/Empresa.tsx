@@ -45,7 +45,7 @@ function nombreNegocio(c: Cuenta): string {
 
 function textoExportable(c: Cuenta): string {
   const lineas = [
-    `EMPRESAI — ${nombreNegocio(c)}`,
+    `EMPREZAI — ${nombreNegocio(c)}`,
     `${c.piezas.length} de ${TOTAL_DIAS} piezas`,
     "",
   ];

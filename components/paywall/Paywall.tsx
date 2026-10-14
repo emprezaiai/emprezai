@@ -77,6 +77,18 @@ function fechaEnDias(dias: number): string {
   return new Intl.DateTimeFormat('es', { day: 'numeric', month: 'long' }).format(fecha);
 }
 
+function idAnonimo(): string {
+  try {
+    const previo = localStorage.getItem('empresai_anon');
+    if (previo) return previo;
+    const nuevo = crypto.randomUUID();
+    localStorage.setItem('empresai_anon', nuevo);
+    return nuevo;
+  } catch {
+    return crypto.randomUUID();
+  }
+}
+
 export function Paywall({ planInicial }: { planInicial?: Plan }) {
   const hidratado = useSyncExternalStore(
     suscribirNada,
@@ -147,6 +159,8 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
     url.searchParams.set('showOnlyTrial', '1');
     const sck = new URLSearchParams(window.location.search).get('sck');
     if (sck) url.searchParams.set('sck', sck.slice(0, 120));
+    // Modelo 2A (18): el id anónimo del recorrido viaja con la compra (src) para reconciliar la cuenta.
+    url.searchParams.set('src', idAnonimo());
     setYendo(true);
     window.location.assign(url.toString());
   }
@@ -423,7 +437,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
                 No pudimos abrir la página de pago.{' '}
                 <a
                   className="font-semibold underline underline-offset-4"
-                  href={`mailto:${RESPONSABLE.emailContacto}?subject=${encodeURIComponent('No pude abrir el pago de EMPRESAI')}`}
+                  href={`mailto:${RESPONSABLE.emailContacto}?subject=${encodeURIComponent('No pude abrir el pago de EMPREZAI')}`}
                 >
                   Escríbenos
                 </a>{' '}

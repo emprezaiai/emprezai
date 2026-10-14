@@ -9,11 +9,12 @@ import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { Bus, ChevronRight, Download, LifeBuoy, LogOut, Moon, SunMedium, Trash2 } from 'lucide-react';
 import { borrarMisDatos, cerrarSesion, guardarCuenta, estadoRuta } from '@/lib/cuenta';
+import { borrarEnServidor, guardarMomentoEnServidor, salirDelServidor } from '@/lib/sincronizar';
 import { NOMBRE_MOMENTO, type IdMomento } from '@/lib/onboarding';
 import { RESPONSABLE } from '@/lib/legal';
 import { TOTAL_DIAS } from '@/lib/ruta';
 import { EASE_SALIDA, vibrar } from '@/components/onboarding/piezas';
-import { useCuentaActiva } from './Marco';
+import { useCuentaActiva, useModoApp } from './Marco';
 
 const MOMENTOS: { id: IdMomento; texto: string; icono: typeof Moon }[] = [
   { id: 'manana', texto: 'En la mañana', icono: SunMedium },
@@ -28,6 +29,8 @@ export function Perfil() {
   const e = estadoRuta(cuenta);
   const [confirmarBorrado, setConfirmarBorrado] = useState(false);
   const [aviso, setAviso] = useState('');
+  const modo = useModoApp();
+  const [ocupado, setOcupado] = useState(false);
 
   const entrar = (i: number) => ({
     initial: { opacity: 0, y: reduce ? 0 : 12 },
@@ -35,17 +38,42 @@ export function Perfil() {
     transition: { duration: 0.35, delay: reduce ? 0 : 0.05 + i * 0.06, ease: EASE_SALIDA },
   });
 
-  function cambiarMomento(m: IdMomento) {
+  async function cambiarMomento(m: IdMomento) {
     if (!guardarCuenta({ ...cuenta, momento: m })) {
       setAviso('No pudimos guardar el cambio en este celular. Inténtalo otra vez.');
       return;
     }
     vibrar();
+    if (modo === 'servidor' && !(await guardarMomentoEnServidor(m))) {
+      setAviso('Lo guardamos en este celular; falta conexión para guardarlo en tu cuenta. Vuelve a tocarlo cuando tengas internet.');
+      return;
+    }
     setAviso(`Listo: tu misión será ${NOMBRE_MOMENTO[m]}.`);
   }
 
+  async function salir() {
+    if (ocupado) return;
+    setOcupado(true);
+    if (modo === 'servidor') await salirDelServidor();
+    cerrarSesion();
+    router.replace('/login');
+  }
+
+  async function borrarTodo() {
+    if (ocupado) return;
+    setOcupado(true);
+    if (modo === 'servidor' && !(await borrarEnServidor())) {
+      setOcupado(false);
+      setConfirmarBorrado(false);
+      setAviso('No pudimos borrar tus datos ahora (falta conexión). No se borró nada: inténtalo otra vez.');
+      return;
+    }
+    borrarMisDatos();
+    router.replace('/');
+  }
+
   function descargar() {
-    const texto = [`EMPRESAI — ${cuenta.idea ?? 'Mi negocio'}`, '', ...cuenta.piezas.flatMap((p) => [`Día ${p.dia} · ${p.titulo}`, p.contenido, ''])].join('\n');
+    const texto = [`EMPREZAI — ${cuenta.idea ?? 'Mi negocio'}`, '', ...cuenta.piezas.flatMap((p) => [`Día ${p.dia} · ${p.titulo}`, p.contenido, ''])].join('\n');
     const url = URL.createObjectURL(new Blob([texto], { type: 'text/plain;charset=utf-8' }));
     const a = document.createElement('a');
     a.href = url;
@@ -116,7 +144,7 @@ export function Perfil() {
           Ayuda y condiciones
         </h2>
         <ul className="mt-3 flex flex-col gap-2">
-          <FilaEnlace href={`mailto:${RESPONSABLE.emailContacto}?subject=${encodeURIComponent('Ayuda con EMPRESAI')}`} icono={LifeBuoy} texto="Escribir a soporte" />
+          <FilaEnlace href={`mailto:${RESPONSABLE.emailContacto}?subject=${encodeURIComponent('Ayuda con EMPREZAI')}`} icono={LifeBuoy} texto="Escribir a soporte" />
           <FilaEnlace href="/reembolsos" texto="Cómo cancelar o pedir reembolso" />
           <FilaEnlace href="/terminos" texto="Términos" />
           <FilaEnlace href="/privacidad" texto="Privacidad" />
@@ -127,10 +155,8 @@ export function Perfil() {
       <motion.div {...entrar(4)} className="mt-6">
         <button
           type="button"
-          onClick={() => {
-            cerrarSesion();
-            router.replace('/login');
-          }}
+          onClick={salir}
+          disabled={ocupado}
           className="flex h-12 w-full items-center justify-center gap-2 rounded-[var(--radius-pill)] border border-[var(--line)] bg-raised text-sm font-semibold text-ink-1"
         >
           <LogOut size={18} aria-hidden="true" />
@@ -142,10 +168,7 @@ export function Perfil() {
         {confirmarBorrado && (
           <ConfirmarBorrado
             onCancelar={() => setConfirmarBorrado(false)}
-            onBorrar={() => {
-              borrarMisDatos();
-              router.replace('/');
-            }}
+            onBorrar={borrarTodo}
           />
         )}
       </AnimatePresence>

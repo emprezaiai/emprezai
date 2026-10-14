@@ -1,4 +1,4 @@
-# FICHA DE AVATAR — EMPRESAI
+# FICHA DE AVATAR — EMPREZAI
 
 - Estado: APROBADA por el usuario 2026-09-29 (VoC: 17 frases literales con fuente ✓ ≥10)
   ⚠️ VoC de CATEGORÍA (apps de aprender IA, en español); el léxico de "emprender" viene de la Fuente 1

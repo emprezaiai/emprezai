@@ -18,32 +18,32 @@
 
 :root {
   /* ── SUPERFICIES (3 niveles: base / elevada / hundida) ── */
-  --bg: #0f0d16; /* EMPRESAI — FICHA-ARTE 2026-09-30 */
-  --surface: #1a1622; /* EMPRESAI — FICHA-ARTE 2026-09-30 */
-  --surface-2: #0a0910; /* EMPRESAI — FICHA-ARTE 2026-09-30 */
+  --bg: #0f0d16; /* EMPREZAI — FICHA-ARTE 2026-09-30 */
+  --surface: #1a1622; /* EMPREZAI — FICHA-ARTE 2026-09-30 */
+  --surface-2: #0a0910; /* EMPREZAI — FICHA-ARTE 2026-09-30 */
 
   /* ── TEXTO (casi-negro CON tinte, familia única de neutros) ── */
-  --text-primary: #efeaf5; /* EMPRESAI — FICHA-ARTE 2026-09-30 */
-  --text-secondary: #bdb4cb; /* EMPRESAI — FICHA-ARTE 2026-09-30 */
-  --text-tertiary: #998fa8; /* EMPRESAI — FICHA-ARTE 2026-09-30 */
+  --text-primary: #efeaf5; /* EMPREZAI — FICHA-ARTE 2026-09-30 */
+  --text-secondary: #bdb4cb; /* EMPREZAI — FICHA-ARTE 2026-09-30 */
+  --text-tertiary: #998fa8; /* EMPREZAI — FICHA-ARTE 2026-09-30 */
 
   /* ── MARCA ── */
-  --accent: #ffc23d; /* EMPRESAI — FICHA-ARTE 2026-09-30 */
-  --accent-2: #3ddc97; /* EMPRESAI — FICHA-ARTE 2026-09-30 */
+  --accent: #ffc23d; /* EMPREZAI — FICHA-ARTE 2026-09-30 */
+  --accent-2: #3ddc97; /* EMPREZAI — FICHA-ARTE 2026-09-30 */
 
   /* ── FORMA (radios del brand kit — UNO por rol, toda la página) ── */
-  --radius-card: 20px; /* EMPRESAI — FICHA-ARTE 2026-09-30 */
-  --radius-button: 999px; /* EMPRESAI — FICHA-ARTE 2026-09-30 */
+  --radius-card: 20px; /* EMPREZAI — FICHA-ARTE 2026-09-30 */
+  --radius-button: 999px; /* EMPREZAI — FICHA-ARTE 2026-09-30 */
 
   /* ── TIPOGRAFÍA (2 familias de la ficha — jamás Inter/Roboto/system-ui de marca) ── */
-  --font-display: var(--font-bricolage), 'Segoe UI', sans-serif; /* EMPRESAI — FICHA-ARTE 2026-09-30 */
-  --font-body: var(--font-instrument), 'Segoe UI', sans-serif; /* EMPRESAI — FICHA-ARTE 2026-09-30 */
+  --font-display: var(--font-bricolage), 'Segoe UI', sans-serif; /* EMPREZAI — FICHA-ARTE 2026-09-30 */
+  --font-body: var(--font-instrument), 'Segoe UI', sans-serif; /* EMPREZAI — FICHA-ARTE 2026-09-30 */
 
   /* ── SOMBRAS con el TINTE del neutro de marca (49 Parte 2c — nunca negro puro) ── */
-  --shadow-1: 0 1px 2px rgb(5 4 10 / 0.5); /* EMPRESAI — FICHA-ARTE 2026-09-30 */
-  --shadow-2: 0 16px 36px -14px rgb(5 4 10 / 0.75); /* EMPRESAI — FICHA-ARTE 2026-09-30 */
+  --shadow-1: 0 1px 2px rgb(5 4 10 / 0.5); /* EMPREZAI — FICHA-ARTE 2026-09-30 */
+  --shadow-2: 0 16px 36px -14px rgb(5 4 10 / 0.75); /* EMPREZAI — FICHA-ARTE 2026-09-30 */
 
-  /* ── EXTENSIONES EMPRESAI (FICHA-ARTE, modo oscuro): hooks opcionales que el kit lee con fallback ── */
+  /* ── EXTENSIONES EMPREZAI (FICHA-ARTE, modo oscuro): hooks opcionales que el kit lee con fallback ── */
   --frame: #2a2433;             /* bisel del carrusel */
   --inverse-bg: #231d2e;        /* bloque del CTA final: superficie elevada de la ficha, no un claro ajeno */
   --inverse-ink: #efeaf5;

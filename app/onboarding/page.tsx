@@ -3,7 +3,7 @@ import { Onboarding } from '@/components/onboarding/Onboarding';
 import { esPlan } from '@/lib/onboarding';
 
 export const metadata: Metadata = {
-  title: 'Arma tu primera pieza — EMPRESAI',
+  title: 'Arma tu primera pieza — EMPREZAI',
   description: 'Responde 5 preguntas y arma tu propuesta de valor en 2 minutos.',
   robots: { index: false },
 };

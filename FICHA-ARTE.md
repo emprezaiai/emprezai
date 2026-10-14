@@ -1,4 +1,4 @@
-# FICHA DE DIRECCIÓN DE ARTE — EMPRESAI
+# FICHA DE DIRECCIÓN DE ARTE — EMPREZAI
 
 ## Referencia del usuario (CONTRATO — ver 16, protocolo obligatorio)
 - ¿Hay imagen(es) de referencia del usuario?: SÍ → docs/revisiones/referencia-usuario-1.jpg (Pinterest, generada por IA)

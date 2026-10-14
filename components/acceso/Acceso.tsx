@@ -4,10 +4,11 @@
 // + código de 6 dígitos (26, Hotmart-first). Estados diseñados: enviando · enviado (código, reenviar
 // con cuenta atrás de 60 s, ayuda "¿no te llega?") · error humano y genérico (anti-enumeración).
 //
-// SEGURIDAD (fail-closed): mientras no hay servidor de correo (Supabase, Sesión 6) NADIE puede entrar
-// en producción. Solo con NEXT_PUBLIC_VISTA_PREVIA=1 (en el computador de desarrollo, .env.local)
-// aparece el "modo demostración" que crea la cuenta en este celular. En la Sesión 6 el acceso real
-// se valida EN SERVIDOR (sesión + suscripción activa por webhook de Hotmart).
+// ACCESO REAL (con Supabase conectado): /api/acceso/enviar manda enlace + código SOLO si el correo
+// tiene una compra vigente (respuesta uniforme, anti-enumeración); /api/acceso/verificar crea la
+// sesión en servidor. La puerta de /app la decide el servidor (sesión + suscripción).
+// SIN Supabase (fail-closed): nadie entra en producción; solo con NEXT_PUBLIC_VISTA_PREVIA=1 en el
+// computador de desarrollo aparece el "modo demostración" que crea la cuenta en este celular.
 
 import { useEffect, useId, useRef, useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
@@ -20,14 +21,14 @@ import { crearCuenta, useCuenta } from '@/lib/cuenta';
 import { leerEstado } from '@/lib/onboarding';
 import { RESPONSABLE } from '@/lib/legal';
 
-// Sesión 6: pasa a true SOLO cuando exista /api/acceso (envío real + verificación del código en servidor).
-const ACCESO_REAL = false as boolean;
+const ACCESO_REAL = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL);
 const BANDERA_DEMO = !ACCESO_REAL && process.env.NEXT_PUBLIC_VISTA_PREVIA === '1';
 const demoPermitida = () => BANDERA_DEMO && ['localhost', '127.0.0.1'].includes(window.location.hostname);
 const ESPERA_REENVIO = 60;
 const CORREO_VALIDO = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 const suscribirNada = () => () => {};
+const leerAvisoUrl = () => new URLSearchParams(window.location.search).get('estado') ?? '';
 
 // Mientras el acceso no abre, el correo de compra queda guardado en este celular (y vuelve escrito).
 const CLAVE_CORREO = 'empresai_correo_acceso';
@@ -71,10 +72,13 @@ export function Acceso() {
   const [espera, setEspera] = useState(0);
   const [reenviado, setReenviado] = useState(false);
   const [intentos, setIntentos] = useState(0);
+  const [verificando, setVerificando] = useState(false);
+  const avisoUrl = useSyncExternalStore(suscribirNada, leerAvisoUrl, () => '');
 
-  // Ya tiene sesión: directo a su ruta.
+  // Versión de prueba local: con cuenta en el celular, directo a su ruta. (Con acceso real, la
+  // sesión la decide el servidor: una copia local no es una sesión.)
   useEffect(() => {
-    if (cuenta) router.replace('/app');
+    if (!ACCESO_REAL && cuenta) router.replace('/app');
   }, [cuenta, router]);
 
   useEffect(() => {
@@ -100,7 +104,10 @@ export function Acceso() {
     }
     setErrorCampo('');
     setEstado('enviando');
-    // Sesión 6: aquí se pide al servidor el enlace + código (límite de intentos; mismo mensaje exista o no el correo).
+    if (ACCESO_REAL) {
+      void pedirEnlace(limpio);
+      return;
+    }
     const enDemo = demoPermitida();
     const quedaGuardado = ACCESO_REAL || enDemo ? true : guardarCorreo(limpio);
     window.setTimeout(() => {
@@ -113,10 +120,43 @@ export function Acceso() {
     }, 700);
   }
 
-  function entrarConCodigo(ev: React.FormEvent) {
+  async function pedirEnlace(limpio: string, reenvio = false) {
+    guardarCorreo(limpio);
+    try {
+      const res = await fetch('/api/acceso/enviar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: limpio }),
+      });
+      if (res.status === 503) {
+        setEmail(limpio);
+        setEstado('pronto');
+        return;
+      }
+      if (res.status === 429) {
+        setEstado(reenvio ? 'enviado' : 'inicio');
+        const mensaje = 'Pediste varios enlaces seguidos. Espera unos minutos y vuelve a intentarlo.';
+        if (reenvio) setErrorCodigo(mensaje);
+        else setErrorCampo(mensaje);
+        return;
+      }
+      if (!res.ok) throw new Error('envio');
+      setEmail(limpio);
+      setDemo(false);
+      setEstado('enviado');
+      setEspera(ESPERA_REENVIO);
+      setReenviado(reenvio);
+    } catch {
+      setEstado(reenvio ? 'enviado' : 'error');
+      if (reenvio) setErrorCodigo('No pudimos reenviar el enlace. Revisa tu conexión e intenta de nuevo.');
+    }
+  }
+
+  async function entrarConCodigo(ev: React.FormEvent) {
     ev.preventDefault();
-    if (!/^\d{6}$/.test(codigo)) {
-      setErrorCodigo('El código tiene 6 números. Cópialo tal cual del correo.');
+    if (verificando) return;
+    if (!/^\d{6,8}$/.test(codigo)) {
+      setErrorCodigo('Escribe el código de números tal cual viene en el correo.');
       vibrar(30);
       return;
     }
@@ -124,8 +164,33 @@ export function Acceso() {
       entrarDemostracion();
       return;
     }
-    // Sin servidor no se puede verificar: nunca se deja entrar a ciegas (fail-closed).
-    setErrorCodigo('No pudimos verificar el código. Pide uno nuevo e intenta otra vez.');
+    if (!ACCESO_REAL) {
+      // Sin servidor no se puede verificar: nunca se deja entrar a ciegas (fail-closed).
+      setErrorCodigo('No pudimos verificar el código. Pide uno nuevo e intenta otra vez.');
+      return;
+    }
+    setVerificando(true);
+    try {
+      const res = await fetch('/api/acceso/verificar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, codigo }),
+      });
+      if (res.ok) {
+        router.replace('/app');
+        return;
+      }
+      vibrar(30);
+      setErrorCodigo(
+        res.status === 429
+          ? 'Demasiados intentos. Espera 15 minutos o entra con el botón del correo.'
+          : 'Ese código no coincide o ya venció. Revísalo o pide uno nuevo.',
+      );
+    } catch {
+      setErrorCodigo('No pudimos revisar el código. Revisa tu conexión e intenta de nuevo.');
+    } finally {
+      setVerificando(false);
+    }
   }
 
   function entrarDemostracion() {
@@ -137,7 +202,7 @@ export function Acceso() {
     router.replace('/app');
   }
 
-  if (cuenta !== null) return <main className="fondo-recorrido min-h-dvh" aria-busy="true" />;
+  if (!ACCESO_REAL && cuenta !== null) return <main className="fondo-recorrido min-h-dvh" aria-busy="true" />;
 
   const entrar = (i: number) => ({
     initial: { opacity: 0, y: reduce ? 0 : 12 },
@@ -149,9 +214,9 @@ export function Acceso() {
     <main className="fondo-recorrido min-h-dvh overflow-x-clip">
       <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-4 pb-8">
         <motion.header {...entrar(0)} className="flex h-16 items-center">
-          <Link href="/" className="flex min-h-11 items-center gap-2" aria-label="EMPRESAI, ir al inicio">
+          <Link href="/" className="flex min-h-11 items-center gap-2" aria-label="EMPREZAI, ir al inicio">
             <LogoEmpresai tamano={28} />
-            <span className="font-display text-lg font-extrabold text-ink-1">EMPRESAI</span>
+            <span className="font-display text-lg font-extrabold text-ink-1">EMPREZAI</span>
           </Link>
         </motion.header>
 
@@ -185,7 +250,7 @@ export function Acceso() {
                 </p>
               )}
               <a
-                href={`mailto:${RESPONSABLE.emailContacto}?subject=${encodeURIComponent('Ya pagué EMPRESAI y quiero entrar')}&body=${encodeURIComponent(`Mi correo de compra: ${email}`)}`}
+                href={`mailto:${RESPONSABLE.emailContacto}?subject=${encodeURIComponent('Ya pagué EMPREZAI y quiero entrar')}&body=${encodeURIComponent(`Mi correo de compra: ${email}`)}`}
                 className="mt-6 flex h-12 w-full items-center justify-center rounded-[var(--radius-pill)] border border-[var(--line)] bg-raised-2 font-display text-base font-bold text-ink-1 transition-transform duration-100 active:scale-[0.97]"
               >
                 Ya pagué: pedir mi acceso
@@ -236,19 +301,19 @@ export function Acceso() {
 
               <form onSubmit={entrarConCodigo} noValidate className="mt-6 flex flex-col gap-2">
                 <label htmlFor={idCodigo} className="text-sm font-semibold text-ink-1">
-                  Código de 6 números
+                  Código del correo
                 </label>
                 <input
                   id={idCodigo}
                   inputMode="numeric"
                   autoComplete="one-time-code"
-                  maxLength={6}
+                  maxLength={8}
                   value={codigo}
                   onChange={(ev) => {
-                    setCodigo(ev.target.value.replace(/\D/g, '').slice(0, 6));
+                    setCodigo(ev.target.value.replace(/\D/g, '').slice(0, 8));
                     setErrorCodigo('');
                   }}
-                  placeholder="6 números"
+                  placeholder="Solo números"
                   aria-invalid={Boolean(errorCodigo)}
                   aria-describedby={errorCodigo ? `${idCodigo}-error` : undefined}
                   className={`h-14 w-full rounded-[var(--radius-pill)] border bg-sunken px-5 text-center font-display text-xl font-bold tracking-[0.3em] text-ink-1 tabular-nums placeholder:font-sans placeholder:text-base placeholder:font-normal placeholder:tracking-normal placeholder:text-ink-3 focus:outline-none ${
@@ -260,13 +325,33 @@ export function Acceso() {
                     {errorCodigo}
                   </p>
                 )}
-                <button type="submit" className="boton-oro mt-2 flex h-14 w-full items-center justify-center gap-2 rounded-[var(--radius-pill)] font-display text-boton font-bold">
-                  <KeyRound size={20} aria-hidden="true" />
-                  Entrar con el código
+                <button
+                  type="submit"
+                  disabled={verificando}
+                  className="boton-oro mt-2 flex h-14 w-full items-center justify-center gap-2 rounded-[var(--radius-pill)] font-display text-boton font-bold"
+                >
+                  {verificando ? (
+                    <LoaderCircle size={20} className="motion-safe:animate-spin" aria-hidden="true" />
+                  ) : (
+                    <KeyRound size={20} aria-hidden="true" />
+                  )}
+                  {verificando ? 'Revisando…' : 'Entrar con el código'}
                 </button>
               </form>
 
-              <p className="mt-4 text-caption text-ink-2">¿No te llega? Revisa Spam o Promociones; a veces tarda un minuto.</p>
+              <div className="tarjeta-relieve-base mt-6 rounded-[var(--radius-card)] p-4">
+                <p className="text-sm font-semibold text-ink-1">¿Compraste y no te llega?</p>
+                <ul className="mt-2 flex flex-col gap-1 text-caption text-ink-2">
+                  <li>· Revisa Spam y Promociones: a veces tarda un minuto.</li>
+                  <li>· Usa el MISMO correo con el que pagaste en Hotmart (está en tu comprobante).</li>
+                </ul>
+                <a
+                  href={`mailto:${RESPONSABLE.emailContacto}?subject=${encodeURIComponent(`No me llega el acceso — ${email}`)}`}
+                  className="mt-2 flex min-h-11 items-center text-sm font-semibold text-ink-1 underline underline-offset-4"
+                >
+                  Escríbenos y te damos acceso
+                </a>
+              </div>
 
               {demo && (
                 <div className="tarjeta-relieve-base mt-6 rounded-[var(--radius-card)] p-4">
@@ -288,9 +373,13 @@ export function Acceso() {
                   type="button"
                   disabled={espera > 0}
                   onClick={() => {
+                    vibrar();
+                    if (ACCESO_REAL && !demo) {
+                      void pedirEnlace(email, true);
+                      return;
+                    }
                     setEspera(ESPERA_REENVIO);
                     setReenviado(true);
-                    vibrar();
                   }}
                   className="flex min-h-11 items-center gap-2 text-sm font-semibold text-ink-1 transition-transform duration-100 active:scale-[0.97] disabled:text-ink-3"
                 >
@@ -333,6 +422,13 @@ export function Acceso() {
                 </p>
               </motion.div>
 
+              {(avisoUrl === 'enlace-vencido' || avisoUrl === 'sin-acceso') && (
+                <motion.p {...entrar(2)} role="status" className="mt-6 rounded-[var(--radius-chip)] border border-[var(--line)] bg-sunken p-3 text-caption text-ink-2">
+                  {avisoUrl === 'enlace-vencido'
+                    ? 'Ese enlace ya se usó o venció. Pide uno nuevo aquí abajo: llega en un minuto.'
+                    : 'Tu suscripción no está activa en este momento. Si ya pagaste o crees que es un error, escríbenos y lo revisamos contigo.'}
+                </motion.p>
+              )}
               <motion.form {...entrar(2)} onSubmit={enviar} noValidate className="mt-8 flex flex-col gap-2">
                 <label htmlFor={idCampo} className="text-sm font-semibold text-ink-1">
                   Tu correo

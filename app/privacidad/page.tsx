@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { PaginaLegal } from '@/components/app/PaginaLegal';
 import { RESPONSABLE } from '@/lib/legal';
 
-export const metadata: Metadata = { title: 'Política de Privacidad — EMPRESAI' };
+export const metadata: Metadata = { title: 'Política de Privacidad — EMPREZAI' };
 
 export default function Privacidad() {
   return (
@@ -13,7 +13,7 @@ export default function Privacidad() {
       <section>
         <h2>1. Quién es responsable de tus datos</h2>
         <p>
-          El responsable del tratamiento es {RESPONSABLE.nombre}, persona natural que opera EMPRESAI desde {RESPONSABLE.pais}. Tratamos tus datos conforme a la ley canadiense de protección de datos personales (PIPEDA) y respetamos las leyes de privacidad de tu país en Latinoamérica. Puedes
+          El responsable del tratamiento es {RESPONSABLE.nombre}, persona natural que opera EMPREZAI desde {RESPONSABLE.pais}. Tratamos tus datos conforme a la ley canadiense de protección de datos personales (PIPEDA) y respetamos las leyes de privacidad de tu país en Latinoamérica. Puedes
           contactarnos en {RESPONSABLE.emailContacto} para cualquier consulta o para ejercer tus derechos.
         </p>
       </section>
@@ -81,7 +81,7 @@ export default function Privacidad() {
 
       <section>
         <h2>8. Edad mínima</h2>
-        <p>EMPRESAI es solo para personas mayores de 18 años.</p>
+        <p>EMPREZAI es solo para personas mayores de 18 años.</p>
       </section>
 
       <section>

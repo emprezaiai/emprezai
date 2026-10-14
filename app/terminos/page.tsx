@@ -3,18 +3,18 @@ import Link from 'next/link';
 import { PaginaLegal } from '@/components/app/PaginaLegal';
 import { PRECIOS, RESPONSABLE } from '@/lib/legal';
 
-export const metadata: Metadata = { title: 'Términos y Condiciones — EMPRESAI' };
+export const metadata: Metadata = { title: 'Términos y Condiciones — EMPREZAI' };
 
 export default function Terminos() {
   return (
     <PaginaLegal
       titulo="Términos y Condiciones"
-      resumen="Las reglas claras del servicio: qué es EMPRESAI, qué incluye tu suscripción, qué no prometemos y cómo cancelas."
+      resumen="Las reglas claras del servicio: qué es EMPREZAI, qué incluye tu suscripción, qué no prometemos y cómo cancelas."
     >
       <section>
-        <h2>1. Qué es EMPRESAI</h2>
+        <h2>1. Qué es EMPREZAI</h2>
         <p>
-          EMPRESAI es una app que te guía con misiones diarias de unos 5 minutos para armar las piezas de tu negocio
+          EMPREZAI es una app que te guía con misiones diarias de unos 5 minutos para armar las piezas de tu negocio
           (oferta, cliente ideal, nombre, precio, textos de venta y más) con ayuda de inteligencia artificial.
         </p>
       </section>
@@ -22,7 +22,7 @@ export default function Terminos() {
       <section>
         <h2>2. Qué NO prometemos</h2>
         <p>
-          EMPRESAI te ayuda a estructurar tu negocio, pero <strong>no garantiza ventas, ingresos ni resultados
+          EMPREZAI te ayuda a estructurar tu negocio, pero <strong>no garantiza ventas, ingresos ni resultados
           económicos</strong>. Lo que logres depende de tus decisiones y de tu ejecución. Las piezas que genera la IA son
           orientación y debes revisarlas antes de usarlas (ver el <Link href="/aviso-ia" className="text-gold underline-offset-4 hover:underline">Aviso de IA</Link>).
         </p>
@@ -67,7 +67,7 @@ export default function Terminos() {
       <section>
         <h2>7. Limitación de responsabilidad</h2>
         <p>
-          EMPRESAI se ofrece como herramienta de orientación. No somos asesores legales, contables ni financieros, y no
+          EMPREZAI se ofrece como herramienta de orientación. No somos asesores legales, contables ni financieros, y no
           respondemos por decisiones tomadas a partir de los textos generados. Nuestra responsabilidad máxima se limita al
           monto que pagaste en los últimos 12 meses.
         </p>

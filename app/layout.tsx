@@ -17,7 +17,7 @@ const instrument = Instrument_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "EMPRESAI — Arma tu negocio con IA en 30 días, 5 minutos al día",
+  title: "EMPREZAI — Arma tu negocio con IA en 30 días, 5 minutos al día",
   description:
     "Sin cursos ni hoja en blanco. Cada día la IA arma una pieza de tu negocio con el Método Pieza a Pieza. Empieza con 7 días gratis.",
 };

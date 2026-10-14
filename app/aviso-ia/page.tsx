@@ -1,18 +1,18 @@
 import type { Metadata } from 'next';
 import { PaginaLegal } from '@/components/app/PaginaLegal';
 
-export const metadata: Metadata = { title: 'Aviso de IA — EMPRESAI' };
+export const metadata: Metadata = { title: 'Aviso de IA — EMPREZAI' };
 
 export default function AvisoIa() {
   return (
     <PaginaLegal
       titulo="Aviso sobre la Inteligencia Artificial"
-      resumen="La IA de EMPRESAI te ayuda a pensar y a escribir más rápido. Tú sigues decidiendo."
+      resumen="La IA de EMPREZAI te ayuda a pensar y a escribir más rápido. Tú sigues decidiendo."
     >
       <section>
         <h2>1. Es orientación, no asesoría profesional</h2>
         <p>
-          Las piezas que genera EMPRESAI (ofertas, nombres, precios, textos de venta, análisis) son{' '}
+          Las piezas que genera EMPREZAI (ofertas, nombres, precios, textos de venta, análisis) son{' '}
           <strong>orientación generada por IA</strong>. No son consejo legal, contable, fiscal ni financiero. Para
           decisiones legales o de impuestos de tu negocio, consulta a un profesional de tu país.
         </p>
@@ -29,7 +29,7 @@ export default function AvisoIa() {
       <section>
         <h2>3. Sin promesas de ingresos</h2>
         <p>
-          Ninguna pieza generada es una promesa de ventas ni de ganancias. EMPRESAI te ayuda a tener tu negocio armado;
+          Ninguna pieza generada es una promesa de ventas ni de ganancias. EMPREZAI te ayuda a tener tu negocio armado;
           los resultados dependen de ti.
         </p>
       </section>

@@ -1,17 +1,25 @@
 'use client';
 
-// Marco de la app por dentro: protege el acceso (sin cuenta → /login), carga los datos de ejemplo
-// con ?demo=carlos (capturas y demos, nunca mezclados con la cuenta real) y pone la barra inferior
-// con el BOTÓN CENTRAL del rayo (composición de la referencia de la dueña, FICHA-ARTE).
+// Marco de la app por dentro. Dos modos (los decide el layout EN SERVIDOR):
+// · "servidor": hay acceso real (sesión + suscripción validadas en servidor). Trae la cuenta del
+//   servidor y sincroniza cada pieza que se guarda.
+// · "local": versión de prueba en este computador (sin Supabase): cuenta en el celular y datos de
+//   ejemplo con ?demo=carlos, nunca mezclados con una cuenta real.
+// Pone la barra inferior con el BOTÓN CENTRAL del rayo (referencia de la dueña, FICHA-ARTE).
 
-import { createContext, useContext, useEffect, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { MotionConfig, motion } from 'motion/react';
-import { Briefcase, Check, House, Map as IconoMapa, UserRound, Zap } from 'lucide-react';
+import { Briefcase, Check, House, Map as IconoMapa, RotateCcw, UserRound, WifiOff, Zap } from 'lucide-react';
 import { activarDemo, estadoRuta, importarPieza1SiFalta, useCuenta, type Cuenta } from '@/lib/cuenta';
+import { activarSincronizacion, cargarDelServidor } from '@/lib/sincronizar';
 
 const ContextoCuenta = createContext<Cuenta | null>(null);
+const ContextoModo = createContext<'servidor' | 'local'>('local');
+
+/** Si la app corre con acceso real (servidor) o en la versión de prueba local. */
+export const useModoApp = () => useContext(ContextoModo);
 
 // Los datos de ejemplo (?demo=carlos) solo existen en la versión de prueba local: en producción
 // nadie entra a la app sin cuenta (fail-closed).
@@ -33,35 +41,62 @@ const DESTINOS = [
   { href: '/app/perfil', etiqueta: 'Perfil', icono: UserRound },
 ] as const;
 
-export function Marco({ children }: { children: ReactNode }) {
+export function Marco({ children, modo }: { children: ReactNode; modo: 'servidor' | 'local' }) {
   const cuenta = useCuenta();
   const pathname = usePathname();
   const router = useRouter();
+  const [carga, setCarga] = useState<'cargando' | 'lista' | 'error'>(modo === 'servidor' ? 'cargando' : 'lista');
+  const [intento, setIntento] = useState(0);
+
+  // Modo servidor: traer la cuenta y dejar la sincronización encendida mientras la app esté abierta.
+  useEffect(() => {
+    if (modo !== 'servidor') return;
+    const apagar = activarSincronizacion();
+    let vigente = true;
+    cargarDelServidor().then((resultado) => {
+      if (!vigente) return;
+      if (resultado === 'sin-sesion') router.replace('/login');
+      else if (resultado === 'sin-acceso') router.replace('/login?estado=sin-acceso');
+      else setCarga(resultado === 'ok' ? 'lista' : 'error');
+    });
+    return () => {
+      vigente = false;
+      apagar();
+    };
+  }, [modo, intento, router]);
 
   useEffect(() => {
-    if (pideDemo()) activarDemo();
-  }, []);
+    if (modo === 'local' && pideDemo()) activarDemo();
+  }, [modo]);
 
   useEffect(() => {
-    if (cuenta) importarPieza1SiFalta(cuenta);
-  }, [cuenta]);
+    if (cuenta && carga === 'lista') importarPieza1SiFalta(cuenta);
+  }, [cuenta, carga]);
 
   useEffect(() => {
-    if (cuenta !== null) return;
+    if (modo !== 'local' || cuenta !== null) return;
     // Sin cuenta: si viene con ?demo=carlos, la demo se carga en el efecto de arriba.
     if (pideDemo()) return;
     router.replace('/login');
-  }, [cuenta, router]);
+  }, [modo, cuenta, router]);
 
-  if (!cuenta) return pathname.startsWith('/app/ruta') ? <EsqueletoRuta /> : <EsqueletoApp />;
+  // Sin conexión al abrir: si ya hay copia en el celular se usa; si no, se ofrece reintentar.
+  if (modo === 'servidor' && carga === 'error' && !cuenta) {
+    return <SinConexion onReintentar={() => { setCarga('cargando'); setIntento((n) => n + 1); }} />;
+  }
+  if (!cuenta || (modo === 'servidor' && carga === 'cargando')) {
+    return pathname.startsWith('/app/ruta') ? <EsqueletoRuta /> : <EsqueletoApp />;
+  }
 
   return (
     <MotionConfig reducedMotion="user">
+    <ContextoModo.Provider value={modo}>
     <ContextoCuenta.Provider value={cuenta}>
       <div className="fondo-recorrido min-h-dvh overflow-x-clip">
         <ContenidoConNav>{children}</ContenidoConNav>
       </div>
     </ContextoCuenta.Provider>
+    </ContextoModo.Provider>
     </MotionConfig>
   );
 }
@@ -145,6 +180,26 @@ function ItemNav({
         <span className="relative whitespace-nowrap">{etiqueta}</span>
       </Link>
     </li>
+  );
+}
+
+function SinConexion({ onReintentar }: { onReintentar: () => void }) {
+  return (
+    <main className="fondo-recorrido flex min-h-dvh flex-col items-center justify-center px-4 text-center">
+      <span aria-hidden="true" className="relieve-piedra flex size-16 items-center justify-center rounded-full">
+        <WifiOff size={28} />
+      </span>
+      <h1 className="mt-6 font-display text-2xl font-extrabold text-ink-1">No pudimos abrir tu ruta</h1>
+      <p className="mt-2 max-w-xs text-base text-ink-2">Revisa tu conexión a internet y vuelve a intentarlo. Tus piezas están guardadas.</p>
+      <button
+        type="button"
+        onClick={onReintentar}
+        className="boton-oro mt-6 inline-flex h-14 items-center justify-center gap-2 rounded-[var(--radius-pill)] px-8 font-display text-boton font-bold"
+      >
+        <RotateCcw size={20} aria-hidden="true" />
+        Reintentar
+      </button>
+    </main>
   );
 }
 

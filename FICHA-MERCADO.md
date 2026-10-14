@@ -1,4 +1,4 @@
-# FICHA DE MERCADO — EMPRESAI
+# FICHA DE MERCADO — EMPREZAI
 
 ## Alcance de esta ficha
 - Nicho/categoría exacta: app de micro-misiones diarias con IA para emprendedores principiantes que quieren lanzar su primer negocio digital (educación práctica + IA generativa de texto)

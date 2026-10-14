@@ -1,4 +1,4 @@
-# FICHA-MODELO — el plano de la app que ya gana — EMPRESAI
+# FICHA-MODELO — el plano de la app que ya gana — EMPREZAI
 (se llena en Sesión 1, ANTES de construir; cosa juzgada como las demás fichas)
 
 - Estado: BORRADOR (modelo elegido en B1; faltan 2ª señal de revenue independiente + plano de onboarding — se completan en Sesión 1)

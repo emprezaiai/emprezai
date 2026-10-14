@@ -47,6 +47,8 @@ export interface PrimeraPieza {
   area: IdArea;
   prueba: string;
   creadaEn: string;
+  /** La escribió la IA (si no pudo, se arma con las respuestas). */
+  conIA?: boolean;
 }
 
 export interface EstadoOnboarding {
@@ -381,6 +383,9 @@ export async function armarPrimeraPieza(r: Respuestas): Promise<PrimeraPieza> {
   if (!r.cliente || !r.resultado || !r.dolor || !r.idea || !r.areaFinal) {
     throw new Error('Faltan respuestas para armar la pieza');
   }
+  // La IA escribe la frase (servidor, con límites); si no está disponible, se arma con las respuestas.
+  const conIA = await primeraPiezaConIA(r);
+  if (conIA) return conIA;
   return {
     titulo: 'Tu frase de negocio',
     frase: armarFrase(r),
@@ -389,6 +394,36 @@ export async function armarPrimeraPieza(r: Respuestas): Promise<PrimeraPieza> {
     prueba: `Lee tu frase en voz alta a 3 personas que encajen con «${r.cliente}» y anota qué te responden.`,
     creadaEn: new Date().toISOString(),
   };
+}
+
+async function primeraPiezaConIA(r: Respuestas): Promise<PrimeraPieza | null> {
+  const control = new AbortController();
+  const corte = window.setTimeout(() => control.abort(), 20_000);
+  try {
+    const res = await fetch('/api/ia/primera-pieza', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idea: r.idea, areaFinal: r.areaFinal, cliente: r.cliente, resultado: r.resultado, dolor: r.dolor }),
+      signal: control.signal,
+    });
+    if (!res.ok) return null;
+    const datos = (await res.json()) as { frase?: string; prueba?: string };
+    if (!datos.frase || !datos.prueba || !r.idea || !r.areaFinal) return null;
+    return {
+      titulo: 'Tu frase de negocio',
+      frase: datos.frase,
+      idea: r.idea,
+      area: r.areaFinal,
+      prueba: datos.prueba,
+      creadaEn: new Date().toISOString(),
+      conIA: true,
+    };
+  } catch {
+    // Sin conexión, tiempo agotado o servicio no configurado: se arma con las respuestas.
+    return null;
+  } finally {
+    window.clearTimeout(corte);
+  }
 }
 
 /** Pieza base del área (respaldo provisional: se afina en la primera sesión). */

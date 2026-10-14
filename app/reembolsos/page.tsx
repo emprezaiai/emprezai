@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { PaginaLegal } from '@/components/app/PaginaLegal';
 import { PRECIOS, RESPONSABLE } from '@/lib/legal';
 
-export const metadata: Metadata = { title: 'Política de Reembolsos — EMPRESAI' };
+export const metadata: Metadata = { title: 'Política de Reembolsos — EMPREZAI' };
 
 export default function Reembolsos() {
   return (

@@ -125,13 +125,13 @@ export function Hoy() {
       {/* Cabecera: 2 chips circulares + título centrado */}
       <header className="flex h-16 items-center justify-between px-4">
         <a
-          href={`mailto:${RESPONSABLE.emailContacto}?subject=${encodeURIComponent('Ayuda con EMPRESAI')}`}
+          href={`mailto:${RESPONSABLE.emailContacto}?subject=${encodeURIComponent('Ayuda con EMPREZAI')}`}
           aria-label="Pedir ayuda"
           className="tarjeta-relieve flex size-11 items-center justify-center rounded-full text-ink-2 transition-transform duration-150 active:scale-95"
         >
           <LifeBuoy size={20} aria-hidden="true" />
         </a>
-        <p className="font-display text-lg font-extrabold tracking-[-0.01em] text-ink-1">EMPRESAI</p>
+        <p className="font-display text-lg font-extrabold tracking-[-0.01em] text-ink-1">EMPREZAI</p>
         <Link
           href="/app/perfil#recordatorio"
           aria-label="Tu recordatorio diario"

@@ -11,7 +11,7 @@ export function PaginaLegal({ titulo, resumen, children }: { titulo: string; res
       <header className="mx-auto flex h-16 w-full max-w-3xl items-center justify-between px-5">
         <Link href="/" className="flex items-center gap-2 text-base font-semibold">
           <LogoEmpresai tamano={24} />
-          EMPRESAI
+          EMPREZAI
         </Link>
         <Link href="/" className="flex min-h-11 items-center gap-2 px-2 text-sm font-medium text-ink-3 hover:text-ink-1">
           <ArrowLeft size={16} aria-hidden="true" />

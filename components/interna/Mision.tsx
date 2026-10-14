@@ -17,7 +17,8 @@ import { ejemploPara, guiaBorrador, misionGuiada, type ContextoMision, type Piez
 import { RUTA, diaRuta, type DiaRuta } from '@/lib/ruta';
 import { limpiarTexto } from '@/lib/onboarding';
 import { BotonPrincipal, EASE_SALIDA, TituloAcento, vibrar } from '@/components/onboarding/piezas';
-import { useCuentaActiva } from './Marco';
+import { useCuentaActiva, useModoApp } from './Marco';
+import { olvidarOpciones, pedirArmado, pedirOpciones, type OpcionIA } from '@/lib/ia-cliente';
 
 const LARGO_MAX = 80;
 const LARGO_MAX_BORRADOR = 600;
@@ -174,6 +175,20 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
   const [borradorGuardado, setBorradorGuardado] = useState(false);
   const [verRepaso, setVerRepaso] = useState(false);
   const ejemplo = guia ? ejemploPara(guia, cuenta.area) : undefined;
+  const modo = useModoApp();
+  const [opcionesIA, setOpcionesIA] = useState<OpcionIA[] | 'cargando' | null>(modo === 'servidor' ? 'cargando' : null);
+  const [textoIA, setTextoIA] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (modo !== 'servidor') return;
+    let vigente = true;
+    pedirOpciones(dia.dia).then((o) => {
+      if (vigente) setOpcionesIA(o);
+    });
+    return () => {
+      vigente = false;
+    };
+  }, [modo, dia.dia]);
   const entrarBloque = (i: number) => ({
     initial: { opacity: 0, y: reduce ? 0 : 10 },
     animate: { opacity: 1, y: 0 },
@@ -216,7 +231,9 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
       return;
     }
     const contenido = texto.replace(/\s+/g, ' ').trim();
-    const ok = guardarPieza(cuenta, { dia: dia.dia, titulo: dia.pieza, contenido, resumen: resumenCorto(contenido), base: true });
+    // Sigue siendo "de la IA" si partió de una opción suya (aunque la haya ajustado).
+    const deIA = textoIA !== null && texto.includes(textoIA.slice(0, 24));
+    const ok = guardarPieza(cuenta, { dia: dia.dia, titulo: dia.pieza, contenido, resumen: resumenCorto(contenido), base: !deIA, conIA: deIA });
     if (!ok) {
       setErrorGuardado(true);
       return;
@@ -226,8 +243,21 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
     } catch {
       // Nada que limpiar.
     }
+    olvidarOpciones(dia.dia);
     vibrar(40);
     onGuardada(dia.dia);
+  }
+
+  function usarOpcion(o: OpcionIA) {
+    if (conTexto) {
+      setAvisoPlantilla(true);
+      return;
+    }
+    setAnterior(texto);
+    setOrigen('ejemplo');
+    setTexto(o.texto);
+    setTextoIA(o.texto);
+    vibrar();
   }
 
   return (
@@ -344,7 +374,43 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
         <p className="mt-1 text-caption text-ink-3">Es tu primera versión: la mejoras cuando quieras en Mi Empresa.</p>
       </motion.div>
 
-      {ejemplo && (
+      {opcionesIA === 'cargando' && (
+        <motion.section {...entrarBloque(2)} aria-busy="true" aria-live="polite" className="hairline-oro relieve-tarjeta mt-4 rounded-[var(--radius-card)] p-4">
+          <p className="flex items-center gap-2 text-sm font-semibold text-ink-1">
+            <Sparkles size={16} className="shrink-0 text-gold" aria-hidden="true" />
+            Preparando 3 opciones con lo que ya armaste…
+          </p>
+          <div className="mt-3 flex flex-col gap-2" aria-hidden="true">
+            {[0, 1, 2].map((i) => (
+              <span key={i} className="h-12 rounded-[var(--radius-chip)] bg-[color-mix(in_oklab,var(--ink-1)_8%,transparent)] motion-safe:animate-pulse" />
+            ))}
+          </div>
+        </motion.section>
+      )}
+      {Array.isArray(opcionesIA) && (
+        <motion.section {...entrarBloque(2)} className="hairline-oro relieve-tarjeta mt-4 rounded-[var(--radius-card)] p-4" aria-labelledby="titulo-opciones">
+          <h2 id="titulo-opciones" className="flex items-center gap-2 text-sm font-semibold text-ink-1">
+            <Sparkles size={16} className="shrink-0 text-gold" aria-hidden="true" />
+            La IA preparó 3 opciones con lo que ya armaste
+          </h2>
+          <p className="mt-1 text-caption text-ink-2">Toca una para usarla como punto de partida y ajústala con tus palabras.</p>
+          <ul className="mt-3 flex flex-col gap-2">
+            {opcionesIA.map((o, i) => (
+              <li key={i}>
+                <button
+                  type="button"
+                  onClick={() => usarOpcion(o)}
+                  className="opcion-recorrido flex w-full flex-col gap-1 px-4 py-3 text-left transition-transform duration-150 active:scale-[0.99]"
+                >
+                  <span className="text-ayuda leading-snug text-ink-1">{o.texto}</span>
+                  <span className="text-caption text-ink-3">{o.porque}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </motion.section>
+      )}
+      {ejemplo && !Array.isArray(opcionesIA) && opcionesIA !== 'cargando' && (
         <motion.section {...entrarBloque(2)} className="tarjeta-relieve-base mt-4 rounded-[var(--radius-card)] p-4" aria-labelledby="titulo-ejemplo">
           <h2 id="titulo-ejemplo" className="flex items-center gap-2 text-sm font-semibold text-ink-2">
             <BookOpen size={16} className="shrink-0 text-ink-3" aria-hidden="true" />
@@ -505,6 +571,8 @@ function MisionGuiadaFlujo({ onGuardada }: { onGuardada: (dia: number) => void }
   const [errorGuardado, setErrorGuardado] = useState(false);
   const [fase, setFase] = useState<'preguntas' | 'armando' | 'resultado'>('preguntas');
   const [pieza, setPieza] = useState<PiezaCompuesta | null>(null);
+  const [piezaConIA, setPiezaConIA] = useState(false);
+  const modoApp = useModoApp();
   const temporizador = useRef<number | undefined>(undefined);
 
   useEffect(() => () => window.clearTimeout(temporizador.current), []);
@@ -522,13 +590,29 @@ function MisionGuiadaFlujo({ onGuardada }: { onGuardada: (dia: number) => void }
 
   function armar(respuestas: Record<string, string[]>) {
     setFase('armando');
-    temporizador.current = window.setTimeout(
-      () => {
-        setPieza(mision.componer(respuestas, ctx));
-        setFase('resultado');
-      },
-      reduce ? 400 : 1600,
-    );
+    const respaldo = mision.componer(respuestas, ctx);
+    const espera = new Promise((listo) => {
+      temporizador.current = window.setTimeout(listo, reduce ? 400 : 1600);
+    });
+    const ia =
+      modoApp === 'servidor'
+        ? pedirArmado(
+            dia.dia,
+            mision.preguntas
+              .filter((q) => respuestas[q.id]?.length)
+              .map((q) => ({ pregunta: q.pregunta, respuesta: respuestas[q.id].join(', ') })),
+          )
+        : Promise.resolve(null);
+    void Promise.all([ia, espera]).then(([deIA]) => {
+      if (deIA) {
+        setPieza({ contenido: deIA.contenido, resumen: deIA.resumen, detalle: [{ rotulo: 'Úsalo así', valor: deIA.uso }] });
+        setPiezaConIA(true);
+      } else {
+        setPieza(respaldo);
+        setPiezaConIA(false);
+      }
+      setFase('resultado');
+    });
   }
 
   function confirmar(valores: string[]) {
@@ -574,7 +658,15 @@ function MisionGuiadaFlujo({ onGuardada }: { onGuardada: (dia: number) => void }
 
   function guardar() {
     if (!pieza) return;
-    const ok = guardarPieza(cuenta, { dia: dia.dia, titulo: dia.pieza, contenido: pieza.contenido, resumen: pieza.resumen, detalle: pieza.detalle, base: true });
+    const ok = guardarPieza(cuenta, {
+      dia: dia.dia,
+      titulo: dia.pieza,
+      contenido: pieza.contenido,
+      resumen: pieza.resumen,
+      detalle: pieza.detalle,
+      base: !piezaConIA,
+      conIA: piezaConIA,
+    });
     if (!ok) {
       setErrorGuardado(true);
       return;

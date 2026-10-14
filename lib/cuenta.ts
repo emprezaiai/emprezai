@@ -1,9 +1,9 @@
 'use client';
 
 // La cuenta del usuario y su progreso en la ruta.
-// HOY (antes de la Sesión 6) vive en localStorage del celular; en la Sesión 6 pasa a Supabase
-// (tablas profiles / pieces / user_progress de ESTADO.md) con la sesión real del enlace de acceso.
-// Las reglas de la ruta (una misión por día, racha, día actual) viven aquí y se reusan en servidor.
+// Vive en el celular (localStorage) para que la app funcione al instante y sin conexión; con el
+// acceso real (Supabase) el servidor es la fuente de verdad: lib/sincronizar.ts la trae al entrar y
+// sube cada pieza que se guarda (los oyentes de abajo). Las reglas de la ruta viven aquí.
 
 import { useMemo, useSyncExternalStore } from 'react';
 import { leerEstado as leerOnboarding, type IdArea, type IdMomento, type Plan, type Respuestas } from './onboarding';
@@ -26,6 +26,8 @@ export interface PiezaGuardada {
   creadaEn: string;
   /** Versión base (sin IA o de respaldo): se puede rehacer. */
   base?: boolean;
+  /** La armó la IA (con sus respuestas y sus piezas anteriores). */
+  conIA?: boolean;
   /** La persona la ajustó con sus palabras desde Mi Empresa. */
   editadaEn?: string;
   /** Texto y resumen de la versión base, guardados la primera vez que se edita (para volver a ella). */
@@ -62,6 +64,14 @@ function sumarDias(fecha: string, dias: number): string {
   const [a, m, d] = fecha.split('-').map(Number);
   return fechaLocal(new Date(a, m - 1, d + dias));
 }
+
+/* ── Oyentes (el sincronizador con el servidor se registra aquí; sin acceso real no hay ninguno) ── */
+
+let alCambiarPieza: ((dia: number) => void) | null = null;
+export function escucharPiezas(fn: ((dia: number) => void) | null): void {
+  alCambiarPieza = fn;
+}
+const avisarPieza = (dia: number) => alCambiarPieza?.(dia);
 
 /* ── Lectura / escritura ── */
 
@@ -117,6 +127,11 @@ export function borrarMisDatos(): void {
     // Nada que limpiar.
   }
   cerrarSesion();
+}
+
+/** La cuenta guardada ahora mismo (fuera de React). */
+export function leerCuentaActual(): Cuenta | null {
+  return parsear(leerCrudo());
 }
 
 function parsear(crudo: string | null): Cuenta | null {
@@ -228,7 +243,9 @@ export function guardarPieza(cuenta: Cuenta, pieza: Omit<PiezaGuardada, 'fecha' 
   const nueva: PiezaGuardada = { ...pieza, fecha: fechaLocal(ahora), creadaEn: ahora.toISOString() };
   const piezas = [...cuenta.piezas.filter((p) => p.dia !== pieza.dia), nueva].sort((a, b) => a.dia - b.dia);
   const actualizada = { ...cuenta, piezas };
-  return guardarCuenta(actualizada) ? actualizada : null;
+  if (!guardarCuenta(actualizada)) return null;
+  avisarPieza(pieza.dia);
+  return actualizada;
 }
 
 /** Cambia el texto de una pieza ya guardada. Conserva su fecha (la racha no se mueve).
@@ -253,7 +270,9 @@ export function editarPieza(cuenta: Cuenta, dia: number, contenido: string): Cue
       : p,
   );
   const actualizada = { ...cuenta, piezas };
-  return guardarCuenta(actualizada) ? actualizada : null;
+  if (!guardarCuenta(actualizada)) return null;
+  avisarPieza(dia);
+  return actualizada;
 }
 
 /** Vuelve a la versión base de una pieza editada. Devuelve null si no se pudo guardar. */
@@ -265,7 +284,9 @@ export function restaurarPieza(cuenta: Cuenta, dia: number): Cuenta | null {
     return { ...resto, contenido: original.contenido, resumen: original.resumen, base: true, tuVersion: p.contenido };
   });
   const actualizada = { ...cuenta, piezas };
-  return guardarCuenta(actualizada) ? actualizada : null;
+  if (!guardarCuenta(actualizada)) return null;
+  avisarPieza(dia);
+  return actualizada;
 }
 
 /* ── Datos de EJEMPLO (Carlos, día 8) para capturas y demos: nunca se mezclan con la cuenta real ── */
@@ -318,7 +339,7 @@ export function importarPieza1SiFalta(cuenta: Cuenta): boolean {
   const p = o?.primeraPieza;
   if (!p) return true;
   const r = o?.respuestas ?? {};
-  return guardarCuenta({
+  const ok = guardarCuenta({
     ...cuenta,
     piezas: [
       {
@@ -329,9 +350,12 @@ export function importarPieza1SiFalta(cuenta: Cuenta): boolean {
         detalle: [{ rotulo: 'Tu prueba de hoy', valor: p.prueba }],
         fecha: fechaLocal(new Date(p.creadaEn)),
         creadaEn: p.creadaEn,
-        base: true,
+        base: !p.conIA,
+        conIA: Boolean(p.conIA),
       },
       ...cuenta.piezas,
     ],
   });
+  if (ok) avisarPieza(1);
+  return ok;
 }

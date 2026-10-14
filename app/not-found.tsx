@@ -16,7 +16,7 @@ export default function NoEncontrada() {
       <LogoEmpresai tamano={32} />
       <h1 className="mt-8 font-display text-3xl font-extrabold leading-tight">Esta página todavía no existe</h1>
       <p className="mt-3 max-w-sm text-base leading-relaxed text-ink-2">
-        Puede que el enlace esté mal escrito o que esta parte de EMPRESAI aún se esté construyendo.
+        Puede que el enlace esté mal escrito o que esta parte de EMPREZAI aún se esté construyendo.
       </p>
       <Link
         href="/"

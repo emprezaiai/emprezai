@@ -1,6 +1,6 @@
 'use client';
 
-// Página de ventas de EMPRESAI — estructura canónica de 10 secciones (19) compuesta desde el kit
+// Página de ventas de EMPREZAI — estructura canónica de 10 secciones (19) compuesta desde el kit
 // (components/landing). Todo el copy sale de docs/copy/landing.md (marcado y trazado a FICHA-AVATAR.md).
 // Modelo 2 anónimo (ESTADO.md): todos los CTA llevan a /onboarding; el pago se cierra en la pantalla de planes.
 
@@ -61,7 +61,7 @@ export default function PaginaDeVentas() {
     <div className="min-h-dvh bg-[var(--bg)] text-[var(--text-primary)] [font-family:var(--font-body)]">
       <Hero
         loginHref="/login"
-        appName="EMPRESAI"
+        appName="EMPREZAI"
         logo={<LogoEmpresai />}
         gancho={
           <span className="inline-flex items-center gap-2 rounded-[var(--radius-chip)] bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] py-1.5 pr-3 pl-1.5 text-[13px] font-semibold text-ink-1">
@@ -198,7 +198,7 @@ export default function PaginaDeVentas() {
           {
             icon: Wallet,
             pregunta: '¿Tengo que pagar ChatGPT Plus u otra herramienta?',
-            respuestaMarked: 'No. La IA ya viene incluida en EMPRESAI: [b]no pagas nada extra[/b].',
+            respuestaMarked: 'No. La IA ya viene incluida en EMPREZAI: [b]no pagas nada extra[/b].',
           },
           {
             icon: BookX,
@@ -235,11 +235,11 @@ export default function PaginaDeVentas() {
         ctaLabel={CTA_LABEL}
         ctaHref={CTA_HREF}
         recap="7 días gratis · Garantía Sin Preguntas"
-        psMarked="PS: EMPRESAI convierte tu idea en un negocio listo en 30 días con el Método Pieza a Pieza. Entras con 7 días gratis y la Garantía Sin Preguntas."
+        psMarked="PS: EMPREZAI convierte tu idea en un negocio listo en 30 días con el Método Pieza a Pieza. Entras con 7 días gratis y la Garantía Sin Preguntas."
       />
 
       <FooterLegal
-        appName="EMPRESAI"
+        appName="EMPREZAI"
         logo={<LogoEmpresai tamano={24} />}
         soporteEmail={RESPONSABLE.emailContacto}
         enlaces={[
