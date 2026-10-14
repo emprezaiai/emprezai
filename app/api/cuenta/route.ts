@@ -11,7 +11,7 @@ export async function GET() {
   if (!acceso.ok) return acceso.res;
   try {
     const [perfil, piezas] = await Promise.all([
-      acceso.db.from('profiles').select('email, plan, status, trial_ends_at, idea, area, momento, respuestas, created_at').eq('user_id', acceso.user.id).single(),
+      acceso.db.from('profiles').select('email, name, plan, status, trial_ends_at, idea, area, momento, respuestas, created_at').eq('user_id', acceso.user.id).single(),
       acceso.db
         .from('piezas')
         .select('dia, titulo, contenido, resumen, detalle, fecha, creada_en, base, con_ia, editada_en, original, tu_version')

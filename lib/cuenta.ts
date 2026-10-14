@@ -39,6 +39,8 @@ export interface PiezaGuardada {
 export interface Cuenta {
   v: 1;
   email: string;
+  /** Nombre con el que compró (Hotmart); se usa solo el primero para saludar. */
+  nombre?: string;
   creadaEn: string;
   plan?: Plan;
   area?: IdArea;
@@ -314,6 +316,7 @@ export function activarDemo(): void {
   const demo: Cuenta = {
     v: 1,
     email: 'carlos@ejemplo.com',
+    nombre: 'Carlos Ruiz',
     creadaEn: `${piezas[0].fecha}T19:00:00`,
     plan: 'anual',
     area: 'cursos',

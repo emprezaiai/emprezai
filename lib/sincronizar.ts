@@ -26,6 +26,7 @@ interface PiezaServidor {
 
 interface PerfilServidor {
   email: string;
+  name: string | null;
   plan: 'mensual' | 'anual' | null;
   idea: string | null;
   area: Cuenta['area'] | null;
@@ -158,6 +159,7 @@ export async function cargarDelServidor(): Promise<ResultadoCarga> {
   const cuenta: Cuenta = {
     v: 1,
     email: perfil.email,
+    nombre: perfil.name ?? undefined,
     creadaEn: perfil.created_at,
     plan: perfil.plan ?? onboarding?.plan,
     area: perfil.area ?? r.areaFinal,

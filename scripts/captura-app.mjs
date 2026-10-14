@@ -172,6 +172,11 @@ await capturar('21-mision-demo-dia8-borrador');
 await pagina.getByRole('button', { name: /Usar plantilla/ }).click();
 await espera(400);
 await capturar('22-mision-demo-dia8-plantilla');
+// Celebración con nombre (Carlos): guardar la pieza del día 8
+await pagina.locator('textarea').first().fill('Nombre: Excel Fácil. Lo elegí porque dice lo que logras en pocas palabras.');
+await pagina.getByRole('button', { name: /Guardar en Mi Empresa/ }).click();
+await espera(2600);
+await capturar('22c-mision-demo-celebracion');
 
 // ── Camino D: el estado REAL antes de conectar el correo (fuera del computador de desarrollo) ──
 // [::1] no está en la lista de "local" de la demo: se ve lo que vería un comprador hoy.

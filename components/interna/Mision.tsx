@@ -10,7 +10,7 @@
 import { Fragment, useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, animate, motion, useAnimate, useReducedMotion } from 'motion/react';
-import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, Clock, Flame, Lightbulb, PencilLine, RotateCcw, Sparkles, WandSparkles, Zap } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, Brain, Check, ChevronDown, Clock, Lightbulb, PencilLine, RotateCcw, Sparkles, Target, TrendingUp, WandSparkles, Zap } from 'lucide-react';
 import { claveBorradorGuiado, claveBorradorTexto } from '@/lib/borradores';
 import { estadoRuta, guardarPieza, type Cuenta, type PiezaGuardada } from '@/lib/cuenta';
 import { ejemploPara, guiaBorrador, misionGuiada, type ContextoMision, type PiezaCompuesta } from '@/lib/misiones';
@@ -18,11 +18,11 @@ import { RUTA, diaRuta, type DiaRuta } from '@/lib/ruta';
 import { limpiarTexto } from '@/lib/onboarding';
 import { BotonPrincipal, EASE_SALIDA, TituloAcento, vibrar } from '@/components/onboarding/piezas';
 import { useCuentaActiva, useModoApp } from './Marco';
+import { ModalCelebracion } from './ModalCelebracion';
 import { olvidarOpciones, pedirArmado, pedirOpciones, type OpcionIA } from '@/lib/ia-cliente';
 
 const LARGO_MAX = 80;
 const LARGO_MAX_BORRADOR = 600;
-const CHISPAS = [0, 60, 120, 180, 240, 300];
 
 const resumenCorto = (t: string) => {
   const limpio = t.replace(/\s+/g, ' ').trim();
@@ -38,7 +38,7 @@ export function Mision() {
   // Al guardar, la cuenta ya dice "hecha hoy": la celebración se sostiene con este estado local.
   const [celebrar, setCelebrar] = useState<number | null>(null);
 
-  if (celebrar) return <Celebracion dia={celebrar} />;
+  if (celebrar) return <Celebracion dia={celebrar} onCerrar={() => setCelebrar(null)} />;
   if (e.terminada) return <Aviso titulo="¡Terminaste tu ruta de 30 días!" texto="Tu negocio completo está en Mi Empresa, listo para vender." href="/app/empresa" cta="Ver mi negocio" />;
   if (e.hechaHoy)
     return (
@@ -979,132 +979,42 @@ function Tramos({ total, paso }: { total: number; paso: number }) {
   );
 }
 
-/* ── Celebración: la pieza es la protagonista; una copia vuela hasta "Ver en Mi Empresa" y al llegar
-   se enciende el tick verde (firma de FICHA-ARTE). Al cerrar semana, confeti (solo ahí). ── */
-const CONFETI = Array.from({ length: 18 }, (_, i) => i);
+/* ── Celebración del día: ventana modal reusable sobre el aviso "Hoy ya armaste tu pieza" ── */
+const primerNombre = (n?: string) => {
+  const p = n?.trim().split(/\s+/)[0];
+  return p ? p.charAt(0).toUpperCase() + p.slice(1).toLowerCase() : '';
+};
 
-function Celebracion({ dia }: { dia: number }) {
+function Celebracion({ dia, onCerrar }: { dia: number; onCerrar: () => void }) {
   const cuenta: Cuenta = useCuentaActiva();
-  const reduce = useReducedMotion();
   const e = estadoRuta(cuenta);
   const d = diaRuta(dia);
-  const pieza = cuenta.piezas.find((p) => p.dia === dia);
   const siguiente = dia < RUTA.length ? diaRuta(dia + 1) : undefined;
-  const refTarjeta = useRef<HTMLElement>(null);
-  const refBoton = useRef<HTMLAnchorElement>(null);
-  const [vuelo, setVuelo] = useState<number | null>(null);
-  const [enEmpresa, setEnEmpresa] = useState(Boolean(reduce));
-
-  useEffect(() => {
-    if (reduce) return;
-    const t = window.setTimeout(() => {
-      const a = refTarjeta.current?.getBoundingClientRect();
-      const b = refBoton.current?.getBoundingClientRect();
-      if (a && b) setVuelo(b.top + b.height / 2 - (a.top + 28));
-      else setEnEmpresa(true);
-    }, 900);
-    return () => window.clearTimeout(t);
-  }, [reduce]);
-
+  const nombre = primerNombre(cuenta.nombre);
   return (
-    <main className="flex min-h-dvh flex-1 flex-col">
-      <div className="flex flex-1 flex-col items-center justify-center px-4 py-8 text-center" aria-live="polite">
-        <p className="text-xs font-bold tracking-[0.08em] text-green uppercase">{d.cierre ? `¡Semana ${d.semana} completa!` : `Día ${dia} listo`}</p>
-        <h1 className="mt-1 font-display text-pregunta font-extrabold text-ink-1">¡Pieza {dia} guardada!</h1>
-
-        <div className="relative mt-6 w-full">
-          {!reduce &&
-            (d.cierre ? CONFETI : CHISPAS).map((g, i) => {
-              const ang = d.cierre ? (i / CONFETI.length) * 360 : g;
-              return (
-                <motion.span
-                  key={`${g}-${i}`}
-                  aria-hidden="true"
-                  className={`absolute top-1/2 left-1/2 rounded-full ${d.cierre && i % 2 ? 'size-1.5 bg-green' : 'size-2 bg-gold'}`}
-                  initial={{ x: 0, y: 0, opacity: 0 }}
-                  animate={{
-                    x: Math.cos((ang * Math.PI) / 180) * (d.cierre ? 170 : 150),
-                    y: Math.sin((ang * Math.PI) / 180) * (d.cierre ? 120 : 70) + (d.cierre ? 40 : 0),
-                    opacity: [0, 1, 0],
-                  }}
-                  transition={{ duration: d.cierre ? 1.2 : 0.8, delay: 0.25, ease: EASE_SALIDA }}
-                />
-              );
-            })}
-          <motion.article
-            ref={refTarjeta}
-            initial={{ opacity: 0, scale: reduce ? 1 : 0.85, y: reduce ? 0 : 12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ type: 'spring', bounce: 0.25, duration: 0.6 }}
-            className="hairline-oro relieve-tarjeta relative rounded-[var(--radius-card)] p-4 text-left"
-          >
-            <p className="flex items-center justify-between gap-2 text-xs font-bold tracking-[0.08em] uppercase">
-              <span className="text-gold">{d.corto}</span>
-              {enEmpresa && (
-                <motion.span
-                  initial={{ scale: reduce ? 1 : 0 }}
-                  animate={{ scale: 1 }}
-                  transition={reduce ? { duration: 0 } : { type: 'spring', bounce: 0.25, duration: 0.5 }}
-                  className="flex shrink-0 items-center gap-1 text-green"
-                >
-                  <Check size={14} strokeWidth={3} aria-hidden="true" />
-                  En Mi Empresa
-                </motion.span>
-              )}
-            </p>
-            <p className="mt-2 line-clamp-3 text-base leading-snug font-semibold text-ink-1">{pieza?.resumen ?? pieza?.contenido}</p>
-          </motion.article>
-          {vuelo !== null && !enEmpresa && (
-            <motion.span
-              aria-hidden="true"
-              className="pointer-events-none absolute top-4 left-1/2 z-20 flex h-7 -translate-x-1/2 items-center gap-1 rounded-full bg-gold px-3 text-xs font-bold text-on-gold shadow-[0_2px_0_var(--gold-deep)]"
-              initial={{ opacity: 0, y: 0, scale: 1 }}
-              animate={{ opacity: [0, 1, 1, 0], y: [0, 0, vuelo, vuelo], scale: [1, 1, 0.7, 0.5] }}
-              transition={{ duration: 0.9, times: [0, 0.15, 0.85, 1], ease: EASE_SALIDA }}
-              onAnimationComplete={() => {
-                setEnEmpresa(true);
-                vibrar(20);
-              }}
-            >
-              <Sparkles size={12} />
-              Pieza {dia}
-            </motion.span>
-          )}
-        </div>
-
-        <p className="mt-6 flex flex-wrap items-center justify-center gap-x-2 text-ayuda text-ink-2">
-          <Flame size={18} className="text-gold" fill="currentColor" aria-hidden="true" />
-          <span>
-            Racha de{' '}
-            <strong className="font-display text-lg text-ink-1">
-              <Cuenta valor={e.racha} />
-            </strong>{' '}
-            {e.racha === 1 ? 'día' : 'días'}
-          </span>
-          <span aria-hidden="true" className="size-1 self-center rounded-full bg-ink-3" />
-          <span>
-            <strong className="font-display text-lg text-ink-1">
-              <Cuenta valor={e.piezasListas} />
-            </strong>{' '}
-            de {RUTA.length} piezas
-          </span>
-        </p>
-        <SemanaEnNodos dia={dia} siguiente={siguiente} />
-        <div className="mt-6 w-full">
-        <Link
-          ref={refBoton}
-          href={`/app/empresa?pieza=${dia}`}
-          className="boton-oro flex h-14 items-center justify-center gap-2 rounded-[var(--radius-pill)] font-display text-boton font-bold"
-        >
-          Ver en Mi Empresa
-          <ArrowRight size={20} aria-hidden="true" />
-        </Link>
-        <Link href="/app" className="mt-1 flex min-h-11 items-center justify-center text-sm font-semibold text-ink-2">
-          Volver a Hoy
-        </Link>
-        </div>
-      </div>
-    </main>
+    <>
+      <Aviso
+        titulo="Hoy ya armaste tu pieza"
+        texto={siguiente ? `Mañana se abre el día ${siguiente.dia}: ${siguiente.pieza.toLowerCase()}. Un día a la vez es lo que hace que funcione.` : 'Tu negocio completo está en Mi Empresa, listo para vender.'}
+        href="/app/empresa"
+        cta="Ver en Mi Empresa"
+      />
+      <ModalCelebracion
+        abierto
+        hito={Boolean(d.cierre)}
+        titulo={nombre ? `¡Excelente, ${nombre}!` : '¡Excelente!'}
+        subtitulo="Completaste tu misión de hoy. Tu esfuerzo te acerca a tus metas."
+        recompensa={{ icono: Zap, texto: `Racha actualizada: ${e.racha} ${e.racha === 1 ? 'día' : 'días'}` }}
+        insignias={[
+          { icono: Brain, texto: 'Más enfoque' },
+          { icono: Target, texto: 'Más claridad' },
+          { icono: TrendingUp, texto: 'Más resultados' },
+        ]}
+        accion={{ texto: '¡Vamos por más!', href: `/app/empresa?pieza=${dia}` }}
+        secundaria={{ texto: 'Ver mi ruta', href: '/app/ruta' }}
+        onCerrar={onCerrar}
+      />
+    </>
   );
 }
 
