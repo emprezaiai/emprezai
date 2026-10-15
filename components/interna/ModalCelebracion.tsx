@@ -6,16 +6,18 @@
 // Escape cierra, el foco no se escapa, y respeta "reducir movimiento".
 
 import { useEffect, useRef, type ComponentType, type ReactNode } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { AnimatePresence, animate, motion, useReducedMotion } from 'motion/react';
 import { ArrowRight, Check, X } from 'lucide-react';
 import { EASE_SALIDA, vibrar } from '@/components/onboarding/piezas';
+import { Marca } from '@/components/app/Marca';
 
 type Icono = ComponentType<{ size?: number; strokeWidth?: number; className?: string; 'aria-hidden'?: boolean | 'true' }>;
 
 export interface PropsCelebracion {
   abierto: boolean;
-  titulo: string;
+  titulo: ReactNode;
   subtitulo: string;
   /** El dato real que se gana hoy: el número cuenta y va en grande ("8" + "días de racha"). */
   recompensa: { icono: Icono; valor: number; texto: string };
@@ -133,41 +135,45 @@ export function ModalCelebracion({ abierto, titulo, subtitulo, recompensa, sigui
               <X size={20} aria-hidden="true" />
             </button>
 
-            {/* Insignia central: el check en relieve verde, con anillo que respira y confeti alrededor */}
-            <div className="relative mx-auto mt-4 flex size-24 items-center justify-center">
+            <div className="flex justify-center">
+              <Marca tamano="sm" />
+            </div>
+
+            {/* El personaje de la marca celebra: entra con un salto, el check de "hecho" a su lado y confeti */}
+            <div className="relative mx-auto mt-2 h-[176px] w-[140px]">
               {!reduce &&
                 Array.from({ length: hito ? PIEZAS_CONFETI : 12 }, (_, i) => {
                   const total = hito ? PIEZAS_CONFETI : 12;
                   const angulo = (i / total) * Math.PI * 2;
-                  const distancia = hito ? 150 : 110;
+                  const distancia = hito ? 150 : 115;
                   return (
                     <motion.span
                       key={i}
                       aria-hidden="true"
-                      className={`absolute rounded-full ${i % 3 === 0 ? 'size-2 bg-green' : i % 3 === 1 ? 'size-2 bg-gold' : 'size-1.5 bg-gold-light'}`}
+                      className={`absolute top-1/2 left-1/2 rounded-full ${i % 3 === 0 ? 'size-2 bg-green' : i % 3 === 1 ? 'size-2 bg-gold' : 'size-1.5 bg-gold-light'}`}
                       initial={{ x: 0, y: 0, opacity: 0, scale: 0.6 }}
-                      animate={{ x: Math.cos(angulo) * distancia, y: Math.sin(angulo) * distancia * 0.75 + 20, opacity: [0, 1, 0], scale: 1 }}
-                      transition={{ duration: hito ? 1.3 : 0.9, delay: 0.3 + (i % 4) * 0.03, ease: EASE_SALIDA }}
+                      animate={{ x: Math.cos(angulo) * distancia, y: Math.sin(angulo) * distancia * 0.7, opacity: [0, 1, 0], scale: 1 }}
+                      transition={{ duration: hito ? 1.3 : 0.9, delay: 0.35 + (i % 4) * 0.03, ease: EASE_SALIDA }}
                     />
                   );
                 })}
-              {!reduce && (
-                <motion.span
-                  aria-hidden="true"
-                  className="absolute inset-0 rounded-full bg-[color-mix(in_oklab,var(--green)_30%,transparent)]"
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: [0.8, 1.25], opacity: [0.7, 0] }}
-                  transition={{ duration: 1.4, delay: 0.35, repeat: 1, ease: 'easeOut' }}
-                />
-              )}
+              <motion.div
+                aria-hidden="true"
+                className="absolute inset-0"
+                initial={{ opacity: 0, y: reduce ? 0 : 28, scale: reduce ? 1 : 0.9 }}
+                animate={reduce ? { opacity: 1, y: 0, scale: 1 } : { opacity: 1, y: [28, -6, 0], scale: 1 }}
+                transition={reduce ? { duration: 0.2 } : { duration: 0.6, delay: 0.1, ease: EASE_SALIDA }}
+              >
+                <Image src="/marca/personaje.png" alt="" width={140} height={176} className="size-full object-contain" priority />
+              </motion.div>
               <motion.span
                 aria-hidden="true"
-                className="relieve-verde relative flex size-20 items-center justify-center rounded-full"
-                initial={{ scale: reduce ? 1 : 0.4, rotate: reduce ? 0 : -12 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={reduce ? { duration: 0 } : { type: 'spring', bounce: 0.25, duration: 0.6, delay: 0.1 }}
+                className="relieve-verde absolute right-0 bottom-3 flex size-10 items-center justify-center rounded-full"
+                initial={{ scale: reduce ? 1 : 0 }}
+                animate={{ scale: 1 }}
+                transition={reduce ? { duration: 0 } : { type: 'spring', bounce: 0.25, duration: 0.5, delay: 0.55 }}
               >
-                <Check size={40} strokeWidth={3.2} />
+                <Check size={20} strokeWidth={3.2} />
               </motion.span>
             </div>
 
@@ -176,7 +182,7 @@ export function ModalCelebracion({ abierto, titulo, subtitulo, recompensa, sigui
               initial={{ opacity: 0, y: reduce ? 0 : 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: reduce ? 0 : 0.35, ease: EASE_SALIDA }}
-              className="mt-6 font-display text-pregunta font-extrabold text-balance text-ink-1"
+              className="mt-4 font-display text-pregunta font-extrabold text-balance text-ink-1"
             >
               {titulo}
             </motion.h2>

@@ -3,7 +3,7 @@
 //   conservando el halo (se "desmezcla" del negro).
 // · ícono 3D de app → app/icon.png (favicon) y app/apple-icon.png (pantalla de inicio del celular),
 //   recortado al cuadro redondeado (el original trae un damero pintado alrededor).
-// Uso: node scripts/preparar-marca.mjs <ruta-icono-3d.png> <ruta-logo-horizontal.png>
+// Uso: node scripts/preparar-marca.mjs <icono-3d.png> <logo-horizontal.png> [personaje.png]
 
 import sharp from 'sharp';
 import { mkdirSync } from 'node:fs';
@@ -48,5 +48,30 @@ mkdirSync('public/marca', { recursive: true });
     .composite([{ input: await sharp(redondeado).resize(180, 180).png().toBuffer() }])
     .png()
     .toFile('app/apple-icon.png');
+}
+// 3) Personaje (opcional, 3er argumento): recorte del guepardo con un desvanecido radial en los
+//    bordes, para que su fondo oscuro se funda con la tarjeta (el original no trae transparencia).
+const personaje = process.argv[4];
+if (personaje) {
+  const W = 262;
+  const H = 330;
+  const { data, info } = await sharp(personaje).extract({ left: 0, top: 52, width: W, height: H }).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  // alpha = máx(desvanecido radial, brillo): el fondo oscuro se va hacia los bordes, pero el pelaje,
+  // el brillo y las estelas (claros) se conservan aunque toquen el borde.
+  const suave = (x, a, b) => Math.min(1, Math.max(0, (x - a) / (b - a)));
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const i = (y * W + x) * 4;
+      const dx = (x - W * 0.52) / (W * 0.5);
+      const dy = (y - H * 0.5) / (H * 0.5);
+      const radial = 1 - suave(Math.sqrt(dx * dx + dy * dy), 0.55, 1.0);
+      const lum = 0.3 * data[i] + 0.59 * data[i + 1] + 0.11 * data[i + 2];
+      const brillo = suave(lum, 38, 95);
+      // ningún borde duro: todo se desvanece en los últimos 18 px del recorte
+      const borde = suave(Math.min(x, y, W - 1 - x, H - 1 - y), 0, 18);
+      data[i + 3] = Math.round(255 * borde * Math.max(radial, brillo * suave(1.15 - Math.sqrt(dx * dx + dy * dy), 0, 0.25)));
+    }
+  }
+  await sharp(data, { raw: info }).png().toFile('public/marca/personaje.png');
 }
 console.log('marca lista');

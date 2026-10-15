@@ -1009,7 +1009,15 @@ function Celebracion({ dia, onCerrada }: { dia: number; onCerrada: () => void })
       <ModalCelebracion
         abierto={abierta}
         hito={Boolean(d.cierre)}
-        titulo={nombre ? `¡Excelente, ${nombre}!` : '¡Excelente!'}
+        titulo={
+          nombre ? (
+            <>
+              ¡Excelente, <span className="text-green">{nombre}!</span>
+            </>
+          ) : (
+            '¡Excelente!'
+          )
+        }
         subtitulo="Completaste tu misión de hoy. Tu esfuerzo te acerca a tus metas."
         recompensa={{ icono: LlamaRellena, valor: racha, texto: racha === 1 ? 'día de racha' : 'días de racha' }}
         siguiente={
