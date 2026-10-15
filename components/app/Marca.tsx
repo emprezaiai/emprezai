@@ -40,7 +40,9 @@ export function Marca({ tamano = 'md', className = '' }: { tamano?: keyof typeof
   return (
     <span className={`inline-flex items-center ${t.gap} ${className}`}>
       <Isotipo tamano={t.iso} />
-      <NombreMarca className={`${t.texto} leading-none`} />
+      <span aria-hidden="true">
+        <NombreMarca className={`${t.texto} leading-none`} />
+      </span>
       <span className="sr-only">EMPREZAI</span>
     </span>
   );

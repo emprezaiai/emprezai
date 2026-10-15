@@ -1,43 +1,53 @@
-# VEREDICTO revisor-visual — celebracion (ventana modal de celebración de logro)
-Fecha: 2026-10-14 21:30
+# VEREDICTO revisor-visual — celebracion (ventana modal de celebración de logro, con el guepardo de la marca)
+Fecha: 2026-10-15 12:00
 Screenshot: docs/revisiones/celebracion-375.png
-Usabilidad: 36/40
-Craft: 16/20
+Usabilidad: 37/40
+Craft: 17/20
 Copy (si vende): N-A
-Fidelidad (si hubo referencia): N-A
+Fidelidad (si hubo referencia): FIEL
 Veredicto: LISTA
-Top defectos: 1) la frase "Mañana en la noche se abre el día 9" no es cierta: en el código, el día siguiente se abre al cambiar la fecha (a medianoche), no a la hora elegida, y el aviso de abajo dice solo "Mañana se abre"; 2) la jerarquía sigue con 6 tamaños de texto y el check verde de 80px se lee antes que el "8"; 3) al cerrar la ventana, el foco del teclado no vuelve a ningún elemento y cae en el body; 4) con la nueva grilla, la etiqueta del medio queda centrada, pero los espacios entre etiquetas son distintos (unos 35 y 22px a 375, unos 27 y 14px a 360); 5) los dos botones que llevan a Mi Empresa tienen textos distintos ("¡Vamos por más!" y "Ver en Mi Empresa") y se ven al mismo tiempo a través del velo.
+Top defectos: 1) FICHA-ARTE.md desactualizada: la línea 26 dice "Personaje/mascota: NO por ahora" y la 48 pone como dispositivo propio solo el rayo dorado, pero la pantalla ya muestra el guepardo; 2) al cerrar la ventana, el foco del teclado sigue cayendo en el body (lleva 2 rondas sin arreglarse); 3) el check verde tapa la punta del tenis delantero del guepardo, así que el personaje no se ve igual que en la imagen de la dueña; 4) hay dos tipos de confeti a la vez (rectángulos fijos que vienen dentro del PNG y puntos animados del código) y un trozo de confeti cortado en el borde derecho de la imagen; 5) "Ver en Mi Empresa" se sigue viendo a través del velo, con otro texto que "¡Vamos por más!" y el mismo destino.
 
 ## Detalle
-USABILIDAD 36/40: h1:4 h2:3 h3:4 h4:3 h5:4 h6:4 h7:4 h8:3 h9:4 h10:3
-CRAFT 16/20: jerarquía:3 profundidad:3 identidad:3 movimiento:4 encaje:3
+USABILIDAD 37/40: h1:4 h2:3 h3:4 h4:3 h5:4 h6:4 h7:4 h8:3 h9:4 h10:4
+CRAFT 17/20: jerarquía:3 profundidad:3 identidad:4 movimiento:4 encaje:3
 
-Gate de carga cognitiva: 0 fallas. Hay 1 acción principal y 1 secundaria. Los bloques de texto ocupan 3 líneas o menos. Las insignias son planas y no parecen tocables. El qué sigue es obvio.
+Gate de carga cognitiva: 0 fallas. Hay 1 acción principal y 1 secundaria. Los bloques de texto ocupan 3 líneas o menos. Las insignias son planas y no parecen tocables. El qué sigue es obvio. Hay que vigilar algo: la ventana ya tiene 10 bloques (marca, guepardo, check, título, subtítulo, píldora, insignias, línea, qué sigue, botones) y ocupa ~712 de 812px. No hay que agregarle nada más.
 
-CTA héroe vivo: PASA los 4. Es dorado sobre la tarjeta #231D2E, con contraste muy por encima de 3:1. .boton-oro responde con :active. Nunca está deshabilitado. Mide h-14 = 56px y ocupa el ancho completo.
+CTA héroe vivo: PASA los 4. Es dorado #FFC23D sobre la tarjeta #231D2E, con contraste muy por encima de 3:1. .boton-oro tiene :active. Nunca está deshabilitado. Mide h-14 = 56px y ocupa el ancho completo. Sin regresión.
 
-FICHA-ARTE: la paleta visible coincide con la ficha (#1A1622/#231D2E, dorado #FFC23D, verde #3DDC97, tinta #EFEAF5/#BDB4CB/#998FA8). Las fuentes son Bricolage en display y Instrument Sans en el cuerpo. Las 2 exclamaciones y el confeti diario están cubiertos por la EXCEPCIÓN del 2026-10-14. Las etiquetas #998FA8 sobre #231D2E dan 5.3:1 (AA).
+FICHA-ARTE: la paleta visible coincide (#231D2E, dorado, verde #3DDC97, tinta #EFEAF5/#BDB4CB/#998FA8). Las fuentes son Bricolage en display e Instrument Sans en el cuerpo, y Montserrat 800 solo en el nombre EMPREZAI (MARCA 2026-10-14). "AI" va en turquesa #2cf8c8, como en el logo original. Las 2 exclamaciones y el confeti diario están cubiertos por la EXCEPCIÓN del 2026-10-14. EL DESVÍO: la ficha sigue diciendo que no hay mascota (l.26) y su l.24 todavía dice "confetti SOLO al cerrar semana" (ver el defecto 1).
 
-## Ronda 3: los 5 defectos, uno por uno
-1. Insignia del medio centrada → CORREGIDO. Se usa `grid grid-cols-[1fr_auto_1fr]` con start/center/end (ModalCelebracion.tsx:210-217). "Más claridad" queda centrada en x≈187.5 a 375 y en x≈180 a 360, sobre el mismo eje que el check, el título, la píldora y el botón. Como efecto secundario, los espacios entre etiquetas ya no son iguales (ver el defecto 4).
-2. Efecto de apertura estable → CORREGIDO. onCerrar se guarda en `cerrar` (useRef), que se actualiza en su propio efecto (l.67-70), y el efecto principal depende solo de [abierto] (l.99). Escape usa cerrar.current(). Ya no se repite la vibración, ni el robo del foco, ni el bloqueo del scroll.
-3. Momento real de mañana → CORREGIDO A MEDIAS. Mision.tsx:1000 arma "Mañana en la mañana/al mediodía/en la noche" a partir de cuenta.momento y no promete ningún aviso (está bien). Pero estadoRuta (lib/cuenta.ts:221) abre el día siguiente según fechaLocal, es decir, en cuanto cambia la fecha, y no a la hora elegida. Decir "se abre en la noche" es inexacto (defecto 1).
-4. Check de 80px y subtítulo a 15px → CORREGIDO. El disco es size-20 = 80px (l.165) y el contenedor size-24 solo sostiene el anillo. El subtítulo usa text-ayuda = 0.9375rem = 15px. Siguen siendo 6 tamaños (36/28/17/15/14/12) y el check verde todavía gana al entrecerrar los ojos.
-5. Racha mínima 1 → CORREGIDO. `const racha = Math.max(1, e.racha)` (l.999), con "día" o "días" según ese valor (l.1014).
+## TEST DE FIDELIDAD (contra docs/marca/personaje-original.png)
+1. Mismo modo (oscuro): OK.
+2. Acento: el verde #3DDC97 (~154°) frente al turquesa de la referencia (~166°), dentro de ±25°. El dorado del CTA coincide. OK.
+3. Display grotesk bold, igual que en la referencia: OK.
+4. Radios: tarjeta ~20px y CTA en píldora, igual que en la referencia: OK.
+5. Densidad: la referencia es horizontal (personaje a la izquierda y tarjeta a la derecha). Aquí se apila en vertical, que es una extensión válida para 375px: OK.
+6. Sombras y profundidad: la referencia usa un borde turquesa que brilla (glow) en la tarjeta y en el check. Aquí se usa relieve, sin glow: 1 FALLO.
+→ 1 de 6 fallos = FIEL. El personaje es el original recortado, con la misma pose, colores y sudadera con la "E": se reconoce al instante. Solo cambia por el check que le tapa el tenis (defecto 3).
+
+## Ronda 4: los 5 defectos, uno por uno
+1. Momento real de mañana → CORREGIDO. Ahora dice "Mañana se abre el día 9: tu mensaje principal. Tu momento: en la noche." (Mision.tsx:1027). El momento queda como sugerencia y el Aviso usa el mismo verbo (l.1005).
+2. Jerarquía (check frente a "8") → RESUELTO DE OTRA FORMA. El check bajó a size-10 (40px) y el héroe ahora es el guepardo, que en una celebración es correcto. Siguen siendo ~6 tamaños de texto (28/36/15/15 marca/14/12) → la jerarquía se queda en 3.
+3. Foco al cerrar → NO CORREGIDO. ModalCelebracion.tsx:74-101 no guarda ni devuelve el foco.
+4. Espacios entre insignias → NO CORREGIDO. Sigue `grid-cols-[1fr_auto_1fr]` (l.216): a 375 quedan ~35 y ~22px. Se acepta como está; sostiene el encaje en 3.
+5. CTA duplicado a través del velo → NO CORREGIDO. "Ver en Mi Empresa" se sigue viendo abajo en las 3 capturas.
+
+## Regresiones
+Ninguna en la funcionalidad. El confeti y el guepardo se apagan con reduce (l.144, l.163-165) y la imagen es decorativa (alt="" + aria-hidden). Lo nuevo y menor: Marca.tsx:43-44 deja visibles "EMPREZ"+"AI" y además un sr-only "EMPREZAI", así que el lector de pantalla dice el nombre dos veces. Fix: aria-hidden en NombreMarca dentro de Marca.
 
 ## TOP DEFECTOS (ubicación → fix)
-1. [Línea de qué sigue, Mision.tsx:1000/1019] "Mañana en la noche se abre el día 9" es falso: el día 9 se puede hacer desde las 00:00, y quien entre de mañana lo encontrará abierto. Además, el Aviso de abajo (l.1005) dice "Mañana se abre…" sin hora → `Mañana se abre el día 9: tu mensaje principal. Tu momento: en la noche.` (el momento como sugerencia, no como hora de apertura), y usar el mismo verbo en el Aviso.
-2. [Jerarquía: check vs. píldora] hay 6 tamaños, y el disco verde saturado de 80px es lo primero que se ve, antes que el dato real ("8 días de racha") → unificar el subtítulo y el cuerpo en 14px (text-sm) para quedar en 5, y bajar el check a size-16 (64px), o quitarle saturación al anillo para que el "8" de 36px pase a ser el héroe.
-3. [ModalCelebracion.tsx:72-99, cierre] al cerrar con X, Escape o el velo, el elemento que tenía el foco se desmonta y el foco cae en el body, así que quien usa teclado o lector pierde su posición → guardar `document.activeElement` al abrir y, en onExitComplete, devolverle el foco, o mandarlo al CTA del Aviso.
-4. [Fila de insignias] la grilla 1fr_auto_1fr centra la etiqueta del medio, pero los espacios entre etiquetas quedan distintos: ~35 y 22px a 375, ~27 y 14px a 360. Los íconos quedan separados por 106 y 100px → probar `grid-cols-3` con las 3 etiquetas centradas en su columna y px-0 (a 360, "Más resultados" de ~86px cabe en una columna de ~100px). Si no cabe, se acepta como está.
-5. [Velo inferior, Mision.tsx:1005-1007 vs 1027] "¡Vamos por más!" y "Ver en Mi Empresa" llevan a /app/empresa con textos distintos y se ven a la vez → que el Aviso de abajo no tenga un CTA visible mientras la ventana está abierta (renderizarlo después de onSalida), o igualar su verbo.
+1. [FICHA-ARTE.md l.24, 26 y 48] la ficha dice que no hay mascota y que el confeti es solo semanal, pero la pantalla tiene guepardo y confeti diario → registrar "PERSONAJE (2026-10-14, de la dueña): docs/marca/personaje-original.png → public/marca/personaje.png; aparece al ganar o avanzar; dispositivo propio junto con el rayo dorado" y quitar la contradicción de la l.24.
+2. [ModalCelebracion.tsx:74-101, cierre] el foco cae en el body al cerrar con X, Escape o el velo → guardar `document.activeElement` al abrir y devolverle el foco en onExitComplete (o mandarlo al CTA del Aviso).
+3. [Zona del personaje, l.169-171: check en `right-0 bottom-3`] el disco verde tapa la punta del tenis delantero, así que el personaje queda alterado frente a la referencia → moverlo a `-right-3 bottom-0` (sobre la estela, fuera del cuerpo) o arriba a la derecha, en el hueco junto al puño.
+4. [public/marca/personaje.png + confeti de l.144-159] hay rectángulos de confeti fijos dentro del PNG más puntos redondos animados (dos lenguajes), y un trozo cortado en el borde derecho de la imagen (~y 175 del PNG) → limpiar el confeti del PNG (o al menos el trozo cortado) y que el confeti animado use rectángulos dorados y verdes como en la referencia.
+5. [Velo inferior, Mision.tsx:1003-1008 frente a 1035] "Ver en Mi Empresa" y "¡Vamos por más!" se ven a la vez y van a Mi Empresa → renderizar el Aviso recién en onSalida, o esconder su CTA mientras la ventana está abierta.
 
 ## QUÉ FALTA PARA CADA 4
-- h2 (3→4): las frases de póster del contrato de la dueña ("Tu esfuerzo te acerca a tus metas", las 3 insignias). Si se mantienen, se queda en 3.
+- h2 (3→4): las frases de póster de la dueña ("Tu esfuerzo te acerca a tus metas", las insignias). Es un contrato suyo y se queda en 3.
 - h4 (3→4): defecto 5.
-- h8 (3→4): defecto 2.
-- h10 (3→4): defecto 1.
-- Jerarquía (3→4): defecto 2.
-- Profundidad (3→4): falta un nivel hundido. La fila de insignias o la línea de qué sigue podrían ir sobre #0A0910 tintado.
-- Identidad (3→4): un check verde suelto es intercambiable con cualquier app de hábitos. Mejor el nodo del día en relieve con su número, o el rayo dorado de la marca.
-- Encaje (3→4): defecto 4.
+- h8 (3→4): bajar a ≤5 tamaños de texto (subtítulo y qué sigue en 14px).
+- Jerarquía (3→4): lo mismo que h8.
+- Profundidad (3→4): falta un nivel hundido (#0A0910) para la fila de insignias o la línea de qué sigue.
+- Encaje (3→4): defectos 3 y 4 + espacios iguales entre insignias.
