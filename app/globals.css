@@ -8,6 +8,8 @@
    ============================================================================ */
 :root {
   --surface-base: #0f0d16;
+  /* Turquesa del "AI" del logo (medido en el original de la dueña, 2026-10-14). Solo en el nombre. */
+  --marca-ai: #2cf8c8;
   --surface-raised: #1a1622;
   --surface-raised-2: #231d2e;
   --surface-sunken: #0a0910;
@@ -54,6 +56,7 @@
   --color-warning: var(--warning);
   --font-display: var(--font-bricolage);
   --font-marca: var(--font-montserrat), var(--font-bricolage);
+  --color-marca-ai: var(--marca-ai);
   --font-sans: var(--font-instrument);
   /* Escala tipográfica del recorrido (50 §A2/C2): caption 13 · botón 17 · pregunta 28 · precio 24 */
   --text-caption: 0.8125rem;
