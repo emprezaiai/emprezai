@@ -13,7 +13,7 @@ export function Isotipo({ tamano = 28, className = '' }: { tamano?: number; clas
   const margen = -Math.round((lado - tamano) / 2);
   return (
     <span aria-hidden="true" className={`relative inline-flex shrink-0 ${className}`} style={{ width: tamano, height: tamano }}>
-      <Image src="/marca/isotipo.png" alt="" width={lado} height={lado} className="pointer-events-none absolute max-w-none" style={{ top: margen, left: margen }} priority />
+      <Image src="/marca/isotipo.webp" alt="" width={lado} height={lado} unoptimized className="pointer-events-none absolute max-w-none" style={{ top: margen, left: margen }} priority />
     </span>
   );
 }

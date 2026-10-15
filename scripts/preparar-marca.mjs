@@ -32,6 +32,8 @@ mkdirSync('public/marca', { recursive: true });
     data[i + 3] = Math.round(a * 255);
   }
   await sharp(data, { raw: info }).png().toFile('public/marca/isotipo.png');
+  // Lo que usa la app: WebP ya optimizado (se sirve directo, sin el optimizador de imágenes).
+  await sharp('public/marca/isotipo.png').webp({ quality: 90, alphaQuality: 95 }).toFile('public/marca/isotipo.webp');
 }
 
 // 2) Ícono 3D recortado al cuadro redondeado.
@@ -49,29 +51,12 @@ mkdirSync('public/marca', { recursive: true });
     .png()
     .toFile('app/apple-icon.png');
 }
-// 3) Personaje (opcional, 3er argumento): recorte del guepardo con un desvanecido radial en los
-//    bordes, para que su fondo oscuro se funda con la tarjeta (el original no trae transparencia).
+// 3) Personaje (opcional, 3er argumento): el guepardo en alta calidad y SIN fondo (entregado por la
+//    dueña 2026-10-15). Se recorta el aire transparente y se deja a 480 px de ancho (nítido en 3x).
 const personaje = process.argv[4];
 if (personaje) {
-  const W = 262;
-  const H = 330;
-  const { data, info } = await sharp(personaje).extract({ left: 0, top: 52, width: W, height: H }).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-  // alpha = máx(desvanecido radial, brillo): el fondo oscuro se va hacia los bordes, pero el pelaje,
-  // el brillo y las estelas (claros) se conservan aunque toquen el borde.
-  const suave = (x, a, b) => Math.min(1, Math.max(0, (x - a) / (b - a)));
-  for (let y = 0; y < H; y++) {
-    for (let x = 0; x < W; x++) {
-      const i = (y * W + x) * 4;
-      const dx = (x - W * 0.52) / (W * 0.5);
-      const dy = (y - H * 0.5) / (H * 0.5);
-      const radial = 1 - suave(Math.sqrt(dx * dx + dy * dy), 0.55, 1.0);
-      const lum = 0.3 * data[i] + 0.59 * data[i + 1] + 0.11 * data[i + 2];
-      const brillo = suave(lum, 38, 95);
-      // ningún borde duro: todo se desvanece en los últimos 18 px del recorte
-      const borde = suave(Math.min(x, y, W - 1 - x, H - 1 - y), 0, 18);
-      data[i + 3] = Math.round(255 * borde * Math.max(radial, brillo * suave(1.15 - Math.sqrt(dx * dx + dy * dy), 0, 0.25)));
-    }
-  }
-  await sharp(data, { raw: info }).png().toFile('public/marca/personaje.png');
+  const recortado = await sharp(personaje).trim({ threshold: 1 }).toBuffer();
+  await sharp(recortado).resize({ width: 480 }).png({ compressionLevel: 9 }).toFile('public/marca/personaje.png');
+  await sharp('public/marca/personaje.png').webp({ quality: 86, alphaQuality: 90 }).toFile('public/marca/personaje.webp');
 }
 console.log('marca lista');

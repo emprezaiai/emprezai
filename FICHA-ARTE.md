@@ -25,8 +25,8 @@
   celebración por pedido de la dueña, más abundante al cerrar semana y día 30 — ver EXCEPCIÓN 2026-10-14) ·
   radio tendencial 18-22px · color emocional medio (dorado protagónico en CTA/dato)
 - PERSONAJE (2026-10-14, entregado por la dueña): un guepardo cachorro con sudadera negra de la marca (isotipo E
-  en el pecho), corriendo y riendo. Original: docs/marca/personaje-original.png · archivo de la app:
-  public/marca/personaje.png (recorte con desvanecido, scripts/preparar-marca.mjs). Aparece cuando la persona
+  en el pecho), corriendo y riendo. Original en alta calidad y sin fondo: docs/marca/personaje-hd-original.webp (2026-10-15) · archivo de la app:
+  public/marca/personaje.png (scripts/preparar-marca.mjs). Aparece cuando la persona
   GANA o AVANZA (celebración de la misión del día y cierres de semana). Es dispositivo propio junto al rayo.
 
 ## Brand kit final (va a globals.css/@theme al crear el proyecto — Sesión 3)

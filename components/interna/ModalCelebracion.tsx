@@ -150,7 +150,7 @@ export function ModalCelebracion({ abierto, titulo, subtitulo, recompensa, sigui
             </div>
 
             {/* El personaje de la marca celebra: entra con un salto, el check de "hecho" a su lado y confeti */}
-            <div className="relative mx-auto mt-2 h-[176px] w-[140px]">
+            <div className="relative mx-auto mt-2 h-[176px] w-[172px]">
               {!reduce &&
                 Array.from({ length: hito ? PIEZAS_CONFETI : 12 }, (_, i) => {
                   const total = hito ? PIEZAS_CONFETI : 12;
@@ -174,7 +174,7 @@ export function ModalCelebracion({ abierto, titulo, subtitulo, recompensa, sigui
                 animate={reduce ? { opacity: 1, y: 0, scale: 1 } : { opacity: 1, y: [28, -6, 0], scale: 1 }}
                 transition={reduce ? { duration: 0.2 } : { duration: 0.6, delay: 0.1, ease: EASE_SALIDA }}
               >
-                <Image src="/marca/personaje.png" alt="" width={140} height={176} className="size-full object-contain" priority />
+                <Image src="/marca/personaje.webp" alt="" width={172} height={176} unoptimized className="size-full object-contain" priority />
               </motion.div>
               <motion.span
                 aria-hidden="true"
