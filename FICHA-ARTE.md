@@ -21,9 +21,13 @@
 ## Personalidad compilada
 - 3 adjetivos: Enérgico (dominante) + Juguetón + Cálido
 - Compilación (tabla del 11): spring bounce 0.25 · stiffness ~380 · duración base 220-280ms ·
-  exclamaciones máx 1/pantalla · celebración nivel 2 (check con punch + overlay con rebote; confetti SOLO al
-  cerrar semana y día 30) · radio tendencial 18-22px · color emocional medio (dorado protagónico en CTA/dato)
-- Personaje/mascota: NO por ahora — la emoción la carga el RAYO DORADO (forma de marca). Revisar en Sesión 4-5 (árbol del 11).
+  exclamaciones máx 1/pantalla · celebración nivel 2 (personaje + overlay con rebote; confeti diario en la
+  celebración por pedido de la dueña, más abundante al cerrar semana y día 30 — ver EXCEPCIÓN 2026-10-14) ·
+  radio tendencial 18-22px · color emocional medio (dorado protagónico en CTA/dato)
+- PERSONAJE (2026-10-14, entregado por la dueña): un guepardo cachorro con sudadera negra de la marca (isotipo E
+  en el pecho), corriendo y riendo. Original: docs/marca/personaje-original.png · archivo de la app:
+  public/marca/personaje.png (recorte con desvanecido, scripts/preparar-marca.mjs). Aparece cuando la persona
+  GANA o AVANZA (celebración de la misión del día y cierres de semana). Es dispositivo propio junto al rayo.
 
 ## Brand kit final (va a globals.css/@theme al crear el proyecto — Sesión 3)
 - Fondo: #0F0D16 · Superficie: #1A1622 · Superficie elevada: #231D2E · Hundido: #0A0910 · Línea: rgb(255 255 255 / .08)
@@ -46,6 +50,7 @@
 - Espaciado base: escala 4·8·12·16·24·32·48·64
 - Fondo con profundidad: radial dorado arriba-derecha (16%) + radial verde abajo-izquierda (8%); en "Ruta" + patrón de puntos 6%
 - Dispositivo ownable: EL RAYO DORADO (misión del día) + nodos en relieve (sombra inferior sólida, estilo juego)
+  + EL GUEPARDO de la marca en los momentos de logro
 - Motion signature: easing spring (bounce .25) · stagger 60ms · firma: el nodo "hoy" pulsa suave; al guardar una
   pieza, vuela a "Mi Empresa" y el tick se enciende en verde
 

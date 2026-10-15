@@ -1000,12 +1000,7 @@ function Celebracion({ dia, onCerrada }: { dia: number; onCerrada: () => void })
   const cuando = cuenta.momento === 'manana' ? 'en la mañana' : cuenta.momento === 'mediodia' ? 'al mediodía' : cuenta.momento === 'noche' ? 'en la noche' : '';
   return (
     <>
-      <Aviso
-        titulo="Hoy ya armaste tu pieza"
-        texto={siguiente ? `Mañana se abre el día ${siguiente.dia}: ${siguiente.pieza.toLowerCase()}. Un día a la vez es lo que hace que funcione.` : 'Tu negocio completo está en Mi Empresa, listo para vender.'}
-        href="/app/empresa"
-        cta="Ver en Mi Empresa"
-      />
+      <main className="min-h-dvh" aria-hidden="true" />
       <ModalCelebracion
         abierto={abierta}
         hito={Boolean(d.cierre)}

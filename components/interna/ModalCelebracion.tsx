@@ -65,6 +65,11 @@ function Conteo({ valor }: { valor: number }) {
 export function ModalCelebracion({ abierto, titulo, subtitulo, recompensa, siguiente, insignias, accion, secundaria, hito = false, onCerrar, onSalida }: PropsCelebracion) {
   const reduce = useReducedMotion();
   const caja = useRef<HTMLDivElement>(null);
+  // Al cerrar, el foco vuelve a donde estaba (teclado y lector de pantalla no se pierden).
+  const focoPrevio = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    if (abierto) focoPrevio.current = document.activeElement as HTMLElement | null;
+  }, [abierto]);
   const principal = useRef<HTMLAnchorElement>(null);
   const cerrar = useRef(onCerrar);
   useEffect(() => {
@@ -103,7 +108,12 @@ export function ModalCelebracion({ abierto, titulo, subtitulo, recompensa, sigui
   const Recompensa = recompensa.icono;
 
   return (
-    <AnimatePresence onExitComplete={onSalida}>
+    <AnimatePresence
+      onExitComplete={() => {
+        focoPrevio.current?.focus?.();
+        onSalida?.();
+      }}
+    >
       {abierto && (
         <motion.div
           className="velo-oscuro fixed inset-0 z-40 flex items-center justify-center px-4 py-6"
@@ -150,9 +160,9 @@ export function ModalCelebracion({ abierto, titulo, subtitulo, recompensa, sigui
                     <motion.span
                       key={i}
                       aria-hidden="true"
-                      className={`absolute top-1/2 left-1/2 rounded-full ${i % 3 === 0 ? 'size-2 bg-green' : i % 3 === 1 ? 'size-2 bg-gold' : 'size-1.5 bg-gold-light'}`}
+                      className={`absolute top-1/2 left-1/2 h-3 w-1.5 rounded-[2px] ${i % 3 === 0 ? 'bg-green' : i % 3 === 1 ? 'bg-gold' : 'bg-gold-light'}`}
                       initial={{ x: 0, y: 0, opacity: 0, scale: 0.6 }}
-                      animate={{ x: Math.cos(angulo) * distancia, y: Math.sin(angulo) * distancia * 0.7, opacity: [0, 1, 0], scale: 1 }}
+                      animate={{ x: Math.cos(angulo) * distancia, y: Math.sin(angulo) * distancia * 0.7, opacity: [0, 1, 0], scale: 1, rotate: (i % 2 ? 1 : -1) * (90 + i * 25) }}
                       transition={{ duration: hito ? 1.3 : 0.9, delay: 0.35 + (i % 4) * 0.03, ease: EASE_SALIDA }}
                     />
                   );
@@ -168,7 +178,7 @@ export function ModalCelebracion({ abierto, titulo, subtitulo, recompensa, sigui
               </motion.div>
               <motion.span
                 aria-hidden="true"
-                className="relieve-verde absolute right-0 bottom-3 flex size-10 items-center justify-center rounded-full"
+                className="relieve-verde absolute -right-3 bottom-0 flex size-10 items-center justify-center rounded-full"
                 initial={{ scale: reduce ? 1 : 0 }}
                 animate={{ scale: 1 }}
                 transition={reduce ? { duration: 0 } : { type: 'spring', bounce: 0.25, duration: 0.5, delay: 0.55 }}
