@@ -122,9 +122,9 @@ export default function PaginaDeVentas() {
         mecanismo="el Método Pieza a Pieza"
         bigIdeaMarked="Cada día haces una misión de 5 minutos y la IA arma [b]una pieza de tu negocio[/b] usando las anteriores."
         pasos={[
-          { icon: MessageSquareText, titulo: 'Cuenta tu idea', detalle: 'En 1 minuto, aunque sea vaga. La IA la entiende.' },
-          { icon: Zap, titulo: 'Haz la misión del día', detalle: '5 minutos desde el celular: una mini lección y la IA trabaja.' },
-          { icon: Puzzle, titulo: 'Suma una pieza', detalle: 'Tu oferta, tu nombre, tus textos: todo queda en Mi Empresa.' },
+          { icon: MessageSquareText, gesto: 'globo', titulo: 'Cuenta tu idea', detalle: 'En 1 minuto, aunque sea vaga. La IA la entiende.' },
+          { icon: Zap, gesto: 'rayo', titulo: 'Haz la misión del día', detalle: '5 minutos desde el celular: una mini lección y la IA trabaja.' },
+          { icon: Puzzle, gesto: 'encaje', titulo: 'Suma una pieza', detalle: 'Tu oferta, tu nombre, tus textos: todo queda en Mi Empresa.' },
         ]}
         antesDespues={{
           labelAntes: 'Antes',

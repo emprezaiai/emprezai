@@ -10,6 +10,7 @@ import { motion } from 'motion/react';
 import type { LucideIcon } from 'lucide-react';
 import { Kicker, SectionShell, useReveal, VIEWPORT_ONCE } from './ui';
 import { MarkedCopy, warnCopy, warnRango } from './MarkedCopy';
+import { FichaViva } from '@/components/app/FichaViva';
 
 export interface PreguntaProblema {
   /** Ícono de dolor de Lucide (Inbox, AlarmClock, Repeat…) — jamás emoji. */
@@ -56,9 +57,8 @@ export function Problema({ titulo, preguntas, id }: ProblemaProps) {
               variants={item}
               className="flex items-center gap-4 border-b border-[color-mix(in_oklab,var(--accent)_12%,transparent)] py-5 last:border-b-0"
             >
-              <span aria-hidden="true" className="relieve-noche inline-flex size-11 shrink-0 items-center justify-center rounded-[var(--radius-chip,12px)]">
-                <p.icon size={22} strokeWidth={2.2} />
-              </span>
+              {/* cada dolor "se enciende" en la noche al aparecer */}
+              <FichaViva icon={p.icon} gesto="encender" enVista retraso={0.15 + i * 0.12} className="relieve-noche size-11 rounded-[var(--radius-chip,12px)]" />
               <p className="text-pretty text-[18px] font-medium leading-snug text-[var(--text-secondary)] [font-family:var(--font-display)] [&_strong]:font-bold [&_strong]:text-[var(--text-primary)]">
                 <MarkedCopy text={p.textoMarked} />
               </p>

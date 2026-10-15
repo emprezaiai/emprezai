@@ -12,10 +12,13 @@ import { Check, Puzzle, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Accent, CtaButton, IconChip, Kicker, SectionShell, useReveal, VIEWPORT_ONCE } from './ui';
 import { MarkedCopy, warnCopy } from './MarkedCopy';
+import { FichaViva, type Gesto } from '@/components/app/FichaViva';
 
 export interface PasoMecanismo {
   /** Ícono del paso (se muestra en ficha dorada en relieve con su número). */
   icon?: LucideIcon;
+  /** Gesto del ícono al aparecer (globo, rayo, encaje…). */
+  gesto?: Gesto;
   /** Título del paso — 16px/600. */
   titulo: string;
   /** UNA línea (warn a las 14 palabras). */
@@ -106,7 +109,22 @@ export function Solucion({
               )}
               <span aria-hidden="true" className="relative shrink-0">
                 {p.icon ? (
-                  <IconChip icon={p.icon} tone={i === pasos.length - 1 ? 'verde' : 'accent'} />
+                  // cada paso hace su gesto cuando la línea del camino llega a él
+                  <motion.span
+                    className="flex"
+                    initial={{ scale: reduce ? 1 : 0.6, rotate: reduce ? 0 : -10 }}
+                    whileInView={{ scale: 1, rotate: 0 }}
+                    viewport={{ once: true, amount: 0.6 }}
+                    transition={reduce ? { duration: 0 } : { type: 'spring', bounce: 0.45, duration: 0.55, delay: i * 0.18 }}
+                  >
+                    <FichaViva
+                      icon={p.icon}
+                      gesto={p.gesto ?? 'rayo'}
+                      enVista
+                      retraso={0.25 + i * 0.18}
+                      className={`size-11 rounded-[var(--radius-chip,var(--radius-button))] ${i === pasos.length - 1 ? 'relieve-verde' : 'relieve-oro'}`}
+                    />
+                  </motion.span>
                 ) : (
                   <span className="relieve-oro flex size-11 items-center justify-center rounded-[var(--radius-chip,var(--radius-button))] text-[16px] font-bold">
                     {i + 1}

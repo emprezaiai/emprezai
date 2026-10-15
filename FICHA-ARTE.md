@@ -44,6 +44,11 @@
 - EXCEPCIÓN (2026-10-14, pedido explícito de la dueña): la CELEBRACIÓN DIARIA (ventana modal al terminar la misión) lleva confeti TODOS los días (más abundante en cierres de semana y día 30) y dos exclamaciones ("¡Excelente, [Nombre]!" + "¡Vamos por más!"). Solo en esa ventana; el resto de la app sigue con 1 exclamación por pantalla.
 - MARCA (2026-10-14, logos ORIGINALES de la dueña en docs/marca/): isotipo plano del logo horizontal → public/marca/isotipo.png (fondo quitado, halo conservado); ícono 3D → app/icon.png, app/apple-icon.png y public/marca/icono-app.png (scripts/preparar-marca.mjs). Nombre con la Z: "EMPREZ" claro + "AI" turquesa #2cf8c8 (medido del original, token --marca-ai) en Montserrat 800 (--font-marca): ÚNICA tercera familia, SOLO en el nombre del logo. Va en: cabecera y pie de la página de ventas, recorrido de inicio, Entrar, cabecera de Hoy, páginas legales, 404 y correos.
 - Material en relieve (app/globals.css): .relieve-oro (acción) · .relieve-verde (logro) · .relieve-piedra (dolor/neutro) · .relieve-noche (dolores de §2) · .tarjeta-relieve / -base / -oro / .tarjeta-dolor · .fondo-puntos
+- FICHA VIVA (2026-10-15, pedido de la dueña: "íconos animados o con relieve"): components/app/FichaViva.tsx +
+  .ficha-3d (brillo arriba, canto 3px, ícono grabado). Cada ícono hace UN gesto con significado — llama titila
+  (bucle lento SOLO con racha viva), pieza encaja, calendario hace "tic", globo de idea sube, rayo se sacude,
+  dolores de §2 "se encienden" en la noche. Va en: fila de datos de Hoy, dolores (§2) y 3 pasos (§4) de la landing.
+  Una ficha con relieve se ve tocable: en la app, la tarjeta que la lleva TIENE que llevar a algún lado.
 - Extensiones de la landing (components/landing/tokens.css): CTA final sobre #231D2E · chips 12px · relieve del CTA 0 4px 0 #B8860F
 - Radio: tarjetas 18-22px · filas/CTA/chips en píldora 999px · chips de ícono 10-14px · Profundidad: superficie con
   degradé sutil + luz en borde superior + sombra negra difusa; hairline dorada degradada SOLO en el elemento clave

@@ -1,7 +1,7 @@
 # ESTADO — EMPRESAI
 Última actualización: 2026-10-07 | Sesión actual: 5 (Entrar + app por dentro)
 
-⏸️ CHECKPOINT — Última acción completada (2026-10-15): logo original de la dueña (EMPREZAI con Z) en cabeceras/pies/correos/ícono de app; personaje guepardo en la celebración (LISTA 37·17); Hoy LISTA 11ª con el logo; código de servicios (Supabase/IA/Hotmart/Resend) construido y verificado sin cuentas / Siguiente acción exacta: la dueña crea el repo PRIVADO en GitHub ("hecho" + enlace) → push → Supabase "emprezai-pruebas" → clave de IA → Vercel → Resend+dominio → Hotmart → re-revisar landing/onboarding/Entrar/Misión/celebración con todo conectado
+⏸️ CHECKPOINT — Última acción completada (2026-10-15): logo original de la dueña (EMPREZAI con Z) en cabeceras/pies/correos/ícono de app; personaje guepardo HD sin fondo en la celebración (LISTA 37·17; imágenes de marca en WebP servidas directo); íconos con relieve 3D + gesto animado (FichaViva) en Hoy y en la página de ventas (dolores y 3 pasos), la ficha "semana" de Hoy ahora lleva a la Ruta; Hoy LISTA 13ª (36·17) con el logo y las fichas vivas; código de servicios (Supabase/IA/Hotmart/Resend) construido y verificado sin cuentas / Siguiente acción exacta: la dueña crea el repo PRIVADO en GitHub ("hecho" + enlace) → push → Supabase "emprezai-pruebas" → clave de IA → Vercel → Resend+dominio → Hotmart → re-revisar landing/onboarding/Entrar/Misión/celebración con todo conectado
 
 ## Qué es esta app (3 líneas máximo)
 App web tipo Duolingo que guía a emprendedores principiantes LATAM a lanzar su negocio/producto digital con IA en 30 días, 5 min/día.

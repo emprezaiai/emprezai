@@ -8,6 +8,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { animate, motion, useReducedMotion } from 'motion/react';
+import { FichaViva } from '@/components/app/FichaViva';
 import { ArrowRight, Bell, BellRing, CalendarCheck, CheckCircle2, ChevronRight, Flame, LifeBuoy, LockKeyhole, Map as IconoMapa, Puzzle, RotateCcw, Sparkles, WifiOff } from 'lucide-react';
 import { avanceBorrador } from '@/lib/borradores';
 import { estadoRuta, importarPieza1SiFalta, pieza1PorTraer } from '@/lib/cuenta';
@@ -102,7 +103,12 @@ export function Hoy() {
   // Racha rota: volvió después de días sin pieza (la racha cayó a 0 pero ya tiene piezas)
   const rachaRota = e.racha === 0 && e.piezasListas > 0 && !e.hechaHoy && !e.terminada;
   const insight = rachaRota
-    ? `Tu racha vuelve a empezar hoy: arma ${minusculaInicial(hoyRuta.pieza)} y enciende la llama de nuevo.`
+    ? (
+        <>
+          <strong className="font-semibold text-ink-1">Tu racha vuelve a empezar hoy.</strong> Arma {minusculaInicial(hoyRuta.pieza)} y
+          enciende la llama de nuevo.
+        </>
+      )
     : e.hechaHoy
     ? `Mañana el Método Pieza a Pieza usa lo de hoy para armar ${siguiente ? minusculaInicial(siguiente.pieza) : 'el cierre de tu ruta'}.`
     : usadas.length
@@ -235,36 +241,40 @@ export function Hoy() {
               aria-label={`${e.racha} ${e.racha === 1 ? 'día' : 'días'} de racha${e.rachaEnRiesgo ? ', en juego hoy' : ''}. Ver tu recordatorio diario`}
               className="tarjeta-relieve flex h-full flex-col gap-2 rounded-[var(--radius-card)] p-3 transition-transform duration-150 active:scale-[0.97]"
             >
-              <motion.span
-                aria-hidden="true"
-                className={`flex size-10 items-center justify-center rounded-[var(--radius-chip)] ${
+              {/* la llama de una racha viva titila despacio; en cero, quieta y apagada */}
+              <FichaViva
+                icon={Flame}
+                gesto="llama"
+                clave="hoy-racha"
+                activo={e.racha > 0}
+                relleno={e.racha > 0}
+                tamanoIcono={20}
+                grosor={e.racha > 0 ? 1.5 : 1.8}
+                className={`size-10 rounded-[var(--radius-chip)] ${
                   e.racha === 0 ? 'relieve-piedra-apagada' : e.rachaEnRiesgo ? 'relieve-ambar' : 'relieve-oro'
                 }`}
-                /* la llama viva late una vez cuando termina de contar */
-                initial={{ scale: 1 }}
-                animate={e.racha > 0 && !e.rachaEnRiesgo && !reduce ? { scale: [1, 1.15, 1] } : { scale: 1 }}
-                transition={{ duration: 0.45, delay: 0.95, ease: 'easeOut' }}
-              >
-                <Flame size={20} fill={e.racha > 0 ? 'currentColor' : 'none'} strokeWidth={e.racha > 0 ? 1.5 : 1.8} />
-              </motion.span>
+              />
               <span className="font-display text-precio leading-none font-extrabold text-ink-1">
                 <Cuenta valor={e.racha} />
               </span>
               <span className="mt-auto text-xs text-ink-2">{e.racha === 1 ? 'día de racha' : 'días de racha'}</span>
-              <span className="-mt-1 flex items-center gap-1 text-[11px] font-semibold text-ink-3">
-                <BellRing size={11} aria-hidden="true" />
-                {cuenta.momento === 'manana' ? 'aviso de mañana' : cuenta.momento === 'mediodia' ? 'aviso al mediodía' : cuenta.momento === 'noche' ? 'aviso de noche' : 'tu aviso'}
+              <span className="-mt-1 flex items-center gap-1 text-xs font-semibold whitespace-nowrap text-ink-3">
+                <BellRing size={12} aria-hidden="true" />
+                {cuenta.momento === 'manana' ? 'de mañana' : cuenta.momento === 'mediodia' ? 'mediodía' : cuenta.momento === 'noche' ? 'de noche' : 'tu aviso'}
               </span>
             </Link>
           </li>
           <li>
             <Link href="/app/empresa" className="tarjeta-relieve flex h-full flex-col gap-2 rounded-[var(--radius-card)] p-3 transition-transform duration-150 active:scale-[0.97]">
-              <span
-                aria-hidden="true"
-                className={`${e.piezasListas ? 'relieve-verde' : 'relieve-piedra-apagada'} flex size-10 items-center justify-center rounded-[var(--radius-chip)]`}
-              >
-                <Puzzle size={20} strokeWidth={2.2} />
-              </span>
+              <FichaViva
+                icon={Puzzle}
+                gesto="encaje"
+                clave="hoy-piezas"
+                activo={e.piezasListas > 0}
+                tamanoIcono={20}
+                retraso={0.5}
+                className={`${e.piezasListas ? 'relieve-verde' : 'relieve-piedra-apagada'} size-10 rounded-[var(--radius-chip)]`}
+              />
               <span className="font-display text-precio leading-none font-extrabold text-ink-1">
                 <Cuenta valor={e.piezasListas} />
               </span>
@@ -272,10 +282,13 @@ export function Hoy() {
             </Link>
           </li>
           <li>
-            <div className="tarjeta-relieve-base flex h-full flex-col gap-2 rounded-[var(--radius-card)] p-3">
-              <span aria-hidden="true" className="relieve-piedra flex size-10 items-center justify-center rounded-[var(--radius-chip)]">
-                <CalendarCheck size={20} strokeWidth={2.2} />
-              </span>
+            {/* la ficha de la semana lleva a la Ruta (con relieve, se ve tocable: tiene que hacer algo) */}
+            <Link
+              href="/app/ruta"
+              aria-label={`Semana ${semanaDeHoy}: ${enSemana} de ${diasSemana} piezas. Ver tu ruta`}
+              className="tarjeta-relieve flex h-full flex-col gap-2 rounded-[var(--radius-card)] p-3 transition-transform duration-150 active:scale-[0.97]"
+            >
+              <FichaViva icon={CalendarCheck} gesto="calendario" clave="hoy-semana" activo={enSemana > 0} tamanoIcono={20} retraso={0.7} className="relieve-piedra size-10 rounded-[var(--radius-chip)]" />
               <span className="font-display text-precio leading-none font-extrabold text-ink-1">
                 <Cuenta valor={enSemana} />
                 <span className="text-base text-ink-3">/{diasSemana}</span>
@@ -293,7 +306,7 @@ export function Hoy() {
                 ))}
               </span>
               <span className="mt-auto text-xs text-ink-2">semana {semanaDeHoy}</span>
-            </div>
+            </Link>
           </li>
         </motion.ul>
         {/* 4. EL INSIGHT en la voz del Método (con el estado de la racha si está en riesgo) */}
