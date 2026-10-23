@@ -1,48 +1,47 @@
 # VEREDICTO revisor-visual — entrar (login)
-Fecha: 2026-10-07 23:30
+Fecha: 2026-10-23 12:00
 Screenshot: docs/revisiones/entrar-375.png
-Usabilidad: 31/40
+Usabilidad: 29/40
 Craft: 15/20
-Copy (si vende): 15/20
+Copy (si vende): N-A
 Fidelidad (si hubo referencia): N-A
 Veredicto: NO LISTA
-Top defectos: (1) quien ya pagó no puede entrar, y el estado "pronto" no le dice cómo se va a enterar de que abrió ni qué lo protege mientras tanto: falta "te avisamos a {email}" (Hotmart ya tiene ese correo) y la garantía nombrada · (2) al volver con el correo ya guardado (23b), la pantalla es idéntica a la primera visita: no reconoce que ya lo guardó y lo hace repetir el ciclo "Guardar" → "pronto" · (3) el soporte visible es un correo personal de Hotmail (adrianachacon15@hotmail.com, lib/legal.ts:7): para alguien que acaba de pagar y no puede entrar, parece poco serio · (4) siguen 6 tamaños de texto (pregunta, base, boton, sm, caption, xs); el eyebrow y los chips de RutaMini siguen en text-xs (piezas.tsx:283, 307, 328) · (5) en el inicio quedan unos 95px vacíos abajo a 375, y el candado gris del texto de privacidad (Acceso.tsx:388) significa "privado" justo encima de los candados de "día bloqueado" de la ruta
+Top defectos: (1) si el correo no tiene una compra vigente, el servidor no manda nada (accesos.ts:78) y la pantalla igual dice "Te enviamos tu enlace": quien pagó con otro correo, o tiene la suscripción vencida, espera un correo que nunca llega · (2) el aviso "sin-acceso" (Acceso.tsx:428) dice "escríbenos" pero no da enlace ni dirección, no ofrece renovar y debajo sigue el mismo CTA que lleva al callejón del defecto 1 · (3) un 500 o un 400 del servidor caen en el catch y muestran "Revisa tu conexión" (L143, L150, L468), aunque la red funcione · (4) el soporte es emprezaiai@gmail.com (lib/legal.ts:7): un Gmail gratuito con "aiai" que parece error de tipeo, y es la única salida para quien pagó y no puede entrar · (5) siguen 6 tamaños de texto (la ficha pide 3 niveles); además, los avisos usan rounded-chip mientras las tarjetas usan radius-card, las viñetas son "·" escritas a mano sin sangría colgante y quedan ~85px vacíos abajo a 375
 
-Detalle usabilidad: h1:3 h2:3 h3:3 h4:3 h5:3 h6:3 h7:3 h8:3 h9:4 h10:3
+Detalle usabilidad: h1:3 h2:3 h3:3 h4:3 h5:3 h6:3 h7:3 h8:3 h9:3 h10:2
 Detalle craft: jerarquía:3 profundidad:3 identidad:3 movimiento:3 encaje:3
-Detalle copy: idea:3 especificidad:3 emoción:3 oferta:3 acción:3
-Fidelidad: N-A (no hay referencia para esta pantalla). Contra FICHA-ARTE: fondo #0F0D16, dorado #FFC23D, verde #3DDC97, Bricolage + Instrument Sans, tarjeta 18-22px y píldoras 999px. Todo coincide en 375 y 360. Falla la escala de la ficha: el label debería ir a 10.5-12px y, con solo 3 niveles, la pantalla usa 6 tamaños.
+Copy: N-A. Es una pantalla de acceso de quien ya pagó y no vende. En la ronda anterior se le dio 15/20; ahora se deja fuera para que no infle ni frene el gate.
+Fidelidad: N-A (no hay referencia). Contra FICHA-ARTE: fondo #0F0D16, dorado #FFC23D solo en CTA, acento del título y nodo "Hoy", verde #3DDC97 en logro y borde de la ruta, Bricolage display + Instrument Sans body, píldoras 999px y tarjeta 18-22px. Coincide. El desvío es la escala: label 10.5-12px y 3 niveles en la ficha, 6 tamaños en la pantalla.
 
-Gate de carga cognitiva: 0 fallas de 8. En "pronto" hay 3 acciones apiladas (botón secundario, correo escrito, "Corregir"), pero solo una pesa como botón.
-CTA héroe vivo (inicio): cumple los 4. Dorado sobre #0F0D16 ≈12:1; `.boton-oro` responde al toque; solo se deshabilita mientras envía (L372); 56px de alto a ancho completo.
-Sub-checks de copy: message-match NO VERIFICABLE (falta el dato del 34). Garantía nombrada: no aparece. Aquí no hay CTA de compra, pero quien pagó y no puede entrar debería verla (defecto 1).
+## Revisión de auditoría 2026-10-23
 
-## Re-revisión 5: qué se corrigió (contra los 6 defectos de la ronda 4)
-1. Correo guardado de verdad y rellenado al volver → CORREGIDO. `guardarCorreo` escribe en localStorage (L41-48, L105) y `useSyncExternalStore` lo lee al volver (L62-64). La 23b muestra el campo con "carlos.ruiz@gmail.com". Si no hay espacio, cae a "Anota tu correo de acceso" (L172-179). Caption honesto → CORREGIDO: "cuando abra el acceso, te llegará un enlace…" (L390-392), visible en entrar-375.png. Captura del inicio real → CORREGIDO (22b, entrar-375).
-2. Soporte escrito en pantalla → CORREGIDO. "o escríbenos a {emailContacto}" en texto seleccionable (L193-195). Plazo y aviso → SIN CORREGIR. Que no haya fecha es legítimo (no se inventa), pero tampoco se promete avisar, y sí se podría: el comprador es de Hotmart y su correo ya se conoce (defecto 1).
-3. Contenido de "pronto" centrado y ruta completa → CORREGIDO. `justify-center` (L165) y los 2 chips (L209-212). En la 23 a 375 el hueco de abajo bajó a unos 65px. Sigue habiendo unos 95px vacíos en el inicio (defecto 5).
-4. Captura 23 tras la animación → CORREGIDO. Ahora espera 2500 ms (captura-app.mjs:171) y el chip "Pieza 1 lista" sale con opacidad y escala completas.
-5. Ícono de guardado distinto del candado → CORREGIDO en "pronto" (`CheckCircle2`, L183). Eyebrow al tamaño del caption → SIN CORREGIR (defecto 4). El choque de candados pasó al inicio (defecto 5, severidad baja).
-6. Acento sobre algo real → CORREGIDO. "quedó guardado" describe un hecho verificable, no una vaguedad.
-Balance: h9 sube de 3 a 4. Errores ejemplares: el formato inválido trae un ejemplo, sin conexión dice que revises la red, el código pide copiarlo tal cual y el callejón de "pronto" tiene 2 salidas más el correo escrito. Usabilidad 31/40. Craft y copy no cambian (15/20 y 15/20). El techo actual es estructural: sin acceso real, h1 y h10 no pasan de 3 porque quien pagó se queda esperando sin plazo ni aviso.
+Insumos puntuados: entrar-375.png (inicio con pieza), app/01, 02-entrar-error, 03-entrar-revisa-correo-arriba/final, 22b, 23-entrar-sin-servidor, 23b-entrar-real-vuelve, auditoria-2026-10-23/login-sin-acceso y login-vencido. Código: app/login/page.tsx, components/acceso/Acceso.tsx, app/api/acceso/enviar/route.ts, app/api/acceso/verificar/route.ts, lib/servidor/accesos.ts, lib/legal.ts, app/globals.css (.boton-oro).
+
+Gate de carga cognitiva: 0 fallas de 8. En "enviado" hay 1 primario, la tarjeta de ayuda y 2 terciarios; la tarjeta "Modo demostración" solo existe en localhost con bandera.
+CTA héroe vivo, inicio y enviado: cumple los 4. Dorado sobre #0F0D16 ≈12:1. `.boton-oro:active` hace translateY(2px) y aplana la sombra (globals.css:234). Solo se deshabilita mientras envía o verifica (L473, L329) y valida al tocar con un mensaje. Mide 56px a ancho completo.
+
+### Qué cambió desde la ronda 5
+- Acceso real con enlace y código de 6-8 dígitos, `autoComplete="one-time-code"`, filtro de solo números, límites 429 con texto humano y "Revisando…" inline. Es un avance real: h1 y h7 dejan de estar atados al callejón de "pronto".
+- La tarjeta "¿Compraste y no te llega?" ataca el caso más frecuente (correo distinto o spam). Bien ubicada, aunque la viñeta "·" sin sangría colgante se ve hecha a mano en la 03.
+- Avisos por URL: "enlace-vencido" está bien resuelto (qué pasó, qué hacer y en cuánto llega). "sin-acceso" no (defecto 2).
+- Logo nuevo visible y alineado. "Ya guardaste este correo" sobre el campo (23b) corrige el defecto 2 de la ronda 5. El ShieldCheck de privacidad corrige el choque de candados.
+- Soporte: el Hotmail personal pasó a emprezaiai@gmail.com. Mejora a medias (defecto 4).
+
+### Por qué la usabilidad baja de 31 a 29
+El acceso real abrió dos callejones nuevos que la versión "pronto" no tenía. Sin compra vigente, la pantalla confirma un envío que no ocurre. Y el aviso "sin-acceso" no lleva a ninguna parte. Por eso h10 baja a 2 (la persona afectada lo nota sin buscarlo) y h9 baja de 4 a 3 (el error de servidor se disfraza de error de red).
 
 ## Hallazgos por severidad
 
 ### ALTO
-1. **"Pronto" (captura 23, L176-179): espera sin aviso ni protección.** "Estamos terminando de abrir la entrada a la app" deja a quien pagó sin saber cómo se va a enterar ni qué pasa si tarda. La ficha da el material: Obj. 4, "te avisamos" / "garantía". → FIX: "Te avisamos a {email} el día que abra. Y si no te sirve, te cubre la garantía de {N} días de Hotmart." Solo si la dueña se compromete a avisar a los compradores de Hotmart. Si no, al menos la garantía con nombre y plazo.
+1. **Confirmación falsa cuando no hay compra vigente** (accesos.ts:76-78 + Acceso.tsx:144-148). Mantener la misma respuesta para todos los correos está bien. Lo que falla es que nadie recibe nada: ni quien pagó con otro correo, ni quien tiene la suscripción vencida. → FIX: cuando no hay compra vigente, mandar a ESE correo un aviso "No encontramos una compra activa con este correo: revisa el correo de tu comprobante de Hotmart o responde este mensaje". Solo lo ve quien tiene acceso a ese buzón, así que la anti-enumeración se mantiene.
+2. **El aviso "sin-acceso" no tiene salida** (Acceso.tsx:424-430, login-sin-acceso.png). Dice "escríbenos" sin enlace ni dirección. No ofrece renovar. Usa el mismo gris neutro, sin ícono, que un aviso informativo. → FIX: color de aviso #FF9F43 con ícono, un enlace mailto a soporte con el correo en el asunto y un enlace "Reactivar mi plan" al checkout de Hotmart. Si la persona tiene sesión, rellenar el campo con su correo.
 
 ### MEDIO
-2. **Inicio al volver (23b): no reconoce el estado.** Con `correoGuardado` presente, la pantalla repite título, CTA "Guardar mi correo de acceso" y caption de primera visita. El usuario vuelve a apretar y cae otra vez en "pronto". → FIX: si `correoGuardado && !ACCESO_REAL`, abrir directo en "pronto" o poner sobre el campo "Ya guardaste este correo: el acceso aún no abre".
-3. **"o escríbenos a adrianachacon15@hotmail.com" (L194, lib/legal.ts:7).** Un Hotmail personal con número, como única vía de soporte de un producto pago, resta confianza justo en el momento de mayor ansiedad. → FIX: una dirección del dominio (soporte@…) o, como mínimo, un alias neutro.
+3. **El error de servidor dice "revisa tu conexión"** (L143 `throw`, L150, L468). Con un 500 o un 400, el mensaje culpa a la red del usuario. → FIX: separar `!res.ok`: "No pudimos enviar el enlace ahora. Intenta en un minuto o escríbenos a {soporte}". El texto de red queda solo para el `catch` de fetch.
+4. **El soporte es emprezaiai@gmail.com** (lib/legal.ts:7). Un correo gratuito, con "aiai" que parece error de tipeo, como única vía para quien ya pagó. → FIX: soporte@ del dominio propio (ya se necesita para Resend). Si no se puede, verificar que el alias se escribe bien.
 
 ### BAJO
-4. **Escala tipográfica: 6 tamaños, la ficha pide 3 niveles.** text-pregunta, base, boton, sm (label y "Corregir"), caption y xs (eyebrow, días y chips de RutaMini, piezas.tsx:283/307/328). Viene sin tocar desde la revisión 3. → FIX: label y "Corregir" a caption, y el xs de RutaMini a caption.
-5. **Inicio a 375: unos 95px vacíos bajo el texto de la ruta, y candados con dos sentidos.** El `LockKeyhole` gris de privacidad (L388) queda sobre los candados de "día bloqueado". → FIX: `justify-center` también en la sección del inicio (L319) y `ShieldCheck` para "Tu idea es tuya".
+5. **La escala tipográfica y el encaje no cambian.** Siguen 6 tamaños (text-pregunta, base, boton, sm para label y "Corregir", caption, xs en el eyebrow y los chips de RutaMini). El aviso usa `--radius-chip` y las tarjetas `--radius-card` en la misma vista. Las viñetas "·" escritas a mano no tienen sangría colgante. Quedan ~85px vacíos bajo el texto de la ruta en entrar-375. → FIX: label y terciarios a caption, el xs de RutaMini a caption, el aviso a `--radius-card`, la lista con `<li>` y marcador SVG del kit (checkmark custom) y `pl` colgante. "MISMO" en mayúsculas pasa a semibold.
 
-## Traza del copy (FICHA-AVATAR)
-- "Entra a tu ruta de 30 días": Deseo 1. OK.
-- "Usa el mismo correo con el que pagaste en Hotmart: así guardas tu pieza 1 y tu plan": Obj. 5 + aversión a la pérdida. OK. Ojo: hoy la pieza no pasa a ninguna cuenta; "pronto" lo aclara ("queda guardada en este celular").
-- "Sin contraseñas… Tu idea es tuya: solo tú ves lo que armas": Obj. 6, frase literal. OK.
-- "Tu negocio, pieza a pieza: hoy ya sabes qué hacer, y en 5 minutos está hecho": frase obligatoria + ancla emocional (L66, L68). OK.
-- "Tu correo de acceso quedó guardado": hecho verificable. No sale de ningún campo, pero es estado del sistema, no venta.
-- "Ya pagué: pedir mi acceso" y "Estamos terminando de abrir…": sin campo de origen. Para cerrar la traza, conectar con Obj. 4 (aviso + garantía, defecto 1).
+## Historial — ronda 5 (2026-10-07): NO LISTA 31·15·15
+Top defectos de entonces: espera sin aviso ni garantía en "pronto" · al volver no reconocía el correo guardado · soporte en Hotmail personal · 6 tamaños de texto · ~95px vacíos y candados con dos sentidos. Resueltos en esta ronda: reconocimiento al volver (23b), el ícono de privacidad y el Hotmail personal (a medias). Siguen: escala tipográfica y vacío inferior. La garantía con nombre sigue sin aparecer en ningún estado de acceso.
