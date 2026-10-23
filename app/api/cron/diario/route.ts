@@ -2,6 +2,9 @@
 // 1) "Pagó y no entra": reintenta el acceso + bienvenida de los perfiles con completed=false.
 // 2) Aviso antes de cobrar: día 5 de la prueba de 7 (decisión de la dueña, 2026-10-13).
 // 3) Alerta a la dueña si hay pagos sin acceso por más de 1 hora (una vez al día).
+// 3b) Alerta si ayer vencieron accesos sin aviso de Hotmart (renovación o prueba sin cobro): como
+//     todo acceso tiene fecha de fin (C1), un aviso perdido corta el acceso en vez de regalarlo; la
+//     dueña revisa en Hotmart si esa persona sí pagó.
 // 4) Limpieza de registros temporales.
 
 import crypto from 'node:crypto';
@@ -10,6 +13,7 @@ import { darAccesoTrasCompra } from '@/lib/servidor/accesos';
 import { leerVariable, supabaseConfigurado } from '@/lib/servidor/config';
 import { alertarDuena, enviarAvisoDeCobro } from '@/lib/servidor/correo';
 import { clienteAdmin } from '@/lib/servidor/supabase';
+import { MARGEN_PRUEBA_MS } from '@/lib/membresia';
 
 export const runtime = 'nodejs';
 
@@ -76,6 +80,26 @@ export async function GET(req: Request) {
     } catch (e) {
       resumen.avisosFallidos += 1;
       console.error('[cron/aviso]', e instanceof Error ? e.name : 'error');
+    }
+  }
+
+  // 3b) Accesos vencidos en las últimas 24 h sin que llegara el aviso de renovación / primer cobro.
+  const ahoraIso = new Date().toISOString();
+  const ayerIso = new Date(Date.now() - 86_400_000).toISOString();
+  const finPruebaDesde = new Date(Date.now() - 86_400_000 - MARGEN_PRUEBA_MS).toISOString();
+  const finPruebaHasta = new Date(Date.now() - MARGEN_PRUEBA_MS).toISOString();
+  const [activas, pruebas] = await Promise.all([
+    db.from('profiles').select('id', { count: 'exact', head: true }).eq('status', 'active').gte('access_until', ayerIso).lt('access_until', ahoraIso),
+    db.from('profiles').select('id', { count: 'exact', head: true }).eq('status', 'trialing').gte('trial_ends_at', finPruebaDesde).lt('trial_ends_at', finPruebaHasta),
+  ]);
+  const vencidos = (activas.count ?? 0) + (pruebas.count ?? 0);
+  if (vencidos > 0) {
+    const { error } = await db.from('alertas').insert({ clave: `accesos-vencidos-${ahoraIso.slice(0, 10)}` });
+    if (!error) {
+      await alertarDuena(
+        'Accesos que vencieron sin aviso de Hotmart',
+        `${vencidos} persona(s) perdieron el acceso porque Hotmart no avisó de su renovación o de su primer cobro. Revisa en Hotmart si pagaron: si sí, escríbeles; el acceso vuelve solo cuando llegue el aviso.`,
+      ).catch((e) => console.error('[cron/vencidos]', e instanceof Error ? e.name : 'error'));
     }
   }
 

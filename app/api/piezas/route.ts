@@ -1,9 +1,12 @@
-// Guarda (crea o actualiza) una pieza. La RLS exige que sea SUYA y que tenga acceso vigente.
+// Guarda (crea o actualiza) una pieza. Solo el SERVIDOR escribe piezas (I1): la persona ya no tiene
+// permiso de escritura directa en la base. Aquí se valida sesión + acceso vigente (exigirAcceso) y
+// se escribe con la clave del servidor, siempre con el user_id de la sesión (nunca del navegador).
 // Una pieza ya guardada conserva su fecha y su creación (la racha no se puede reescribir);
 // una nueva acepta la fecha del celular solo si está a ±2 días del servidor (zonas horarias).
 
 import { PiezaEntrante } from '@/lib/esquemas';
 import { errorInterno, exigirAcceso, respuesta } from '@/lib/servidor/sesion';
+import { clienteAdmin } from '@/lib/servidor/supabase';
 
 const DIA_MS = 86_400_000;
 
@@ -34,7 +37,7 @@ export async function PUT(req: Request) {
       if (distancia > margen) return respuesta(400, { error: 'fecha-invalida' });
     }
 
-    const { error } = await acceso.db.from('piezas').upsert(
+    const { error } = await clienteAdmin().from('piezas').upsert(
       {
         user_id: acceso.user.id,
         dia: p.dia,
@@ -52,11 +55,7 @@ export async function PUT(req: Request) {
       },
       { onConflict: 'user_id,dia' },
     );
-    if (error) {
-      // RLS: la escritura se rechaza si la suscripción ya no da acceso.
-      if (error.code === '42501') return respuesta(403, { error: 'sin-acceso' });
-      throw error;
-    }
+    if (error) throw error;
     return respuesta(200, { ok: true });
   } catch (e) {
     return errorInterno('piezas/put', e);

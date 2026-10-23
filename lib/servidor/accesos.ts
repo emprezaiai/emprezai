@@ -17,7 +17,7 @@ interface PerfilAcceso extends Membresia {
 export async function perfilPorEmail(email: string): Promise<PerfilAcceso | null> {
   const { data, error } = await clienteAdmin()
     .from('profiles')
-    .select('id, user_id, email, status, access_until, grace_ends_at, completed')
+    .select('id, user_id, email, status, trial_ends_at, access_until, grace_ends_at, completed')
     .eq('email', email.toLowerCase())
     .maybeSingle();
   if (error) throw error;

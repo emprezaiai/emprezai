@@ -6,7 +6,20 @@ import crypto from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { darAccesoTrasCompra } from '@/lib/servidor/accesos';
 import { leerVariable, supabaseConfigurado } from '@/lib/servidor/config';
-import { PayloadHotmart, estadoPorEvento, fechaDe, finDePrueba, hottokValido, planDe, tipoEconomico } from '@/lib/servidor/hotmart';
+import {
+  PayloadHotmart,
+  accesoTrasPago,
+  emailDe,
+  estadoPorEvento,
+  fechaDe,
+  finDePrueba,
+  hottokValido,
+  planDe,
+  productoDe,
+  proximoCobroDe,
+  suscriptorDe,
+  tipoEconomico,
+} from '@/lib/servidor/hotmart';
 import { clienteAdmin } from '@/lib/servidor/supabase';
 
 export const runtime = 'nodejs';
@@ -58,13 +71,15 @@ export async function POST(req: Request) {
     await registrar(eventId, p.event, 'rejected');
     return json(400, { error: 'stale' });
   }
-  if (p.data?.product?.id && p.data.product.id !== productoEsperado) {
+  // Catálogo obligatorio (I4): el hottok es de TODA la cuenta de Hotmart, así que un aviso sin
+  // producto, o de otro producto de la misma cuenta, nunca da acceso a EMPREZAI.
+  if (productoDe(p) !== productoEsperado) {
     await registrar(eventId, p.event, 'rejected');
     return json(200, { received: true, result: 'otro-producto' });
   }
 
-  const email = p.data?.buyer?.email?.toLowerCase();
-  const subscriberCode = p.data?.subscription?.subscriber?.code ?? null;
+  const email = emailDe(p);
+  const subscriberCode = suscriptorDe(p);
   const payloadHash = crypto.createHash('sha256').update(crudo).digest('hex');
   const db = clienteAdmin();
 
@@ -101,15 +116,19 @@ export async function POST(req: Request) {
       p_plan: planDe(p),
       p_anon_id: compra?.origin?.src?.slice(0, 120) ?? null,
       p_trial_ends_at: nuevo === 'trialing' ? finDePrueba() : null,
-      p_access_until: nuevo === 'cancelled' ? fechaDe(compra?.date_next_charge) : null,
+      // Todo acceso con fecha de fin (C1): pago aprobado → próximo cobro + gracia; cancelado → hasta
+      // el fin del período ya pagado.
+      p_access_until: nuevo === 'active' ? accesoTrasPago(p) : nuevo === 'cancelled' ? fechaDe(proximoCobroDe(p)) : null,
       p_grace_ends_at: null,
       p_transaction_id: economico ? (compra?.transaction ?? null) : null,
       p_economic_kind: economico,
-      p_product_id: p.data?.product?.id ?? productoEsperado,
+      p_product_id: productoEsperado,
       p_offer_id: compra?.offer?.code ?? null,
       p_amount_minor: economico && valor !== undefined ? Math.round(valor * 100) : null,
       p_currency: compra?.price?.currency_value ?? 'USD',
       p_occurred_at: fechaDe(compra?.approved_date) ?? fechaDe(p.creation_date),
+      p_event_at: fechaDe(p.creation_date),
+      p_solo_crear: p.event === 'PURCHASE_COMPLETE',
     });
     if (error) throw error;
 
@@ -117,6 +136,11 @@ export async function POST(req: Request) {
     if (estado === 'duplicate') {
       await registrar(eventId, p.event, 'duplicate');
       return json(200, { received: true, result: 'duplicate' });
+    }
+    if (estado === 'stale') {
+      // Aviso más viejo que el último aplicado (llegó tarde): queda en el libro, no cambia el acceso.
+      await registrar(eventId, p.event, 'ignored');
+      return json(200, { received: true, result: 'stale' });
     }
     if (estado === 'illegal_transition') {
       await registrar(eventId, p.event, 'illegal');

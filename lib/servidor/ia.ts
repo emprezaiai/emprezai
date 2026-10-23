@@ -6,6 +6,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type { z } from 'zod';
 import { clienteAdmin } from './supabase';
+import { tomarCupo } from './limites';
 import { leerVariable, numeroOr, requerida } from './config';
 import { alertarDuena } from './correo';
 
@@ -49,10 +50,12 @@ function costoUSD(m: string, uso: Anthropic.Beta.BetaUsage): number {
   return (uso.input_tokens * entrada + escritos * entrada * 1.25 + leidos * entrada * 0.1 + uso.output_tokens * salida) / 1_000_000;
 }
 
+// La suma la hace la base (C2): traer filas para sumarlas aquí se corta en el tope de filas por
+// consulta y el kill-switch dejaba de frenar justo cuando más se usaba la IA.
 async function gastoDesde(desde: Date): Promise<number> {
-  const { data, error } = await clienteAdmin().from('ai_calls').select('cost_usd').gte('created_at', desde.toISOString());
+  const { data, error } = await clienteAdmin().rpc('gasto_ia_desde', { p_desde: desde.toISOString() });
   if (error) throw error;
-  return (data ?? []).reduce((suma, fila) => suma + Number(fila.cost_usd), 0);
+  return Number(data ?? 0);
 }
 
 /** Kill-switch global (diario y mensual). Avisa a la dueña UNA vez por tope y período. */
@@ -75,18 +78,13 @@ async function dentroDelPresupuesto(): Promise<boolean> {
   return false;
 }
 
-/** Límite por persona (sesión) o por IP (recorrido anónimo), contado sobre ai_calls. */
+/**
+ * Límite por persona (sesión) o por IP (recorrido anónimo). Atómico (I2): reserva el cupo ANTES de
+ * llamar a la IA, así que muchas peticiones simultáneas no pasan el límite.
+ */
 export async function dentroDelLimiteIA(filtro: { userId?: string; ipHash?: string }, porHora: number, porDia: number): Promise<boolean> {
-  const db = clienteAdmin();
-  const contar = async (desdeMs: number) => {
-    let q = db.from('ai_calls').select('id', { count: 'exact', head: true }).gte('created_at', new Date(Date.now() - desdeMs).toISOString());
-    q = filtro.userId ? q.eq('user_id', filtro.userId) : q.eq('ip_hash', filtro.ipHash ?? '-');
-    const { count, error } = await q;
-    if (error) throw error;
-    return count ?? 0;
-  };
-  const [hora, dia] = await Promise.all([contar(3_600_000), contar(86_400_000)]);
-  return hora < porHora && dia < porDia;
+  const clave = filtro.userId ? `ia:u:${filtro.userId}` : `ia:ip:${filtro.ipHash ?? '-'}`;
+  return tomarCupo(clave, porHora, 60, porDia, 24 * 60);
 }
 
 interface Pedido<T> {

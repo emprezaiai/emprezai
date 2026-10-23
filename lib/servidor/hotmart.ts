@@ -44,9 +44,15 @@ export const PayloadHotmart = z
             status: z.string(),
             plan: z.object({ name: z.string() }).partial(),
             subscriber: z.object({ code: z.string() }).partial(),
+            product: z.object({ id: z.coerce.string() }).partial(),
+            user: z.object({ email: z.string().email() }).partial(),
           })
           .partial()
           .optional(),
+        // Los avisos de suscripción (cancelación, cambio de plan) traen a la persona en "subscriber"
+        // y la fecha del próximo cobro en la raíz de data, no en "buyer"/"purchase".
+        subscriber: z.object({ code: z.string(), email: z.string().email(), name: z.string() }).partial().optional(),
+        date_next_charge: num.optional(),
       })
       .passthrough()
       .optional(),
@@ -61,6 +67,8 @@ export function estadoPorEvento(p: PayloadHotmart): EstadoMembresia | null {
     case 'PURCHASE_APPROVED':
     case 'PURCHASE_COMPLETE':
       // Inicio de prueba gratis: llega como compra aprobada de valor 0 (confirmar en la compra de prueba).
+      // PURCHASE_COMPLETE llega al vencer la garantía: el webhook lo marca "solo crear" para que nunca
+      // cambie el estado de un perfil que ya existe (no revive una suscripción cancelada).
       return valor === 0 ? 'trialing' : 'active';
     case 'PURCHASE_DELAYED':
       return 'past_due';
@@ -98,4 +106,36 @@ export const fechaDe = (ms: number | undefined) => (ms && Number.isFinite(ms) ? 
 
 export function finDePrueba(): string {
   return new Date(Date.now() + PRECIOS.diasPrueba * 86_400_000).toISOString();
+}
+
+/** Quién es: los avisos de compra la traen en buyer; los de suscripción, en subscriber. */
+export function emailDe(p: PayloadHotmart): string | undefined {
+  return (p.data?.buyer?.email ?? p.data?.subscriber?.email ?? p.data?.subscription?.user?.email)?.toLowerCase();
+}
+
+export function suscriptorDe(p: PayloadHotmart): string | null {
+  return p.data?.subscription?.subscriber?.code ?? p.data?.subscriber?.code ?? null;
+}
+
+export function productoDe(p: PayloadHotmart): string | undefined {
+  return p.data?.product?.id ?? p.data?.subscription?.product?.id;
+}
+
+export function proximoCobroDe(p: PayloadHotmart): number | undefined {
+  return p.data?.purchase?.date_next_charge ?? p.data?.date_next_charge;
+}
+
+/** Días extra tras el próximo cobro: Hotmart reintenta el cobro antes de avisar que falló. */
+export const GRACIA_COBRO_DIAS = 3;
+const DIA_MS = 86_400_000;
+
+/**
+ * Hasta cuándo da acceso un pago aprobado: el próximo cobro + gracia. Si Hotmart no manda la fecha,
+ * un período del plan + gracia. Así, si se pierde el aviso de renovación o de cancelación, el
+ * acceso vence solo (C1) en vez de quedar abierto para siempre.
+ */
+export function accesoTrasPago(p: PayloadHotmart, ahora = Date.now()): string {
+  const proximo = proximoCobroDe(p);
+  const base = proximo && Number.isFinite(proximo) && proximo > ahora ? proximo : ahora + (planDe(p) === 'anual' ? 366 : 31) * DIA_MS;
+  return new Date(base + GRACIA_COBRO_DIAS * DIA_MS).toISOString();
 }

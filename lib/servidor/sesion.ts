@@ -22,7 +22,7 @@ export async function revisarAcceso(): Promise<Acceso> {
   if (!user) return { estado: 'sin-sesion' };
   const { data: perfil } = await db
     .from('profiles')
-    .select('status, access_until, grace_ends_at')
+    .select('status, trial_ends_at, access_until, grace_ends_at')
     .eq('user_id', user.id)
     .maybeSingle();
   if (!perfil || !tieneAcceso(perfil as Membresia)) return { estado: 'sin-acceso', user };

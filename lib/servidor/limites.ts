@@ -15,20 +15,22 @@ export function huella(valor: string): string {
 }
 
 /**
- * Registra un intento y dice si todavía está dentro del límite.
- * Cuenta los intentos de `clave` en la ventana; si ya llegó al máximo, NO registra otro.
+ * Registra un intento y dice si todavía está dentro del límite. Contar y anotar ocurren en UN solo
+ * paso dentro de la base, con un candado por clave (I2): ráfagas simultáneas no pasan el límite.
+ * Si ya llegó al máximo, NO registra otro. La ventana larga es opcional (ej. por hora y por día).
  */
-export async function dentroDelLimite(clave: string, maximo: number, ventanaMin: number): Promise<boolean> {
-  const db = clienteAdmin();
-  const desde = new Date(Date.now() - ventanaMin * 60_000).toISOString();
-  const { count, error } = await db
-    .from('limite_intentos')
-    .select('id', { count: 'exact', head: true })
-    .eq('clave', clave)
-    .gte('created_at', desde);
+export async function tomarCupo(clave: string, maximo: number, ventanaMin: number, maximoLargo?: number, ventanaLargaMin?: number): Promise<boolean> {
+  const { data, error } = await clienteAdmin().rpc('tomar_cupo', {
+    p_clave: clave,
+    p_maximo: maximo,
+    p_ventana_min: ventanaMin,
+    p_maximo_largo: maximoLargo ?? null,
+    p_ventana_larga_min: ventanaLargaMin ?? null,
+  });
   if (error) throw error;
-  if ((count ?? 0) >= maximo) return false;
-  const { error: errorInsert } = await db.from('limite_intentos').insert({ clave });
-  if (errorInsert) throw errorInsert;
-  return true;
+  return data === true;
+}
+
+export function dentroDelLimite(clave: string, maximo: number, ventanaMin: number): Promise<boolean> {
+  return tomarCupo(clave, maximo, ventanaMin);
 }
