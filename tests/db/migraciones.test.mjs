@@ -22,7 +22,7 @@ await db.exec(`
   grant execute on function auth.uid() to anon, authenticated, service_role;
   grant usage on schema public to anon, authenticated, service_role;
 `);
-for (const m of ['20261014000000_inicial.sql', '20261023000000_blindaje.sql']) {
+for (const m of ['20261014000000_inicial.sql', '20261023000000_blindaje.sql', '20261103000000_cierre_tiene_acceso.sql']) {
   await db.exec(readFileSync(`${raiz}/supabase/migrations/${m}`, 'utf8'));
   console.log('migración aplicada:', m);
 }
@@ -141,6 +141,13 @@ try {
   gastoBloqueado = /permission denied/.test(e.message);
 }
 ok(gastoBloqueado, 'authenticated no puede leer el gasto de IA');
+let accesoBloqueado = false;
+try {
+  await db.query(`select public.tiene_acceso($1)`, [u2]);
+} catch (e) {
+  accesoBloqueado = /permission denied/.test(e.message);
+}
+ok(accesoBloqueado, 'authenticated no puede preguntar si otra cuenta tiene acceso');
 await db.query(`select set_config('request.jwt.claim.sub', $1, false)`, [u2]);
 await db.query(`delete from public.piezas where user_id=$1`, [u2]);
 await db.exec(`reset role`);
