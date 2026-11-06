@@ -17,9 +17,12 @@ pagina.on('pageerror', (e) => errores.push(e.message));
 const medidas = [];
 
 let respuestaEnviar = { status: 200, body: { ok: true } };
-await pagina.route('**/api/acceso/enviar', (r) =>
-  r.fulfill({ status: respuestaEnviar.status, contentType: 'application/json', body: JSON.stringify(respuestaEnviar.body) }),
-);
+let envios = 0;
+const pruebas = [];
+await pagina.route('**/api/acceso/enviar', (r) => {
+  envios += 1;
+  return r.fulfill({ status: respuestaEnviar.status, contentType: 'application/json', body: JSON.stringify(respuestaEnviar.body) });
+});
 
 async function capturar(nombre) {
   await pagina.evaluate(() => document.fonts.ready);
@@ -66,8 +69,17 @@ await capturar('04-error-servidor');
 respuestaEnviar = { status: 200, body: { ok: true } };
 await pagina.goto(`${base}/login`, { waitUntil: 'load' });
 await pagina.getByLabel('Tu correo').fill('carla.mendez@gmial.com');
-await pagina.getByLabel('Tu correo').blur();
+// Toque DIRECTO en el botón desde el campo: el primer toque muestra la sugerencia y no envía.
+envios = 0;
+await pagina.getByRole('button', { name: /Enviarme mi enlace/ }).click();
+await pagina.waitForTimeout(500);
+pruebas.push({ prueba: 'gmial + toque directo no envía', ok: envios === 0 });
 await capturar('06-sugerencia-dominio');
+// El segundo toque envía igual (nunca bloquea para siempre).
+await pagina.getByRole('button', { name: /Enviarme mi enlace/ }).click();
+await pagina.waitForTimeout(500);
+pruebas.push({ prueba: 'segundo toque sí envía', ok: envios === 1 });
+await pagina.goto(`${base}/login`, { waitUntil: 'load' });
 
 respuestaEnviar = { status: 500, body: { error: 'interno' } };
 await pagina.getByLabel('Tu correo').fill('carla.mendez@gmail.com');
@@ -76,5 +88,5 @@ await pagina.getByRole('button', { name: /Enviarme mi enlace/ }).click();
 await capturar('05-sin-conexion');
 await contexto.setOffline(false);
 
-console.log(JSON.stringify({ medidas, errores }, null, 1));
+console.log(JSON.stringify({ medidas, errores, pruebas }, null, 1));
 await navegador.close();

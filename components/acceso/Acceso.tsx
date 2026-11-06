@@ -33,6 +33,7 @@ const CORREO_VALIDO = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 // primer punto) y se conserva su terminación (.com, .es, .cl…); los dominios reales parecidos
 // (ymail, mail, email, hotmail.cl…) nunca se "corrigen".
 const NOMBRES_COMUNES = ['gmail', 'hotmail', 'outlook', 'yahoo', 'icloud', 'live'];
+const TERMINACIONES_MAL_ESCRITAS = new Set(['.con', '.cpm', '.cm', '.om', '.comm', '.vom', '.xom', '.cim']);
 const NOMBRES_REALES = new Set(['gmail', 'hotmail', 'outlook', 'yahoo', 'icloud', 'live', 'ymail', 'mail', 'email', 'aol', 'msn', 'proton', 'protonmail', 'gmx', 'zoho', 'me', 'mac']);
 
 /** Distancia de edición contando como 1 el cambio de dos letras vecinas ("gmial" → "gmail"). */
@@ -54,10 +55,12 @@ function sugerirCorreo(correo: string): string | undefined {
   if (!usuario || !dominio || !CORREO_VALIDO.test(correo.trim())) return undefined;
   const punto = dominio.indexOf('.');
   const nombre = dominio.slice(0, punto);
-  const terminacion = dominio.slice(punto);
+  const escrita = dominio.slice(punto);
+  // ".co" es real (Colombia): no se toca.
+  const terminacion = TERMINACIONES_MAL_ESCRITAS.has(escrita) ? '.com' : escrita;
   // Gmail solo existe como gmail.com.
   if (nombre === 'gmail') return dominio === 'gmail.com' ? undefined : `${usuario}@gmail.com`;
-  if (NOMBRES_REALES.has(nombre)) return undefined;
+  if (NOMBRES_REALES.has(nombre)) return terminacion === escrita ? undefined : `${usuario}@${nombre}${terminacion}`;
   const cercano = NOMBRES_COMUNES.find((c) => distancia(nombre, c) <= (c.length <= 5 ? 1 : 2));
   if (!cercano) return undefined;
   return `${usuario}@${cercano}${cercano === 'gmail' ? '.com' : terminacion}`;
@@ -65,28 +68,42 @@ function sugerirCorreo(correo: string): string | undefined {
 
 /** El soporte, igual en todos los estados: visible, seleccionable y con un botón que lo copia. */
 function SoporteLinea({ className = '' }: { className?: string }) {
-  const [copiado, setCopiado] = useState(false);
+  const [copiado, setCopiado] = useState<'no' | 'si' | 'manual'>('no');
+  const direccion = useRef<HTMLSpanElement>(null);
   async function copiar() {
     try {
       await navigator.clipboard.writeText(RESPONSABLE.emailContacto);
-      setCopiado(true);
-      window.setTimeout(() => setCopiado(false), 2000);
+      setCopiado('si');
+      window.setTimeout(() => setCopiado('no'), 2000);
     } catch {
-      // Sin permiso de portapapeles: la dirección sigue visible y seleccionable.
+      // Sin portapapeles (p. ej. el navegador dentro de Instagram o Facebook): se deja la dirección
+      // seleccionada y se explica cómo copiarla a mano.
+      const nodo = direccion.current;
+      const seleccion = window.getSelection();
+      if (nodo && seleccion) {
+        const rango = document.createRange();
+        rango.selectNodeContents(nodo);
+        seleccion.removeAllRanges();
+        seleccion.addRange(rango);
+      }
+      setCopiado('manual');
     }
   }
   return (
     <p className={`flex flex-wrap items-center gap-x-2 text-caption text-ink-2 ${className}`}>
       <span>
-        Soporte: <span className="font-semibold [overflow-wrap:anywhere] text-ink-1 select-all">{RESPONSABLE.emailContacto}</span>
+        Soporte:{' '}
+        <span ref={direccion} className="font-semibold [overflow-wrap:anywhere] text-ink-1 select-all">
+          {RESPONSABLE.emailContacto}
+        </span>
       </span>
       <button
         type="button"
         onClick={copiar}
         className="inline-flex min-h-11 items-center gap-1 font-semibold text-ink-1 underline-offset-4 hover:underline"
       >
-        {copiado ? <Check size={14} aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}
-        <span aria-live="polite">{copiado ? 'Copiado' : 'Copiar'}</span>
+        {copiado === 'si' ? <Check size={14} aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}
+        <span aria-live="polite">{copiado === 'si' ? 'Copiado' : copiado === 'manual' ? 'Mantén presionado para copiar' : 'Copiar'}</span>
       </button>
     </p>
   );
@@ -143,6 +160,8 @@ export function Acceso() {
   const avisoUrl = useSyncExternalStore(suscribirNada, leerAvisoUrl, () => '');
   // Se calcula al salir del campo o al enviar (no mientras escribe "gmail.co" antes de la "m").
   const [sugerencia, setSugerencia] = useState<string | undefined>(undefined);
+  // La que ya se mostró al enviar: el segundo toque envía igual (nunca bloquea para siempre).
+  const sugerenciaAvisada = useRef<string | undefined>(undefined);
 
   // Versión de prueba local: con cuenta en el celular, directo a su ruta. (Con acceso real, la
   // sesión la decide el servidor: una copia local no es una sesión.)
@@ -176,7 +195,8 @@ export function Acceso() {
     // Primer toque con un dominio dudoso: se muestra la sugerencia y no se envía; un segundo toque
     // (o corregirlo) envía. Nunca bloquea para siempre.
     const sugerido = sugerirCorreo(limpio);
-    if (sugerido && sugerencia !== sugerido) {
+    if (sugerido && sugerenciaAvisada.current !== sugerido) {
+      sugerenciaAvisada.current = sugerido;
       setSugerencia(sugerido);
       return;
     }
@@ -622,13 +642,14 @@ export function Acceso() {
                   <p role="alert" className="text-caption text-danger">
                     {falla === 'servidor' ? (
                       <>
-                        No pudimos enviar el enlace ahora. Intenta en un minuto; si sigue, escríbenos.
+                        No pudimos enviar el enlace ahora. Intenta en un minuto; si sigue, escríbenos:
                       </>
                     ) : (
                       'No pudimos enviar el enlace. Revisa tu conexión e intenta de nuevo.'
                     )}
                   </p>
                 )}
+                {estado === 'error' && falla === 'servidor' && <SoporteLinea />}
                 <button
                   type="submit"
                   disabled={estado === 'enviando'}
