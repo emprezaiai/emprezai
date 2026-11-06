@@ -1,5 +1,5 @@
 // Captura los estados de ENTRAR a 375px en docs/revisiones/entrar/: inicio con pieza 1, aviso
-// "sin-acceso", correo enviado, error del servidor y sin conexión. El servidor de acceso se simula
+// "sin-acceso", correo enviado, error del servidor, sugerencia de dominio y sin conexión. El servidor de acceso se simula
 // (respuestas fijas), así no se envían correos reales. Mide el desborde horizontal de cada estado.
 // Uso: node scripts/captura-entrar.mjs http://localhost:3100 [ancho]
 import { mkdirSync } from 'node:fs';
@@ -63,6 +63,13 @@ await pagina.getByLabel('Tu correo').fill('carla.mendez@gmail.com');
 await pagina.getByRole('button', { name: /Enviarme mi enlace/ }).click();
 await capturar('04-error-servidor');
 
+respuestaEnviar = { status: 200, body: { ok: true } };
+await pagina.goto(`${base}/login`, { waitUntil: 'load' });
+await pagina.getByLabel('Tu correo').fill('carla.mendez@gmial.com');
+await capturar('06-sugerencia-dominio');
+
+respuestaEnviar = { status: 500, body: { error: 'interno' } };
+await pagina.getByLabel('Tu correo').fill('carla.mendez@gmail.com');
 await contexto.setOffline(true);
 await pagina.getByRole('button', { name: /Enviarme mi enlace/ }).click();
 await capturar('05-sin-conexion');

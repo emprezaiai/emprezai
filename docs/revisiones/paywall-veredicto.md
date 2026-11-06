@@ -1,4 +1,40 @@
 # VEREDICTO revisor-visual — paywall (pantalla de planes)
+Fecha: 2026-11-06 18:00
+Screenshot: docs/revisiones/paywall-375.png
+Usabilidad: 36/40
+Craft: 16/20
+Copy (si vende): 19/20
+Fidelidad (si hubo referencia): N-A
+Veredicto: LISTA
+Top defectos: (1) [primer cuadro, jerarquía] siguen 7 tamaños de letra: 12 (eyebrow, nodos, $/día, "al mes"), 14 (cita, cobro, línea bajo el botón), 16, 17 (botón), 18 (nombre del plan), 24 (precio) y 28 (titular). La cita en display bold de 14 y "Anual"/"Mensual" a 18 compiten con el precio, que es el dato → en Paywall.tsx: L316 `text-lg` → `text-base`, y L254 de `font-display font-bold` a `font-semibold` (Instrument Sans) · (2) [línea bajo el botón, en los 3 estados] al sumar "con tarjeta", la línea pasa a 2 renglones y se corta en "· cancela / cuando quieras", con una viuda centrada debajo del botón (paywall-375, 15-final, directo-arriba) → cortar por el separador: "Hoy $0 con tarjeta · luego $79.99 al año" + `<br/>` + "Cancela cuando quieras" (L470), o `text-balance` en L451 · (3) [entrada directa, nodo "Frase" (directo-arriba)] falta la firma de movimiento de FICHA-ARTE L59: el nodo "hoy" en relieve-oro con el rayo no pulsa, y no hay ningún bucle en el código → en L216-219, si `hoy`, envolver en un motion.span con `animate={{ scale: [1, 1.06, 1] }}`, `transition={{ duration: 2, repeat: Infinity }}` y apagado con reduced-motion · (4) [tarjeta Anual, insignia contra el título] con `py-5`, el título "Anual" queda a unos 8-10 px CSS del borde inferior de la insignia "Mejor valor", y en la mensual el mismo título respira 20 px: apretado para un ojo entrenado → bajar la insignia a `-top-3.5` y darle `mt-1` al bloque de texto solo en la anual · (5) [debajo de la garantía] la parte final sigue con 3 sellos, 2 enlaces apilados y una fila legal (unos 280 px CSS de gris, 15-final) → poner "Ahora no" y "¿Ya pagaste? Entra aquí" en una sola fila (`flex-row gap-4`, L409) para quitar un renglón
+
+Detalle: USABILIDAD h1:4 h2:4 h3:4 h4:3 h5:4 h6:4 h7:3 h8:3 h9:4 h10:3 · CRAFT jerarquía:3 profundidad:4 identidad:3 movimiento:3 encaje:3 · COPY idea:4 especificidad:3 emoción:4 oferta:4 acción:4
+Gate doble: 36/40 (≥36) PASA · 16/20 (≥16) PASA · copy 19/20 (≥16, ningún eje ≤2) PASA. El encaje mejoró: se cerraron el punto que asomaba y el descentrado de la mensual. Pero la viuda de la línea bajo el botón y la insignia apretada lo dejan en 3. La jerarquía y el movimiento no cambiaron, así que el total no sube.
+
+## Re-revisión 2026-11-06, 2ª pasada (commit 19e6c5b, contexto limpio)
+
+Insumos: paywall-375.png · recorrido/15-planes-arriba/final · 16-planes-mensual-arriba · 17-planes-vista-previa-arriba · paywall-directo-arriba.png · paywall-directo-final.png · Paywall.tsx · globals.css (.barra-inferior) · piezas.tsx.
+
+TOP DEFECTOS de la 1ª pasada del 2026-11-06, uno por uno:
+1. Punto "Hoy" asomando bajo la barra → CERRADO. `.barra-inferior` ahora usa `var(--surface-base) 16px` (globals L246). En paywall-375, 16-arriba y directo-arriba no asoma nada; en directo-arriba la línea dorada se desvanece limpia bajo la barra.
+2. Mensual descentrada → CERRADO. Las dos tarjetas usan `py-5` (L285). La mensual mide 210 px de captura, con el radio en el centro 1240 y la tarjeta también en 1240. Efecto secundario: defecto 4 de arriba.
+3. Tarjeta fuera del primer cuadro → CERRADO. "Hoy $0 con tarjeta · luego …" (L470) se ve en los 3 estados. Efecto secundario: la viuda del defecto 2 de arriba.
+4. 7 tamaños de letra → ABIERTO, sin cambios en el código (L254, L316).
+5. Firma del nodo hoy y "día." huérfano → CERRADO A MEDIAS. "cada día." ya va con `whitespace-nowrap` (L248, se ve en directo-arriba); el pulso del nodo hoy sigue sin existir (busqué "puls"/"repeat" en Paywall, piezas y globals: solo aparecen los del esqueleto).
+
+Gate de carga cognitiva: 0 fallas de 8, sin cambios.
+CTA héroe vivo: pasa los 4 (≈11:1 · whileTap 0.98 · disabled solo con `yendo` · 56 px, ancho completo y sticky).
+FICHA-ARTE: tokens, familias y radios sin cambios y coincidentes. No es clon de "Umbral" ni de "Capítulo".
+Fechas: hoy es 6 nov → aviso el 11 nov y cobro el 13 nov: VERIFICADAS. El monto cambia con el plan ($9.99 en 16-arriba).
+Entrada directa por cuadros (directo-arriba/final): titular "tus 30 días", nodo "Frase" en oro con el rayo, botón "Empezar mis 7 días gratis". Ya no hay superposición de captura. BIEN.
+Vista previa honesta (17-arriba): sin cambios; correcta.
+Copy: oferta en 4 (la tarjeta, el precio, el ahorro, la garantía con nombre y plazo y las objeciones 4, 5 y 6 se ven y se trazan a FICHA-AVATAR L43-44 y L58-60). Especificidad en 3: la promesa "29 días hasta salir a vender" no tiene prueba visible. Message-match: NO VERIFICABLE (falta el dato del 34). Pendiente de verificar en la Sesión 6, no cuenta como defecto: que la garantía cuente "desde tu primer pago" (decisión de la dueña, ESTADO L70; FICHA-MERCADO L31 lo marca como no confirmado en Hotmart).
+
+---
+
+# HISTORIAL
+
+# VEREDICTO revisor-visual — paywall (pantalla de planes) — 1ª pasada
 Fecha: 2026-11-06 12:00
 Screenshot: docs/revisiones/paywall-375.png
 Usabilidad: 36/40
@@ -11,7 +47,7 @@ Top defectos: (1) [primer cuadro, encima del borde superior izquierdo del botón
 Detalle: USABILIDAD h1:4 h2:4 h3:4 h4:3 h5:4 h6:4 h7:3 h8:3 h9:4 h10:3 · CRAFT jerarquía:3 profundidad:4 identidad:3 movimiento:3 encaje:3 · COPY idea:4 especificidad:3 emoción:4 oferta:4 acción:4
 Gate doble: 36/40 (≥36) PASA · 16/20 (≥16) PASA · copy 19/20 (≥16, ningún eje ≤2) PASA. Pasa justo otra vez: el encaje y la jerarquía no tienen margen, y cualquier regresión la vuelve a NO LISTA.
 
-## Re-revisión 2026-11-06 (contexto limpio)
+## Re-revisión 2026-11-06, 1ª pasada (contexto limpio)
 
 Insumos: paywall-375.png · recorrido/15-planes-arriba/final · 16-planes-mensual-arriba/final · 17-planes-vista-previa-arriba/final · paywall-directo-375.png · components/paywall/Paywall.tsx · app/paywall/page.tsx · components/onboarding/piezas.tsx · app/globals.css · lib/legal.ts · app/page.tsx (Oferta) · FICHA-ARTE · FICHA-AVATAR · FICHA-MERCADO.
 
@@ -36,8 +72,6 @@ Copy: el titular se traza a L52, el subtítulo a L66 ("hoja en blanco", "pieza a
 Nota de la captura: en paywall-directo-375.png (página completa), el botón fijo sale a mitad de la página tapando "11 de noviembre", y abajo queda un hueco. Es un artefacto del modo página completa con un elemento sticky, no un defecto de la pantalla; para futuras capturas de la entrada directa, usar desplazamiento por cuadros.
 
 ---
-
-# HISTORIAL
 
 # VEREDICTO revisor-visual — paywall (pantalla de planes)
 Fecha: 2026-10-23 12:00

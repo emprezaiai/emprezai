@@ -223,7 +223,7 @@ export default function PaginaDeVentas() {
             icon: CalendarRange,
             pregunta: '¿Y después del día 30?',
             respuestaMarked:
-              'Tu negocio queda en Mi Empresa: lo editas, lo copias y lo descargas cuando quieras. Con el plan anual, [b]cada ruta nueva que agreguemos[/b] entra sin pagar más.',
+              'Tu negocio queda en Mi Empresa: [b]lo editas, lo copias y lo descargas cuando quieras[/b].',
           },
           {
             icon: Lock,

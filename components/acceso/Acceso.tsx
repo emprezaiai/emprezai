@@ -27,6 +27,38 @@ const demoPermitida = () => BANDERA_DEMO && ['localhost', '127.0.0.1'].includes(
 const ESPERA_REENVIO = 60;
 const CORREO_VALIDO = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+// Dominios más usados en LATAM: si escribió uno parecido (gmial.com, hotmal.com), se le sugiere el
+// correcto. El servidor responde igual a todos los correos (anti-enumeración), así que sin esta ayuda
+// quien se equivoca de dominio esperaría un correo que nunca llega.
+const DOMINIOS_COMUNES = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'icloud.com', 'live.com', 'hotmail.es', 'yahoo.es'];
+
+function distancia(a: string, b: string): number {
+  const fila = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    let previa = fila[0];
+    fila[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const actual = fila[j];
+      fila[j] = Math.min(fila[j] + 1, fila[j - 1] + 1, previa + (a[i - 1] === b[j - 1] ? 0 : 1));
+      previa = actual;
+    }
+  }
+  return fila[b.length];
+}
+
+/** "carla@gmial.com" → "carla@gmail.com"; undefined si el dominio ya es uno común o no se parece. */
+function sugerirCorreo(correo: string): string | undefined {
+  const [usuario, dominio] = correo.trim().toLowerCase().split('@');
+  if (!usuario || !dominio || DOMINIOS_COMUNES.includes(dominio)) return undefined;
+  const cercano = DOMINIOS_COMUNES.find((d) => distancia(dominio, d) <= 2);
+  return cercano ? `${usuario}@${cercano}` : undefined;
+}
+
+/** El correo de soporte, visible y fácil de copiar (un mailto solo no sirve si no hay app de correo). */
+function CorreoSoporte() {
+  return <span className="font-semibold [overflow-wrap:anywhere] text-ink-1 select-all">{RESPONSABLE.emailContacto}</span>;
+}
+
 const suscribirNada = () => () => {};
 const leerAvisoUrl = () => new URLSearchParams(window.location.search).get('estado') ?? '';
 
@@ -76,6 +108,7 @@ export function Acceso() {
   const [intentos, setIntentos] = useState(0);
   const [verificando, setVerificando] = useState(false);
   const avisoUrl = useSyncExternalStore(suscribirNada, leerAvisoUrl, () => '');
+  const sugerencia = CORREO_VALIDO.test(email.trim()) ? sugerirCorreo(email) : undefined;
 
   // Versión de prueba local: con cuenta en el celular, directo a su ruta. (Con acceso real, la
   // sesión la decide el servidor: una copia local no es una sesión.)
@@ -271,7 +304,7 @@ export function Acceso() {
               <button
                 type="button"
                 onClick={() => setEstado('inicio')}
-                className="mt-2 flex min-h-11 items-center justify-center text-sm font-semibold text-ink-2 transition-transform duration-100 active:scale-[0.97]"
+                className="mt-2 flex min-h-11 items-center justify-center text-caption font-semibold text-ink-2 transition-transform duration-100 active:scale-[0.97]"
               >
                 Corregir mi correo
               </button>
@@ -305,8 +338,8 @@ export function Acceso() {
               </span>
               <TituloAcento texto="Revisa tu correo" acento="tu correo" className="mt-6 text-pregunta" />
               <p className="mt-2 text-base text-ink-2">
-                Le escribimos a <strong className="font-semibold [overflow-wrap:anywhere] text-ink-1">{email}</strong>. Si tiene una compra activa, trae tu
-                enlace y tu código; si no, te explica qué hacer.
+                Le escribimos a <strong className="font-semibold [overflow-wrap:anywhere] text-ink-1">{email}</strong>. Si ese correo tiene una compra
+                activa, te llegan tu enlace y tu código. Si no, te explicamos qué hacer.
               </p>
 
               <form onSubmit={entrarConCodigo} noValidate className="mt-6 flex flex-col gap-2">
@@ -373,11 +406,14 @@ export function Acceso() {
                 >
                   Escríbenos y te damos acceso
                 </a>
+                <p className="text-caption text-ink-2">
+                  o copia el correo: <CorreoSoporte />
+                </p>
               </div>
 
               {demo && (
                 <div className="tarjeta-relieve-base mt-6 rounded-[var(--radius-card)] p-4">
-                  <p className="text-sm font-semibold text-ink-1">Modo demostración</p>
+                  <p className="text-caption font-semibold text-ink-1">Modo demostración</p>
                   <p className="mt-1 text-caption text-ink-2">Entra sin esperar el correo. Solo existe en esta versión de prueba.</p>
                   <button
                     type="button"
@@ -472,9 +508,12 @@ export function Acceso() {
                         href={`mailto:${RESPONSABLE.emailContacto}?subject=${encodeURIComponent('Ya pagué EMPREZAI y no puedo entrar')}${email ? `&body=${encodeURIComponent(`Mi correo de compra: ${email}`)}` : ''}`}
                         className="flex min-h-11 items-center font-semibold text-ink-1 underline underline-offset-4"
                       >
-                        Ya pagué: escribirles
+                        Ya pagué: escríbenos
                       </a>
                     </div>
+                    <p className="mt-1">
+                      Soporte: <CorreoSoporte />
+                    </p>
                   </div>
                 </motion.div>
               )}
@@ -514,6 +553,22 @@ export function Acceso() {
                     {errorCampo}
                   </p>
                 )}
+                {sugerencia && !errorCampo && (
+                  <p className="text-caption text-ink-2" aria-live="polite">
+                    ¿Quisiste decir{' '}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmail(sugerencia);
+                        campo.current?.focus();
+                      }}
+                      className="inline-flex min-h-11 items-center font-semibold text-ink-1 underline underline-offset-4"
+                    >
+                      {sugerencia}
+                    </button>
+                    ?
+                  </p>
+                )}
                 {estado === 'error' && (
                   <p role="alert" className="text-caption text-danger">
                     {falla === 'servidor' ? (
@@ -524,8 +579,8 @@ export function Acceso() {
                           className="font-semibold underline underline-offset-4"
                         >
                           escríbenos
-                        </a>
-                        .
+                        </a>{' '}
+                        a <CorreoSoporte />.
                       </>
                     ) : (
                       'No pudimos enviar el enlace. Revisa tu conexión e intenta de nuevo.'

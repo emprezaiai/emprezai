@@ -1,91 +1,90 @@
-# VEREDICTO revisor-visual — landing (página de ventas EMPREZAI) · re-revisión tras las correcciones del 2026-11-06
-Fecha: 2026-11-06 12:00
+# VEREDICTO revisor-visual — landing (página de ventas EMPREZAI) · re-revisión tras la 2ª ronda de correcciones (commit 19e6c5b)
+Fecha: 2026-11-06 18:00
 Screenshot: docs/revisiones/landing-375.png
-Usabilidad: 35/40
-Craft: 17/20
+Usabilidad: 36/40
+Craft: 18/20
 Copy (si vende): 18/20
 Copy: 18/20
 Fidelidad (si hubo referencia): N-A
-Veredicto: NO LISTA
-Top defectos: (1) §6 el plan Anual cobra 12 meses por una ruta de 30 días y, sin el claim "Nuevas rutas", ya no dice qué recibe la persona del mes 2 al 12; ninguna FAQ lo responde · (2) §6 la tarjeta del stack se ve desencajada: la línea 1 tiene whitespace-nowrap, se sale del padding y toca el borde derecho; la línea 2 empieza con "·"; el ahorro se repite · (3) §5 captura 1 (Hoy): la fila "Tu idea en 1 pági…" sigue cortada bajo el botón central (4ª revisión seguida) · (4) Integridad 61 bloquea PUBLICAR: Hotmart, el período gratis, el aviso por correo, la cancelación, "Sin Preguntas", "no entrena IA" y el gmail del pie siguen sin verificar · (5) §9 el acento "día 30" queda partido en dos líneas y la tarjeta anual mezcla 12px y 13px
+Veredicto: LISTA
+Top defectos: (1) Integridad 61 bloquea PUBLICAR, no el gate de pantalla: Hotmart, el período gratis, el aviso por correo, la cancelación, "Sin Preguntas", "no entrena IA" y el gmail del pie siguen sin conectar ni verificar; además, la nueva FAQ "¿Y después del día 30?" vuelve a insinuar rutas nuevas que no existen · (2) §6 la tarjeta Anual sigue sin decir qué recibe la persona del mes 2 al 12; la respuesta solo está en la FAQ 5 de 6, plegada · (3) §8 el FAQ volvió a 6 preguntas (el gate pide 4-5) · (4) §2, §3 y antes/después de §4 tienen fichas 3D no interactivas que se ven tocables · (5) §6 los CTA de los planes usan otro verbo para el mismo destino, y la landing dice "/mes" mientras el paywall dice "al mes"
 
-## Revisión 2026-11-06
+## Revisión 2026-11-06 (2ª ronda, commit 19e6c5b)
 
 ### Puntajes
-USABILIDAD 35/40: h1:4 h2:4 h3:4 h4:3 h5:4 h6:4 h7:3 h8:3 h9:3 h10:3
-CRAFT 17/20: jerarquía:3 profundidad:4 identidad:4 movimiento:4 encaje:2
+USABILIDAD 36/40: h1:4 h2:4 h3:4 h4:3 h5:4 h6:4 h7:3 h8:3 h9:3 h10:4
+CRAFT 18/20: jerarquía:3 profundidad:4 identidad:4 movimiento:4 encaje:3
 COPY 18/20: idea:4 especificidad:3 emoción:4 oferta:3 acción:4 (ningún eje ≤2)
-Gate doble: NO PASA. La usabilidad da 35/40 y el mínimo es 36. El craft (17/20) y el copy (18/20) sí pasan.
-Aparte del gate, el bloqueo de integridad 61 impide PUBLICAR hasta que estén conectados Hotmart y Resend.
+Gate doble: PASA. Usabilidad 36/40 (mínimo 36), craft 18/20 (mínimo 16) y copy 18/20 (mínimo 16, ningún eje ≤2).
+La usabilidad pasa por el mínimo exacto: cualquier regresión la deja fuera.
+LA PANTALLA ESTÁ LISTA, PERO NO SE PUEDE PUBLICAR: el gate de integridad 61 (TOP 1) sigue bloqueando la publicación hasta que Hotmart y Resend estén conectados y verificados.
 
-### Gate de carga cognitiva: 1 falla (no es sobrecarga crítica)
-- Sigue fallando: hay fichas en relieve (.ficha-3d) que parecen tocables y no hacen nada. Están en los dolores de §2, en los 3 chips de cifras de §3 y en los chips de antes/después de §4.
-- Ya pasan: la franja del hero y los sellos de §7, que ahora son íconos planos. El FAQ bajó a 5 preguntas.
-- También pasan: 1 sola acción primaria, ≤4 opciones por decisión, 0 campos y el "qué sigue" se entiende.
+### Gate de carga cognitiva: 2 fallas (no es sobrecarga crítica)
+- Falla: el FAQ tiene 6 ítems y el tope es 4-5. Es una regresión de esta ronda: se agregó "¿Y después del día 30?" sin fusionar otra pregunta.
+- Falla: hay fichas .ficha-3d no interactivas que se ven tocables, en §2, §3 y antes/después de §4.
+- Pasan: 1 sola acción primaria, ≤4 opciones por decisión, 0 campos y el "qué sigue" es obvio.
 
 ### CTA héroe vivo: PASA
-- Contraste: #0F0D16 sobre #FFC23D da unos 11.6:1.
-- Respuesta al toque: whileTap 0.97, spinner y "Reintentar" a los 8 s (ui.tsx l.181-224).
-- Nunca está deshabilitado. Mide 52px en el hero y 56px en el CTA final, a ancho completo.
+- Contraste: unos 11.6:1.
+- Respuesta al toque: whileTap 0.97, spinner y "Reintentar" a los 8 s.
+- Nunca está deshabilitado. Mide 52 y 56px, a ancho completo.
 
 ### Anclas de conversión: PASAN
-- H1 en bold con el acento en "Tu negocio armado".
-- 2 hairlines degradé: plan anual y garantía.
-- Íconos en chips SVG Lucide, sin emojis.
+- H1 en bold con el acento.
+- 2 hairlines degradé.
+- Chips SVG, sin emojis.
 - Checkmarks custom.
-- Fondos alternados entre base y elevado.
+- Fondos alternados.
 
 ### Test anti-clon: no coincide con "Capítulo" ni con "Umbral"
 
 ### Fidelidad con FICHA-ARTE: coincide
-- Paleta #0F0D16, #1A1622, #231D2E, #FFC23D y #3DDC97.
-- Bricolage en display, Instrument Sans en el cuerpo y Montserrat solo en el nombre de la marca.
-- Radios: tarjetas de 20px y chips de texto en píldora de 999px.
-- Radial dorado del hero al 16% (tokens.css l.53).
-- El gesto "encender" ya no deja halo permanente (FichaViva.tsx l.48-58).
+Paleta, Bricolage e Instrument Sans, radios de 20px y píldora, y radial del hero al 16%.
 
-### Estado de los TOP DEFECTOS del 2026-10-23
-1. Integridad 61 — CERRADO EN PARTE.
-   - Cerrado: la IA real existe en el código (/api/ia/primera-pieza en lib/onboarding.ts l.425 y /api/ia/mision) y se declaró verificada en producción. Se quitó "Nuevas rutas cada mes".
-   - Siguen abiertos (ver TOP 4): "Pagas seguro por Hotmart", "7 días gratis" (ESTADO l.69: no se verificó que el período gratis de Hotmart aplique a una app externa), "te avisamos antes de cobrar" en el microcopy y en FAQ 2 (el aviso está en el cron, pero Resend no está conectado), "Cancelas cuando quieras" y "Sin permanencia", "Sin Preguntas", "Sin explicaciones" y "100% de vuelta" (falta la compra de prueba con reembolso), "no se usa para entrenar IA" (ESTADO l.147) y el gmail personal del pie.
-2. Coherencia de la oferta con el paywall — CERRADO EN PARTE.
-   - Cerrado: "MEJOR VALOR" + "Ahorras $39.89" coincide con el paywall, y el plan mensual tiene 4 beneficios.
-   - Abierto: el stack sigue siendo una sola línea y ahora se ve mal (TOP 2).
-3. Tres desencajes arrastrados — CERRADO EN PARTE.
-   - Cerrado: la franja del hero va en 1 línea y la condición de §7 en 3 líneas.
-   - Abierto: la captura de Hoy (TOP 3).
-4. Dos materiales y dos radios — CERRADO.
-   - IconChip ahora usa .ficha-3d en toda la página.
-   - Los chips de texto van en rounded-full.
-   - Los sellos y la franja son planos.
-5. H1 y título de §4 — CERRADO. El h1 tiene 9 palabras y nombra el método; §4 dice "Te falta el paso de hoy".
-
-Además se cerró lo de "Otros": el guepardo aparece en §9, el kicker dice "CÓMO FUNCIONA" y el FAQ tiene 5 preguntas. Sigue abierto lo de los tamaños 12/13px en la tarjeta anual.
+### Estado de los TOP DEFECTOS de la 1ª ronda del 2026-11-06
+1. Anual sin valor del mes 2 al 12 — CERRADO EN PARTE.
+   - Hecho: se agregó la FAQ "¿Y después del día 30?" (page.tsx l.223-227).
+   - Abierto: la tarjeta Anual sigue sin decirlo (TOP 2). Además, la respuesta dice "cada ruta nueva que agreguemos", lo que vuelve a insinuar el claim retirado (TOP 1).
+2. Desencaje del stack en §6 — CERRADO. Ahora son 2 líneas centradas dentro del padding: "Mes a mes: ~~$119.88~~/año" y "Anual: $79.99". Sin nowrap y sin ahorro repetido.
+3. Captura de Hoy en §5 — CERRADO. app-hoy-v2.png termina en la tarjeta de racha y ninguna fila queda bajo el botón central.
+4. Integridad 61 — SIGUE ABIERTO, sin cambios (TOP 1).
+5. Acento "día 30" partido y tamaños 12/13 — CERRADO. "día 30" queda en una sola línea y la tarjeta anual va toda a 13px (Oferta.tsx l.177).
 
 ### TOP DEFECTOS (ordenados por impacto)
-1. **[§6 Oferta, tarjeta Anual + §8 FAQ] Falta qué recibe la persona del mes 2 al 12.**
-   - Problema: el plan Anual cobra $79.99 por 12 meses, pero la ruta dura 30 días ("La misma ruta de 30 días" en el mensual). Al quitar "Nuevas rutas", la página no dice qué recibe la persona del mes 2 al 12, y es la primera objeción de quien compara los planes.
-   - Fix: agregar una feature y una FAQ "¿Y después del día 30?" con lo que la app hace HOY después del día 30 (editar y regenerar piezas con IA, descargar, la racha). Si eso no alcanza, construir la Ruta 2 antes de empujar el plan anual.
-2. **[§6, tarjeta del stack sobre los planes] Desencaje visible y dato repetido.**
-   - Problema: "12 meses en el plan mensual: $119.88/año" tiene whitespace-nowrap (Oferta.tsx l.126), así que se sale del padding y toca el borde derecho. La línea 2 empieza con "·". El ahorro aparece dos veces.
-   - Fix: pasar 2 líneas a stack.lineas para usar la rama de filas con el $ a la derecha ("Mensual × 12 → ~~$119.88~~" y "Anual → $79.99"). La otra opción es quitar la tarjeta y dejar el ahorro solo en el plan.
-3. **[§5 carrusel, captura 1 "Tu misión de hoy"] Fila cortada (4ª revisión seguida).**
-   - Problema: la fila "Tu idea en 1 pági…" queda cortada bajo el botón central.
-   - Fix: recapturar public/landing/app-hoy.png con un scroll donde la última fila visible termine sobre la barra, o recortar la imagen antes de esa fila.
-4. **[Microcopy de §6, FAQ 2 y 5, franja del hero, §7, recap y PS de §9, pie] Integridad 61: bloquea PUBLICAR, no el gate de pantalla.**
-   - Problema: la página ya promete Hotmart, el período gratis de 7 días, el aviso antes de cobrar, cancelar cuando quieras, la devolución sin preguntas y "no entrena IA", pero nada de eso está conectado ni verificado. El soporte del pie es un gmail personal.
-   - Fix: conectar Hotmart y Resend, hacer una compra de prueba con reembolso, verificar los términos del proveedor de IA y poner soporte@dominio. Si se publica antes, sacar esas promesas.
-5. **[§9 h2 "Imagina tu día 30 con todo listo" + tarjeta Anual] Acento partido y dos tamaños casi iguales.**
-   - Problema: el acento "día / 30" queda partido en dos líneas. "$0.22 al día" va a 13px y "Se cobra $79.99 al año" a 12px.
-   - Fix: whitespace-nowrap en el span del acento (en MarkedCopy o con un no-break en el copy) y los dos textos a 13px.
+1. **[Microcopy de §6, FAQ 2, 5 y 6, franja del hero, §7, recap y PS de §9, pie] Integridad 61: bloquea PUBLICAR, no el gate de pantalla.**
+   - Problema: siguen sin conectar ni verificar Hotmart, el período gratis de 7 días para una app externa (ESTADO l.69), "te avisamos antes de cobrar" (Resend sin conectar), "Cancelas cuando quieras" y "Sin permanencia", "Sin Preguntas", "Sin explicaciones" y "100% de vuelta" (falta la compra de prueba) y "no se usa para entrenar IA". El soporte es un gmail personal. Además, la FAQ 5 dice "cada ruta nueva que agreguemos" y no existe ninguna Ruta 2.
+   - Fix: hacer la Sesión 6 completa antes de publicar (Hotmart, Resend, compra de prueba con reembolso, soporte@dominio). En la FAQ 5, dejar solo lo que existe: "lo editas, lo copias y lo descargas cuando quieras".
+2. **[§6, tarjeta Anual, lista de beneficios] No dice qué recibe la persona del mes 2 al 12.**
+   - Problema: la tarjeta sigue sin decirlo, y la respuesta solo está en la FAQ 5 de 6, plegada y muy abajo.
+   - Fix: reemplazar "Tu racha diaria para no soltarlo" por "Después del día 30: editas y descargas tu negocio cuando quieras", o algo equivalente que sea real.
+3. **[§8 FAQ] 6 preguntas, sobre el tope de 4-5.**
+   - Fix: fusionar "¿Será otro curso que abandono a los 3 días?" con "¿Sirve si no sé nada de negocios ni de tecnología?" en una sola respuesta: 5 minutos al día, sin teoría, paso a paso.
+4. **[§2 dolores, §3 chips de cifras, §4 chips de antes/después] Fichas 3D no interactivas que se ven tocables.**
+   - Fix: el mismo criterio que ya se aplicó en la franja y los sellos: ícono plano en el acento, o canto de 1px sin brillo.
+5. **[§6, CTA de ambos planes + sufijo de precio] Inconsistencias de texto con el resto de la página y el paywall.**
+   - Problema: los planes dicen "Empezar mis 7 días gratis" y el resto de la página dice "Armar mi primera pieza gratis", aunque los dos van a /onboarding. La landing dice "/mes" y el paywall "al mes".
+   - Fix: unificar el verbo (o dejar anotado que la diferencia es intencional) y usar "al mes" en los dos lados.
 
 ### Otros (no top)
-- Fichas no interactivas en relieve en §2, §3 y antes/después de §4. Se ven tocables: bajar el canto a 1px o dejar los íconos planos en esas tres zonas (el mismo criterio que ya se aplicó en la franja y los sellos).
-- Los CTA de los planes dicen "Empezar mis 7 días gratis" y el resto dice "Armar mi primera pieza gratis". Las dos acciones van a /onboarding: alinear el verbo o confirmar que la diferencia es intencional.
-- La landing dice "/mes" y el paywall "al mes". Unificar.
-- Especificidad: falta una prueba real, como un testimonio o el recorrido de la fundadora con fecha (pendiente en ESTADO).
+- Especificidad: sigue sin prueba real, como un testimonio o el recorrido de la fundadora con fecha.
+- El stack sigue siendo de una línea, no de componentes con $. Ya no se ve mal, pero no es el stack de 19 §6.
 
 ---
+
+## Historial — revisión 2026-11-06, 1ª ronda (NO LISTA 35·17·18)
+
+USABILIDAD 35/40: h1:4 h2:4 h3:4 h4:3 h5:4 h6:4 h7:3 h8:3 h9:3 h10:3
+CRAFT 17/20: jerarquía:3 profundidad:4 identidad:4 movimiento:4 encaje:2
+COPY 18/20: idea:4 especificidad:3 emoción:4 oferta:3 acción:4
+
+Top defectos de entonces:
+1. El Anual no dice qué recibe la persona del mes 2 al 12.
+2. La tarjeta del stack, con nowrap, tocaba el borde.
+3. La captura de Hoy tenía una fila cortada (4ª revisión).
+4. Integridad 61.
+5. "día 30" partido en dos líneas y la tarjeta anual mezclaba 12 y 13px.
+
+Estado en la 2ª ronda: el 2, el 3 y el 5 se cerraron. El 1 se cerró en parte. El 4 sigue abierto.
 
 ## Historial — revisión 2026-10-23 (NO LISTA 34·17·17, auditoría pre-venta con el logo de la dueña y FichaViva)
 
@@ -95,12 +94,12 @@ COPY 17/20: idea:3 especificidad:3 emoción:4 oferta:3 acción:4
 
 Top defectos de entonces:
 1. Integridad 61: 8 claims de IA y 4 promesas operativas sin implementar.
-2. §6: oferta incoherente con el paywall ("MEJOR PRECIO / 4 meses gratis" contra "Mejor valor · ahorras $39.89"), mensual con 3 beneficios y stack de una línea.
-3. Tres desencajes arrastrados: la franja del hero, la condición de §7 en 4 líneas y la captura de Hoy cortada.
-4. Dos materiales de ficha y dos radios de chip de texto; fichas en relieve que parecen botones.
+2. §6: oferta incoherente con el paywall; mensual con 3 beneficios; stack de una línea.
+3. Tres desencajes arrastrados: la franja del hero, la condición de §7 y la captura de Hoy.
+4. Dos materiales de ficha y dos radios de chip de texto.
 5. H1 de 12 palabras sin el mecanismo; título de §4 de 10 palabras.
 
-Estado al 2026-11-06: el 4 y el 5 se cerraron. El 1, el 2 y el 3 se cerraron en parte (ver arriba).
+Estado al 2026-11-06: el 2, el 3, el 4 y el 5 se cerraron. El 1 se cerró en parte: la IA ya es real, pero Hotmart y Resend siguen pendientes.
 
 ## Historial — revisión 2026-10-07 (LISTA 37·18·19, re-revisión con el carrusel de capturas reales y el enlace a /login)
 
