@@ -3,9 +3,9 @@
 // Piezas compartidas del recorrido de inicio y de la pantalla de planes (50 §A2-A4, C2).
 // Consumen SOLO los tokens de app/globals.css y el material en relieve.
 
-import type { ReactNode } from 'react';
+import { useId, useState, type ReactNode } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
-import { Check, ChevronLeft, LockKeyhole, Zap } from 'lucide-react';
+import { ArrowRight, Check, ChevronLeft, LockKeyhole, Zap } from 'lucide-react';
 import {
   Books,
   Brain,
@@ -26,7 +26,7 @@ import {
   Target,
   type Icon,
 } from '@phosphor-icons/react';
-import type { ItemResumen, Opcion } from '@/lib/onboarding';
+import { limpiarTexto, type ItemResumen, type Opcion } from '@/lib/onboarding';
 
 export const EASE_SALIDA = [0.16, 1, 0.3, 1] as const;
 
@@ -216,11 +216,14 @@ export function BotonPrincipal({
   children,
   onClick,
   deshabilitado = false,
+  secundario = false,
   nota,
 }: {
   children: ReactNode;
   onClick: () => void;
   deshabilitado?: boolean;
+  /** Mientras otro botón dorado manda en la pantalla (ej. "Continuar" de un campo propio). */
+  secundario?: boolean;
   nota?: ReactNode;
 }) {
   return (
@@ -230,11 +233,85 @@ export function BotonPrincipal({
         onClick={onClick}
         disabled={deshabilitado}
         whileTap={deshabilitado ? undefined : { scale: 0.98 }}
-        className="boton-oro flex h-14 w-full items-center justify-center gap-2 rounded-[var(--radius-pill)] px-6 font-display text-boton font-bold"
+        className={`${secundario ? 'opcion-recorrido text-ink-1' : 'boton-oro'} flex h-14 w-full items-center justify-center gap-2 rounded-[var(--radius-pill)] px-6 font-display text-boton font-bold`}
       >
         {children}
       </motion.button>
       {nota && <p className="mt-2 text-center text-caption text-ink-3">{nota}</p>}
+    </div>
+  );
+}
+
+/* ── "Otra cosa (escribe la tuya)": el MISMO campo en preguntas y en el ejercicio ── */
+export function CampoPropio({
+  etiqueta,
+  valor,
+  onCambiar,
+  onConfirmar,
+  onCancelar,
+  placeholder,
+  largoMax,
+}: {
+  etiqueta: string;
+  valor: string;
+  onCambiar: (texto: string) => void;
+  /** Recibe el texto ya limpio; solo se llama si tiene al menos 3 letras. */
+  onConfirmar: (texto: string) => void;
+  onCancelar: () => void;
+  placeholder: string;
+  largoMax: number;
+}) {
+  const id = useId();
+  const [aviso, setAviso] = useState(0);
+  const limpio = limpiarTexto(valor, largoMax);
+  const valido = limpio.length >= 3;
+
+  function confirmar() {
+    if (!valido) {
+      setAviso((n) => n + 1);
+      vibrar(30);
+      return;
+    }
+    onConfirmar(limpio);
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <label htmlFor={id} className="text-sm font-semibold text-ink-1">
+        {etiqueta}
+      </label>
+      <input
+        key={aviso}
+        id={id}
+        autoFocus
+        value={valor}
+        maxLength={largoMax}
+        onChange={(e) => onCambiar(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') confirmar();
+        }}
+        placeholder={placeholder}
+        className={`h-12 w-full rounded-[var(--radius-chip)] border bg-sunken px-4 text-base text-ink-1 placeholder:text-ink-3 focus:outline-none ${
+          aviso && !valido ? 'sacudir border-warning' : 'border-gold'
+        }`}
+      />
+      {aviso > 0 && !valido && <p className="text-caption text-warning">Escribe al menos unas letras.</p>}
+      <motion.button
+        type="button"
+        onClick={confirmar}
+        whileTap={{ scale: 0.98 }}
+        className="boton-oro flex h-12 items-center justify-center gap-2 rounded-[var(--radius-pill)] font-display text-base font-bold"
+      >
+        Continuar
+        <ArrowRight size={18} aria-hidden="true" />
+      </motion.button>
+      <button
+        type="button"
+        onClick={onCancelar}
+        className="flex min-h-11 items-center justify-center text-sm font-semibold text-ink-2 underline-offset-4 hover:underline"
+      >
+        Cancelar
+      </button>
     </div>
   );
 }
@@ -254,7 +331,7 @@ export function PromesaRecorrido() {
       transition={{ duration: 0.35, delay: reduce ? 0 : 0.35, ease: EASE_SALIDA }}
       className="tarjeta-relieve-base rounded-[var(--radius-card)] p-4"
     >
-      <p className="text-xs font-semibold tracking-[0.08em] text-ink-3 uppercase">Toma unos 5 minutos · al terminar te llevas</p>
+      <p className="text-xs font-semibold tracking-[0.08em] text-balance text-ink-3 uppercase">En 5 minutos te llevas</p>
       <ul className="mt-3 grid grid-cols-3 gap-2">
         {items.map((it) => (
           <li key={it.titulo} className="flex flex-col gap-1">
@@ -270,6 +347,8 @@ export function PromesaRecorrido() {
 
 /* ── La ruta en miniatura (Hoy → Día 30): el dispositivo de la marca, anclado abajo ── */
 const DIAS_RUTA = [1, 2, 3, 4, 5];
+// Etiquetas que ya aparecieron en un paso anterior: solo la respuesta nueva se anima al entrar.
+const etiquetasVistas = new Set<string>();
 
 export function RutaMini({ titulo, respuestas = [], destacada = false }: { titulo: string; respuestas?: ItemResumen[]; destacada?: boolean }) {
   const reduce = useReducedMotion();
@@ -316,9 +395,11 @@ export function RutaMini({ titulo, respuestas = [], destacada = false }: { titul
       </ol>
       {respuestas.length > 0 && (
         <ul className="mt-4 flex flex-wrap gap-2 border-t border-[var(--line)] pt-4" aria-label="Lo que ya sabe tu ruta">
-          {respuestas.map((r, i) => {
-            // Solo la respuesta recién dada "aparece"; las anteriores ya estaban.
-            const nueva = i === respuestas.length - 1;
+          {respuestas.map((r) => {
+            // Solo la respuesta recién dada "aparece"; las anteriores ya estaban (y un paso que no
+            // agregó ninguna no anima nada).
+            const nueva = !etiquetasVistas.has(r.texto);
+            etiquetasVistas.add(r.texto);
             return (
               <motion.li
                 key={r.texto}

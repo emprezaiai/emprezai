@@ -5,6 +5,7 @@
 // bloqueado: la tensión honesta que lleva a la pantalla de planes.
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { animate, motion, useMotionValue, useReducedMotion, useTransform } from 'motion/react';
 import { ArrowRight, Check, Copy, LockKeyhole, PencilLine, Sparkles, Target } from 'lucide-react';
 import type { PrimeraPieza } from '@/lib/onboarding';
@@ -69,13 +70,22 @@ export function PasoPieza({
                   transition={{ duration: 0.7, delay: 0.25, ease: EASE_SALIDA }}
                 />
               ))}
+            {/* El personaje de la marca aparece cuando la persona GANA (FICHA-ARTE): su primera pieza */}
             <motion.span
-              initial={{ scale: reduce ? 1 : 0.4, rotate: reduce ? 0 : -12 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ type: 'spring', bounce: 0.25, duration: 0.6 }}
-              className="relieve-verde relative flex size-16 items-center justify-center rounded-full"
+              initial={{ opacity: 0, y: reduce ? 0 : 16, scale: reduce ? 1 : 0.9 }}
+              animate={reduce ? { opacity: 1, y: 0, scale: 1 } : { opacity: 1, y: [16, -4, 0], scale: 1 }}
+              transition={{ duration: 0.6, ease: EASE_SALIDA }}
+              className="relative size-16"
             >
-              <Check size={32} strokeWidth={3} />
+              <Image src="/marca/personaje.webp" alt="" width={64} height={66} unoptimized className="size-full object-contain" priority />
+            </motion.span>
+            <motion.span
+              initial={{ scale: reduce ? 1 : 0 }}
+              animate={{ scale: 1 }}
+              transition={reduce ? { duration: 0 } : { type: 'spring', bounce: 0.25, duration: 0.5, delay: 0.45 }}
+              className="relieve-verde absolute -right-1 -bottom-1 flex size-7 items-center justify-center rounded-full"
+            >
+              <Check size={16} strokeWidth={3} />
             </motion.span>
           </span>
           <motion.div {...entrar(0)}>

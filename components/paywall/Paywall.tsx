@@ -9,7 +9,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, animate, motion, useReducedMotion } from 'motion/react';
-import { ArrowRight, Bot, Check, LockKeyhole, ShieldCheck, WifiOff, X, Zap } from 'lucide-react';
+import { ArrowRight, Bot, Check, CreditCard, LockKeyhole, ShieldCheck, WifiOff, X, Zap } from 'lucide-react';
 import { NOMBRE_MOMENTO, contarRespuestas, leerEstado, type EstadoOnboarding, type Plan } from '@/lib/onboarding';
 import { PRECIOS, RESPONSABLE } from '@/lib/legal';
 import { registrarEvento } from '@/lib/eventos';
@@ -142,12 +142,13 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
       return;
     }
     setSinConexion(false);
-    registrarEvento('checkout_iniciado', { plan });
     const base = CHECKOUT[plan];
     if (!base) {
+      // La vista previa no cuenta como pago iniciado: no ensucia el embudo.
       setVistaPrevia(true);
       return;
     }
+    registrarEvento('checkout_iniciado', { plan });
     let url: URL;
     try {
       url = new URL(base);
@@ -192,7 +193,11 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
                 Pieza 1 lista{respuestas > 0 ? ` · ${respuestas} respuestas` : ''}
               </p>
             )}
-            <TituloAcento texto="Desbloquea 29 días hasta salir a vender" acento="salir a vender" className="text-pregunta" />
+            <TituloAcento
+              texto={pieza ? 'Desbloquea 29 días hasta salir a vender' : 'Desbloquea tus 30 días hasta salir a vender'}
+              acento="salir a vender"
+              className="text-pregunta"
+            />
             <p className="mt-2 text-base leading-relaxed text-ink-2">
               Adiós a la hoja en blanco: tu negocio <span className="whitespace-nowrap">pieza a pieza</span>,{' '}
               <span className="font-semibold whitespace-nowrap text-ink-1">5 minutos al día</span>.
@@ -223,7 +228,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
                     </span>
                     <span className={`text-xs leading-tight font-semibold ${hecho ? 'text-green' : 'text-ink-2'}`}>
                       {r.nombre}
-                      <span className="sr-only">{` (día ${r.dia}${hecho ? ', hecho' : ', bloqueado'})`}</span>
+                      <span className="sr-only">{` (día ${r.dia}${hecho ? ', hecho' : hoy ? ', hoy' : ', bloqueado'})`}</span>
                     </span>
                   </li>
                 );
@@ -278,7 +283,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
                   tabIndex={activo ? 0 : -1}
                   onClick={() => elegirPlan(id)}
                   className={`relative flex min-h-20 items-center gap-3 rounded-[var(--radius-card)] border border-[var(--line)] px-4 pb-4 text-left transition-colors duration-200 active:scale-[0.99] ${
-                    id === 'anual' ? 'pt-6' : 'pt-4'
+                    'pt-6'
                   } ${
                     activo ? 'tarjeta-relieve-oro' : 'tarjeta-relieve'
                   }`}
@@ -329,7 +334,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
           <motion.section {...entrar(3)} aria-label="Cómo funciona tu prueba gratis" className="mt-6 pl-1">
             <ol className="flex flex-col">
               {[
-                { titulo: <>Hoy: empiezas gratis</>, texto: 'Acceso completo a tu ruta de 30 días.', tono: 'oro' as const },
+                { titulo: <>Hoy: empiezas gratis</>, texto: 'Hotmart te pide tu tarjeta, pero hoy no se cobra nada.', tono: 'oro' as const },
                 { titulo: <>{fechaAviso}: te avisamos</>, texto: 'Te escribimos antes de cualquier cobro.', tono: 'aviso' as const },
                 {
                   titulo: (
@@ -347,14 +352,21 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
                       aria-hidden="true"
                       initial={{ scaleY: reduce ? 1 : 0 }}
                       animate={{ scaleY: 1 }}
-                      transition={{ duration: reduce ? 0 : 0.3, delay: reduce ? 0 : 0.5 + i * 0.3, ease: EASE_SALIDA }}
+                      transition={{ duration: reduce ? 0 : 0.6, delay: reduce ? 0 : 0.5 + i * 0.6, ease: EASE_SALIDA }}
                       className={`absolute top-4 left-1.5 h-full w-0.5 origin-top ${i === 0 ? 'bg-gold' : 'bg-[color-mix(in_oklab,var(--ink-1)_14%,transparent)]'}`}
                     />
                   )}
-                  <span
-                    aria-hidden="true"
-                    className={`relative mt-1 size-3 shrink-0 rounded-full ${n.tono === 'oro' ? 'bg-gold' : n.tono === 'aviso' ? 'bg-ink-3' : 'border-2 border-ink-3 bg-base'}`}
-                  />
+                  {n.tono === 'oro' ? (
+                    // "Hoy" lleva el rayo dorado de la marca (FICHA-ARTE).
+                    <span aria-hidden="true" className="relative -ml-1 flex size-5 shrink-0 items-center justify-center rounded-full bg-gold text-on-gold">
+                      <Zap size={12} fill="currentColor" strokeWidth={0} />
+                    </span>
+                  ) : (
+                    <span
+                      aria-hidden="true"
+                      className={`relative mt-1 size-3 shrink-0 rounded-full ${n.tono === 'aviso' ? 'bg-ink-3' : 'border-2 border-ink-3 bg-base'}`}
+                    />
+                  )}
                   <span>
                     <span className="block text-ayuda font-semibold text-ink-1">{n.titulo}</span>
                     <span className="block text-caption text-ink-2">{n.texto}</span>
@@ -373,20 +385,27 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
               <h2 className="font-display text-base font-bold text-ink-1">La Garantía Sin Preguntas</h2>
               <p className="mt-1 text-caption leading-snug text-ink-2">
                 <strong className="font-semibold text-ink-1">{PRECIOS.diasGarantia} días desde tu primer pago.</strong> Si sientes que la app no
-                es para ti, pides la devolución en 1 clic y te devolvemos todo.
+                es para ti, pides la devolución y te devolvemos todo.
               </p>
             </div>
           </motion.section>
 
-          <ul className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-ink-2">
-            <li className="flex items-center gap-1">
-              <Bot size={14} className="text-ink-3" aria-hidden="true" />
-              La IA ya viene incluida
-            </li>
-            <li className="flex items-center gap-1">
-              <LockKeyhole size={14} className="text-ink-3" aria-hidden="true" />
-              Pago seguro por Hotmart
-            </li>
+          {/* Objeciones 5 y 6 de FICHA-AVATAR: la tarjeta y la idea */}
+          <ul className="mt-4 flex flex-col gap-2 text-caption text-ink-2">
+            {[
+              { icono: LockKeyhole, fuerte: 'Tu idea es tuya:', texto: 'no se usa para entrenar IA ni se comparte.' },
+              { icono: CreditCard, fuerte: 'Pagas por Hotmart:', texto: 'nunca vemos tu tarjeta.' },
+              { icono: Bot, fuerte: 'La IA ya viene incluida:', texto: 'no pagas nada aparte.' },
+            ].map(({ icono: Icono, fuerte, texto }) => (
+              <li key={fuerte} className="flex items-center gap-2">
+                <span className="flex size-7 shrink-0 items-center justify-center rounded-[var(--radius-chip)] bg-raised-2 text-ink-2" aria-hidden="true">
+                  <Icono size={14} strokeWidth={2.2} />
+                </span>
+                <span>
+                  <strong className="font-semibold text-ink-1">{fuerte}</strong> {texto}
+                </span>
+              </li>
+            ))}
           </ul>
 
           <div className="mt-4 flex flex-col items-center">
@@ -428,10 +447,10 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
             whileTap={{ scale: 0.98 }}
             className="boton-oro flex h-14 w-full items-center justify-center gap-2 rounded-[var(--radius-pill)] px-6 font-display text-boton font-bold"
           >
-            {yendo ? 'Abriendo la página de pago…' : `Seguir mi ruta: ${PRECIOS.diasPrueba} días gratis`}
+            {yendo ? 'Abriendo la página de pago…' : pieza ? `Seguir mi ruta: ${PRECIOS.diasPrueba} días gratis` : `Empezar mis ${PRECIOS.diasPrueba} días gratis`}
             {!yendo && <ArrowRight size={20} aria-hidden="true" />}
           </motion.button>
-          <p className="mt-2 text-center text-caption text-ink-2" aria-live="polite">
+          <p className="mt-2 text-center text-sm text-ink-2" aria-live="polite">
             {errorPago ? (
               <span className="text-warning">
                 No pudimos abrir la página de pago.{' '}

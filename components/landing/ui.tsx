@@ -60,7 +60,7 @@ export function IconChip({
   return (
     <span
       aria-hidden="true"
-      className={`inline-flex ${t.caja} shrink-0 items-center justify-center rounded-[var(--radius-chip,var(--radius-button))] ${CLASE_TONO[tone]}`}
+      className={`ficha-3d inline-flex ${t.caja} shrink-0 items-center justify-center rounded-[var(--radius-chip,var(--radius-button))] ${CLASE_TONO[tone]}`}
     >
       <Icono size={t.icono} strokeWidth={2.2} color="currentColor" aria-hidden="true" />
     </span>

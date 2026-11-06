@@ -328,16 +328,35 @@ export function temaDeLaIdea(idea: string): string | undefined {
   return tema.length >= 3 ? tema : undefined;
 }
 
-/** Opciones del hueco: lo que su idea ya dice (para quién, de qué tema) va primero. */
-export function opcionesHueco(area: IdArea, hueco: IdHueco, idea: string): string[] {
-  const base = OPCIONES_EJERCICIO[area][hueco];
+/** Raíces de las palabras con contenido (5+ letras, sin tildes): "redes sociales" → redes, socia. */
+function raices(texto: string): Set<string> {
+  const palabras = texto
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .split(/[^a-zñ]+/);
+  return new Set(palabras.filter((p) => p.length >= 5).map((p) => p.slice(0, 5)));
+}
+
+/** ¿La opción repite una palabra que la frase ya dice? ("Manejo de redes…" + "clientes por redes"). */
+function repitePalabra(opcion: string, yaDicho: Set<string>): boolean {
+  return [...raices(opcion)].some((r) => yaDicho.has(r));
+}
+
+/**
+ * Opciones del hueco: lo que su idea ya dice (para quién, de qué tema) va primero, y se descartan
+ * las que repetirían una palabra de la idea o de los otros huecos (la frase no dice "curso… sin
+ * cursos eternos"). Si el filtro deja menos de 2, se muestran todas.
+ */
+export function opcionesHueco(area: IdArea, hueco: IdHueco, idea: string, otros: string[] = []): string[] {
+  const yaDicho = raices([idea, ...otros].join(' '));
+  const todas = OPCIONES_EJERCICIO[area][hueco];
+  const sinRepetir = todas.filter((o) => !repitePalabra(o, yaDicho));
+  const base = sinRepetir.length >= 2 ? sinRepetir : todas;
+  const tema = temaDeLaIdea(idea);
   const propia =
-    hueco === 'cliente'
-      ? clienteDeLaIdea(idea)
-      : hueco === 'resultado' && temaDeLaIdea(idea)
-        ? 'usarlo paso a paso en su día a día'
-        : undefined;
-  if (!propia || base.some((o) => o.toLowerCase() === propia.toLowerCase())) return base;
+    hueco === 'cliente' ? clienteDeLaIdea(idea) : hueco === 'resultado' && tema ? `usar ${tema} paso a paso en su día a día` : undefined;
+  if (!propia || base.some((o) => o.toLowerCase() === propia.toLowerCase())) return base.slice(0, 4);
   return [propia, ...base.slice(0, 3)];
 }
 
@@ -396,9 +415,12 @@ export async function armarPrimeraPieza(r: Respuestas): Promise<PrimeraPieza> {
   };
 }
 
+export const ESPERA_MAX_IA_MS = 8_000;
+
 async function primeraPiezaConIA(r: Respuestas): Promise<PrimeraPieza | null> {
   const control = new AbortController();
-  const corte = window.setTimeout(() => control.abort(), 20_000);
+  // 50 §B2: la espera del recorrido nunca pasa de 8 s; si la IA no llega, sale la frase armada.
+  const corte = window.setTimeout(() => control.abort(), ESPERA_MAX_IA_MS);
   try {
     const res = await fetch('/api/ia/primera-pieza', {
       method: 'POST',

@@ -77,6 +77,32 @@ export async function enviarAcceso(para: string, enlace: string, codigo: string 
   );
 }
 
+/**
+ * Pidieron entrar con un correo sin compra vigente. Lo recibe SOLO quien tiene ese buzón, así que no
+ * revela a nadie más si existe una cuenta (26), y quien pagó con otro correo no espera para siempre.
+ */
+export async function enviarSinCompraVigente(para: string, tuvoCompra: boolean) {
+  const sitio = requerida('NEXT_PUBLIC_SITE_URL').replace(/\/+$/, '');
+  await enviar(
+    para,
+    tuvoCompra ? 'Tu acceso a EMPREZAI está pausado' : 'No encontramos una compra con este correo',
+    plantilla({
+      titulo: tuvoCompra ? 'Tu acceso está pausado' : 'No encontramos tu compra con este correo',
+      parrafos: tuvoCompra
+        ? [
+            'Pediste entrar a EMPREZAI, pero tu suscripción no está activa en este momento. Tus piezas siguen guardadas.',
+            'Si quieres seguir con tu ruta, reactiva tu plan y vuelve a entrar con este mismo correo.',
+          ]
+        : [
+            'Pediste entrar a EMPREZAI con este correo, pero no tiene una compra activa.',
+            'Revisa con qué correo pagaste en Hotmart (aparece en tu comprobante de compra) y pide el enlace con ese. Si crees que es un error, responde este correo y lo resolvemos.',
+          ],
+      boton: tuvoCompra ? { texto: 'Reactivar mi plan', url: `${sitio}/paywall` } : undefined,
+      pie: `Si no pediste entrar, ignora este correo. ¿Dudas? Responde este correo o escríbenos a ${RESPONSABLE.emailContacto}.`,
+    }),
+  );
+}
+
 /** Aviso antes del primer cobro (día 5 de la prueba de 7, decisión de la dueña 2026-10-13). */
 export async function enviarAvisoDeCobro(para: string, fechaCobro: string, plan: string | null) {
   const cuanto = plan === 'anual' ? '$79.99 USD al año' : plan === 'mensual' ? '$9.99 USD al mes' : 'el precio de tu plan';

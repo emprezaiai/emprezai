@@ -43,7 +43,8 @@ const GESTOS: Record<Gesto, { desde: TargetAndTransition; hacia: TargetAndTransi
     desde: { rotate: 0, scale: 1 },
     hacia: { rotate: [0, -14, 11, -5, 0], scale: [1, 1.18, 1], transition: { duration: 0.55, ease: 'easeOut' } },
   },
-  // El dolor de la noche: el ícono pasa de apagado a encendido en dorado, con un halo que se asienta.
+  // El dolor de la noche: el ícono pasa de apagado a encendido en dorado con un destello que se
+  // apaga solo (FICHA-ARTE: sin halo permanente).
   encender: {
     desde: { opacity: 0.3, filter: 'drop-shadow(0 0 0 rgb(255 194 61 / 0))' },
     hacia: {
@@ -51,7 +52,7 @@ const GESTOS: Record<Gesto, { desde: TargetAndTransition; hacia: TargetAndTransi
       filter: [
         'drop-shadow(0 0 0 rgb(255 194 61 / 0))',
         'drop-shadow(0 0 7px rgb(255 194 61 / 0.95))',
-        'drop-shadow(0 0 3px rgb(255 194 61 / 0.45))',
+        'drop-shadow(0 0 0 rgb(255 194 61 / 0))',
       ],
       transition: { duration: 0.9, ease: 'easeOut' },
     },

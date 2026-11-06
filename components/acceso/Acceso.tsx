@@ -14,9 +14,9 @@ import { useEffect, useId, useRef, useState, useSyncExternalStore } from 'react'
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { ArrowRight, CheckCircle2, KeyRound, LoaderCircle, MailCheck, RotateCcw, ShieldCheck } from 'lucide-react';
+import { ArrowRight, CheckCircle2, CircleAlert, KeyRound, LoaderCircle, MailCheck, RotateCcw, ShieldCheck } from 'lucide-react';
 import { Marca } from '@/components/app/Marca';
-import { EASE_SALIDA, RutaMini, TituloAcento, vibrar } from '@/components/onboarding/piezas';
+import { CheckCustom, EASE_SALIDA, RutaMini, TituloAcento, vibrar } from '@/components/onboarding/piezas';
 import { crearCuenta, useCuenta } from '@/lib/cuenta';
 import { leerEstado } from '@/lib/onboarding';
 import { RESPONSABLE } from '@/lib/legal';
@@ -66,6 +66,8 @@ export function Acceso() {
   const [noGuardado, setNoGuardado] = useState(false);
   const [codigo, setCodigo] = useState('');
   const [estado, setEstado] = useState<'inicio' | 'enviando' | 'enviado' | 'pronto' | 'error'>('inicio');
+  // El error del servidor no se disfraza de error de conexión (h9).
+  const [falla, setFalla] = useState<'red' | 'servidor'>('red');
   const [demo, setDemo] = useState(false);
   const [errorCampo, setErrorCampo] = useState('');
   const [errorCodigo, setErrorCodigo] = useState('');
@@ -99,6 +101,7 @@ export function Acceso() {
     }
     if (!navigator.onLine) {
       setErrorCampo('');
+      setFalla('red');
       setEstado('error');
       return;
     }
@@ -140,13 +143,19 @@ export function Acceso() {
         else setErrorCampo(mensaje);
         return;
       }
-      if (!res.ok) throw new Error('envio');
+      if (!res.ok) {
+        setFalla('servidor');
+        setEstado(reenvio ? 'enviado' : 'error');
+        if (reenvio) setErrorCodigo(`No pudimos reenviar el enlace ahora. Intenta en un minuto o escríbenos a ${RESPONSABLE.emailContacto}.`);
+        return;
+      }
       setEmail(limpio);
       setDemo(false);
       setEstado('enviado');
       setEspera(ESPERA_REENVIO);
       setReenviado(reenvio);
     } catch {
+      setFalla('red');
       setEstado(reenvio ? 'enviado' : 'error');
       if (reenvio) setErrorCodigo('No pudimos reenviar el enlace. Revisa tu conexión e intenta de nuevo.');
     }
@@ -184,7 +193,9 @@ export function Acceso() {
       setErrorCodigo(
         res.status === 429
           ? 'Demasiados intentos. Espera 15 minutos o entra con el botón del correo.'
-          : 'Ese código no coincide o ya venció. Revísalo o pide uno nuevo.',
+          : res.status >= 500
+            ? `No pudimos revisar el código ahora. Intenta en un minuto o escríbenos a ${RESPONSABLE.emailContacto}.`
+            : 'Ese código no coincide o ya venció. Revísalo o pide uno nuevo.',
       );
     } catch {
       setErrorCodigo('No pudimos revisar el código. Revisa tu conexión e intenta de nuevo.');
@@ -292,14 +303,14 @@ export function Acceso() {
               <span aria-hidden="true" className="relieve-verde flex size-16 items-center justify-center rounded-full">
                 <MailCheck size={30} strokeWidth={2.2} />
               </span>
-              <TituloAcento texto="Te enviamos tu enlace" acento="tu enlace" className="mt-6 text-pregunta" />
+              <TituloAcento texto="Revisa tu correo" acento="tu correo" className="mt-6 text-pregunta" />
               <p className="mt-2 text-base text-ink-2">
-                Lo mandamos a <strong className="font-semibold [overflow-wrap:anywhere] text-ink-1">{email}</strong>. Ábrelo desde este celular o escribe el código
-                que viene en el correo.
+                Le escribimos a <strong className="font-semibold [overflow-wrap:anywhere] text-ink-1">{email}</strong>. Si tiene una compra activa, trae tu
+                enlace y tu código; si no, te explica qué hacer.
               </p>
 
               <form onSubmit={entrarConCodigo} noValidate className="mt-6 flex flex-col gap-2">
-                <label htmlFor={idCodigo} className="text-sm font-semibold text-ink-1">
+                <label htmlFor={idCodigo} className="text-caption font-semibold text-ink-1">
                   Código del correo
                 </label>
                 <input
@@ -339,14 +350,26 @@ export function Acceso() {
               </form>
 
               <div className="tarjeta-relieve-base mt-6 rounded-[var(--radius-card)] p-4">
-                <p className="text-sm font-semibold text-ink-1">¿Compraste y no te llega?</p>
-                <ul className="mt-2 flex flex-col gap-1 text-caption text-ink-2">
-                  <li>· Revisa Spam y Promociones: a veces tarda un minuto.</li>
-                  <li>· Usa el MISMO correo con el que pagaste en Hotmart (está en tu comprobante).</li>
+                <p className="font-display text-base font-bold text-ink-1">¿Compraste y no te llega?</p>
+                <ul className="mt-3 flex flex-col gap-2 text-caption text-ink-2">
+                  <li className="flex items-start gap-2">
+                    <span className="mt-px shrink-0">
+                      <CheckCustom />
+                    </span>
+                    <span>Revisa Spam y Promociones: a veces tarda un minuto.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-px shrink-0">
+                      <CheckCustom />
+                    </span>
+                    <span>
+                      Usa el <strong className="font-semibold text-ink-1">mismo correo</strong> con el que pagaste en Hotmart (está en tu comprobante).
+                    </span>
+                  </li>
                 </ul>
                 <a
                   href={`mailto:${RESPONSABLE.emailContacto}?subject=${encodeURIComponent(`No me llega el acceso — ${email}`)}`}
-                  className="mt-2 flex min-h-11 items-center text-sm font-semibold text-ink-1 underline underline-offset-4"
+                  className="mt-2 flex min-h-11 items-center text-caption font-semibold text-ink-1 underline underline-offset-4"
                 >
                   Escríbenos y te damos acceso
                 </a>
@@ -380,7 +403,7 @@ export function Acceso() {
                     setEspera(ESPERA_REENVIO);
                     setReenviado(true);
                   }}
-                  className="flex min-h-11 items-center gap-2 text-sm font-semibold text-ink-1 transition-transform duration-100 active:scale-[0.97] disabled:text-ink-3"
+                  className="flex min-h-11 items-center gap-2 text-caption font-semibold text-ink-1 transition-transform duration-100 active:scale-[0.97] disabled:text-ink-3"
                 >
                   <RotateCcw size={16} aria-hidden="true" />
                   {espera > 0 ? `Reenviar en ${espera} s` : 'Reenviar el enlace'}
@@ -391,7 +414,7 @@ export function Acceso() {
                 <button
                   type="button"
                   onClick={() => setEstado('inicio')}
-                  className="flex min-h-11 items-center text-sm font-semibold text-ink-2 transition-transform duration-100 active:scale-[0.97]"
+                  className="flex min-h-11 items-center text-caption font-semibold text-ink-2 transition-transform duration-100 active:scale-[0.97]"
                 >
                   Usar otro correo
                 </button>
@@ -421,15 +444,38 @@ export function Acceso() {
                 </p>
               </motion.div>
 
-              {(avisoUrl === 'enlace-vencido' || avisoUrl === 'sin-acceso') && (
-                <motion.p {...entrar(2)} role="status" className="mt-6 rounded-[var(--radius-chip)] border border-[var(--line)] bg-sunken p-3 text-caption text-ink-2">
-                  {avisoUrl === 'enlace-vencido'
-                    ? 'Ese enlace ya se usó o venció. Pide uno nuevo aquí abajo: llega en un minuto.'
-                    : 'Tu suscripción no está activa en este momento. Si ya pagaste o crees que es un error, escríbenos y lo revisamos contigo.'}
+              {avisoUrl === 'enlace-vencido' && (
+                <motion.p {...entrar(2)} role="status" className="mt-6 rounded-[var(--radius-card)] border border-[var(--line)] bg-sunken p-3 text-caption text-ink-2">
+                  Ese enlace ya se usó o venció. Pide uno nuevo aquí abajo: llega en un minuto.
                 </motion.p>
               )}
+              {avisoUrl === 'sin-acceso' && (
+                <motion.div
+                  {...entrar(2)}
+                  role="status"
+                  className="mt-6 flex items-start gap-3 rounded-[var(--radius-card)] border border-[color-mix(in_oklab,var(--warning)_45%,transparent)] bg-[color-mix(in_oklab,var(--warning)_8%,transparent)] p-4"
+                >
+                  <CircleAlert size={20} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />
+                  <div className="text-caption text-ink-2">
+                    <p>
+                      <strong className="font-semibold text-ink-1">Tu suscripción no está activa.</strong> Tus piezas siguen guardadas.
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-x-4">
+                      <Link href="/paywall" className="flex min-h-11 items-center font-semibold text-ink-1 underline underline-offset-4">
+                        Reactivar mi plan
+                      </Link>
+                      <a
+                        href={`mailto:${RESPONSABLE.emailContacto}?subject=${encodeURIComponent('Ya pagué EMPREZAI y no puedo entrar')}${email ? `&body=${encodeURIComponent(`Mi correo de compra: ${email}`)}` : ''}`}
+                        className="flex min-h-11 items-center font-semibold text-ink-1 underline underline-offset-4"
+                      >
+                        Ya pagué: escribirles
+                      </a>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
               <motion.form {...entrar(2)} onSubmit={enviar} noValidate className="mt-8 flex flex-col gap-2">
-                <label htmlFor={idCampo} className="text-sm font-semibold text-ink-1">
+                <label htmlFor={idCampo} className="text-caption font-semibold text-ink-1">
                   Tu correo
                 </label>
                 {!ACCESO_REAL && !demoPermitida() && correoGuardado && email === correoGuardado && (
@@ -465,7 +511,9 @@ export function Acceso() {
                 )}
                 {estado === 'error' && (
                   <p role="alert" className="text-caption text-danger">
-                    No pudimos enviar el enlace. Revisa tu conexión e intenta de nuevo.
+                    {falla === 'servidor'
+                      ? `No pudimos enviar el enlace ahora. Intenta en un minuto o escríbenos a ${RESPONSABLE.emailContacto}.`
+                      : 'No pudimos enviar el enlace. Revisa tu conexión e intenta de nuevo.'}
                   </p>
                 )}
                 <button
@@ -491,8 +539,8 @@ export function Acceso() {
                     {ACCESO_REAL || demoPermitida()
                       ? 'Sin contraseñas: te llega un enlace de un solo uso. '
                       : 'Sin contraseñas: cuando abra el acceso, te llegará un enlace de un solo uso. '}
-                    <strong className="font-semibold text-ink-1">Tu idea es tuya:</strong> solo tú ves lo que
-                    armas.
+                    <strong className="font-semibold text-ink-1">Tu idea es tuya:</strong> no se usa para entrenar IA
+                    ni se comparte.
                   </span>
                 </p>
               </motion.form>
@@ -516,7 +564,7 @@ export function Acceso() {
               </motion.div>
 
               {!tienePieza && (
-                <motion.p {...entrar(4)} className="mt-6 text-center text-sm text-ink-2">
+                <motion.p {...entrar(4)} className="mt-6 text-center text-caption text-ink-2">
                   ¿Aún no armas tu pieza 1?{' '}
                   <Link href="/onboarding" className="font-semibold text-ink-1 underline underline-offset-4">
                     Empieza gratis aquí

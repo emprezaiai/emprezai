@@ -264,10 +264,14 @@ body {
 }
 
 /* Hueco del ejercicio aún vacío: solo la línea punteada (sin guiones de texto). */
+/* Hueco vacío: inline (no inline-block) para que la raya quede en la línea base del texto y el
+   resto de la frase siga en el mismo renglón en vez de flotar por encima. */
 .hueco-vacio {
-  display: inline-block;
-  min-width: 6em;
+  display: inline;
+  padding-inline-end: 4em;
   border-bottom: 2px dashed rgb(255 194 61 / 0.6);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 
 /* Hueco lleno: fluye como texto (se parte por palabras, no salta entero de línea). */

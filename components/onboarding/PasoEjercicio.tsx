@@ -5,7 +5,7 @@
 // opciones del área o escribiendo las propias. La frase se arma en vivo arriba; cada hueco trae
 // un consejo de una línea. El botón nunca está muerto: si falta algo, lleva al hueco vacío.
 
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { ArrowRight, Lightbulb, MessageCircle, Store, UserRound, Zap } from 'lucide-react';
 import {
@@ -19,7 +19,7 @@ import {
   type IdArea,
   type IdHueco,
 } from '@/lib/onboarding';
-import { BotonPrincipal, CheckCustom, EASE_SALIDA, FichaIcono, TituloAcento, vibrar } from './piezas';
+import { BotonPrincipal, CampoPropio, CheckCustom, EASE_SALIDA, FichaIcono, TituloAcento, vibrar } from './piezas';
 
 type Valores = Partial<Record<IdHueco, string>>;
 
@@ -35,21 +35,21 @@ export function PasoEjercicio({
   onTerminar: (valores: Required<Valores>) => void;
 }) {
   const reduce = useReducedMotion();
-  const idCampo = useId();
   const [valores, setValores] = useState<Valores>(inicial);
   const primeroVacio = HUECOS.findIndex((h) => !inicial[h.id]);
   const [actual, setActual] = useState(primeroVacio < 0 ? HUECOS.length - 1 : primeroVacio);
   const [escribiendo, setEscribiendo] = useState(false);
   const [propio, setPropio] = useState('');
   const [aviso, setAviso] = useState(0);
-  const [avisoPropio, setAvisoPropio] = useState(0);
   const temporizador = useRef<number | undefined>(undefined);
 
   useEffect(() => () => window.clearTimeout(temporizador.current), []);
 
   const hueco = HUECOS[actual];
   const completa = HUECOS.every((h) => Boolean(valores[h.id]));
-  const opciones = opcionesHueco(area, hueco.id, idea);
+  // Lo que ya dicen los otros huecos también cuenta: la frase no repite palabras.
+  const otrosHuecos = HUECOS.filter((h) => h.id !== hueco.id).flatMap((h) => (valores[h.id] ? [valores[h.id] as string] : []));
+  const opciones = opcionesHueco(area, hueco.id, idea, otrosHuecos);
 
   function irAHueco(i: number) {
     window.clearTimeout(temporizador.current);
@@ -198,54 +198,18 @@ export function PasoEjercicio({
                 ))}
 
                 {escribiendo ? (
-                  <div className="flex flex-col gap-2">
-                    <label htmlFor={idCampo} className="sr-only">
-                      {hueco.pregunta} (escribe la tuya)
-                    </label>
-                    <input
-                      key={avisoPropio}
-                      id={idCampo}
-                      autoFocus
-                      value={propio}
-                      maxLength={LARGO_MAX_HUECO}
-                      onChange={(e) => setPropio(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') llenar(propio);
-                      }}
-                      placeholder="Escríbela con tus palabras"
-                      className={`h-12 w-full rounded-[var(--radius-chip)] border bg-sunken px-4 text-base text-ink-1 placeholder:text-ink-3 focus:outline-none ${
-                        avisoPropio && limpiarTexto(propio, LARGO_MAX_HUECO).length < 3 ? 'sacudir border-warning' : 'border-gold'
-                      }`}
-                    />
-                    {avisoPropio > 0 && limpiarTexto(propio, LARGO_MAX_HUECO).length < 3 && (
-                      <p className="text-caption text-warning">Escribe al menos unas letras.</p>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (limpiarTexto(propio, LARGO_MAX_HUECO).length < 3) {
-                          setAvisoPropio((n) => n + 1);
-                          vibrar(30);
-                          return;
-                        }
-                        llenar(propio);
-                      }}
-                      className="boton-oro flex h-12 items-center justify-center rounded-[var(--radius-pill)] font-display text-base font-bold"
-                    >
-                      Usar esta
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEscribiendo(false);
-                        setPropio('');
-                        setAvisoPropio(0);
-                      }}
-                      className="flex min-h-11 items-center justify-center text-sm font-semibold text-ink-2 underline-offset-4 hover:underline"
-                    >
-                      Cancelar
-                    </button>
-                  </div>
+                  <CampoPropio
+                    etiqueta="Escríbela con tus palabras"
+                    valor={propio}
+                    onCambiar={setPropio}
+                    onConfirmar={llenar}
+                    onCancelar={() => {
+                      setEscribiendo(false);
+                      setPropio('');
+                    }}
+                    placeholder={hueco.pregunta}
+                    largoMax={LARGO_MAX_HUECO}
+                  />
                 ) : (
                   <motion.button
                     type="button"
@@ -264,6 +228,7 @@ export function PasoEjercicio({
       </div>
 
       <BotonPrincipal
+        secundario={escribiendo}
         onClick={() => {
           if (completa) {
             onTerminar(valores as Required<Valores>);

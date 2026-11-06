@@ -26,7 +26,7 @@ export interface PasoMecanismo {
 }
 
 export interface SolucionProps {
-  /** Kicker en acento — default "EL MECANISMO". */
+  /** Kicker en acento — default "CÓMO FUNCIONA". */
   kicker?: string;
   /** Copy MARCADO del título de sección (máx 8 palabras). */
   tituloMarked: string;
@@ -49,7 +49,7 @@ export interface SolucionProps {
 }
 
 export function Solucion({
-  kicker = 'EL MECANISMO',
+  kicker = 'CÓMO FUNCIONA',
   tituloMarked,
   mecanismo,
   bigIdeaMarked,
@@ -82,7 +82,7 @@ export function Solucion({
 
         {/* El chip del mecanismo bautizado — hairline + <Accent> (55 §4) */}
         <motion.div variants={item} className="mt-4">
-          <span className="inline-flex w-fit items-center gap-2 rounded-[var(--radius-chip,12px)] bg-[color-mix(in_oklab,var(--accent)_10%,transparent)] px-3 py-1.5 text-[13px] font-semibold uppercase tracking-[0.06em]">
+          <span className="inline-flex w-fit items-center gap-2 rounded-full bg-[color-mix(in_oklab,var(--accent)_10%,transparent)] px-3 py-1.5 text-[13px] font-semibold uppercase tracking-[0.06em]">
             <Puzzle size={14} color="var(--accent)" aria-hidden="true" />
             <Accent>{mecanismo}</Accent>
           </span>

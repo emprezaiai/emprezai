@@ -1,10 +1,11 @@
 // Recorre el onboarding completo + la pantalla de planes a 375px (o el ancho dado) y captura
 // cada paso en docs/revisiones/recorrido/. Mide el desborde horizontal en cada pantalla.
-// Uso: node scripts/captura-recorrido.mjs http://localhost:3100 [ancho] [ruta: con-area|nose]
+// Uso: node scripts/captura-recorrido.mjs http://localhost:3100 [ancho] [ruta: con-area|nose] [ia: lenta|sin-ia]
+// "lenta" (por defecto) simula la IA real respondiendo a los 7,6 s, para ver la espera completa.
 import { mkdirSync } from 'node:fs';
 import { chromium } from 'playwright';
 
-const [base = 'http://localhost:3100', ancho = '375', ruta = 'con-area'] = process.argv.slice(2);
+const [base = 'http://localhost:3100', ancho = '375', ruta = 'con-area', ia = 'lenta'] = process.argv.slice(2);
 const carpeta = `docs/revisiones/recorrido${ancho === '375' ? '' : `-${ancho}`}${ruta === 'nose' ? '-nose' : ''}`;
 mkdirSync(carpeta, { recursive: true });
 
@@ -14,6 +15,19 @@ const errores = [];
 pagina.on('pageerror', (e) => errores.push(e.message));
 pagina.on('console', (m) => m.type() === 'error' && errores.push(m.text()));
 
+if (ia === 'lenta') {
+  await pagina.route('**/api/ia/primera-pieza', async (r) => {
+    await new Promise((res) => setTimeout(res, 7600));
+    await r.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        frase: 'Manejo las redes sociales de negocios de mi barrio para que consigan clientes cada semana, sin contratar una agencia cara.',
+        prueba: 'Escribe hoy a 3 dueños de negocios cercanos y pregúntales quién maneja sus redes. Luego léeles tu frase y anota qué responden.',
+      }),
+    });
+  });
+}
 const espera = (ms) => pagina.waitForTimeout(ms);
 const medidas = [];
 let n = 0;
@@ -88,7 +102,13 @@ await capturar('ejercicio-completo');
 await tocar('Armar mi pieza');
 await espera(2600);
 await capturar('armando');
-await espera(4200);
+if (ia === 'lenta') {
+  await espera(4500);
+  await capturar('armando-espera');
+  await espera(2600);
+} else {
+  await espera(4200);
+}
 await capturar('pieza');
 await tocar('Seguir armando mi empresa');
 await pagina.waitForURL('**/paywall**');

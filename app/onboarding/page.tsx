@@ -4,7 +4,7 @@ import { esPlan } from '@/lib/onboarding';
 
 export const metadata: Metadata = {
   title: 'Arma tu primera pieza — EMPREZAI',
-  description: 'Responde 5 preguntas y arma tu propuesta de valor en 2 minutos.',
+  description: 'Responde unas preguntas y arma tu frase de negocio en unos 5 minutos, gratis y sin crear cuenta.',
   robots: { index: false },
 };
 

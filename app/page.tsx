@@ -6,17 +6,17 @@
 
 import {
   BookX,
+  CalendarCheck,
   CalendarX2,
-  Coffee,
   Gift,
   Hourglass,
   Lightbulb,
   Lock,
   MessageSquareDashed,
+  MessageSquareOff,
   MessageSquareText,
   MonitorPlay,
   Moon,
-  MousePointerClick,
   Puzzle,
   Search,
   ShieldCheck,
@@ -26,6 +26,7 @@ import {
   Wallet,
   Zap,
 } from 'lucide-react';
+import Image from 'next/image';
 import { Hero } from '@/components/landing/Hero';
 import { Problema } from '@/components/landing/Problema';
 import { Agitacion } from '@/components/landing/Agitacion';
@@ -50,9 +51,16 @@ const FEATURES_ANUAL = [
   'El Método Pieza a Pieza: una misión de 5 minutos al día',
   'La IA arma cada pieza con tu negocio',
   'Todo guardado en Mi Empresa, listo para descargar',
-  'Nuevas rutas cada mes después del día 30',
+  'Tu racha diaria para no soltarlo',
 ];
-const FEATURES_MENSUAL = ['Todo lo del plan anual', 'Pagas mes a mes', 'Cancelas en 1 toque, cuando quieras'];
+const FEATURES_MENSUAL = [
+  'La misma ruta de 30 días, con la IA incluida',
+  'Todo guardado en Mi Empresa',
+  'Pagas mes a mes',
+  'Cancelas cuando quieras',
+];
+// 12 × $9.99 = $119.88 contra $79.99: el mismo ahorro exacto que muestra la pantalla de planes.
+const AHORRO_ANUAL = '$39.89';
 
 export default function PaginaDeVentas() {
   useEventoAlMontar('landing_vista');
@@ -64,14 +72,14 @@ export default function PaginaDeVentas() {
         appName="EMPREZAI"
         marca={<Marca tamano="md" />}
         gancho={
-          <span className="inline-flex items-center gap-2 rounded-[var(--radius-chip)] bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] py-1.5 pr-3 pl-1.5 text-[13px] font-semibold text-ink-1">
-            <span className="relieve-noche flex size-7 items-center justify-center rounded-[var(--radius-chip)]">
+          <span className="inline-flex items-center gap-2 rounded-full bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] py-1.5 pr-3 pl-1.5 text-[13px] font-semibold text-ink-1">
+            <span className="relieve-noche flex size-7 items-center justify-center rounded-full">
               <Moon size={14} fill="currentColor" strokeWidth={0} aria-hidden="true" />
             </span>
             ¿Otra noche en blanco frente a ChatGPT?
           </span>
         }
-        h1Marked="De la hoja en blanco a [acento]tu negocio armado[/acento] en 30 días"
+        h1Marked="[acento]Tu negocio armado[/acento] en 30 días, pieza a pieza"
         subtitleMarked="[b]Esta noche, en 5 minutos,[/b] la IA arma tu primera pieza. Sin cursos."
         ctaLabel={CTA_LABEL}
         ctaHref={CTA_HREF}
@@ -79,13 +87,12 @@ export default function PaginaDeVentas() {
           <ul className="grid grid-cols-3 gap-2">
             {[
               { icono: Gift, texto: '7 días gratis' },
-              { icono: ShieldCheck, texto: '15 días de garantía' },
-              { icono: MousePointerClick, texto: 'Cancelas en 1 toque' },
+              { icono: ShieldCheck, texto: 'Garantía 15 días' },
+              { icono: CalendarCheck, texto: 'Sin permanencia' },
             ].map(({ icono: Icono, texto }) => (
-              <li key={texto} className="flex flex-col items-center gap-1.5 text-center leading-tight">
-                <span className="relieve-piedra flex size-7 items-center justify-center rounded-[var(--radius-chip)]">
-                  <Icono size={13} strokeWidth={2.5} aria-hidden="true" />
-                </span>
+              // Datos, no botones: ícono plano en el acento (una ficha en relieve se ve tocable).
+              <li key={texto} className="flex flex-col items-center gap-1.5 text-center text-[12px] leading-tight whitespace-nowrap">
+                <Icono size={16} strokeWidth={2.2} className="text-[var(--accent)]" aria-hidden="true" />
                 {texto}
               </li>
             ))}
@@ -118,7 +125,7 @@ export default function PaginaDeVentas() {
       />
 
       <Solucion
-        tituloMarked="No te falta información: te falta [acento]el paso de hoy[/acento]"
+        tituloMarked="Te falta [acento]el paso de hoy[/acento]"
         mecanismo="el Método Pieza a Pieza"
         bigIdeaMarked="Cada día haces una misión de 5 minutos y la IA arma [b]una pieza de tu negocio[/b] usando las anteriores."
         pasos={[
@@ -150,17 +157,17 @@ export default function PaginaDeVentas() {
         tituloMarked="Empieza gratis. Sigue por [acento]$0.22 al día[/acento]"
         trialDias={7}
         stack={{
-          lineas: [{ resultado: 'Mes a mes', valor: '$120' }],
-          totalTachado: '$120',
-          nota: 'Anual: $79.99',
+          lineas: [{ resultado: '12 meses en el plan mensual', valor: '$119.88' }],
+          totalTachado: '$119.88',
+          nota: `Anual: $79.99 · ahorras ${AHORRO_ANUAL}`,
         }}
         anual={{
           nombre: 'Anual',
-          badge: 'MEJOR PRECIO',
+          badge: 'MEJOR VALOR',
           precioMes: '$6.67',
-          totalAnual: 'Se cobra $79.99/año',
-          ahorro: '4 meses gratis',
-          descomposicionDia: 'menos de $0.22 al día',
+          totalAnual: 'Se cobra $79.99 al año',
+          ahorro: `Ahorras ${AHORRO_ANUAL}`,
+          descomposicionDia: '$0.22 al día',
           ctaLabel: 'Empezar mis 7 días gratis',
           ctaHref: CTA_ANUAL,
           features: FEATURES_ANUAL,
@@ -168,7 +175,7 @@ export default function PaginaDeVentas() {
         mensual={{
           nombre: 'Mensual',
           precioMes: '$9.99',
-          descomposicionDia: 'menos de $0.34 al día',
+          descomposicionDia: '$0.33 al día',
           ctaLabel: 'Empezar mis 7 días gratis',
           ctaHref: CTA_MENSUAL,
           features: FEATURES_MENSUAL,
@@ -178,10 +185,10 @@ export default function PaginaDeVentas() {
 
       <Garantia
         nombre="La Garantía Sin Preguntas"
-        condicionMarked="[b]15 días desde tu primer pago.[/b] Si sientes que la app no es para ti, pides la devolución en 1 clic y te devolvemos todo."
+        condicionMarked="[b]15 días desde tu primer pago.[/b] ¿No es para ti? Pides la devolución y te devolvemos todo."
         sellos={[
           { icon: Wallet, texto: '100% de vuelta' },
-          { icon: MousePointerClick, texto: 'Devolución en 1 clic' },
+          { icon: MessageSquareOff, texto: 'Sin explicaciones' },
           { icon: ShieldCheck, texto: 'Pago protegido' },
         ]}
         cta={{ label: CTA_LABEL, href: CTA_HREF }}
@@ -197,8 +204,9 @@ export default function PaginaDeVentas() {
           },
           {
             icon: Wallet,
-            pregunta: '¿Tengo que pagar ChatGPT Plus u otra herramienta?',
-            respuestaMarked: 'No. La IA ya viene incluida en EMPREZAI: [b]no pagas nada extra[/b].',
+            pregunta: '¿Tengo que pagar algo más, como ChatGPT Plus?',
+            respuestaMarked:
+              'No. La IA ya viene incluida: pagas solo tu plan, empiezas con [b]7 días gratis[/b] y te avisamos antes del primer cobro.',
           },
           {
             icon: BookX,
@@ -214,21 +222,15 @@ export default function PaginaDeVentas() {
             icon: Lock,
             pregunta: '¿Me pueden robar la idea?',
             respuestaMarked:
-              'Tu idea es tuya: solo tú ves tu negocio, no se usa para entrenar IA y [b]la borras cuando quieras[/b].',
-          },
-          {
-            icon: Coffee,
-            pregunta: '¿Vale la pena pagar $9.99 al mes?',
-            respuestaMarked: 'Es menos que dos cafés. Empiezas con [b]7 días gratis[/b] y te avisamos antes del primer cobro.',
+              'Tu idea es tuya: no se usa para entrenar IA, no se comparte y [b]la borras cuando quieras[/b].',
           },
         ]}
       />
 
       <CtaFinal
         icono={
-          <span className="relieve-oro flex size-16 items-center justify-center rounded-[var(--radius-chip)]">
-            <Zap size={30} fill="currentColor" strokeWidth={0} aria-hidden="true" />
-          </span>
+          // El personaje de la marca: el momento del "día 30 con todo listo" (FICHA-ARTE: aparece cuando ganas).
+          <Image src="/marca/personaje.webp" alt="" width={96} height={96} unoptimized className="size-24 object-contain" />
         }
         h2Marked="Imagina tu [acento]día 30[/acento] con todo listo"
         futurePacingMarked="Abres Mi Empresa y ahí está: tu oferta, tu nombre, tu precio y tus textos. Solo falta lanzar."

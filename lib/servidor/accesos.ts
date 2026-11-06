@@ -4,7 +4,7 @@
 
 import { clienteAdmin } from './supabase';
 import { urlDelSitio } from './config';
-import { enviarAcceso, enviarBienvenida } from './correo';
+import { enviarAcceso, enviarBienvenida, enviarSinCompraVigente } from './correo';
 import { tieneAcceso, type Membresia } from '@/lib/membresia';
 
 interface PerfilAcceso extends Membresia {
@@ -70,12 +70,16 @@ export async function darAccesoTrasCompra(email: string): Promise<void> {
 }
 
 /**
- * Pedido desde la pantalla Entrar. Solo envía si ese correo tiene acceso vigente; si no, no hace
- * nada. Quien llama responde SIEMPRE igual (anti-enumeración, 26).
+ * Pedido desde la pantalla Entrar. Con acceso vigente manda el enlace; sin él, manda a ESE buzón el
+ * aviso de "no encontramos tu compra" (o "acceso pausado"). Quien llama responde SIEMPRE igual
+ * (anti-enumeración, 26): solo el dueño del buzón ve cuál de los dos correos llegó.
  */
 export async function enviarAccesoSiCorresponde(email: string): Promise<void> {
   const perfil = await perfilPorEmail(email);
-  if (!perfil || !tieneAcceso(perfil)) return;
+  if (!perfil || !tieneAcceso(perfil)) {
+    await enviarSinCompraVigente(email, Boolean(perfil));
+    return;
+  }
   await asegurarCuenta(perfil);
   const { url, codigo } = await enlaceDeAcceso(perfil.email);
   await enviarAcceso(perfil.email, url, codigo);

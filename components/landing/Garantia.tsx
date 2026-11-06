@@ -56,13 +56,9 @@ export function Garantia({ nombre, condicionMarked, pisoLegal, icon: Icono = Shi
               {sellos && (
                 <ul className="grid w-full grid-cols-3 gap-2">
                   {sellos.map((se, i) => (
-                    <li
-                      key={i}
-                      className="flex flex-col items-center gap-2 rounded-[var(--radius-card)] bg-[color-mix(in_oklab,var(--accent)_10%,transparent)] px-2 py-3 shadow-[inset_0_1px_0_rgb(255_255_255/0.08)]"
-                    >
-                      <span className="relieve-oro flex size-7 items-center justify-center rounded-[var(--radius-chip,12px)]">
-                        <se.icon size={14} strokeWidth={2.5} aria-hidden="true" />
-                      </span>
+                    // Sellos = datos, no botones: ícono plano en el acento, sin ficha en relieve ni caja.
+                    <li key={i} className="flex flex-col items-center gap-2 px-1 py-2">
+                      <se.icon size={20} strokeWidth={2.2} className="text-[var(--accent)]" aria-hidden="true" />
                       <span className="text-[13px] font-semibold leading-tight text-[var(--text-primary)]">{se.texto}</span>
                     </li>
                   ))}
