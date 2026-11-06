@@ -243,7 +243,7 @@ body {
 
 /* Barra inferior fija: degradé hacia el fondo para que el contenido no choque con el botón. */
 .barra-inferior {
-  background: linear-gradient(180deg, transparent, var(--surface-base) 40px);
+  background: linear-gradient(180deg, transparent, var(--surface-base) 16px);
   padding-bottom: max(16px, env(safe-area-inset-bottom));
 }
 

@@ -32,7 +32,8 @@ export function PasoReconocimiento({
 
   return (
     <div className="flex flex-1 flex-col">
-      <div className="px-4 pt-6" aria-live="polite">
+      {/* Centrado en el alto disponible: sin aire muerto entre el contenido y el botón. */}
+      <div className="flex flex-1 flex-col justify-center px-4 py-6" aria-live="polite">
         <motion.div {...entrar(0)} className="grid grid-cols-[1fr_auto_1fr] items-stretch gap-2" aria-hidden="true">
           <div className="tarjeta-relieve-base flex flex-col gap-3 rounded-[var(--radius-card)] p-3">
             <span className="relieve-piedra flex size-10 items-center justify-center rounded-[var(--radius-chip)]">

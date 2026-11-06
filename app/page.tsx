@@ -7,6 +7,7 @@
 import {
   BookX,
   CalendarCheck,
+  CalendarRange,
   CalendarX2,
   Gift,
   Hourglass,
@@ -144,7 +145,7 @@ export default function PaginaDeVentas() {
       <AppPorDentro
         tituloMarked="Tu negocio, [acento]pieza a pieza[/acento]"
         frames={[
-          { label: 'Tu misión de hoy, en 5 minutos', src: '/landing/app-hoy.png', alt: 'Captura de la app: pantalla Hoy con la misión del día 8 y la racha' },
+          { label: 'Tu misión de hoy, en 5 minutos', src: '/landing/app-hoy-v2.png', alt: 'Captura de la app: pantalla Hoy con la misión del día 8 y la racha' },
           { label: 'Tu ruta de 30 días', src: '/landing/app-ruta.png', alt: 'Captura de la app: mapa de la ruta de 30 días en la semana 2' },
           { label: 'Tu pieza, armada con tus respuestas', src: '/landing/app-mision.png', alt: 'Captura de la app: el cliente ideal armado con tres respuestas' },
           { label: 'Tu negocio completo', src: '/landing/app-empresa.png', alt: 'Captura de la app: Mi Empresa con las piezas de la semana 1' },
@@ -157,9 +158,9 @@ export default function PaginaDeVentas() {
         tituloMarked="Empieza gratis. Sigue por [acento]$0.22 al día[/acento]"
         trialDias={7}
         stack={{
-          lineas: [{ resultado: '12 meses en el plan mensual', valor: '$119.88' }],
+          lineas: [{ resultado: 'Mes a mes', valor: '$119.88' }],
           totalTachado: '$119.88',
-          nota: `Anual: $79.99 · ahorras ${AHORRO_ANUAL}`,
+          nota: 'Anual: $79.99',
         }}
         anual={{
           nombre: 'Anual',
@@ -219,6 +220,12 @@ export default function PaginaDeVentas() {
             respuestaMarked: 'Sí. El día 1 solo cuentas tu idea en 1 minuto y la ruta te lleva paso a paso.',
           },
           {
+            icon: CalendarRange,
+            pregunta: '¿Y después del día 30?',
+            respuestaMarked:
+              'Tu negocio queda en Mi Empresa: lo editas, lo copias y lo descargas cuando quieras. Con el plan anual, [b]cada ruta nueva que agreguemos[/b] entra sin pagar más.',
+          },
+          {
             icon: Lock,
             pregunta: '¿Me pueden robar la idea?',
             respuestaMarked:
@@ -232,7 +239,7 @@ export default function PaginaDeVentas() {
           // El personaje de la marca: el momento del "día 30 con todo listo" (FICHA-ARTE: aparece cuando ganas).
           <Image src="/marca/personaje.webp" alt="" width={96} height={96} unoptimized className="size-24 object-contain" />
         }
-        h2Marked="Imagina tu [acento]día 30[/acento] con todo listo"
+        h2Marked="Imagina tu [acento]día 30[/acento] con todo listo"
         futurePacingMarked="Abres Mi Empresa y ahí está: tu oferta, tu nombre, tu precio y tus textos. Solo falta lanzar."
         ctaLabel={CTA_LABEL}
         ctaHref={CTA_HREF}

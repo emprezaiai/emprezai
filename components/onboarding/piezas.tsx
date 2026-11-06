@@ -3,7 +3,7 @@
 // Piezas compartidas del recorrido de inicio y de la pantalla de planes (50 §A2-A4, C2).
 // Consumen SOLO los tokens de app/globals.css y el material en relieve.
 
-import { useId, useState, type ReactNode } from 'react';
+import { useEffect, useId, useState, type ReactNode } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { ArrowRight, Check, ChevronLeft, LockKeyhole, Zap } from 'lucide-react';
 import {
@@ -352,6 +352,11 @@ const etiquetasVistas = new Set<string>();
 
 export function RutaMini({ titulo, respuestas = [], destacada = false }: { titulo: string; respuestas?: ItemResumen[]; destacada?: boolean }) {
   const reduce = useReducedMotion();
+  // Se anotan DESPUÉS de pintar (el render solo lee): así una respuesta nueva, o cambiada al volver
+  // atrás, se anima una vez, y un paso que no agregó ninguna no anima nada.
+  useEffect(() => {
+    respuestas.forEach((r) => etiquetasVistas.add(r.texto));
+  }, [respuestas]);
   return (
     <motion.div
       initial={{ opacity: 0, y: reduce ? 0 : 8 }}
@@ -359,7 +364,7 @@ export function RutaMini({ titulo, respuestas = [], destacada = false }: { titul
       transition={{ duration: 0.35, delay: reduce ? 0 : 0.3, ease: EASE_SALIDA }}
       className={`${destacada ? 'hairline-oro relieve-tarjeta' : 'tarjeta-relieve-base'} rounded-[var(--radius-card)] p-4`}
     >
-      <p className="text-xs font-semibold tracking-[0.08em] text-ink-3 uppercase">{titulo}</p>
+      <p className="text-caption font-semibold tracking-[0.08em] text-ink-3 uppercase">{titulo}</p>
       <ol className="relative mt-4 flex items-start justify-between" aria-label="Tu ruta de 30 días: hoy empiezas">
         <span aria-hidden="true" className="absolute top-4 right-4 left-4 h-0.5 bg-[color-mix(in_oklab,var(--ink-1)_12%,transparent)]" />
         {DIAS_RUTA.map((dia) => (
@@ -383,30 +388,27 @@ export function RutaMini({ titulo, respuestas = [], destacada = false }: { titul
                 <LockKeyhole size={14} aria-hidden="true" />
               </span>
             )}
-            <span className={`text-xs font-semibold ${dia === 1 ? 'text-gold' : 'text-ink-3'}`}>{dia === 1 ? 'Hoy' : `Día ${dia}`}</span>
+            <span className={`text-caption font-semibold ${dia === 1 ? 'text-gold' : 'text-ink-3'}`}>{dia === 1 ? 'Hoy' : `Día ${dia}`}</span>
           </li>
         ))}
         <li className="relative flex flex-col items-center gap-1">
-          <span className="flex size-8 items-center justify-center rounded-full border border-[var(--line)] bg-sunken text-xs font-bold text-ink-2">
+          <span className="flex size-8 items-center justify-center rounded-full border border-[var(--line)] bg-sunken text-caption font-bold text-ink-2">
             30
           </span>
-          <span className="text-xs font-semibold text-ink-3">Lista</span>
+          <span className="text-caption font-semibold text-ink-3">Lista</span>
         </li>
       </ol>
       {respuestas.length > 0 && (
         <ul className="mt-4 flex flex-wrap gap-2 border-t border-[var(--line)] pt-4" aria-label="Lo que ya sabe tu ruta">
           {respuestas.map((r) => {
-            // Solo la respuesta recién dada "aparece"; las anteriores ya estaban (y un paso que no
-            // agregó ninguna no anima nada).
             const nueva = !etiquetasVistas.has(r.texto);
-            etiquetasVistas.add(r.texto);
             return (
               <motion.li
                 key={r.texto}
                 initial={nueva && !reduce ? { opacity: 0, scale: 0.85 } : false}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ type: 'spring', bounce: 0.25, duration: 0.35, delay: 0.35 }}
-                className={`flex items-center gap-1 rounded-[var(--radius-pill)] py-1 pr-3 text-xs font-semibold text-ink-1 ${
+                className={`flex items-center gap-1 rounded-[var(--radius-pill)] py-1 pr-3 text-caption font-semibold text-ink-1 ${
                   r.tipo === 'freno' ? 'bg-raised-2 pl-3' : 'bg-[color-mix(in_oklab,var(--green)_12%,transparent)] pl-2'
                 }`}
               >

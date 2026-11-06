@@ -47,7 +47,9 @@ export function PasoPregunta<T extends string>({
     : pregunta.opciones;
 
   return (
-    <div className="flex flex-1 flex-col px-4 pt-6 pb-8">
+    // Contenido y pie forman un solo bloque centrado en el alto disponible: ni aire muerto abajo
+    // ni un hueco a mitad de pantalla.
+    <div className="flex flex-1 flex-col justify-center px-4 pt-6 pb-8">
       <motion.div
         initial={{ opacity: 0, y: reduce ? 0 : 8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -96,8 +98,7 @@ export function PasoPregunta<T extends string>({
         )}
       </AnimatePresence>
 
-      {/* El pie se ancla abajo: la pantalla no deja aire muerto bajo él. */}
-      {pie && <div className="mt-auto pt-6">{pie}</div>}
+      {pie && <div className="mt-8">{pie}</div>}
     </div>
   );
 }

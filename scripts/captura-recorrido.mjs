@@ -22,8 +22,8 @@ if (ia === 'lenta') {
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify({
-        frase: 'Manejo las redes sociales de negocios de mi barrio para que consigan clientes cada semana, sin contratar una agencia cara.',
-        prueba: 'Escribe hoy a 3 dueños de negocios cercanos y pregúntales quién maneja sus redes. Luego léeles tu frase y anota qué responden.',
+        frase: 'Ayudo a negocios locales a conseguir clientes con sus redes sociales, sin contratar una agencia cara.',
+        prueba: 'Escribe hoy a 3 negocios de tu barrio y pregúntales si les cuesta conseguir clientes por redes.',
       }),
     });
   });

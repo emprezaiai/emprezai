@@ -343,16 +343,39 @@ function repitePalabra(opcion: string, yaDicho: Set<string>): boolean {
   return [...raices(opcion)].some((r) => yaDicho.has(r));
 }
 
+const PREPOSICION = /^(por|de|en|con|para|a)$/i;
+
 /**
- * Opciones del hueco: lo que su idea ya dice (para quién, de qué tema) va primero, y se descartan
- * las que repetirían una palabra de la idea o de los otros huecos (la frase no dice "curso… sin
- * cursos eternos"). Si el filtro deja menos de 2, se muestran todas.
+ * Si la opción repite una palabra de lo ya dicho, la reformula quitando el complemento que la
+ * repite ("conseguir clientes por redes" → "conseguir clientes"); si la palabra repetida está al
+ * principio, no hay forma de salvarla y se descarta (null).
+ */
+function sinRepetir(opcion: string, yaDicho: Set<string>): string | null {
+  if (!repitePalabra(opcion, yaDicho)) return opcion;
+  const palabras = opcion.split(' ');
+  const primera = palabras.findIndex((p) => repitePalabra(p, yaDicho));
+  const corte = primera - 1;
+  if (corte >= 2 && PREPOSICION.test(palabras[corte])) {
+    const corta = palabras.slice(0, corte).join(' ');
+    if (!repitePalabra(corta, yaDicho)) return corta;
+  }
+  return null;
+}
+
+/**
+ * Opciones del hueco: lo que su idea ya dice (para quién, de qué tema) va primero, y las que
+ * repetirían una palabra de la idea o de los otros huecos se reformulan o se descartan (la frase
+ * no dice "redes sociales… por redes" ni "curso… sin cursos eternos"). El orden original (por
+ * afinidad con el área) se conserva. Si quedan menos de 2, se muestran todas.
  */
 export function opcionesHueco(area: IdArea, hueco: IdHueco, idea: string, otros: string[] = []): string[] {
   const yaDicho = raices([idea, ...otros].join(' '));
   const todas = OPCIONES_EJERCICIO[area][hueco];
-  const sinRepetir = todas.filter((o) => !repitePalabra(o, yaDicho));
-  const base = sinRepetir.length >= 2 ? sinRepetir : todas;
+  const limpias = todas.flatMap((o) => {
+    const r = sinRepetir(o, yaDicho);
+    return r ? [r] : [];
+  });
+  const base = limpias.length >= 2 ? limpias : todas;
   const tema = temaDeLaIdea(idea);
   const propia =
     hueco === 'cliente' ? clienteDeLaIdea(idea) : hueco === 'resultado' && tema ? `usar ${tema} paso a paso en su día a día` : undefined;

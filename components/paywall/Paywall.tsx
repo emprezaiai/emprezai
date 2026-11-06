@@ -245,7 +245,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
             </ol>
             {!pieza && (
               <p className="mt-4 text-caption text-ink-2">
-                5 minutos {momento ? NOMBRE_MOMENTO[momento] : 'al día'}: una misión y una pieza nueva cada día.
+                5 minutos {momento ? NOMBRE_MOMENTO[momento] : 'al día'}: una misión y una pieza nueva <span className="whitespace-nowrap">cada día.</span>
               </p>
             )}
             {pieza && (
@@ -282,9 +282,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
                   data-plan={id}
                   tabIndex={activo ? 0 : -1}
                   onClick={() => elegirPlan(id)}
-                  className={`relative flex min-h-20 items-center gap-3 rounded-[var(--radius-card)] border border-[var(--line)] px-4 pb-4 text-left transition-colors duration-200 active:scale-[0.99] ${
-                    'pt-6'
-                  } ${
+                  className={`relative flex min-h-20 items-center gap-3 rounded-[var(--radius-card)] border border-[var(--line)] px-4 py-5 text-left transition-colors duration-200 active:scale-[0.99] ${
                     activo ? 'tarjeta-relieve-oro' : 'tarjeta-relieve'
                   }`}
                 >
@@ -469,7 +467,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
               </span>
             ) : (
               <>
-                Hoy <strong className="font-semibold text-ink-1">$0</strong> · luego <Monto valor={p.monto} /> {p.periodo} · cancela cuando quieras
+                Hoy <strong className="font-semibold text-ink-1">$0</strong> con tarjeta · luego <Monto valor={p.monto} /> {p.periodo} · cancela cuando quieras
               </>
             )}
           </p>

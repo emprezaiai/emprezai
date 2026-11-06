@@ -34,17 +34,18 @@ export const encargoPrimeraPieza = {
 Tarea: con las respuestas de la persona, escribe SU FRASE DE NEGOCIO y una PRUEBA para hoy.
 - "frase": una sola frase de 12 a 30 palabras (máx. 170 caracteres) con la estructura
   "Ayudo a [cliente] a [resultado] [con/sin/en algo propio de su idea]". Que nombre a quién ayuda,
-  el resultado que quiere y un toque de cómo lo hace. No repitas literalmente la idea ni copies
-  palabra por palabra sus respuestas: mejóralas.
-- "prueba": una acción concreta de hoy, de 5 minutos, para probar la frase con personas reales
-  que encajen con ese cliente (máx. 220 caracteres), empezando con un verbo.`,
+  el resultado que quiere y un toque de cómo lo hace. Conserva el sentido EXACTO del cliente, el
+  resultado y el dolor que eligió: no los cambies por otros. Solo pule la redacción (sin copiar sus
+  respuestas palabra por palabra y sin repetir palabras dentro de la frase).
+- "prueba": UNA sola acción concreta de hoy, de 5 minutos, para probar la frase con personas reales
+  que encajen con ese cliente (máx. 140 caracteres), empezando con un verbo. Sin "luego" ni pasos extra.`,
   esquema: {
     type: 'object',
     properties: { frase: { type: 'string' }, prueba: { type: 'string' } },
     required: ['frase', 'prueba'],
     additionalProperties: false,
   },
-  validar: z.object({ frase: texto(180), prueba: texto(230) }),
+  validar: z.object({ frase: texto(180), prueba: texto(150) }),
   usuario: (d: DatosPrimeraPieza) =>
     `<datos>\nIdea: ${d.idea}\nÁrea: ${d.area}\nCliente: ${d.cliente}\nResultado que busca: ${d.resultado}\nDolor que tiene: ${d.dolor}\n</datos>`,
 };

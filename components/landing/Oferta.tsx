@@ -123,16 +123,10 @@ export function Oferta({
             variants={item}
             className="tarjeta-relieve mx-auto mt-8 max-w-[560px] rounded-[var(--radius-card)] px-5 py-4 text-center text-[16px] text-[var(--text-secondary)]"
           >
-            <span className="whitespace-nowrap">
+            <span className="block">
               {stack.lineas[0]?.resultado}: <span className="tabular-nums line-through">{stack.totalTachado}</span>/año
             </span>
-            {stack.nota && (
-              <>
-                {' '}
-                <span aria-hidden="true">·</span>{' '}
-                <span className="font-semibold whitespace-nowrap text-[var(--text-primary)]">{stack.nota}</span>
-              </>
-            )}
+            {stack.nota && <span className="mt-1 block font-semibold text-[var(--text-primary)]">{stack.nota}</span>}
           </motion.p>
         )}
         {stack && stack.lineas.length > 1 && (
@@ -180,7 +174,7 @@ export function Oferta({
                 <div className="mt-4">
                   <Precio plan={anual} />
                   {/* El total anual SIEMPRE visible — regla de oro de 02C */}
-                  <p className="mt-1 text-[12px] text-[var(--text-secondary)]">{anual.totalAnual}</p>
+                  <p className="mt-1 text-[13px] text-[var(--text-secondary)]">{anual.totalAnual}</p>
                   <p className="mt-2 text-[16px] font-semibold text-[var(--accent)]">{anual.ahorro}</p>
                 </div>
                 <Features items={anual.features} origen="Oferta → anual" />

@@ -146,7 +146,7 @@ export function Acceso() {
       if (!res.ok) {
         setFalla('servidor');
         setEstado(reenvio ? 'enviado' : 'error');
-        if (reenvio) setErrorCodigo(`No pudimos reenviar el enlace ahora. Intenta en un minuto o escríbenos a ${RESPONSABLE.emailContacto}.`);
+        if (reenvio) setErrorCodigo('No pudimos reenviar el enlace ahora. Intenta en un minuto; si sigue, escríbenos desde el enlace de abajo.');
         return;
       }
       setEmail(limpio);
@@ -194,7 +194,7 @@ export function Acceso() {
         res.status === 429
           ? 'Demasiados intentos. Espera 15 minutos o entra con el botón del correo.'
           : res.status >= 500
-            ? `No pudimos revisar el código ahora. Intenta en un minuto o escríbenos a ${RESPONSABLE.emailContacto}.`
+            ? 'No pudimos revisar el código ahora. Intenta en un minuto; si sigue, escríbenos desde el enlace de abajo.'
             : 'Ese código no coincide o ya venció. Revísalo o pide uno nuevo.',
       );
     } catch {
@@ -327,7 +327,7 @@ export function Acceso() {
                   aria-invalid={Boolean(errorCodigo)}
                   aria-describedby={errorCodigo ? `${idCodigo}-error` : undefined}
                   className={`h-14 w-full rounded-[var(--radius-pill)] border bg-sunken px-5 text-center font-display text-xl font-bold tracking-[0.3em] text-ink-1 tabular-nums placeholder:font-sans placeholder:text-base placeholder:font-normal placeholder:tracking-normal placeholder:text-ink-3 focus:outline-none ${
-                    errorCodigo ? 'border-danger' : 'border-[var(--line)] focus:border-ink-3'
+                    errorCodigo ? 'border-danger' : 'border-[color-mix(in_oklab,var(--ink-3)_45%,transparent)] focus:border-ink-2'
                   }`}
                 />
                 {errorCodigo && (
@@ -338,7 +338,7 @@ export function Acceso() {
                 <button
                   type="submit"
                   disabled={verificando}
-                  className="boton-oro mt-2 flex h-14 w-full items-center justify-center gap-2 rounded-[var(--radius-pill)] font-display text-boton font-bold"
+                  className="boton-oro mt-2 flex h-14 w-full items-center justify-center gap-2 rounded-[var(--radius-pill)] font-display text-base font-bold"
                 >
                   {verificando ? (
                     <LoaderCircle size={20} className="motion-safe:animate-spin" aria-hidden="true" />
@@ -460,9 +460,13 @@ export function Acceso() {
                     <p>
                       <strong className="font-semibold text-ink-1">Tu suscripción no está activa.</strong> Tus piezas siguen guardadas.
                     </p>
-                    <div className="mt-2 flex flex-wrap gap-x-4">
-                      <Link href="/paywall" className="flex min-h-11 items-center font-semibold text-ink-1 underline underline-offset-4">
+                    <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+                      <Link
+                        href="/paywall"
+                        className="opcion-recorrido flex h-12 items-center justify-center gap-2 px-5 font-display text-base font-bold text-ink-1"
+                      >
                         Reactivar mi plan
+                        <ArrowRight size={18} aria-hidden="true" />
                       </Link>
                       <a
                         href={`mailto:${RESPONSABLE.emailContacto}?subject=${encodeURIComponent('Ya pagué EMPREZAI y no puedo entrar')}${email ? `&body=${encodeURIComponent(`Mi correo de compra: ${email}`)}` : ''}`}
@@ -495,13 +499,14 @@ export function Acceso() {
                   onChange={(ev) => {
                     setEmail(ev.target.value);
                     if (errorCampo) setErrorCampo('');
+                    if (estado === 'error') setEstado('inicio');
                   }}
                   placeholder="tu@correo.com"
                   aria-invalid={Boolean(errorCampo)}
                   aria-describedby={errorCampo ? `${idCampo}-error` : undefined}
                   key={intentos}
                   className={`h-14 w-full rounded-[var(--radius-pill)] border bg-sunken px-5 text-base text-ink-1 placeholder:text-ink-3 focus:outline-none ${
-                    errorCampo ? 'sacudir border-danger' : 'border-[var(--line)] focus:border-ink-3'
+                    errorCampo ? 'sacudir border-danger' : 'border-[color-mix(in_oklab,var(--ink-3)_45%,transparent)] focus:border-ink-2'
                   }`}
                 />
                 {errorCampo && (
@@ -511,15 +516,26 @@ export function Acceso() {
                 )}
                 {estado === 'error' && (
                   <p role="alert" className="text-caption text-danger">
-                    {falla === 'servidor'
-                      ? `No pudimos enviar el enlace ahora. Intenta en un minuto o escríbenos a ${RESPONSABLE.emailContacto}.`
-                      : 'No pudimos enviar el enlace. Revisa tu conexión e intenta de nuevo.'}
+                    {falla === 'servidor' ? (
+                      <>
+                        No pudimos enviar el enlace ahora. Intenta en un minuto o{' '}
+                        <a
+                          href={`mailto:${RESPONSABLE.emailContacto}?subject=${encodeURIComponent('No puedo pedir mi acceso a EMPREZAI')}${email ? `&body=${encodeURIComponent(`Mi correo de compra: ${email}`)}` : ''}`}
+                          className="font-semibold underline underline-offset-4"
+                        >
+                          escríbenos
+                        </a>
+                        .
+                      </>
+                    ) : (
+                      'No pudimos enviar el enlace. Revisa tu conexión e intenta de nuevo.'
+                    )}
                   </p>
                 )}
                 <button
                   type="submit"
                   disabled={estado === 'enviando'}
-                  className="boton-oro mt-4 flex h-14 w-full items-center justify-center gap-2 rounded-[var(--radius-pill)] font-display text-boton font-bold"
+                  className="boton-oro mt-4 flex h-14 w-full items-center justify-center gap-2 rounded-[var(--radius-pill)] font-display text-base font-bold"
                 >
                   {estado === 'enviando' ? (
                     <>
@@ -558,9 +574,6 @@ export function Acceso() {
                       : [{ texto: '5 minutos al día', tipo: 'freno' }]
                   }
                 />
-                <p className="mt-3 text-center text-caption text-ink-2">
-                  Tu negocio, pieza a pieza: hoy ya sabes qué hacer, y en 5 minutos está hecho.
-                </p>
               </motion.div>
 
               {!tienePieza && (

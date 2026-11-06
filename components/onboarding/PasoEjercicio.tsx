@@ -7,7 +7,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { ArrowRight, Lightbulb, MessageCircle, Store, UserRound, Zap } from 'lucide-react';
+import { ArrowRight, Lightbulb, MessageCircle, PencilLine, Store, UserRound, Zap } from 'lucide-react';
 import {
   HUECOS,
   LARGO_MAX_HUECO,
@@ -19,7 +19,7 @@ import {
   type IdArea,
   type IdHueco,
 } from '@/lib/onboarding';
-import { BotonPrincipal, CampoPropio, CheckCustom, EASE_SALIDA, FichaIcono, TituloAcento, vibrar } from './piezas';
+import { BotonPrincipal, CampoPropio, CheckCustom, EASE_SALIDA, TituloAcento, vibrar } from './piezas';
 
 type Valores = Partial<Record<IdHueco, string>>;
 
@@ -215,10 +215,11 @@ export function PasoEjercicio({
                     type="button"
                     onClick={() => setEscribiendo(true)}
                     whileTap={{ scale: 0.98 }}
-                    className="opcion-recorrido flex min-h-12 items-center gap-3 py-2 pr-5 pl-2 text-left text-ayuda font-medium text-ink-1"
+                    className="opcion-recorrido flex min-h-12 items-center justify-between gap-3 px-5 py-3 text-left text-ayuda font-medium text-ink-1"
                   >
-                    <FichaIcono icono="PencilSimpleLine" redonda />
+                    {/* Alineado con las demás píldoras (sin ficha): el lápiz va al final. */}
                     Otra cosa (escribe la tuya)
+                    <PencilLine size={18} className="shrink-0 text-ink-3" aria-hidden="true" />
                   </motion.button>
                 )}
               </div>
