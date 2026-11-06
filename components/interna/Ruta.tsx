@@ -5,6 +5,7 @@
 // algo: hecho → abre la pieza · hoy → la misión · bloqueado → dice cuándo se abre.
 
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { AnimatePresence, animate, motion, useReducedMotion } from 'motion/react';
 import { ArrowRight, Bell, Check, Clock, Flame, Gift, LocateFixed, LockKeyhole, Puzzle, X, Zap } from 'lucide-react';
@@ -286,6 +287,18 @@ export function Ruta() {
                             HOY · 5 min
                           </span>
                         )}
+                        {grande && (
+                          // El personaje de la marca acompaña la lección de hoy: flota junto al nodo y, al
+                          // tocarlo, salta y señala la tarjeta para empezar (mismo efecto que tocar el nodo).
+                          // Siempre del lado libre del zigzag, mirando hacia el nodo.
+                          <PersonajeGuia
+                            lado={p.x <= ANCHO / 2 ? 'derecha' : 'izquierda'}
+                            onTocar={() => {
+                              setLlamado((n) => n + 1);
+                              vibrar();
+                            }}
+                          />
+                        )}
                         {estado === 'hecho' ? (
                           <Link href={`/app/empresa?pieza=${d.dia}`} aria-label={etiqueta} className="relative block transition-transform duration-150 active:scale-95" style={{ width: tam, height: tam }}>
                             {contenido}
@@ -425,4 +438,56 @@ function CuentaRuta({ valor }: { valor: number }) {
     return () => control.stop();
   }, [valor, reduce]);
   return <span ref={nodo}>{reduce ? valor : 0}</span>;
+}
+
+/* El guepardo de la marca junto al nodo de HOY: entra con un salto, flota suave con su sombra en el
+   piso (sensación 3D) y responde al toque con un brinco. Quieto si la persona pide menos movimiento. */
+function PersonajeGuia({ lado, onTocar }: { lado: 'derecha' | 'izquierda'; onTocar: () => void }) {
+  const reduce = useReducedMotion();
+  const [brinco, setBrinco] = useState(0);
+  return (
+    <motion.button
+      type="button"
+      aria-label="Tu guía: empieza la misión de hoy desde la tarjeta de abajo"
+      onClick={() => {
+        setBrinco((n) => n + 1);
+        onTocar();
+      }}
+      initial={{ opacity: 0, scale: reduce ? 1 : 0.6, y: reduce ? 0 : 12 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={reduce ? { duration: 0.2 } : { type: 'spring', bounce: 0.35, duration: 0.6, delay: 0.5 }}
+      className="absolute -top-8 z-10 size-24"
+      style={lado === 'derecha' ? { left: 104 } : { left: -84 }}
+    >
+      {/* Sombra en el piso: se achica cuando el personaje sube */}
+      <motion.span
+        aria-hidden="true"
+        className="absolute bottom-0 left-1/2 h-2 w-16 -translate-x-1/2 rounded-full bg-[rgb(0_0_0/0.5)] blur-sm"
+        animate={reduce ? undefined : { scale: [1, 0.8, 1], opacity: [0.5, 0.3, 0.5] }}
+        transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.span
+        className="block size-full"
+        animate={reduce ? undefined : { y: [0, -8, 0] }}
+        transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+      >
+        <motion.span
+          key={brinco}
+          className={`block size-full ${lado === 'izquierda' ? '' : '-scale-x-100'}`}
+          initial={false}
+          animate={brinco && !reduce ? { y: [0, -18, 0], rotate: [0, -8, 0] } : undefined}
+          transition={{ duration: 0.45, ease: EASE_SALIDA }}
+        >
+          <Image
+            src="/marca/personaje.webp"
+            alt=""
+            width={96}
+            height={96}
+            unoptimized
+            className="size-full object-contain drop-shadow-[0_8px_10px_rgb(0_0_0/0.55)]"
+          />
+        </motion.span>
+      </motion.span>
+    </motion.button>
+  );
 }
