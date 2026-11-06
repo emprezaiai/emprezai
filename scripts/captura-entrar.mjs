@@ -66,6 +66,7 @@ await capturar('04-error-servidor');
 respuestaEnviar = { status: 200, body: { ok: true } };
 await pagina.goto(`${base}/login`, { waitUntil: 'load' });
 await pagina.getByLabel('Tu correo').fill('carla.mendez@gmial.com');
+await pagina.getByLabel('Tu correo').blur();
 await capturar('06-sugerencia-dominio');
 
 respuestaEnviar = { status: 500, body: { error: 'interno' } };

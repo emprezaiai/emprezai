@@ -14,7 +14,7 @@ import { useEffect, useId, useRef, useState, useSyncExternalStore } from 'react'
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { ArrowRight, CheckCircle2, CircleAlert, KeyRound, LoaderCircle, MailCheck, RotateCcw, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Check, CheckCircle2, CircleAlert, Copy, KeyRound, LoaderCircle, MailCheck, RotateCcw, ShieldCheck } from 'lucide-react';
 import { Marca } from '@/components/app/Marca';
 import { CheckCustom, EASE_SALIDA, RutaMini, TituloAcento, vibrar } from '@/components/onboarding/piezas';
 import { crearCuenta, useCuenta } from '@/lib/cuenta';
@@ -27,36 +27,69 @@ const demoPermitida = () => BANDERA_DEMO && ['localhost', '127.0.0.1'].includes(
 const ESPERA_REENVIO = 60;
 const CORREO_VALIDO = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-// Dominios más usados en LATAM: si escribió uno parecido (gmial.com, hotmal.com), se le sugiere el
-// correcto. El servidor responde igual a todos los correos (anti-enumeración), así que sin esta ayuda
-// quien se equivoca de dominio esperaría un correo que nunca llega.
-const DOMINIOS_COMUNES = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'icloud.com', 'live.com', 'hotmail.es', 'yahoo.es'];
+// Si escribió mal un dominio muy usado (gmial.com, hotmal.com), se le sugiere el correcto. El
+// servidor responde igual a todos los correos (anti-enumeración), así que sin esta ayuda quien se
+// equivoca de dominio esperaría un correo que nunca llega. Se compara solo el nombre (antes del
+// primer punto) y se conserva su terminación (.com, .es, .cl…); los dominios reales parecidos
+// (ymail, mail, email, hotmail.cl…) nunca se "corrigen".
+const NOMBRES_COMUNES = ['gmail', 'hotmail', 'outlook', 'yahoo', 'icloud', 'live'];
+const NOMBRES_REALES = new Set(['gmail', 'hotmail', 'outlook', 'yahoo', 'icloud', 'live', 'ymail', 'mail', 'email', 'aol', 'msn', 'proton', 'protonmail', 'gmx', 'zoho', 'me', 'mac']);
 
+/** Distancia de edición contando como 1 el cambio de dos letras vecinas ("gmial" → "gmail"). */
 function distancia(a: string, b: string): number {
-  const fila = Array.from({ length: b.length + 1 }, (_, j) => j);
+  const d = Array.from({ length: a.length + 1 }, (_, i) => Array.from({ length: b.length + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0)));
   for (let i = 1; i <= a.length; i++) {
-    let previa = fila[0];
-    fila[0] = i;
     for (let j = 1; j <= b.length; j++) {
-      const actual = fila[j];
-      fila[j] = Math.min(fila[j] + 1, fila[j - 1] + 1, previa + (a[i - 1] === b[j - 1] ? 0 : 1));
-      previa = actual;
+      const costo = a[i - 1] === b[j - 1] ? 0 : 1;
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + costo);
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
     }
   }
-  return fila[b.length];
+  return d[a.length][b.length];
 }
 
-/** "carla@gmial.com" → "carla@gmail.com"; undefined si el dominio ya es uno común o no se parece. */
+/** "carla@gmial.com" → "carla@gmail.com"; undefined si el dominio es real o no se parece a uno común. */
 function sugerirCorreo(correo: string): string | undefined {
   const [usuario, dominio] = correo.trim().toLowerCase().split('@');
-  if (!usuario || !dominio || DOMINIOS_COMUNES.includes(dominio)) return undefined;
-  const cercano = DOMINIOS_COMUNES.find((d) => distancia(dominio, d) <= 2);
-  return cercano ? `${usuario}@${cercano}` : undefined;
+  if (!usuario || !dominio || !CORREO_VALIDO.test(correo.trim())) return undefined;
+  const punto = dominio.indexOf('.');
+  const nombre = dominio.slice(0, punto);
+  const terminacion = dominio.slice(punto);
+  // Gmail solo existe como gmail.com.
+  if (nombre === 'gmail') return dominio === 'gmail.com' ? undefined : `${usuario}@gmail.com`;
+  if (NOMBRES_REALES.has(nombre)) return undefined;
+  const cercano = NOMBRES_COMUNES.find((c) => distancia(nombre, c) <= (c.length <= 5 ? 1 : 2));
+  if (!cercano) return undefined;
+  return `${usuario}@${cercano}${cercano === 'gmail' ? '.com' : terminacion}`;
 }
 
-/** El correo de soporte, visible y fácil de copiar (un mailto solo no sirve si no hay app de correo). */
-function CorreoSoporte() {
-  return <span className="font-semibold [overflow-wrap:anywhere] text-ink-1 select-all">{RESPONSABLE.emailContacto}</span>;
+/** El soporte, igual en todos los estados: visible, seleccionable y con un botón que lo copia. */
+function SoporteLinea({ className = '' }: { className?: string }) {
+  const [copiado, setCopiado] = useState(false);
+  async function copiar() {
+    try {
+      await navigator.clipboard.writeText(RESPONSABLE.emailContacto);
+      setCopiado(true);
+      window.setTimeout(() => setCopiado(false), 2000);
+    } catch {
+      // Sin permiso de portapapeles: la dirección sigue visible y seleccionable.
+    }
+  }
+  return (
+    <p className={`flex flex-wrap items-center gap-x-2 text-caption text-ink-2 ${className}`}>
+      <span>
+        Soporte: <span className="font-semibold [overflow-wrap:anywhere] text-ink-1 select-all">{RESPONSABLE.emailContacto}</span>
+      </span>
+      <button
+        type="button"
+        onClick={copiar}
+        className="inline-flex min-h-11 items-center gap-1 font-semibold text-ink-1 underline-offset-4 hover:underline"
+      >
+        {copiado ? <Check size={14} aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}
+        <span aria-live="polite">{copiado ? 'Copiado' : 'Copiar'}</span>
+      </button>
+    </p>
+  );
 }
 
 const suscribirNada = () => () => {};
@@ -108,7 +141,8 @@ export function Acceso() {
   const [intentos, setIntentos] = useState(0);
   const [verificando, setVerificando] = useState(false);
   const avisoUrl = useSyncExternalStore(suscribirNada, leerAvisoUrl, () => '');
-  const sugerencia = CORREO_VALIDO.test(email.trim()) ? sugerirCorreo(email) : undefined;
+  // Se calcula al salir del campo o al enviar (no mientras escribe "gmail.co" antes de la "m").
+  const [sugerencia, setSugerencia] = useState<string | undefined>(undefined);
 
   // Versión de prueba local: con cuenta en el celular, directo a su ruta. (Con acceso real, la
   // sesión la decide el servidor: una copia local no es una sesión.)
@@ -139,6 +173,13 @@ export function Acceso() {
       return;
     }
     setErrorCampo('');
+    // Primer toque con un dominio dudoso: se muestra la sugerencia y no se envía; un segundo toque
+    // (o corregirlo) envía. Nunca bloquea para siempre.
+    const sugerido = sugerirCorreo(limpio);
+    if (sugerido && sugerencia !== sugerido) {
+      setSugerencia(sugerido);
+      return;
+    }
     setEstado('enviando');
     if (ACCESO_REAL) {
       void pedirEnlace(limpio);
@@ -298,9 +339,7 @@ export function Acceso() {
               >
                 Ya pagué: pedir mi acceso
               </a>
-              <p className="mt-2 text-center text-caption text-ink-2">
-                o escríbenos a <span className="font-semibold text-ink-1 select-all">{RESPONSABLE.emailContacto}</span>
-              </p>
+              <SoporteLinea className="mt-2 justify-center" />
               <button
                 type="button"
                 onClick={() => setEstado('inicio')}
@@ -338,8 +377,8 @@ export function Acceso() {
               </span>
               <TituloAcento texto="Revisa tu correo" acento="tu correo" className="mt-6 text-pregunta" />
               <p className="mt-2 text-base text-ink-2">
-                Le escribimos a <strong className="font-semibold [overflow-wrap:anywhere] text-ink-1">{email}</strong>. Si ese correo tiene una compra
-                activa, te llegan tu enlace y tu código. Si no, te explicamos qué hacer.
+                Escribimos a <strong className="font-semibold [overflow-wrap:anywhere] text-ink-1">{email}</strong>. Si tiene una compra activa, te llegan tu
+                enlace y tu código; si no, te explicamos qué hacer.
               </p>
 
               <form onSubmit={entrarConCodigo} noValidate className="mt-6 flex flex-col gap-2">
@@ -406,9 +445,7 @@ export function Acceso() {
                 >
                   Escríbenos y te damos acceso
                 </a>
-                <p className="text-caption text-ink-2">
-                  o copia el correo: <CorreoSoporte />
-                </p>
+                <SoporteLinea />
               </div>
 
               {demo && (
@@ -511,9 +548,7 @@ export function Acceso() {
                         Ya pagué: escríbenos
                       </a>
                     </div>
-                    <p className="mt-1">
-                      Soporte: <CorreoSoporte />
-                    </p>
+                    <SoporteLinea />
                   </div>
                 </motion.div>
               )}
@@ -539,7 +574,9 @@ export function Acceso() {
                     setEmail(ev.target.value);
                     if (errorCampo) setErrorCampo('');
                     if (estado === 'error') setEstado('inicio');
+                    if (sugerencia) setSugerencia(undefined);
                   }}
+                  onBlur={() => setSugerencia(sugerirCorreo(email))}
                   placeholder="tu@correo.com"
                   aria-invalid={Boolean(errorCampo)}
                   aria-describedby={errorCampo ? `${idCampo}-error` : undefined}
@@ -553,34 +590,39 @@ export function Acceso() {
                     {errorCampo}
                   </p>
                 )}
-                {sugerencia && !errorCampo && (
-                  <p className="text-caption text-ink-2" aria-live="polite">
-                    ¿Quisiste decir{' '}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEmail(sugerencia);
-                        campo.current?.focus();
-                      }}
-                      className="inline-flex min-h-11 items-center font-semibold text-ink-1 underline underline-offset-4"
-                    >
-                      {sugerencia}
-                    </button>
-                    ?
-                  </p>
-                )}
+                {/* Contenedor aria-live siempre montado: el lector anuncia la sugerencia al aparecer. */}
+                <div aria-live="polite">
+                  <AnimatePresence initial={false}>
+                    {sugerencia && !errorCampo && (
+                      <motion.p
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: reduce ? 0 : 0.15 }}
+                        className="text-caption text-ink-2"
+                      >
+                        ¿Quisiste decir{' '}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEmail(sugerencia);
+                            setSugerencia(undefined);
+                            campo.current?.focus();
+                          }}
+                          className="inline-flex min-h-11 items-center font-semibold text-ink-1 underline underline-offset-4"
+                        >
+                          {sugerencia}
+                        </button>
+                        ?
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
+                </div>
                 {estado === 'error' && (
                   <p role="alert" className="text-caption text-danger">
                     {falla === 'servidor' ? (
                       <>
-                        No pudimos enviar el enlace ahora. Intenta en un minuto o{' '}
-                        <a
-                          href={`mailto:${RESPONSABLE.emailContacto}?subject=${encodeURIComponent('No puedo pedir mi acceso a EMPREZAI')}${email ? `&body=${encodeURIComponent(`Mi correo de compra: ${email}`)}` : ''}`}
-                          className="font-semibold underline underline-offset-4"
-                        >
-                          escríbenos
-                        </a>{' '}
-                        a <CorreoSoporte />.
+                        No pudimos enviar el enlace ahora. Intenta en un minuto; si sigue, escríbenos.
                       </>
                     ) : (
                       'No pudimos enviar el enlace. Revisa tu conexión e intenta de nuevo.'
