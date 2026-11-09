@@ -11,7 +11,9 @@ import { estadoVisible } from '@/components/admin/estados';
 import { Entrada } from '@/components/admin/movimiento';
 import { Encabezado, SinDatos, TOCABLE, Tarjeta, TituloTarjeta } from '@/components/admin/ui';
 import { entero, fechaCorta } from '@/lib/panel-formato';
-import { FILTROS_USUARIOS, POR_PAGINA, leerConteosUsuarios, leerUsuarios, type FiltroUsuarios } from '@/lib/servidor/panel';
+import { FILTROS_USUARIOS, ORDENES_USUARIOS, POR_PAGINA, leerConteosUsuarios, leerUsuarios, type FiltroUsuarios, type OrdenUsuarios } from '@/lib/servidor/panel';
+
+const ETIQUETA_ORDEN: Record<OrdenUsuarios, string> = { recientes: 'Más recientes', inactivos: 'Hace más que no entran', piezas: 'Más piezas' };
 
 const ETIQUETA_FILTRO: Record<FiltroUsuarios, string> = {
   todos: 'Todos',
@@ -22,7 +24,7 @@ const ETIQUETA_FILTRO: Record<FiltroUsuarios, string> = {
   fantasma: 'Pagan y no entran',
   cancelled: 'Cancelaron',
   past_due: 'Pago atrasado',
-  expired: 'Prueba o acceso vencido',
+  expired: 'Vencidos',
   refunded: 'Reembolsados',
   vencido: 'Vencidos sin aviso de Hotmart',
   manual: 'Acceso regalado',
@@ -37,11 +39,12 @@ export default async function UsuariosPanel({ searchParams }: { searchParams: Pr
   const buscar = (sp.q ?? '').trim();
   const estado = (FILTROS_USUARIOS as readonly string[]).includes(sp.estado ?? '') ? (sp.estado as FiltroUsuarios) : 'todos';
   const pagina = Math.max(1, Number(sp.pagina) || 1);
-  const [{ total, filas }, conteos] = await Promise.all([leerUsuarios(buscar, estado, pagina), leerConteosUsuarios(buscar)]);
+  const orden: OrdenUsuarios = (ORDENES_USUARIOS as readonly string[]).includes(sp.orden ?? '') ? (sp.orden as OrdenUsuarios) : 'recientes';
+  const [{ total, filas }, conteos] = await Promise.all([leerUsuarios(buscar, estado, pagina, orden), leerConteosUsuarios(buscar)]);
   const paginas = Math.max(1, Math.ceil(total / POR_PAGINA));
   const enlace = (cambios: Record<string, string | number | undefined>) => {
     const p = new URLSearchParams();
-    const todo = { q: buscar || undefined, estado: estado === 'todos' ? undefined : estado, pagina: undefined, ...cambios };
+    const todo = { q: buscar || undefined, estado: estado === 'todos' ? undefined : estado, orden: orden === 'recientes' ? undefined : orden, pagina: undefined, ...cambios };
     for (const [k, v] of Object.entries(todo)) if (v !== undefined && v !== '') p.set(k, String(v));
     const qs = p.toString();
     return `/admin/usuarios${qs ? `?${qs}` : ''}`;
@@ -62,7 +65,7 @@ export default async function UsuariosPanel({ searchParams }: { searchParams: Pr
       </Encabezado>
 
       <Entrada indice={1} className="mb-4">
-        <details id="agregar" className="group" open={sp.agregar === '1'}>
+        <details id="agregar" className="group panel-plegable" open={sp.agregar === '1'}>
           <summary className={`${TOCABLE} boton-oro flex h-12 w-full cursor-pointer list-none items-center justify-center gap-2 rounded-[var(--radius-pill)] px-5 font-display text-base font-bold sm:inline-flex sm:w-auto [&::-webkit-details-marker]:hidden`}>
             <UserPlus size={18} aria-hidden="true" />
             Dar acceso a alguien
@@ -80,7 +83,7 @@ export default async function UsuariosPanel({ searchParams }: { searchParams: Pr
         <nav aria-label="Filtrar por estado" className="mt-3 flex flex-wrap gap-2">
           {PRINCIPALES.map(chip)}
         </nav>
-        <details className="mt-2" open={otros.includes(estado)}>
+        <details className="panel-plegable mt-2" open={otros.includes(estado)}>
           <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1 text-caption font-semibold text-ink-2 [&::-webkit-details-marker]:hidden">
             Más filtros <ChevronDown size={16} aria-hidden="true" />
           </summary>
@@ -89,6 +92,14 @@ export default async function UsuariosPanel({ searchParams }: { searchParams: Pr
       </Tarjeta>
 
       <Tarjeta className="mb-4" indice={2}>
+        <nav aria-label="Ordenar la lista" className="mb-2 flex flex-wrap items-center gap-2">
+          <span className="text-xs text-ink-3">Ordenar:</span>
+          {ORDENES_USUARIOS.map((o) => (
+            <ChipFiltro key={o} href={enlace({ orden: o === 'recientes' ? undefined : o })} activo={orden === o}>
+              {ETIQUETA_ORDEN[o]}
+            </ChipFiltro>
+          ))}
+        </nav>
         {filas.length === 0 ? (
           <SinDatos porque={buscar || estado !== 'todos' ? 'Nadie coincide con este filtro. Prueba con otra búsqueda.' : 'Todavía no hay usuarios. Aparecen con la primera prueba gratis o si das acceso a alguien con el botón de arriba.'} />
         ) : (

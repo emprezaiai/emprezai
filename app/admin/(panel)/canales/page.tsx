@@ -10,12 +10,13 @@ import { Entrada, Llenado } from '@/components/admin/movimiento';
 import { calcularChurn, calcularLtv, leerCanales, leerClientes, leerVentas, periodoElegido } from '@/lib/servidor/panel';
 
 function veredicto(canal: string, ratio: number | null, gasto: number, clientes: number) {
-  if (gasto <= 0) return /^afiliad/.test(canal) ? { texto: 'Paga por venta', tono: 'text-ink-2', orden: 3 } : { texto: 'Sin gasto', tono: 'text-ink-2', orden: 3 };
-  if (clientes === 0) return { texto: 'Sin clientes nuevos', tono: 'text-danger', orden: 0 };
-  if (ratio === null) return { texto: 'Sin datos', tono: 'text-ink-3', orden: 2 };
-  if (ratio >= 3) return { texto: 'Sano', tono: 'text-green', orden: 2 };
-  if (ratio >= 1) return { texto: 'Se paga', tono: 'text-ink-1', orden: 1 };
-  return { texto: 'Pierde dinero', tono: 'text-danger', orden: 0 };
+  const neutro = 'border border-[var(--line)]';
+  if (gasto <= 0) return /^afiliad/.test(canal) ? { texto: 'Paga por venta', tono: 'text-ink-2', fondo: neutro, orden: 3 } : { texto: 'Sin gasto', tono: 'text-ink-3', fondo: '', orden: 3 };
+  if (clientes === 0) return { texto: 'Sin clientes nuevos', tono: 'text-danger', fondo: 'bg-[color-mix(in_oklab,var(--danger)_14%,transparent)]', orden: 0 };
+  if (ratio === null) return { texto: 'Sin datos', tono: 'text-ink-3', fondo: '', orden: 2 };
+  if (ratio >= 3) return { texto: 'Sano', tono: 'text-green', fondo: 'bg-[color-mix(in_oklab,var(--green)_14%,transparent)]', orden: 2 };
+  if (ratio >= 1) return { texto: 'Se paga', tono: 'text-ink-1', fondo: 'bg-raised-2', orden: 1 };
+  return { texto: 'Pierde dinero', tono: 'text-danger', fondo: 'bg-[color-mix(in_oklab,var(--danger)_14%,transparent)]', orden: 0 };
 }
 
 export default async function CanalesPanel({ searchParams }: { searchParams: Promise<{ mes?: string }> }) {
@@ -56,7 +57,6 @@ export default async function CanalesPanel({ searchParams }: { searchParams: Pro
             numero={cacGeneral}
             formato="dinero"
             decimales={2}
-            tono={pierde ? 'mal' : 'neutro'}
             detalle={cacGeneral !== null ? 'Promedio de los canales con gasto' : 'Se calcula con gasto y clientes del mismo canal'}
           />
         </Tarjeta>
@@ -91,12 +91,12 @@ export default async function CanalesPanel({ searchParams }: { searchParams: Pro
                 <Entrada indice={i + 5} className="rounded-[var(--radius-chip)] bg-sunken p-3">
                   <div className="flex flex-wrap items-baseline justify-between gap-x-3">
                     <span className="font-display text-lg font-bold break-words text-ink-1">{nombreCanal(f.canal)}</span>
-                    <span className={`text-caption font-bold ${f.v.tono}`}>{f.v.texto}</span>
+                    <span className={`rounded-[var(--radius-pill)] px-2.5 py-0.5 text-caption font-bold ${f.v.fondo} ${f.v.tono}`}>{f.v.texto}</span>
                   </div>
                   <p className="text-caption text-ink-2">
                     {entero(f.clientes)} {f.clientes === 1 ? 'cliente nuevo' : 'clientes nuevos'} · {entero(f.siguen)} siguen
                     {f.cac !== null && ` · cada uno costó ${dinero(f.cac)}`}
-                    {f.ratio !== null && f.clientes > 0 && ` · vuelven ${dinero(f.ratio)} por cada $1`}
+
                   </p>
                   {f.gasto_usd > 0 && (
                     <div className="mt-3 flex flex-col gap-1.5" aria-label={`Gastado ${dinero(f.gasto_usd)}; dejarían ${f.valor !== null ? dinero(f.valor) : 'sin dato'}`}>

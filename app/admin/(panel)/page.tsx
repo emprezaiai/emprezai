@@ -73,7 +73,6 @@ export default async function InicioPanel({ searchParams }: { searchParams: Prom
             <p className="mt-2 text-caption text-ink-2">
               limpios · margen {g.margenPct !== null ? pct(g.margenPct) : '—'} · <Variacion cambio={variacion(g.ganancia, gAnt.bruto > 0 ? gAnt.ganancia : 0)} contra={periodo.textoComparar} />
             </p>
-            {periodo.diaDeHoy && <p className="mt-1 text-xs text-ink-3">Los costos fijos del mes ya están restados completos, aunque el mes va en el día {periodo.diaDeHoy}.</p>}
             {(g.comisionEstimada || g.otrasMonedas.length > 0) && (
               <p className="mt-1 text-xs text-ink-3">
                 {g.comisionEstimada && 'Incluye comisiones de Hotmart estimadas en las ventas que llegaron sin el detalle. '}
@@ -119,7 +118,7 @@ export default async function InicioPanel({ searchParams }: { searchParams: Prom
             numero={pagando > 0 ? mrr : null}
             formato="dinero"
             decimales={2}
-            detalle={pagando > 0 ? `Lo que pagan tus ${entero(pagando)} clientes cada mes` : 'Aparece con el primer cliente pagando'}
+            detalle={pagando > 0 ? `Lo que suman al mes tus ${entero(pagando)} clientes (el plan anual cuenta su parte de cada mes)` : 'Aparece con el primer cliente pagando'}
           />
         </Tarjeta>
         <Tarjeta indice={5} href={`/admin/ia?mes=${periodo.param}`}>

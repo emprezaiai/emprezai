@@ -7,6 +7,7 @@ import { ArrowRight, ChevronLeft, ChevronRight, CircleAlert, CircleCheck, Info, 
 import type { Aviso, PeriodoElegido } from '@/lib/servidor/panel';
 import { Cuenta, Entrada, Llenado, type Formato } from './movimiento';
 import { FlechaMes } from './ChipFiltro';
+import { AtajoMes } from './AtajoMes';
 
 /** Respuesta al tocar de todo lo tocable del panel (tap < 150 ms). */
 export const TOCABLE = 'transition-transform duration-100 active:scale-[0.98]';
@@ -25,7 +26,8 @@ export function Encabezado({ titulo, periodo, children }: { titulo: string; peri
 /** ← mes anterior · mes · mes siguiente → (regla UX 13: vista con fechas reales y navegación). */
 export function SelectorMes({ periodo, ruta }: { periodo: PeriodoElegido; ruta: string }) {
   return (
-    <nav aria-label="Cambiar de mes" className="mb-6 flex items-center gap-2">
+    <nav aria-label="Cambiar de mes (también con las flechas ← → del teclado)" className="mb-6 flex items-center gap-2">
+      <AtajoMes anterior={`${ruta}?mes=${periodo.anterior}`} siguiente={periodo.siguiente ? (periodo.esActual ? ruta : `${ruta}?mes=${periodo.siguiente}`) : null} />
       <FlechaMes href={`${ruta}?mes=${periodo.anterior}`} etiqueta="Mes anterior">
         <ChevronLeft size={18} aria-hidden="true" />
       </FlechaMes>
@@ -211,8 +213,8 @@ export function BannerAvisos({ avisos, periodo }: { avisos: Aviso[]; periodo: st
                         <ArrowRight size={14} aria-hidden="true" />
                       </Link>
                     )}
-                    <details className="group/porque open:basis-full">
-                      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1 text-caption font-semibold text-ink-2 [&::-webkit-details-marker]:hidden">
+                    <details className="group/porque panel-plegable open:basis-full">
+                      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1 text-caption text-ink-3 [&::-webkit-details-marker]:hidden">
                         <ChevronRight size={14} className="transition-transform group-open/porque:rotate-90" aria-hidden="true" />
                         Por qué importa
                       </summary>
@@ -231,7 +233,7 @@ export function BannerAvisos({ avisos, periodo }: { avisos: Aviso[]; periodo: st
     <section aria-label="Avisos" className="mb-6 flex flex-col gap-3">
       {primeros.map(tarjeta)}
       {resto.length > 0 && (
-        <details className="group">
+        <details className="group panel-plegable">
           <summary className={`${TOCABLE} flex min-h-11 cursor-pointer list-none items-center gap-1 text-caption font-semibold text-ink-1 underline underline-offset-4 [&::-webkit-details-marker]:hidden`}>
             <ChevronRight size={14} className="transition-transform group-open:rotate-90" aria-hidden="true" />
             Ver {resto.length === 1 ? '1 aviso más' : `${resto.length} avisos más`}
@@ -244,7 +246,14 @@ export function BannerAvisos({ avisos, periodo }: { avisos: Aviso[]; periodo: st
 }
 
 /** Fila "concepto · monto" de la cascada de ganancia. El signo vive SOLO en el monto. */
-export function FilaMonto({ concepto, monto, nota, total = false, color, apagada = false }: { concepto: string; monto: string; nota?: string; total?: boolean; color?: string; apagada?: boolean }) {
+export function FilaMonto({ concepto, monto, nota, total = false, color, apagada = false, href }: { concepto: string; monto: string; nota?: string; total?: boolean; color?: string; apagada?: boolean; href?: string }) {
+  if (href) {
+    return (
+      <Link href={href} className={`${TOCABLE} group -mx-2 block rounded-[var(--radius-chip)] px-2 hover:bg-raised-2`}>
+        <FilaMonto concepto={concepto} monto={monto} nota={nota} total={total} color={color} apagada={apagada} />
+      </Link>
+    );
+  }
   return (
     <div className={`flex items-baseline justify-between gap-4 py-2 ${total ? 'border-t border-[var(--line)] pt-3' : ''}`}>
       <span className="flex min-w-0 items-baseline gap-2">
@@ -260,8 +269,8 @@ export function FilaMonto({ concepto, monto, nota, total = false, color, apagada
 }
 
 /** Barra de progreso simple (verde = avance, neutra = reparto, ámbar = alerta). */
-export function Barra({ pct, tono = 'verde', indice = 0 }: { pct: number; tono?: 'verde' | 'neutra' | 'ambar'; indice?: number }) {
-  const color = tono === 'verde' ? 'bg-green' : tono === 'ambar' ? 'bg-warning' : 'bg-[color-mix(in_oklab,var(--ink-2)_55%,transparent)]';
+export function Barra({ pct, tono = 'verde', indice = 0 }: { pct: number; tono?: 'verde' | 'neutra' | 'ambar' | 'clara'; indice?: number }) {
+  const color = tono === 'verde' ? 'bg-green' : tono === 'ambar' ? 'bg-warning' : tono === 'clara' ? 'bg-ink-1' : 'bg-[color-mix(in_oklab,var(--ink-2)_55%,transparent)]';
   return (
     <span className="block h-1.5 rounded-full bg-sunken">
       <Llenado pct={Math.max(pct > 0 ? 2 : 0, pct)} className={color} indice={indice} />

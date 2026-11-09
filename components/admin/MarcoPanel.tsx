@@ -5,7 +5,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { LogOut, Menu, X } from 'lucide-react';
 import { Marca } from '@/components/app/Marca';
@@ -41,7 +41,12 @@ function activa(ruta: string, href: string) {
   return href === '/admin' ? ruta === '/admin' : ruta.startsWith(href);
 }
 
+// Secciones que miran un mes: al pasar de una a otra se conserva el mes elegido.
+const CON_MES = new Set(['/admin', '/admin/ventas', '/admin/ganancia', '/admin/uso', '/admin/canales', '/admin/ia']);
+
 function ListaSecciones({ ruta, onElegir }: { ruta: string; onElegir?: () => void }) {
+  const mes = useSearchParams().get('mes');
+  const conMes = (href: string) => (mes && /^\d{4}-\d{2}$/.test(mes) && CON_MES.has(href) ? `${href}?mes=${mes}` : href);
   return (
     <ul className="flex flex-col gap-1">
       {SECCIONES.map(({ href, etiqueta, icono: Icono }) => {
@@ -49,7 +54,7 @@ function ListaSecciones({ ruta, onElegir }: { ruta: string; onElegir?: () => voi
         return (
           <li key={href}>
             <Link
-              href={href}
+              href={conMes(href)}
               onClick={onElegir}
               aria-current={esta ? 'page' : undefined}
               className={`flex min-h-11 items-center gap-3 rounded-[var(--radius-chip)] px-3 text-ayuda font-semibold transition-[color,background-color,transform] duration-150 active:scale-[0.98] ${

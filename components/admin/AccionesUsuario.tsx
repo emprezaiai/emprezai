@@ -210,7 +210,7 @@ export function AccionesFicha({ id, puedeEnviarCorreo, conAcceso, enlaceEsPrinci
           Un momento…
         </p>
       )}
-      {!pendiente && (
+      {!pendiente && (resultado || deshacer) && (
         <div className="flex flex-wrap items-center gap-x-3">
           <Aviso r={resultado} />
           {deshacer && (

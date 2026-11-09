@@ -103,14 +103,25 @@ const formDe = (campos: Record<string, string | number | null>) => {
 
 export function FormImpuestos({ actual, esteMes }: { actual: number; esteMes: number | null }) {
   const [r, accion, enviando] = useActionState(guardarImpuestos, null);
+  const [nuevo, setNuevo] = useState<number | null>(null);
+  // Cuánto cambia la ganancia del mes con el nuevo porcentaje (el impuesto es proporcional a lo facturado).
+  const cambio = r?.ok && nuevo !== null && esteMes !== null && actual > 0 ? (esteMes / actual) * (actual - nuevo) : null;
   return (
-    <form action={accion}>
+    <form action={(datos) => {
+      setNuevo(Number(datos.get('pct')));
+      accion(datos);
+    }}>
       <p className="font-display text-4xl leading-none font-extrabold text-ink-1 tabular-nums">{actual}%</p>
       <p className="mt-1 text-caption text-ink-2">
         {esteMes !== null && esteMes > 0 ? `Este mes son unos ${dinero(esteMes)} que se restan de tu ganancia.` : 'Se resta de lo que facturas para calcular tu ganancia.'}
       </p>
-      <label className="mt-4 flex flex-col gap-1">
-        <span className={ETIQUETA}>Cambiar el porcentaje</span>
+      <details className="group panel-plegable mt-3">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1.5 text-caption font-semibold text-ink-1 [&::-webkit-details-marker]:hidden">
+          <Plus size={16} className="transition-transform group-open:rotate-45" aria-hidden="true" />
+          Cambiar el porcentaje
+        </summary>
+      <label className="mt-2 flex flex-col gap-1">
+        <span className="sr-only">Nuevo porcentaje</span>
         <span className="flex gap-2">
           <span className="relative max-w-36 flex-1">
             <input name="pct" type="number" min={0} max={60} step="0.5" defaultValue={actual} inputMode="decimal" className={`${CAMPO} pr-9`} />
@@ -121,7 +132,8 @@ export function FormImpuestos({ actual, esteMes }: { actual: number; esteMes: nu
           <BotonGuardar enviando={enviando} />
         </span>
       </label>
-      <Aviso r={r} />
+      </details>
+      <Aviso r={r && r.ok && cambio !== null && Math.abs(cambio) >= 0.005 ? { ...r, mensaje: `${r.mensaje} Tu ganancia de este mes ${cambio > 0 ? 'sube' : 'baja'} unos ${dinero(Math.abs(cambio))}.` } : r} />
     </form>
   );
 }
@@ -156,7 +168,7 @@ export function ListaCostos({ costos }: { costos: CostoFijo[] }) {
       )}
       {q.quitado ? <BarraDeshacer texto={`Quitado: ${q.quitado.nombre}`} onDeshacer={q.deshacer} pendiente={q.pendiente} /> : <Aviso r={q.r} />}
 
-      <details className="group mt-3" open={visibles.length === 0}>
+      <details className="group panel-plegable mt-3" open={visibles.length === 0}>
         <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1.5 text-caption font-semibold text-ink-1 [&::-webkit-details-marker]:hidden">
           <Plus size={16} className="transition-transform group-open:rotate-45" aria-hidden="true" />
           Agregar un costo
@@ -220,7 +232,7 @@ export function ListaGastos({ gastos, canales, desde, hasta }: { gastos: GastoCa
       )}
       {q.quitado ? <BarraDeshacer texto={`Quitado: gasto de ${nombreCanal(q.quitado.canal)}`} onDeshacer={q.deshacer} pendiente={q.pendiente} /> : <Aviso r={q.r} />}
 
-      <details className="group mt-3" open={visibles.length === 0}>
+      <details className="group panel-plegable mt-3" open={visibles.length === 0}>
         <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1.5 text-caption font-semibold text-ink-1 [&::-webkit-details-marker]:hidden">
           <Plus size={16} className="transition-transform group-open:rotate-45" aria-hidden="true" />
           Anotar un gasto

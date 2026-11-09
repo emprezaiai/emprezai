@@ -498,3 +498,9 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .panel-fundido { animation: none; }
 }
+
+/* Panel: lo que se despliega dentro de un plegable entra suave (no aparece de golpe). */
+.panel-plegable[open] > :not(summary) { animation: panel-entrar 250ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .panel-plegable[open] > :not(summary) { animation: none; }
+}

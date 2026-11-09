@@ -93,7 +93,7 @@ export default async function GananciaPanel({ searchParams }: { searchParams: Pr
         <TituloTarjeta ayuda="En dólares. Todo es real, salvo lo marcado como estimado.">La cuenta, paso a paso</TituloTarjeta>
         <div className="divide-y divide-[var(--line)]">
           <FilaMonto concepto="Facturaste" monto={dinero(g.bruto)} nota={g.ventas > 0 ? `${entero(g.ventas)} ${g.ventas === 1 ? 'cobro' : 'cobros'} de Hotmart` : 'Sin cobros todavía'} />
-          <FilaMonto concepto="Reembolsos y contracargos" color={COLOR.devuelto} monto={monto(g.devuelto)} apagada={g.devuelto < 0.005} />
+          {g.devuelto >= 0.005 && <FilaMonto concepto="Devoluciones" color={COLOR.devuelto} monto={monto(g.devuelto)} href={`/admin/ventas?mes=${periodo.param}&tipo=devoluciones`} />}
           <FilaMonto
             concepto="Comisión de Hotmart"
             color={COLOR.hotmart}
@@ -101,18 +101,20 @@ export default async function GananciaPanel({ searchParams }: { searchParams: Pr
             nota={g.comisionEstimada ? 'Parte estimada (9,9% + $0,45) en las ventas que llegaron sin el detalle' : undefined}
             apagada={g.comision < 0.005}
           />
-          <FilaMonto concepto="Afiliados" color={COLOR.afiliados} monto={monto(g.afiliados)} nota={g.afiliadosSinInformar > 0 ? `${g.afiliadosSinInformar} ventas llegaron sin el detalle` : undefined} apagada={g.afiliados < 0.005} />
-          <FilaMonto concepto="Impuestos" color={COLOR.impuestos} monto={monto(g.impuestos)} nota={`Estimado: el ${pct(g.impuestosPct)} que pusiste en Ajustes`} apagada={g.impuestos < 0.005} />
-          <FilaMonto concepto="IA" color={COLOR.ia} monto={monto(g.ia)} nota={`${entero(ia.llamadas)} usos`} apagada={g.ia < 0.005} />
+          {g.afiliados >= 0.005 && <FilaMonto concepto="Afiliados" color={COLOR.afiliados} monto={monto(g.afiliados)} nota={g.afiliadosSinInformar > 0 ? `${g.afiliadosSinInformar} ventas llegaron sin el detalle` : undefined} />}
+          <FilaMonto concepto="Impuestos" color={COLOR.impuestos} monto={monto(g.impuestos)} nota={`Estimado: el ${pct(g.impuestosPct)} que pusiste en Ajustes`} apagada={g.impuestos < 0.005} href="/admin/ajustes" />
+          <FilaMonto concepto="IA" color={COLOR.ia} monto={monto(g.ia)} nota={`${entero(ia.llamadas)} usos`} apagada={g.ia < 0.005} href={`/admin/ia?mes=${periodo.param}`} />
           <FilaMonto
             concepto="Servidores, dominio y correo"
             color={COLOR.fijos}
             monto={monto(g.fijos)}
             nota={costosActivos.length > 0 ? costosActivos.map((c) => `${c.nombre} ${dinero(c.monto_usd)}`).join(' · ') : 'Aún no anotaste tus costos fijos en Ajustes'}
             apagada={g.fijos < 0.005}
+            href="/admin/ajustes"
           />
           <FilaMonto total concepto="Te quedaron limpios" monto={dinero(g.ganancia)} color={COLOR.queda} />
         </div>
+        {g.devuelto < 0.005 && g.afiliados < 0.005 && <p className="mt-2 text-xs text-ink-3">Sin devoluciones ni afiliados este mes.</p>}
         {g.otrasMonedas.length > 0 && <p className="mt-2 text-caption text-ink-3">Las ventas en {g.otrasMonedas.join(', ')} no están en esta cuenta: no se suman sin un tipo de cambio con fuente.</p>}
       </Tarjeta>
 

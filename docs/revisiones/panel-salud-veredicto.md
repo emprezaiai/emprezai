@@ -1,9 +1,9 @@
 # VEREDICTO revisor-visual — Panel · Salud
-Fecha: 2026-11-09 20:00
+Fecha: 2026-11-09 22:00
 Screenshot: docs/revisiones/panel/salud-375.png
 Usabilidad: 32/40
-Craft: 15/20
+Craft: 14/20
 Copy (si vende): N-A
 Fidelidad (si hubo referencia): N-A
 Veredicto: NO LISTA
-Top defectos: 1) ["Darle acceso" del aviso fallido] Lleva a /admin/usuarios?agregar=1 con el formulario VACÍO: la dueña tiene que tocar "Copiar correo", ir, pegar y escribir el nombre (memoria entre pantallas) → pasar &email= (y nombre si el aviso lo trae) y usarlo como defaultValue en FormAgregarUsuario (salud/page.tsx línea 108 + AccionesUsuario.tsx línea 78). 2) [Qué hacer de Hotmart] "Si en un día la persona sigue sin acceso…" no dice cómo saberlo → si el correo ya existe como usuario, enlace "Ver su ficha" con su estado; si no existe, "Todavía no tiene cuenta: dale acceso" (salud/page.tsx, bloque fallidos). 3) ["Errores de la semana 6"] Sin comparación con la semana anterior (pedido en ronda 2, sigue pendiente): no se sabe si el error de Mi Empresa es nuevo → "vs semana pasada" en el detalle de la tarjeta (salud/page.tsx línea 208). 4) [tarjetas de arriba] "Vencidos sin aviso" y "Errores de la semana" son de una línea pero reservan dos: queda un hueco antes del número → mismo ajuste de Dato (ui.tsx línea 148) que en Uso.
+Top defectos: 1) [tarjeta "Pagaron sin acceso" vs aviso fallido] Contradicción a la vista: la tarjeta dice "0 · Todos recibieron su acceso" y unos centímetros más abajo rocio.prueba@ejemplo.com compró el 6 nov y aparece "Todavía sin acceso" (no cuenta porque su aviso falló y no existe como usuaria) → sumar a pagaron_sin_acceso los avisos de compra fallidos sin perfil con acceso, y que la tarjeta diga "1 · compró y no tiene acceso" con enlace al aviso (salud/page.tsx líneas 66 y 167-182). 2) [bloque del aviso fallido] Espaciado roto a 375px: "Copiar correo" solo en una fila, ~40px vacíos y "Darle acceso aquí" en otra, con sangría distinta a la del correo → una sola fila "Darle acceso aquí · Copiar correo" (flex-wrap gap-x-4) alineada con el texto del aviso (salud/page.tsx líneas 117-129). 3) ["Qué hacer" de Hotmart] Repite lo que ya hacen los botones ("copia su correo y dale acceso tú"), y "si en un día sigue sin acceso" ya se ve en el estado de la fila → acortarlo a una línea que diga solo lo que los botones no dicen (qué pasa si Hotmart lo reintenta después, verificado contra el comportamiento real del webhook). 4) [tarjeta "Errores (7 días)"] "Más que la semana pasada (0)" se lee raro → "La semana pasada: 0".

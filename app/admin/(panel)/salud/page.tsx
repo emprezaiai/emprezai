@@ -68,8 +68,11 @@ export default async function SaludPanel() {
   const totalWebhook = Object.values(s.webhook_7d).reduce((t, n) => t + n, 0);
   const erroresSemana = s.errores_7d_total ?? s.errores_7d.reduce((t, e) => t + e.veces, 0);
   const fallidos = s.webhook_fallidos ?? [];
+  // Quien pagó y quedó sin acceso por un aviso fallido también cuenta en "Pagaron sin acceso".
+  const fallidosSinAcceso = fallidos.filter((w) => w.email && !w.con_acceso).length;
+  const sinAccesoTotal = s.pagaron_sin_acceso + fallidosSinAcceso;
   const razones = [
-    s.pagaron_sin_acceso > 0 && `${s.pagaron_sin_acceso} pagaron y no tienen acceso`,
+    sinAccesoTotal > 0 && `${sinAccesoTotal} ${sinAccesoTotal === 1 ? 'pagó y no tiene' : 'pagaron y no tienen'} acceso`,
     fallosHotmart7d > 0 && `${fallosHotmart7d} ${fallosHotmart7d === 1 ? 'aviso de pago no se aplicó' : 'avisos de pago no se aplicaron'}`,
     s.vencidos_sin_aviso > 0 && `${s.vencidos_sin_aviso} accesos vencieron sin aviso`,
     repetidos.length > 0 && `${repetidos.length} ${repetidos.length === 1 ? 'error se repite' : 'errores se repiten'}`,
@@ -116,17 +119,18 @@ export default async function SaludPanel() {
                     ) : (
                       <>
                         <span className="mt-1 block text-caption font-semibold text-danger">Todavía sin acceso</span>
-                        <span className="flex flex-wrap items-center gap-x-4">
+                        {/* Copiar y "Darle acceso" en una sola fila; el formulario ocupa la fila entera al abrirse. */}
+                        <div className="flex flex-wrap items-center gap-x-5">
                           {w.email && <BotonCopiar texto={w.email} etiqueta="Copiar correo" />}
-                        </span>
-                        <details className="group/dar">
-                          <summary className="inline-flex min-h-11 cursor-pointer list-none items-center text-caption font-semibold text-ink-1 underline underline-offset-4 [&::-webkit-details-marker]:hidden">
-                            Darle acceso aquí
-                          </summary>
-                          <div className="mt-2">
-                            <FormAgregarUsuario emailInicial={w.email ?? ''} />
-                          </div>
-                        </details>
+                          <details className="group/dar panel-plegable open:basis-full">
+                            <summary className="inline-flex min-h-11 cursor-pointer list-none items-center text-caption font-semibold text-ink-1 underline underline-offset-4 [&::-webkit-details-marker]:hidden">
+                              Darle acceso aquí
+                            </summary>
+                            <div className="mt-2">
+                              <FormAgregarUsuario emailInicial={w.email ?? ''} />
+                            </div>
+                          </details>
+                        </div>
                       </>
                     )}
                   </span>
@@ -136,7 +140,7 @@ export default async function SaludPanel() {
           )}
           {fallosHotmart7d > 0 && (
             <p className="mt-2 text-caption text-ink-2">
-              <strong className="font-semibold text-ink-1">Qué hacer:</strong> Hotmart vuelve a intentarlo solo. Si en un día la persona sigue sin acceso, copia su correo y dale acceso tú.
+              <strong className="font-semibold text-ink-1">Qué hacer:</strong> la app vuelve a intentarlo sola. Si mañana sigue “Todavía sin acceso”, dáselo tú aquí.
             </p>
           )}
         </>
@@ -194,13 +198,15 @@ export default async function SaludPanel() {
         <Tarjeta indice={2}>
           <Dato
             etiqueta="Pagaron sin acceso"
-            numero={s.pagaron_sin_acceso}
-            tono={s.pagaron_sin_acceso > 0 ? 'mal' : 'bien'}
+            numero={sinAccesoTotal}
+            tono={sinAccesoTotal > 0 ? 'mal' : 'bien'}
             detalle={
               s.pagaron_sin_acceso > 0 ? (
                 <Link href="/admin/usuarios?estado=sin-acceso" className="font-semibold text-ink-1 underline underline-offset-4">
                   Darles acceso
                 </Link>
+              ) : fallidosSinAcceso > 0 ? (
+                'Por un aviso de pago que falló (abajo)'
               ) : (
                 'Todos recibieron su acceso'
               )
@@ -232,7 +238,7 @@ export default async function SaludPanel() {
           />
         </Tarjeta>
         <Tarjeta indice={5}>
-          <Dato etiqueta="Errores (7 días)" numero={erroresSemana} tono={repetidos.length > 0 ? 'mal' : 'neutro'} detalle={s.errores_7d_anterior !== undefined ? (s.errores_7d_anterior === erroresSemana ? 'Igual que la semana pasada' : `${erroresSemana > s.errores_7d_anterior ? 'Más' : 'Menos'} que la semana pasada (${entero(s.errores_7d_anterior)})`) : `${entero(s.errores_hoy)} hoy`} />
+          <Dato etiqueta="Errores (7 días)" numero={erroresSemana} tono={repetidos.length > 0 ? 'mal' : 'neutro'} detalle={s.errores_7d_anterior !== undefined ? `La semana pasada: ${entero(s.errores_7d_anterior)}` : `${entero(s.errores_hoy)} hoy`} />
         </Tarjeta>
       </div>
 

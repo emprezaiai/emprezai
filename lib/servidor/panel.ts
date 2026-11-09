@@ -83,7 +83,7 @@ export interface Ia {
   hoy_usd: number;
   por_funcion: { tipo: string; usd: number; llamadas: number; fallos: number }[];
   usuarios_con_ia: number;
-  top_usuarios: { email: string; usd: number; llamadas: number }[];
+  top_usuarios: { id?: string | null; email: string; usd: number; llamadas: number }[];
   anonima_usd: number;
   /** Gasto de cada día del mes (hasta hoy). */
   por_dia?: { fecha: string; usd: number }[];
@@ -528,12 +528,18 @@ export const POR_PAGINA = 12;
 
 export const leerPruebasSinPago = (p: { desde: Date; hasta: Date }, clave = 'pruebas_sin_pago_mes') => rpc<number>('panel_pruebas_sin_pago', rango(p), clave);
 
-export function leerUsuarios(buscar: string, estado: FiltroUsuarios, pagina: number) {
-  return rpc<{ total: number; filas: FilaUsuario[] }>(
+export const ORDENES_USUARIOS = ['recientes', 'inactivos', 'piezas'] as const;
+export type OrdenUsuarios = (typeof ORDENES_USUARIOS)[number];
+
+export async function leerUsuarios(buscar: string, estado: FiltroUsuarios, pagina: number, orden: OrdenUsuarios = 'recientes') {
+  const desde = Math.max(0, pagina - 1) * POR_PAGINA;
+  const r = await rpc<{ total: number; filas: FilaUsuario[] }>(
     'panel_usuarios',
-    { p_buscar: buscar.slice(0, 80), p_estado: estado, p_limite: POR_PAGINA, p_desde: Math.max(0, pagina - 1) * POR_PAGINA },
+    { p_buscar: buscar.slice(0, 80), p_estado: estado, p_limite: POR_PAGINA, p_desde: desde, p_orden: orden },
     'usuarios',
   );
+  // En la captura de prueba el archivo trae más filas: se recorta igual que la base (misma página).
+  return ARCHIVO_CAPTURA ? { ...r, filas: r.filas.slice(0, POR_PAGINA) } : r;
 }
 
 export const leerFicha = (id: string) => rpc<Ficha | null>('panel_ficha', { p_id: id }, 'ficha');

@@ -1,9 +1,9 @@
 # VEREDICTO revisor-visual — panel-ia
-Fecha: 2026-11-09 23:00
+Fecha: 2026-11-10 01:00
 Screenshot: docs/revisiones/panel/ia-375.png
-Usabilidad: 31/40
-Craft: 15/20
+Usabilidad: 32/40
+Craft: 16/20
 Copy (si vende): N-A
 Fidelidad (si hubo referencia): N-A
 Veredicto: NO LISTA
-Top defectos: 1) [Topes "Hoy: $0,15" vs "Gasto día por día: el día más caro $0,12", app/admin/(panel)/ia/page.tsx líneas 84 y 111-112] dos cifras de la misma pantalla se contradicen: si hoy van $0,15, hoy es el día más caro, y la barra blanca de "9 nov" marca ~$0,11; hoy_usd (supabase/migrations/20261109000004_panel_ia_por_dia.sql línea 10) no usa los mismos límites que por_dia (línea 26: least(p_hasta, now())) → calcular "Hoy" desde el último elemento de por_dia (o el mismo filtro de fechas en ambos) para que coincidan siempre. 2) [Resumen "el día más caro $0,12"] dice cuánto pero no CUÁNDO, y la barra blanca de hoy no tiene leyenda → "el día más caro fue el 4 nov ($0,12)" y "Blanca: hoy" en la ayuda. 3) [KPI "Por cliente que la usa $0,019"] sigue sin referencia para juzgarlo (ronda 3 sin corregir) → detalle "de $9,99 que paga cada uno: 0,2%". 4) [Ayuda del gráfico, línea 109] "Un día en ámbar gastó más del doble" describe un estado que hoy no existe en el gráfico → mostrar esa frase solo si hay algún día en ámbar. 5) [Gráfico, components/admin/Graficos.tsx línea 61] la leyenda "Línea punteada: tu promedio" va en un atributo title (invisible en el celular); hoy la salva la ayuda, así que el title sobra → quitarlo y dejar la explicación visible.
+Top defectos: 1) [Lista "Quiénes más la usan", app/admin/(panel)/ia/page.tsx líneas 142-153] los correos no llevan a la ficha de la persona: si alguien se pasa (ámbar), la dueña tiene que memorizar el correo e ir a buscarlo en Usuarios (heurística 6) → cada fila como enlace a /admin/usuarios/[id]. 2) [Menú de secciones, components/admin/MarcoPanel.tsx línea 52 + SelectorMes] el mes elegido se pierde al cambiar de sección y no hay atajo ← / → (heurística 7, verificado en código) → propagar ?mes y teclas de flecha. 3) [Ayuda de "Topes de gasto", línea 86] 4 líneas antes de los dos números → "Si se llega al tope, la IA se pausa y las piezas se arman igual. Para cambiarlo, pídeselo a quien te ayuda con la app." (2 líneas). 4) [KPI "Por cliente", línea 68] la etiqueta sola no dice de qué es el costo (en una pantalla con "Usos" al lado) → "IA por cliente". 5) [Gráfico diario, components/admin/Graficos.tsx línea 75] la barra de hoy va en ink-1 casi blanco, más brillante que el dato héroe dorado de la pantalla → hoy en ink-2 con borde o etiqueta "hoy", sin superar en peso al héroe.

@@ -59,7 +59,9 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
     { texto: 'Ya no tienen acceso', n: sinAcceso, tono: 'neutra' as const },
   ].filter((f) => f.n > 0);
   const maxClientes = Math.max(1, ...filasClientes.map((f) => f.n));
-  const lista = (tipo === 'devoluciones' ? cobros.filter((c) => c.tipo !== 'sale') : cobros).slice(0, 12);
+  const todos = tipo === 'devoluciones' ? cobros.filter((c) => c.tipo !== 'sale') : cobros;
+  const lista = todos.slice(0, 12);
+  const resto = todos.slice(12);
 
   return (
     <div key={periodo.param} className="panel-fundido">
@@ -87,7 +89,7 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
               return (
                 <li key={m.mes} className="grid grid-cols-[2.5rem_1fr_auto] items-center gap-2 text-xs">
                   <span className={elegido ? 'font-semibold text-ink-1' : 'text-ink-3'}>{mesCorto(m.mes)}</span>
-                  <Barra pct={(m.ingresos / maxMes) * 100} tono={elegido ? 'verde' : 'neutra'} indice={i} />
+                  <Barra pct={(m.ingresos / maxMes) * 100} tono={elegido ? 'clara' : 'neutra'} indice={i} />
                   <span className={`whitespace-nowrap tabular-nums ${elegido ? 'font-semibold text-ink-1' : 'text-ink-2'}`}>{dinero(m.ingresos, 0)}</span>
                 </li>
               );
@@ -103,7 +105,7 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
             numero={pagando > 0 ? mrr : null}
             formato="dinero"
             decimales={2}
-            detalle={pagando > 0 ? `Lo que pagan tus ${entero(pagando)} clientes cada mes (${entero(clientes.activos_mensual)} mensual · ${entero(clientes.activos_anual)} anual)` : 'Aparece con el primer cliente pagando'}
+            detalle={pagando > 0 ? `Lo que suman al mes tus ${entero(pagando)} clientes (${entero(clientes.activos_mensual)} mensual · ${entero(clientes.activos_anual)} anual)` : 'Aparece con el primer cliente pagando'}
           />
         </Tarjeta>
         <Tarjeta indice={3}>
@@ -112,7 +114,7 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
             numero={conversion}
             formato="pct"
             tono={conversion !== null && conversion >= 40 && pruebasTerminadas >= 10 ? 'bien' : 'neutro'}
-            detalle={conversion !== null ? `${entero(ventas.pruebas_a_pago)} de ${entero(pruebasTerminadas)} que terminaron` : `${entero(ventas.pruebas_iniciadas)} pruebas nuevas; ninguna terminó aún`}
+            detalle={conversion !== null ? `${entero(ventas.pruebas_a_pago)} de ${entero(pruebasTerminadas)} que terminaron${pruebasTerminadas < 10 ? ' (aún son pocas para sacar conclusiones)' : ''}` : `${entero(ventas.pruebas_iniciadas)} pruebas nuevas; ninguna terminó aún`}
           />
         </Tarjeta>
       </div>
@@ -190,22 +192,48 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
         {lista.length === 0 ? (
           <SinDatos porque={tipo === 'devoluciones' ? 'No hubo reembolsos en este mes.' : 'No hubo movimientos de Hotmart en este mes.'} />
         ) : (
-          <ul className="divide-y divide-[var(--line)]">
-            {lista.map((c, i) => (
-              <li key={`${c.en}-${i}`} className="flex items-center justify-between gap-3 py-2">
-                <span className="min-w-0">
-                  <span className="block truncate text-caption text-ink-1">{c.email ?? 'Correo no informado'}</span>
-                  <span className="block text-xs text-ink-3">
-                    {NOMBRE_COBRO[c.tipo] ?? c.tipo} · {fechaHora(c.en)}
+          <>
+            <ul className="divide-y divide-[var(--line)]">
+              {lista.map((c, i) => (
+                <li key={`${c.en}-${i}`} className="flex items-center justify-between gap-3 py-2">
+                  <span className="min-w-0">
+                    <span className="block truncate text-caption text-ink-1">{c.email ?? 'Correo no informado'}</span>
+                    <span className="block text-xs text-ink-3">
+                      {NOMBRE_COBRO[c.tipo] ?? c.tipo} · {fechaHora(c.en)}
+                    </span>
                   </span>
-                </span>
-                <span className={`shrink-0 whitespace-nowrap text-ayuda font-semibold tabular-nums ${c.tipo === 'sale' ? 'text-ink-1' : 'text-danger'}`}>
-                  {c.tipo === 'sale' ? '' : '−'}
-                  {dineroMinor(c.monto_minor, c.moneda)}
-                </span>
-              </li>
-            ))}
-          </ul>
+                  <span className={`shrink-0 whitespace-nowrap text-ayuda font-semibold tabular-nums ${c.tipo === 'sale' ? 'text-ink-1' : 'text-danger'}`}>
+                    {c.tipo === 'sale' ? '' : '−'}
+                    {dineroMinor(c.monto_minor, c.moneda)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            {resto.length > 0 && (
+              <details className="group panel-plegable">
+                <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1 text-caption font-semibold text-ink-1 underline underline-offset-4 [&::-webkit-details-marker]:hidden">
+                  Ver {resto.length === 1 ? 'el otro movimiento' : `los otros ${resto.length}`}
+                </summary>
+                <ul className="divide-y divide-[var(--line)]">
+                  {resto.map((c, i) => (
+                  <li key={`${c.en}-${i}`} className="flex items-center justify-between gap-3 py-2">
+                    <span className="min-w-0">
+                      <span className="block truncate text-caption text-ink-1">{c.email ?? 'Correo no informado'}</span>
+                      <span className="block text-xs text-ink-3">
+                        {NOMBRE_COBRO[c.tipo] ?? c.tipo} · {fechaHora(c.en)}
+                      </span>
+                    </span>
+                    <span className={`shrink-0 whitespace-nowrap text-ayuda font-semibold tabular-nums ${c.tipo === 'sale' ? 'text-ink-1' : 'text-danger'}`}>
+                      {c.tipo === 'sale' ? '' : '−'}
+                      {dineroMinor(c.monto_minor, c.moneda)}
+                    </span>
+                  </li>
+                  ))}
+                </ul>
+              </details>
+            )}
+            {cobros.length >= 50 && <p className="mt-2 text-xs text-ink-3">Se muestran los 50 más recientes del mes.</p>}
+          </>
         )}
         {clientes.manuales > 0 && (
           <p className="mt-3 text-caption text-ink-3">

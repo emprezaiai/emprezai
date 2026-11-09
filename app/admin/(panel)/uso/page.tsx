@@ -160,7 +160,7 @@ export default async function UsoPanel({ searchParams }: { searchParams: Promise
                     <span className={`text-caption ${esPeor ? 'font-semibold text-warning' : 'text-ink-1'}`}>{p.texto}</span>
                     <span className="text-caption font-semibold whitespace-nowrap tabular-nums text-ink-1">
                       {entero(p.n)}
-                      {delAnterior !== null && <span className={`ml-2 font-normal ${esPeor ? 'text-warning' : 'text-ink-3'}`}>{pct(delAnterior)}</span>}
+                      {delAnterior !== null && <span className={`ml-2 font-normal ${peor?.i === i ? 'font-semibold text-warning' : 'text-ink-3'}`}>{peor?.i === i ? `solo ${pct(delAnterior)} siguen` : pct(delAnterior)}</span>}
                     </span>
                     <span className="col-span-2">
                       <Barra pct={(p.n / base) * 100} tono={esPeor ? 'ambar' : 'verde'} indice={i} />

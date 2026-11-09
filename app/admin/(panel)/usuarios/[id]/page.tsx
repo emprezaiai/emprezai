@@ -141,7 +141,7 @@ export default async function FichaUsuario({ params }: { params: Promise<{ id: s
       </Tarjeta>
 
       <Tarjeta className="mb-4" indice={6}>
-        <TituloTarjeta ayuda="Cada acción queda registrada con fecha y hora.">Acciones</TituloTarjeta>
+        <TituloTarjeta ayuda="Lo que cambies aquí se aplica al instante.">Acciones</TituloTarjeta>
         <AccionesFicha id={f.id} conAcceso={conAcceso} enlaceEsPrincipal={!fantasma} puedeEnviarCorreo={Boolean(leerVariable('RESEND_API_KEY') && leerVariable('EMAIL_FROM'))} />
       </Tarjeta>
 
@@ -183,6 +183,20 @@ export default async function FichaUsuario({ params }: { params: Promise<{ id: s
                   </li>
                 ))}
               </ul>
+              {f.origen === 'hotmart' && (f.estado === 'active' || f.estado === 'cancelled') && hasta && (
+                <p className="mt-3 text-caption text-ink-2">
+                  {f.estado === 'active' && conAcceso ? (
+                    <>
+                      Próximo cobro: <strong className="font-semibold text-ink-1">{fechaCorta(hasta)}</strong>
+                    </>
+                  ) : f.estado === 'cancelled' ? (
+                    <>
+                      Canceló: <strong className="font-semibold text-ink-1">ya no se renueva</strong>
+                      {conAcceso && ` · tiene acceso hasta el ${fechaCorta(hasta)}`}
+                    </>
+                  ) : null}
+                </p>
+              )}
               <p className="mt-3 flex justify-between gap-3 border-t border-[var(--line)] pt-2 text-caption font-semibold text-ink-1">
                 <span>
                   {entero(ventas.length)} {ventas.length === 1 ? 'pago' : 'pagos'} en total

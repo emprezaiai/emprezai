@@ -2,6 +2,7 @@
 // facturas se va en IA; después los topes que la frenan sola, qué función gasta más y quién la usa
 // más que el resto. Con flechas para ver otros meses.
 
+import Link from 'next/link';
 import { Barra, Dato, Encabezado, Lectura, SelectorMes, SinDatos, Tarjeta, TituloTarjeta } from '@/components/admin/ui';
 import { Cuenta } from '@/components/admin/movimiento';
 import { GraficoGastoDia } from '@/components/admin/Graficos';
@@ -65,7 +66,7 @@ export default async function IaPanel({ searchParams }: { searchParams: Promise<
       <div className="mb-4 grid grid-cols-2 gap-3">
         <Tarjeta indice={2}>
           <Dato
-            etiqueta="Por cliente"
+            etiqueta="IA por cliente"
             numero={porUsuario}
             formato="dinero"
             decimales={3}
@@ -83,7 +84,7 @@ export default async function IaPanel({ searchParams }: { searchParams: Promise<
       </div>
 
       <Tarjeta className="mb-4" indice={4}>
-        <TituloTarjeta ayuda="Si se llega a un tope, la IA se pausa sola y las piezas se arman con las respuestas de cada persona. Para subirlos o bajarlos, pídeselo a quien te ayuda con la app.">Topes de gasto</TituloTarjeta>
+        <TituloTarjeta ayuda="Al llegar a un tope, la IA se pausa sola y las piezas se arman sin ella.">Topes de gasto</TituloTarjeta>
         <div className="flex flex-col gap-3">
           {periodo.esActual && (
             <div>
@@ -161,7 +162,13 @@ export default async function IaPanel({ searchParams }: { searchParams: Promise<
                   const alto = sospechosos.includes(u);
                   return (
                     <li key={`${u.email}-${i}`} className="flex justify-between gap-3 text-caption">
-                      <span className={`min-w-0 truncate ${alto ? 'font-semibold text-warning' : 'text-ink-1'}`}>{u.email}</span>
+                      {u.id ? (
+                        <Link href={`/admin/usuarios/${u.id}`} className={`min-w-0 truncate underline-offset-4 hover:underline ${alto ? 'font-semibold text-warning' : 'text-ink-1'}`}>
+                          {u.email}
+                        </Link>
+                      ) : (
+                        <span className={`min-w-0 truncate ${alto ? 'font-semibold text-warning' : 'text-ink-1'}`}>{u.email}</span>
+                      )}
                       <span className="shrink-0 whitespace-nowrap tabular-nums text-ink-2">
                         {dinero(u.usd, 3)} · {entero(u.llamadas)} usos
                       </span>

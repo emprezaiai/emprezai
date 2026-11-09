@@ -1,9 +1,9 @@
 # VEREDICTO revisor-visual — Panel · Ficha de una persona
-Fecha: 2026-11-09 20:00
+Fecha: 2026-11-09 22:00
 Screenshot: docs/revisiones/panel/ficha-375.png
-Usabilidad: 32/40
-Craft: 14/20
+Usabilidad: 35/40
+Craft: 15/20
 Copy (si vende): N-A
 Fidelidad (si hubo referencia): N-A
 Veredicto: NO LISTA
-Top defectos: 1) [Extender acceso a 375px] Con grid-cols-3 el texto se parte DENTRO de las píldoras: "+7 / días" y "+1 / mes" en dos renglones, mientras "+1 año" queda en uno (tres botones iguales que se ven distintos) → whitespace-nowrap en la etiqueta y ocultar el ícono por debajo de sm, o etiquetas "7 días / 1 mes / 1 año" sin el "+" (AccionesUsuario.tsx líneas 168-171). 2) [Acciones] La nota "Reenviar por correo se activa cuando conectemos tus correos. Mientras, usa 'Copiar enlace de acceso'" habla de un botón que ya no se muestra → quitar la nota o dejar "Cuando conectemos tus correos aparecerá Reenviar por correo" en una línea (AccionesUsuario.tsx línea 165). 3) [aviso ámbar] "Copiar correo" queda solo en su propia fila bajo el botón dorado, con sangría y aire de sobra; el bloque se ve desordenado → ponerlo en la misma fila del botón (flex-wrap items-center gap-3) (usuarios/[id]/page.tsx, bloque del aviso).
+Top defectos: 1) [Acciones + Historial] La tarjeta promete "Cada acción queda registrada con fecha y hora", pero en la ficha no se ve ese registro: el Historial solo muestra cambios de estado, así que la dueña no sabe si ya le extendió el acceso o le copió el enlace ayer → sumar al Historial las acciones del panel sobre esta persona ("Le extendiste 1 mes · 9 nov, 18:02") desde la tabla de auditoría, o quitar la frase (usuarios/[id]/page.tsx líneas 129-152 + panel_ficha). 2) [tarjeta Acciones] Sobran unos 60px de aire bajo "Quitar acceso" (min-h-11 + mt-4 + padding de la tarjeta): la tarjeta se ve medio vacía al pie → quitar el margen inferior del último bloque o bajar el p-4 inferior (AccionesUsuario.tsx, bloque conAcceso). 3) [Pagos] Con el acceso vigente hasta el 27 nov, no dice cuándo es el próximo cobro ni si la renovación está activa → fila final "Próxima renovación: 25 nov" (o "Canceló: no se renueva") arriba del total.

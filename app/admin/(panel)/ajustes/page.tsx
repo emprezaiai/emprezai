@@ -21,7 +21,7 @@ export default async function AjustesPanel() {
       <Encabezado titulo="Ajustes">Datos que solo tú sabes y que el panel usa para calcular tu ganancia.</Encabezado>
 
       <Tarjeta destacada className="mb-4" indice={1}>
-        <TituloTarjeta ayuda="Es una estimación: depende de tu país y de cómo factures. Pregúntale a tu contador el número exacto.">Impuestos y retenciones</TituloTarjeta>
+        <TituloTarjeta ayuda="Estimado. Confírmalo con tu contador.">Impuestos</TituloTarjeta>
         <FormImpuestos actual={a.impuestosPct} esteMes={impuestosMes} />
       </Tarjeta>
 

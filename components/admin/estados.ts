@@ -7,7 +7,7 @@ export const NOMBRE_ESTADO: Record<string, { texto: string; punto: string }> = {
   active: { texto: 'Pagando', punto: 'bg-green' },
   cancelled: { texto: 'Canceló', punto: 'bg-ink-3' },
   past_due: { texto: 'Pago atrasado', punto: 'bg-warning' },
-  expired: { texto: 'Sin acceso', punto: 'bg-[color-mix(in_oklab,var(--ink-3)_60%,transparent)]' },
+  expired: { texto: 'Vencido', punto: 'bg-[color-mix(in_oklab,var(--ink-3)_60%,transparent)]' },
   refunded: { texto: 'Reembolsado', punto: 'bg-danger' },
   chargeback: { texto: 'Contracargo', punto: 'bg-danger' },
 };
