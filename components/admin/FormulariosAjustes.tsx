@@ -1,16 +1,18 @@
 'use client';
 
 // Formularios de Ajustes del panel: % de impuestos, costos fijos y gasto por canal. Cada envío llama
-// a una acción de servidor que verifica que eres admin y queda en la auditoría.
+// a una acción de servidor que verifica que eres admin y queda en la auditoría. Quitar algo muestra
+// "Quitado · Deshacer" durante 8 s (se vuelve a agregar igual), y todo resultado se ve en pantalla.
 
-import { useActionState, useTransition } from 'react';
-import { LoaderCircle, Plus, Trash2 } from 'lucide-react';
+import { useActionState, useEffect, useState, useTransition } from 'react';
+import { Check, LoaderCircle, Trash2 } from 'lucide-react';
 import { agregarCosto, agregarGasto, borrarCosto, borrarGasto, guardarImpuestos, type Resultado } from '@/app/admin/(panel)/acciones';
-import { dinero, fechaCorta } from '@/lib/panel-formato';
+import { dinero, fechaCorta, nombreCanal } from '@/lib/panel-formato';
 import type { CostoFijo, GastoCanal } from '@/lib/servidor/panel';
 
 const CAMPO =
   'h-12 w-full rounded-[var(--radius-pill)] border border-[color-mix(in_oklab,var(--ink-3)_45%,transparent)] bg-sunken px-4 text-base text-ink-1 placeholder:text-ink-3 focus:border-ink-2 focus:outline-none';
+const ETIQUETA = 'text-caption font-semibold text-ink-1';
 
 function Aviso({ r }: { r: Resultado | null }) {
   if (!r) return null;
@@ -21,26 +23,93 @@ function Aviso({ r }: { r: Resultado | null }) {
   );
 }
 
-function BotonGuardar({ enviando, texto }: { enviando: boolean; texto: string }) {
+/** El mismo botón de guardar en los tres formularios. */
+function BotonGuardar({ enviando, texto = 'Guardar' }: { enviando: boolean; texto?: string }) {
   return (
-    <button type="submit" disabled={enviando} className="boton-oro flex h-12 shrink-0 items-center justify-center gap-2 rounded-[var(--radius-pill)] px-5 font-display text-base font-bold">
-      {enviando ? <LoaderCircle size={18} className="motion-safe:animate-spin" aria-hidden="true" /> : <Plus size={18} aria-hidden="true" />}
-      {texto}
+    <button
+      type="submit"
+      disabled={enviando}
+      className="boton-oro flex h-12 shrink-0 items-center justify-center gap-2 rounded-[var(--radius-pill)] px-5 font-display text-base font-bold transition-transform duration-100 active:scale-[0.97] disabled:opacity-70"
+    >
+      {enviando ? <LoaderCircle size={18} className="motion-safe:animate-spin" aria-hidden="true" /> : <Check size={18} aria-hidden="true" />}
+      {enviando ? 'Guardando…' : texto}
     </button>
   );
 }
 
-export function FormImpuestos({ actual }: { actual: number }) {
+/** Quitar con "Deshacer" (8 s): guarda lo quitado para volver a agregarlo igual si se arrepiente. */
+function useQuitarConDeshacer<T extends { id: number }>(quitar: (id: number) => Promise<Resultado>, rehacer: (item: T) => Promise<Resultado>) {
+  const [pendiente, iniciar] = useTransition();
+  const [quitado, setQuitado] = useState<T | null>(null);
+  const [r, setR] = useState<Resultado | null>(null);
+  useEffect(() => {
+    if (!quitado) return;
+    const t = window.setTimeout(() => setQuitado(null), 8000);
+    return () => window.clearTimeout(t);
+  }, [quitado]);
+  return {
+    pendiente,
+    quitado,
+    r,
+    quitar: (item: T) =>
+      iniciar(async () => {
+        const res = await quitar(item.id);
+        setR(res);
+        setQuitado(res.ok ? item : null);
+      }),
+    deshacer: () =>
+      iniciar(async () => {
+        if (!quitado) return;
+        const res = await rehacer(quitado);
+        setQuitado(null);
+        setR(res.ok ? { ok: true, mensaje: 'Listo, volvió a la lista.' } : res);
+      }),
+  };
+}
+
+function BarraDeshacer({ texto, onDeshacer, pendiente }: { texto: string; onDeshacer: () => void; pendiente: boolean }) {
+  return (
+    <div role="status" className="mt-2 flex min-h-11 items-center justify-between gap-3 rounded-[var(--radius-chip)] bg-sunken px-3 text-caption text-ink-1">
+      <span className="min-w-0 truncate">{texto}</span>
+      <button type="button" onClick={onDeshacer} disabled={pendiente} className="min-h-11 shrink-0 font-semibold text-ink-1 underline underline-offset-4">
+        Deshacer
+      </button>
+    </div>
+  );
+}
+
+function BotonQuitar({ etiqueta, onClick, disabled }: { etiqueta: string; onClick: () => void; disabled: boolean }) {
+  return (
+    <button type="button" disabled={disabled} onClick={onClick} aria-label={etiqueta} className="flex size-11 items-center justify-center rounded-full text-ink-3 transition-colors hover:bg-sunken hover:text-danger active:scale-[0.95]">
+      <Trash2 size={16} aria-hidden="true" />
+    </button>
+  );
+}
+
+const formDe = (campos: Record<string, string | number | null>) => {
+  const fd = new FormData();
+  for (const [k, v] of Object.entries(campos)) if (v !== null) fd.set(k, String(v));
+  return fd;
+};
+
+export function FormImpuestos({ actual, esteMes }: { actual: number; esteMes: number | null }) {
   const [r, accion, enviando] = useActionState(guardarImpuestos, null);
   return (
     <form action={accion}>
-      <label className="flex flex-col gap-1">
-        <span className="text-caption font-semibold text-ink-1">Impuestos y retenciones (% de lo que facturas)</span>
+      <p className="font-display text-4xl leading-none font-extrabold text-ink-1 tabular-nums">{actual}%</p>
+      <p className="mt-1 text-caption text-ink-2">
+        {esteMes !== null && esteMes > 0 ? `Este mes son unos ${dinero(esteMes)} que se restan de tu ganancia.` : 'Se resta de lo que facturas para calcular tu ganancia.'}
+      </p>
+      <label className="mt-4 flex flex-col gap-1">
+        <span className={ETIQUETA}>Cambiar el porcentaje</span>
         <span className="flex gap-2">
-          <input name="pct" type="number" min={0} max={60} step="0.5" defaultValue={actual} inputMode="decimal" className={`${CAMPO} max-w-32`} />
-          <button type="submit" disabled={enviando} className="opcion-recorrido min-h-12 px-5 text-caption font-semibold text-ink-1">
-            {enviando ? 'Guardando…' : 'Guardar'}
-          </button>
+          <span className="relative max-w-36 flex-1">
+            <input name="pct" type="number" min={0} max={60} step="0.5" defaultValue={actual} inputMode="decimal" className={`${CAMPO} pr-9`} />
+            <span className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-ink-3" aria-hidden="true">
+              %
+            </span>
+          </span>
+          <BotonGuardar enviando={enviando} />
         </span>
       </label>
       <Aviso r={r} />
@@ -50,32 +119,42 @@ export function FormImpuestos({ actual }: { actual: number }) {
 
 export function ListaCostos({ costos }: { costos: CostoFijo[] }) {
   const [r, accion, enviando] = useActionState(agregarCosto, null);
-  const [borrando, iniciar] = useTransition();
+  const q = useQuitarConDeshacer<CostoFijo>(borrarCosto, (c) => agregarCosto(null, formDe({ nombre: c.nombre, monto: c.monto_usd })));
+  const visibles = costos.filter((c) => c.id !== q.quitado?.id);
+  const total = visibles.reduce((t, c) => t + c.monto_usd, 0);
   return (
     <div>
-      {costos.length > 0 && (
-        <ul className="mb-4 divide-y divide-[var(--line)]">
-          {costos.map((c) => (
-            <li key={c.id} className="flex items-center justify-between gap-3 py-2">
-              <span className="text-ayuda text-ink-1">{c.nombre}</span>
-              <span className="flex items-center gap-2">
-                <span className="text-ayuda tabular-nums text-ink-2">{dinero(c.monto_usd)} al mes</span>
-                <button type="button" disabled={borrando} onClick={() => iniciar(async () => void (await borrarCosto(c.id)))} aria-label={`Quitar ${c.nombre}`} className="flex size-11 items-center justify-center rounded-full text-ink-3 hover:text-danger">
-                  <Trash2 size={16} aria-hidden="true" />
-                </button>
-              </span>
-            </li>
-          ))}
-        </ul>
+      {visibles.length > 0 ? (
+        <>
+          <ul className="divide-y divide-[var(--line)]">
+            {visibles.map((c) => (
+              <li key={c.id} className="flex items-center justify-between gap-3 py-1">
+                <span className="min-w-0 text-ayuda break-words text-ink-1">{c.nombre}</span>
+                <span className="flex shrink-0 items-center gap-1">
+                  <span className="text-ayuda whitespace-nowrap tabular-nums text-ink-2">{dinero(c.monto_usd)} al mes</span>
+                  <BotonQuitar etiqueta={`Quitar ${c.nombre}`} onClick={() => q.quitar(c)} disabled={q.pendiente} />
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 flex justify-between border-t border-[var(--line)] pt-2 text-ayuda">
+            <span className="font-semibold text-ink-1">Total</span>
+            <span className="font-semibold whitespace-nowrap tabular-nums text-ink-1">{dinero(total)} al mes</span>
+          </p>
+        </>
+      ) : (
+        <p className="text-caption text-ink-3">Aún no anotaste costos fijos.</p>
       )}
-      <form action={accion} className="flex flex-col gap-2 sm:flex-row">
-        <label className="flex-1">
-          <span className="sr-only">Nombre del costo</span>
+      {q.quitado ? <BarraDeshacer texto={`Quitado: ${q.quitado.nombre}`} onDeshacer={q.deshacer} pendiente={q.pendiente} /> : <Aviso r={q.r} />}
+
+      <form action={accion} className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-end">
+        <label className="flex flex-1 flex-col gap-1">
+          <span className={ETIQUETA}>Qué pagas</span>
           <input name="nombre" required placeholder="Ej.: Vercel Pro" className={CAMPO} />
         </label>
-        <label className="sm:w-40">
-          <span className="sr-only">Monto mensual en dólares</span>
-          <input name="monto" type="number" min={0} step="0.01" required placeholder="$ al mes" inputMode="decimal" className={CAMPO} />
+        <label className="flex flex-col gap-1 sm:w-40">
+          <span className={ETIQUETA}>Cuánto al mes (USD)</span>
+          <input name="monto" type="number" min={0} step="0.01" required placeholder="20" inputMode="decimal" className={CAMPO} />
         </label>
         <BotonGuardar enviando={enviando} texto="Agregar" />
       </form>
@@ -84,51 +163,69 @@ export function ListaCostos({ costos }: { costos: CostoFijo[] }) {
   );
 }
 
-export function ListaGastos({ gastos }: { gastos: GastoCanal[] }) {
+export function ListaGastos({ gastos, canales, desde, hasta }: { gastos: GastoCanal[]; canales: string[]; desde: string; hasta: string }) {
   const [r, accion, enviando] = useActionState(agregarGasto, null);
-  const [borrando, iniciar] = useTransition();
+  const q = useQuitarConDeshacer<GastoCanal>(borrarGasto, (g) => agregarGasto(null, formDe({ canal: g.canal, monto: g.monto_usd, desde: g.desde, hasta: g.hasta, nota: g.nota })));
+  const [elegido, setElegido] = useState(canales[0] ?? 'otro');
+  const visibles = gastos.filter((g) => g.id !== q.quitado?.id);
   return (
     <div>
-      {gastos.length > 0 && (
-        <ul className="mb-4 divide-y divide-[var(--line)]">
-          {gastos.map((g) => (
-            <li key={g.id} className="flex items-center justify-between gap-3 py-2">
+      {visibles.length > 0 ? (
+        <ul className="divide-y divide-[var(--line)]">
+          {visibles.map((g) => (
+            <li key={g.id} className="flex items-center justify-between gap-3 py-1">
               <span className="min-w-0">
-                <span className="block text-ayuda font-semibold break-all text-ink-1">{g.canal}</span>
+                <span className="block text-ayuda font-semibold break-words text-ink-1">{nombreCanal(g.canal)}</span>
                 <span className="block text-xs text-ink-3">
                   {fechaCorta(`${g.desde}T12:00:00Z`)} – {fechaCorta(`${g.hasta}T12:00:00Z`)}
                   {g.nota && ` · ${g.nota}`}
                 </span>
               </span>
-              <span className="flex shrink-0 items-center gap-2">
-                <span className="text-ayuda tabular-nums text-ink-2">{dinero(g.monto_usd)}</span>
-                <button type="button" disabled={borrando} onClick={() => iniciar(async () => void (await borrarGasto(g.id)))} aria-label={`Quitar el gasto de ${g.canal}`} className="flex size-11 items-center justify-center rounded-full text-ink-3 hover:text-danger">
-                  <Trash2 size={16} aria-hidden="true" />
-                </button>
+              <span className="flex shrink-0 items-center gap-1">
+                <span className="text-ayuda whitespace-nowrap tabular-nums text-ink-2">{dinero(g.monto_usd)}</span>
+                <BotonQuitar etiqueta={`Quitar el gasto de ${nombreCanal(g.canal)}`} onClick={() => q.quitar(g)} disabled={q.pendiente} />
               </span>
             </li>
           ))}
         </ul>
+      ) : (
+        <p className="text-caption text-ink-3">Aún no anotaste gastos en anuncios.</p>
       )}
-      <form action={accion} className="grid gap-2 sm:grid-cols-2">
+      {q.quitado ? <BarraDeshacer texto={`Quitado: gasto de ${nombreCanal(q.quitado.canal)}`} onDeshacer={q.deshacer} pendiente={q.pendiente} /> : <Aviso r={q.r} />}
+
+      <form action={accion} className="mt-4 grid gap-3 sm:grid-cols-2">
         <label className="flex flex-col gap-1">
-          <span className="text-caption font-semibold text-ink-1">Canal (el mismo código del enlace)</span>
-          <input name="canal" required placeholder="tiktok" className={CAMPO} />
+          <span className={ETIQUETA}>Dónde pusiste el anuncio</span>
+          <select value={elegido} onChange={(e) => setElegido(e.target.value)} name={elegido === 'otro' ? undefined : 'canal'} className={CAMPO}>
+            {canales.map((c) => (
+              <option key={c} value={c}>
+                {nombreCanal(c)}
+              </option>
+            ))}
+            <option value="otro">Otro…</option>
+          </select>
         </label>
+        {elegido === 'otro' && (
+          <label className="flex flex-col gap-1">
+            <span className={ETIQUETA}>Nombre del canal</span>
+            <input name="canal" required placeholder="Ej.: pinterest" className={CAMPO} />
+            <span className="text-xs text-ink-3">Igual que lo pusiste al final de tu enlace de Hotmart.</span>
+          </label>
+        )}
         <label className="flex flex-col gap-1">
-          <span className="text-caption font-semibold text-ink-1">Cuánto gastaste (USD)</span>
+          <span className={ETIQUETA}>Cuánto gastaste (USD)</span>
           <input name="monto" type="number" min={0} step="0.01" required inputMode="decimal" placeholder="150" className={CAMPO} />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-caption font-semibold text-ink-1">Desde</span>
-          <input name="desde" type="date" required className={CAMPO} />
+          <span className={ETIQUETA}>Desde</span>
+          <input name="desde" type="date" required defaultValue={desde} className={CAMPO} />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-caption font-semibold text-ink-1">Hasta</span>
-          <input name="hasta" type="date" required className={CAMPO} />
+          <span className={ETIQUETA}>Hasta</span>
+          <input name="hasta" type="date" required defaultValue={hasta} className={CAMPO} />
         </label>
         <label className="flex flex-col gap-1 sm:col-span-2">
-          <span className="text-caption font-semibold text-ink-1">Nota (opcional)</span>
+          <span className={ETIQUETA}>Nota (opcional)</span>
           <input name="nota" maxLength={200} placeholder="Ej.: anuncio del video de la hoja en blanco" className={CAMPO} />
         </label>
         <div className="sm:col-span-2">

@@ -13,16 +13,25 @@ import { enviarAcceso } from '@/lib/servidor/correo';
 import { modoCaptura } from '@/lib/servidor/panel';
 import { clienteAdmin } from '@/lib/servidor/supabase';
 
-export type Resultado = { ok: true; mensaje: string; enlace?: string; codigo?: string } | { ok: false; mensaje: string };
+/** Cómo estaba el acceso antes de un cambio: permite "Deshacer". */
+export interface AccesoPrevio {
+  estado: string;
+  hasta: string | null;
+}
+export type Resultado = { ok: true; mensaje: string; enlace?: string; codigo?: string; previo?: AccesoPrevio } | { ok: false; mensaje: string };
 
 const DIA_MS = 86_400_000;
 
-async function exigirAdmin(): Promise<Admin> {
-  // En la captura local con datos de prueba no hay acciones: no existe una base real detrás.
-  if (modoCaptura) throw new Error('Acciones desactivadas en la captura local');
-  const admin = await adminActual();
-  if (!admin) throw new Error('No autorizado');
-  return admin;
+const SIN_PERMISO: Resultado = { ok: false, mensaje: 'Tu sesión venció. Vuelve a entrar al panel con tu correo.' };
+
+/** La dueña, o null (y la acción responde SIN_PERMISO). En la captura local no hay acciones. */
+async function exigirAdmin(): Promise<Admin | null> {
+  if (modoCaptura) return null;
+  try {
+    return await adminActual();
+  } catch {
+    return null;
+  }
 }
 
 const correoListo = () => Boolean(leerVariable('RESEND_API_KEY') && leerVariable('EMAIL_FROM'));
@@ -44,6 +53,7 @@ const AltaManual = z.object({
 /** Agregar a alguien a mano: cuenta + acceso con fecha de fin (fail-closed) + enlace para entrar. */
 export async function agregarUsuario(_previo: Resultado | null, datos: FormData): Promise<Resultado> {
   const admin = await exigirAdmin();
+  if (!admin) return SIN_PERMISO;
   const parse = AltaManual.safeParse(Object.fromEntries(datos));
   if (!parse.success) return { ok: false, mensaje: parse.error.issues[0]?.message ?? 'Revisa los datos.' };
   const { email, nombre, duracion, fecha } = parse.data;
@@ -120,6 +130,7 @@ async function perfilPorId(id: string) {
 /** Enlace de un solo uso para mandarlo por WhatsApp cuando el correo no llega. */
 export async function crearEnlaceAcceso(id: string): Promise<Resultado> {
   const admin = await exigirAdmin();
+  if (!admin) return SIN_PERMISO;
   if (!Id.safeParse(id).success) return { ok: false, mensaje: 'Usuario no válido.' };
   try {
     const perfil = await perfilPorId(id);
@@ -135,6 +146,7 @@ export async function crearEnlaceAcceso(id: string): Promise<Resultado> {
 
 export async function reenviarAcceso(id: string): Promise<Resultado> {
   const admin = await exigirAdmin();
+  if (!admin) return SIN_PERMISO;
   if (!Id.safeParse(id).success) return { ok: false, mensaje: 'Usuario no válido.' };
   if (!correoListo()) return { ok: false, mensaje: 'El envío de correos todavía no está conectado. Usa "Copiar enlace de acceso".' };
   try {
@@ -157,6 +169,7 @@ const Extension = z.object({ id: Id, dias: z.coerce.number().int().refine((d) =>
 /** Suma días desde hoy o desde su fecha de fin actual (lo que sea más tarde). */
 export async function extenderAcceso(id: string, dias: number): Promise<Resultado> {
   const admin = await exigirAdmin();
+  if (!admin) return SIN_PERMISO;
   const parse = Extension.safeParse({ id, dias });
   if (!parse.success) return { ok: false, mensaje: 'Elige 7, 30 o 365 días.' };
   try {
@@ -168,7 +181,7 @@ export async function extenderAcceso(id: string, dias: number): Promise<Resultad
     if (error) throw error;
     await auditar(admin, 'extender_acceso', { email: perfil.email, dias: parse.data.dias, hasta: hasta.toISOString() });
     revalidatePath('/admin', 'layout');
-    return { ok: true, mensaje: `Acceso extendido hasta el ${hasta.toLocaleDateString('es')}.` };
+    return { ok: true, mensaje: `Acceso extendido hasta el ${hasta.toLocaleDateString('es')}.`, previo: { estado: perfil.status, hasta: perfil.access_until } };
   } catch (e) {
     return falla(e, 'extender');
   }
@@ -176,6 +189,7 @@ export async function extenderAcceso(id: string, dias: number): Promise<Resultad
 
 export async function quitarAcceso(id: string): Promise<Resultado> {
   const admin = await exigirAdmin();
+  if (!admin) return SIN_PERMISO;
   if (!Id.safeParse(id).success) return { ok: false, mensaje: 'Usuario no válido.' };
   try {
     const perfil = await perfilPorId(id);
@@ -185,9 +199,32 @@ export async function quitarAcceso(id: string): Promise<Resultado> {
     if (error) throw error;
     await auditar(admin, 'quitar_acceso', { email: perfil.email, estado_previo: perfil.status });
     revalidatePath('/admin', 'layout');
-    return { ok: true, mensaje: `${perfil.email} ya no tiene acceso. Sus piezas siguen guardadas.` };
+    return { ok: true, mensaje: `${perfil.email} ya no tiene acceso. Sus piezas siguen guardadas.`, previo: { estado: perfil.status, hasta: perfil.access_until } };
   } catch (e) {
     return falla(e, 'quitar');
+  }
+}
+
+const Previo = z.object({
+  id: Id,
+  estado: z.enum(['trialing', 'active', 'past_due', 'cancelled', 'expired', 'refunded', 'chargeback']),
+  hasta: z.string().datetime({ offset: true }).nullable(),
+});
+
+/** "Deshacer": deja el acceso como estaba justo antes de extenderlo o quitarlo. */
+export async function restaurarAcceso(id: string, previo: AccesoPrevio): Promise<Resultado> {
+  const admin = await exigirAdmin();
+  if (!admin) return SIN_PERMISO;
+  const parse = Previo.safeParse({ id, ...previo });
+  if (!parse.success) return { ok: false, mensaje: 'No se pudo deshacer.' };
+  try {
+    const { error } = await clienteAdmin().from('profiles').update({ status: parse.data.estado, access_until: parse.data.hasta }).eq('id', id);
+    if (error) throw error;
+    await auditar(admin, 'deshacer_acceso', { id, estado: parse.data.estado, hasta: parse.data.hasta });
+    revalidatePath('/admin', 'layout');
+    return { ok: true, mensaje: 'Listo: quedó como estaba.' };
+  } catch (e) {
+    return falla(e, 'deshacer');
   }
 }
 
@@ -195,6 +232,7 @@ export async function quitarAcceso(id: string): Promise<Resultado> {
 
 export async function guardarImpuestos(_previo: Resultado | null, datos: FormData): Promise<Resultado> {
   const admin = await exigirAdmin();
+  if (!admin) return SIN_PERMISO;
   const parse = z.coerce.number().min(0).max(60).safeParse(datos.get('pct'));
   if (!parse.success) return { ok: false, mensaje: 'Escribe un porcentaje entre 0 y 60.' };
   try {
@@ -214,6 +252,7 @@ const Costo = z.object({ nombre: z.string().trim().min(1, 'Escribe el nombre del
 
 export async function agregarCosto(_previo: Resultado | null, datos: FormData): Promise<Resultado> {
   const admin = await exigirAdmin();
+  if (!admin) return SIN_PERMISO;
   const parse = Costo.safeParse({ nombre: datos.get('nombre'), monto: datos.get('monto') });
   if (!parse.success) return { ok: false, mensaje: parse.error.issues[0]?.message ?? 'Revisa los datos.' };
   try {
@@ -229,6 +268,7 @@ export async function agregarCosto(_previo: Resultado | null, datos: FormData): 
 
 export async function borrarCosto(id: number): Promise<Resultado> {
   const admin = await exigirAdmin();
+  if (!admin) return SIN_PERMISO;
   if (!Number.isInteger(id) || id <= 0) return { ok: false, mensaje: 'Costo no válido.' };
   try {
     const { error } = await clienteAdmin().from('costos_fijos').delete().eq('id', id);
@@ -253,6 +293,7 @@ const Gasto = z
 
 export async function agregarGasto(_previo: Resultado | null, datos: FormData): Promise<Resultado> {
   const admin = await exigirAdmin();
+  if (!admin) return SIN_PERMISO;
   const parse = Gasto.safeParse(Object.fromEntries(datos));
   if (!parse.success) return { ok: false, mensaje: parse.error.issues[0]?.message ?? 'Revisa los datos.' };
   try {
@@ -269,6 +310,7 @@ export async function agregarGasto(_previo: Resultado | null, datos: FormData): 
 
 export async function borrarGasto(id: number): Promise<Resultado> {
   const admin = await exigirAdmin();
+  if (!admin) return SIN_PERMISO;
   if (!Number.isInteger(id) || id <= 0) return { ok: false, mensaje: 'Gasto no válido.' };
   try {
     const { error } = await clienteAdmin().from('acquisition_spend').delete().eq('id', id);

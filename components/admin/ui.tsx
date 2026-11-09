@@ -1,23 +1,69 @@
 // Piezas del panel de la dueña (17-VISUALIZACION-DATOS): un dato héroe por tarjeta, label claro y el
 // insight en palabras. Si no hay dato, "Sin datos" con el porqué — nunca un cero inventado.
+// Dorado SOLO en el dato principal y el botón principal (FICHA-ARTE); verde = bien, rojo = mal.
 
 import Link from 'next/link';
-import { ArrowRight, CircleAlert, CircleCheck, Info, TriangleAlert } from 'lucide-react';
-import type { Aviso } from '@/lib/servidor/panel';
+import { ArrowRight, ChevronLeft, ChevronRight, CircleAlert, CircleCheck, Info, TriangleAlert } from 'lucide-react';
+import type { Aviso, PeriodoElegido } from '@/lib/servidor/panel';
+import { Cuenta, Entrada, type Formato } from './movimiento';
 
-export function Encabezado({ titulo, periodo, children }: { titulo: string; periodo?: string; children?: React.ReactNode }) {
+/** Respuesta al tocar de todo lo tocable del panel (tap < 150 ms). */
+export const TOCABLE = 'transition-transform duration-100 active:scale-[0.98]';
+
+export function Encabezado({ titulo, periodo, children }: { titulo: string; periodo?: React.ReactNode; children?: React.ReactNode }) {
   return (
-    <div className="mb-6">
-      {periodo && <p className="text-xs font-semibold tracking-[0.08em] text-ink-3 uppercase">{periodo}</p>}
+    <Entrada className="mb-6">
+      {periodo && <div className="text-xs font-semibold tracking-[0.08em] text-ink-3 uppercase">{periodo}</div>}
       <h1 className="mt-1 font-display text-pregunta font-extrabold text-ink-1">{titulo}</h1>
       {children && <div className="mt-2 text-ayuda text-ink-2">{children}</div>}
-    </div>
+    </Entrada>
   );
 }
 
-export function Tarjeta({ children, className = '', destacada = false, id }: { children: React.ReactNode; className?: string; destacada?: boolean; id?: string }) {
+/** ← mes anterior · mes · mes siguiente → (regla UX 13: vista con fechas reales y navegación). */
+export function SelectorMes({ periodo, ruta }: { periodo: PeriodoElegido; ruta: string }) {
+  const flecha = `${TOCABLE} flex size-11 items-center justify-center rounded-full border border-[var(--line)] text-ink-1 hover:bg-raised`;
   return (
-    <section id={id} className={`${destacada ? 'hairline-oro relieve-tarjeta' : 'tarjeta-relieve'} rounded-[var(--radius-card)] p-4 ${className}`}>{children}</section>
+    <nav aria-label="Cambiar de mes" className="mb-6 flex items-center gap-2">
+      <Link href={`${ruta}?mes=${periodo.anterior}`} className={flecha} aria-label="Mes anterior">
+        <ChevronLeft size={18} aria-hidden="true" />
+      </Link>
+      <span className="min-w-0 flex-1 text-center text-ayuda font-semibold text-ink-1 first-letter:uppercase">
+        {periodo.etiqueta}
+        {periodo.diaDeHoy && <span className="block text-xs font-normal text-ink-3">va en el día {periodo.diaDeHoy}</span>}
+      </span>
+      {periodo.siguiente ? (
+        <Link href={periodo.esActual ? ruta : `${ruta}?mes=${periodo.siguiente}`} className={flecha} aria-label="Mes siguiente">
+          <ChevronRight size={18} aria-hidden="true" />
+        </Link>
+      ) : (
+        <span aria-hidden="true" className="flex size-11 items-center justify-center rounded-full border border-[var(--line)] text-ink-3 opacity-40">
+          <ChevronRight size={18} />
+        </span>
+      )}
+    </nav>
+  );
+}
+
+export function Tarjeta({
+  children,
+  className = '',
+  destacada = false,
+  id,
+  indice = 0,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  destacada?: boolean;
+  id?: string;
+  indice?: number;
+}) {
+  return (
+    <Entrada indice={indice} className={className}>
+      <section id={id} className={`${destacada ? 'hairline-oro relieve-tarjeta' : 'tarjeta-relieve'} h-full rounded-[var(--radius-card)] p-4`}>
+        {children}
+      </section>
+    </Entrada>
   );
 }
 
@@ -42,6 +88,18 @@ export function SinDatos({ porque }: { porque: string }) {
   );
 }
 
+/** Una lectura en palabras, para que el número diga qué hacer. */
+export function Lectura({ children, tono = 'neutro' }: { children: React.ReactNode; tono?: 'neutro' | 'bien' | 'mal' }) {
+  const Icono = tono === 'bien' ? CircleCheck : tono === 'mal' ? TriangleAlert : Info;
+  const color = tono === 'bien' ? 'text-green' : tono === 'mal' ? 'text-warning' : 'text-ink-3';
+  return (
+    <p className="mt-3 flex items-start gap-2 text-caption text-ink-2">
+      <Icono size={16} className={`mt-0.5 shrink-0 ${color}`} aria-hidden="true" />
+      <span>{children}</span>
+    </p>
+  );
+}
+
 type Tono = 'neutro' | 'bien' | 'mal' | 'oro';
 const COLOR_TONO: Record<Tono, string> = {
   neutro: 'text-ink-1',
@@ -50,28 +108,37 @@ const COLOR_TONO: Record<Tono, string> = {
   oro: 'text-gold',
 };
 
-/** Un número que se entiende de un vistazo: etiqueta arriba, dato grande, explicación abajo. */
+/** Un número que se entiende de un vistazo: etiqueta arriba, dato grande (que cuenta), explicación abajo. */
 export function Dato({
   etiqueta,
   valor,
+  numero,
+  formato = 'entero',
+  decimales = 0,
   detalle,
   tono = 'neutro',
   estimado = false,
 }: {
   etiqueta: string;
-  valor: string | null;
+  /** Texto ya formateado (para valores que no son un número, como una fecha). */
+  valor?: string | null;
+  /** Número que se anima de 0 a su valor; null = "Sin datos". */
+  numero?: number | null;
+  formato?: Formato;
+  decimales?: number;
   detalle?: React.ReactNode;
   tono?: Tono;
   estimado?: boolean;
 }) {
+  const sinDato = numero === null || (numero === undefined && (valor === null || valor === undefined));
   return (
     <div className="flex min-w-0 flex-col">
       <p className="text-caption font-semibold text-ink-2">{etiqueta}</p>
-      {valor === null ? (
+      {sinDato ? (
         <p className="mt-1 font-display text-precio font-extrabold text-ink-3">Sin datos</p>
       ) : (
-        <p className={`mt-1 font-display text-precio font-extrabold tabular-nums ${COLOR_TONO[tono]}`}>
-          {valor}
+        <p className={`mt-1 font-display text-precio font-extrabold whitespace-nowrap tabular-nums ${COLOR_TONO[tono]}`}>
+          {numero !== undefined && numero !== null ? <Cuenta valor={numero} formato={formato} decimales={decimales} /> : valor}
           {estimado && <span className="ml-1 align-middle text-xs font-semibold text-ink-3">estimado</span>}
         </p>
       )}
@@ -80,11 +147,12 @@ export function Dato({
   );
 }
 
-export function Variacion({ cambio, contra }: { cambio: { texto: string; sube: boolean } | null; contra: string }) {
-  if (!cambio) return <span className="text-ink-3">Sin mes anterior para comparar</span>;
+export function Variacion({ cambio, contra }: { cambio: { texto: string; sube: boolean | null } | null; contra: string }) {
+  if (!cambio) return <span className="text-ink-3">sin datos de {contra} para comparar</span>;
+  if (cambio.sube === null) return <span className="text-ink-3">igual que {contra}</span>;
   return (
     <span>
-      <span className={`font-semibold ${cambio.sube ? 'text-green' : 'text-danger'}`}>{cambio.texto}</span> vs {contra}
+      <span className={`font-semibold whitespace-nowrap ${cambio.sube ? 'text-green' : 'text-danger'}`}>{cambio.texto}</span> vs {contra}
     </span>
   );
 }
@@ -93,62 +161,78 @@ export function Variacion({ cambio, contra }: { cambio: { texto: string; sube: b
 export function BannerAvisos({ avisos, periodo }: { avisos: Aviso[]; periodo: string }) {
   if (avisos.length === 0) {
     return (
-      <div role="status" className="mb-6 flex items-center gap-3 rounded-[var(--radius-card)] border border-[color-mix(in_oklab,var(--green)_35%,transparent)] bg-[color-mix(in_oklab,var(--green)_8%,transparent)] p-4">
-        <CircleCheck size={22} className="shrink-0 text-green" aria-hidden="true" />
-        <p className="text-ayuda text-ink-1">
-          <strong className="font-semibold">Todo en orden en {periodo}.</strong> No hay nada que necesite tu atención.
-        </p>
-      </div>
+      <Entrada indice={1} className="mb-6">
+        <div role="status" className="flex items-center gap-3 rounded-[var(--radius-card)] border border-[color-mix(in_oklab,var(--green)_35%,transparent)] bg-[color-mix(in_oklab,var(--green)_8%,transparent)] p-4">
+          <CircleCheck size={22} className="shrink-0 text-green" aria-hidden="true" />
+          <p className="text-ayuda text-ink-1">
+            <strong className="font-semibold">Todo en orden en {periodo}.</strong> No hay nada que necesite tu atención.
+          </p>
+        </div>
+      </Entrada>
     );
   }
   return (
     <section aria-label="Avisos" className="mb-6 flex flex-col gap-3">
-      {avisos.map((a) => {
+      {avisos.map((a, i) => {
         const alta = a.gravedad === 'alta';
         const Icono = alta ? CircleAlert : TriangleAlert;
         return (
-          <article
-            key={a.id}
-            className={`rounded-[var(--radius-card)] border p-4 ${
-              alta
-                ? 'border-[color-mix(in_oklab,var(--danger)_45%,transparent)] bg-[color-mix(in_oklab,var(--danger)_8%,transparent)]'
-                : 'border-[color-mix(in_oklab,var(--warning)_45%,transparent)] bg-[color-mix(in_oklab,var(--warning)_8%,transparent)]'
-            }`}
-          >
-            <div className="flex items-start gap-3">
-              <Icono size={20} className={`mt-0.5 shrink-0 ${alta ? 'text-danger' : 'text-warning'}`} aria-hidden="true" />
-              <div className="min-w-0">
-                <h2 className="font-display text-base font-bold text-ink-1">{a.titulo}</h2>
-                <p className="mt-1 text-caption text-ink-2">
-                  <strong className="font-semibold text-ink-1">Por qué importa:</strong> {a.porque}
-                </p>
-                <p className="mt-1 text-caption text-ink-2">
-                  <strong className="font-semibold text-ink-1">Qué hacer:</strong> {a.queHacer}
-                </p>
-                {a.enlace && (
-                  <Link href={a.enlace.href} className="mt-1 inline-flex min-h-11 items-center gap-1 text-caption font-semibold text-ink-1 underline underline-offset-4">
-                    {a.enlace.texto}
-                    <ArrowRight size={14} aria-hidden="true" />
-                  </Link>
-                )}
+          <Entrada key={a.id} indice={i + 1}>
+            <article
+              className={`rounded-[var(--radius-card)] border p-4 ${
+                alta
+                  ? 'border-[color-mix(in_oklab,var(--danger)_45%,transparent)] bg-[color-mix(in_oklab,var(--danger)_8%,transparent)]'
+                  : 'border-[color-mix(in_oklab,var(--warning)_45%,transparent)] bg-[color-mix(in_oklab,var(--warning)_8%,transparent)]'
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <Icono size={20} className={`mt-0.5 shrink-0 ${alta ? 'text-danger' : 'text-warning'}`} aria-hidden="true" />
+                <div className="min-w-0">
+                  <h2 className="font-display text-base font-bold text-ink-1">{a.titulo}</h2>
+                  <p className="mt-1 text-caption text-ink-2">
+                    <strong className="font-semibold text-ink-1">Por qué importa:</strong> {a.porque}
+                  </p>
+                  <p className="mt-1 text-caption text-ink-2">
+                    <strong className="font-semibold text-ink-1">Qué hacer:</strong> {a.queHacer}
+                  </p>
+                  {a.enlace && (
+                    <Link href={a.enlace.href} className={`${TOCABLE} mt-1 inline-flex min-h-11 items-center gap-1 text-caption font-semibold text-ink-1 underline underline-offset-4`}>
+                      {a.enlace.texto}
+                      <ArrowRight size={14} aria-hidden="true" />
+                    </Link>
+                  )}
+                </div>
               </div>
-            </div>
-          </article>
+            </article>
+          </Entrada>
         );
       })}
     </section>
   );
 }
 
-/** Fila "concepto · monto" de la cascada de ganancia. */
-export function FilaMonto({ concepto, monto, nota, total = false }: { concepto: string; monto: string; nota?: string; total?: boolean }) {
+/** Fila "concepto · monto" de la cascada de ganancia. El signo vive SOLO en el monto. */
+export function FilaMonto({ concepto, monto, nota, total = false, color }: { concepto: string; monto: string; nota?: string; total?: boolean; color?: string }) {
   return (
     <div className={`flex items-baseline justify-between gap-4 py-2 ${total ? 'border-t border-[var(--line)] pt-3' : ''}`}>
-      <span className="min-w-0">
-        <span className={total ? 'font-display text-base font-bold text-ink-1' : 'text-ayuda text-ink-1'}>{concepto}</span>
-        {nota && <span className="block text-caption text-ink-3">{nota}</span>}
+      <span className="flex min-w-0 items-baseline gap-2">
+        {color && <span aria-hidden="true" className="size-2.5 shrink-0 translate-y-[-1px] rounded-full" style={{ background: color }} />}
+        <span className="min-w-0">
+          <span className={total ? 'font-display text-base font-bold text-ink-1' : 'text-ayuda text-ink-1'}>{concepto}</span>
+          {nota && <span className="block text-caption text-ink-3">{nota}</span>}
+        </span>
       </span>
-      <span className={`shrink-0 tabular-nums ${total ? 'font-display text-base font-extrabold text-gold' : 'text-ayuda text-ink-2'}`}>{monto}</span>
+      <span className={`shrink-0 whitespace-nowrap tabular-nums ${total ? 'font-display text-base font-extrabold text-gold' : 'text-ayuda text-ink-2'}`}>{monto}</span>
     </div>
+  );
+}
+
+/** Barra de progreso simple (verde = avance, neutra = reparto, ámbar = alerta). */
+export function Barra({ pct, tono = 'verde' }: { pct: number; tono?: 'verde' | 'neutra' | 'ambar' }) {
+  const color = tono === 'verde' ? 'bg-green' : tono === 'ambar' ? 'bg-warning' : 'bg-[color-mix(in_oklab,var(--ink-2)_55%,transparent)]';
+  return (
+    <span className="block h-1.5 rounded-full bg-sunken">
+      <span className={`block h-full rounded-full ${color}`} style={{ width: `${Math.min(100, Math.max(pct > 0 ? 2 : 0, pct))}%` }} />
+    </span>
   );
 }

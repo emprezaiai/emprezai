@@ -1,39 +1,39 @@
-// VENTAS: lo que entró, cuántas pruebas pasaron a pago, quién se fue (voluntario vs pago fallido),
-// reembolsos y los últimos cobros. Dinero separado por moneda; nada inventado.
+// VENTAS: un número principal (lo que entró) con su tendencia de 6 meses, cuántas pruebas pasaron a
+// pago, quién se fue y por qué, tus clientes de hoy (contados igual que en Inicio) y los últimos
+// cobros. Dinero separado por moneda; con flechas para ver otros meses.
 
-import { Dato, Encabezado, SinDatos, Tarjeta, TituloTarjeta, Variacion } from '@/components/admin/ui';
-import { dinero, dineroMinor, entero, fechaHora, pct, variacion } from '@/lib/panel-formato';
+import Link from 'next/link';
+import { Barra, Dato, Encabezado, Lectura, SelectorMes, SinDatos, TOCABLE, Tarjeta, TituloTarjeta, Variacion } from '@/components/admin/ui';
+import { Cuenta } from '@/components/admin/movimiento';
+import { GraficoMeses } from '@/components/admin/Graficos';
+import { dineroMinor, entero, fechaHora, variacion } from '@/lib/panel-formato';
 import {
   calcularChurn,
   calcularMrr,
+  gananciaPorMes,
+  leerAjustes,
   leerClientes,
   leerPruebasSinPago,
+  leerSerie,
   leerUltimosCobros,
   leerVentas,
-  periodoMes,
-  periodoMesHastaHoy,
+  periodoElegido,
 } from '@/lib/servidor/panel';
 
-const NOMBRE_ESTADO: Record<string, string> = {
-  trialing: 'En prueba gratis',
-  active: 'Pagando',
-  cancelled: 'Cancelaron (aún con acceso)',
-  past_due: 'Pago atrasado',
-  expired: 'Vencidos',
-  refunded: 'Reembolsados',
-  chargeback: 'Contracargo',
-};
 const NOMBRE_COBRO: Record<string, string> = { sale: 'Venta', refund: 'Reembolso', chargeback: 'Contracargo' };
 
-export default async function VentasPanel() {
-  const mes = periodoMes(0);
-  const anterior = periodoMesHastaHoy(-1);
-  const [ventas, ventasAnt, clientes, sinPago, cobros] = await Promise.all([
-    leerVentas(mes, 'ventas_mes'),
-    leerVentas(anterior, 'ventas_mes_anterior'),
+export default async function VentasPanel({ searchParams }: { searchParams: Promise<{ mes?: string; tipo?: string }> }) {
+  const sp = await searchParams;
+  const periodo = periodoElegido(sp.mes);
+  const tipo = sp.tipo === 'devoluciones' ? 'devoluciones' : 'todos';
+  const [ventas, ventasAnt, clientes, sinPago, cobros, serie, ajustes] = await Promise.all([
+    leerVentas(periodo, 'ventas_mes'),
+    leerVentas(periodo.comparar, 'ventas_mes_anterior'),
     leerClientes(),
-    leerPruebasSinPago(mes),
-    leerUltimosCobros(),
+    leerPruebasSinPago(periodo),
+    leerUltimosCobros(30),
+    leerSerie(6),
+    leerAjustes(),
   ]);
   const usd = ventas.dinero.find((d) => d.moneda === 'USD');
   const usdAnt = ventasAnt.dinero.find((d) => d.moneda === 'USD');
@@ -44,53 +44,71 @@ export default async function VentasPanel() {
   const pruebasTerminadas = ventas.pruebas_a_pago + sinPago;
   const conversion = pruebasTerminadas > 0 ? (ventas.pruebas_a_pago / pruebasTerminadas) * 100 : null;
   const otras = ventas.dinero.filter((d) => d.moneda !== 'USD' && d.ventas > 0);
-  const estados = Object.entries(clientes.por_estado).sort((a, b) => b[1] - a[1]);
-  const maxEstado = Math.max(1, ...estados.map(([, n]) => n));
+  const meses = gananciaPorMes(serie, ajustes.impuestosPct, 0);
+  const nadieSeFue = ventas.cancelaciones_voluntarias + ventas.perdidos_por_pago + ventas.cobros_fallidos + ventas.reembolsados === 0;
+  // Tus clientes HOY, contados igual que en Inicio (quien entró a mano no cuenta como pago).
+  const sinAcceso = Math.max(0, clientes.total - pagando - clientes.en_prueba - clientes.manuales);
+  const filasClientes = [
+    { texto: 'Pagando', n: pagando, tono: 'verde' as const },
+    { texto: 'En prueba gratis', n: clientes.en_prueba, tono: 'verde' as const },
+    { texto: 'Acceso regalado por ti', n: clientes.manuales, tono: 'neutra' as const },
+    { texto: 'Ya no tienen acceso', n: sinAcceso, tono: 'neutra' as const },
+  ].filter((f) => f.n > 0);
+  const maxClientes = Math.max(1, ...filasClientes.map((f) => f.n));
+  const lista = (tipo === 'devoluciones' ? cobros.filter((c) => c.tipo !== 'sale') : cobros).slice(0, 12);
 
   return (
     <>
-      <Encabezado titulo="Ventas" periodo={mes.etiqueta} />
+      <Encabezado titulo="Ventas" />
+      <SelectorMes periodo={periodo} ruta="/admin/ventas" />
 
-      <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Tarjeta>
-          <Dato
-            etiqueta="Ingresos del mes"
-            valor={usd && usd.ventas > 0 ? dinero(bruto) : null}
-            tono="oro"
-            detalle={
-              usd && usd.ventas > 0 ? (
-                <>
-                  {entero(usd.ventas)} {usd.ventas === 1 ? 'cobro' : 'cobros'} · <Variacion cambio={variacion(bruto, brutoAnt)} contra="los mismos días del mes pasado" />
-                </>
-              ) : (
-                'Aún no hay cobros este mes'
-              )
-            }
-          />
-        </Tarjeta>
-        <Tarjeta>
+      <Tarjeta destacada className="mb-4" indice={1}>
+        <p className="text-caption font-semibold text-ink-2">Lo que entró en {periodo.etiqueta.split(' ')[0]}</p>
+        {usd && usd.ventas > 0 ? (
+          <>
+            <p className="mt-1 font-display text-4xl leading-none font-extrabold text-gold">
+              <Cuenta valor={bruto} formato="dinero" decimales={2} />
+            </p>
+            <p className="mt-2 text-caption text-ink-2">
+              {entero(usd.ventas)} {usd.ventas === 1 ? 'cobro' : 'cobros'} · <Variacion cambio={variacion(bruto, brutoAnt)} contra={periodo.textoComparar} />
+            </p>
+          </>
+        ) : (
+          <p className="mt-1 text-ayuda text-ink-2">{periodo.esActual ? 'Aún no hay cobros este mes.' : 'No hubo cobros ese mes.'}</p>
+        )}
+        {meses.some((m) => m.hayVentas) && (
+          <div className="mt-3">
+            <GraficoMeses datos={meses} />
+            <p className="text-xs text-ink-3">Barra apagada: lo facturado · dorada: lo que quedó tras Hotmart, impuestos e IA (sin costos fijos).</p>
+          </div>
+        )}
+      </Tarjeta>
+
+      <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-3">
+        <Tarjeta indice={2}>
           <Dato
             etiqueta="Ingreso mensual recurrente"
-            valor={pagando > 0 ? dinero(mrr) : null}
+            numero={pagando > 0 ? mrr : null}
+            formato="dinero"
+            decimales={2}
             detalle={pagando > 0 ? `${entero(clientes.activos_mensual)} mensual · ${entero(clientes.activos_anual)} anual` : 'Aparece con el primer cliente pagando'}
           />
         </Tarjeta>
-        <Tarjeta>
+        <Tarjeta indice={3}>
           <Dato
             etiqueta="Pruebas que pasaron a pago"
-            valor={conversion !== null ? pct(conversion) : null}
+            numero={conversion}
+            formato="pct"
             tono={conversion !== null && conversion >= 40 ? 'bien' : 'neutro'}
-            detalle={
-              conversion !== null
-                ? `${entero(ventas.pruebas_a_pago)} de ${entero(pruebasTerminadas)} pruebas que terminaron`
-                : `${entero(ventas.pruebas_iniciadas)} pruebas nuevas; aún ninguna terminó este mes`
-            }
+            detalle={conversion !== null ? `${entero(ventas.pruebas_a_pago)} de ${entero(pruebasTerminadas)} que terminaron` : `${entero(ventas.pruebas_iniciadas)} pruebas nuevas; ninguna terminó aún`}
           />
         </Tarjeta>
-        <Tarjeta>
+        <Tarjeta indice={4} className="col-span-2 lg:col-span-1">
           <Dato
             etiqueta="Se fueron este mes"
-            valor={churn.total !== null ? pct(churn.total, 1) : null}
+            numero={churn.total}
+            formato="pct"
+            decimales={1}
             tono={churn.total !== null && churn.total > 8 ? 'mal' : 'neutro'}
             detalle={churn.total !== null ? `de ${entero(ventas.pagando_al_inicio)} que pagaban al empezar el mes` : 'Se mide con clientes pagando desde el mes anterior'}
           />
@@ -98,62 +116,80 @@ export default async function VentasPanel() {
       </div>
 
       <div className="mb-4 grid gap-3 lg:grid-cols-2">
-        <Tarjeta>
-          <TituloTarjeta ayuda="Separado porque se resuelven distinto: unos decidieron irse, a otros les falló el pago.">Quién se fue y por qué</TituloTarjeta>
-          <dl className="grid grid-cols-2 gap-3">
-            <div>
-              <dt className="text-caption text-ink-2">Cancelaron (decidieron irse)</dt>
-              <dd className="font-display text-precio font-extrabold tabular-nums text-ink-1">{entero(ventas.cancelaciones_voluntarias)}</dd>
-            </div>
-            <div>
-              <dt className="text-caption text-ink-2">Perdidos por pago fallido</dt>
-              <dd className="font-display text-precio font-extrabold tabular-nums text-ink-1">{entero(ventas.perdidos_por_pago)}</dd>
-            </div>
-            <div>
-              <dt className="text-caption text-ink-2">Cobros que fallaron (aún recuperables)</dt>
-              <dd className={`font-display text-precio font-extrabold tabular-nums ${ventas.cobros_fallidos > 0 ? 'text-warning' : 'text-ink-1'}`}>{entero(ventas.cobros_fallidos)}</dd>
-            </div>
-            <div>
-              <dt className="text-caption text-ink-2">Reembolsos y contracargos</dt>
-              <dd className="font-display text-precio font-extrabold tabular-nums text-ink-1">{entero(ventas.reembolsados)}</dd>
-            </div>
-          </dl>
-          {usd && usd.reembolsos_minor + usd.contracargos_minor > 0 && (
-            <p className="mt-3 text-caption text-ink-2">Devolviste {dineroMinor(usd.reembolsos_minor + usd.contracargos_minor, 'USD')} este mes.</p>
-          )}
-        </Tarjeta>
-
-        <Tarjeta>
-          <TituloTarjeta ayuda="Todas las personas registradas, según su estado de hoy.">Tus clientes hoy</TituloTarjeta>
-          {estados.length === 0 ? (
-            <SinDatos porque="Todavía no hay nadie registrado. Aparecen con la primera prueba gratis." />
+        <Tarjeta indice={5}>
+          <TituloTarjeta ayuda="Separado porque se resuelve distinto: unos decidieron irse, a otros les falló el pago.">Quién se fue y por qué</TituloTarjeta>
+          {nadieSeFue ? (
+            <Lectura tono="bien">Nadie se fue este mes: ni cancelaciones, ni pagos fallidos, ni reembolsos.</Lectura>
           ) : (
             <ul className="flex flex-col gap-2">
-              {estados.map(([estado, n]) => (
-                <li key={estado} className="grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1">
-                  <span className="text-caption text-ink-1">{NOMBRE_ESTADO[estado] ?? estado}</span>
-                  <span className="text-caption font-semibold tabular-nums text-ink-1">{entero(n)}</span>
-                  <span className="col-span-2 h-1.5 rounded-full bg-sunken">
-                    <span
-                      className={`block h-full rounded-full ${estado === 'active' || estado === 'trialing' ? 'bg-green' : 'bg-[color-mix(in_oklab,var(--ink-3)_60%,transparent)]'}`}
-                      style={{ width: `${(n / maxEstado) * 100}%` }}
-                    />
+              {[
+                { t: 'Cancelaron (decidieron irse)', n: ventas.cancelaciones_voluntarias },
+                { t: 'Perdidos por pago fallido', n: ventas.perdidos_por_pago },
+                { t: 'Cobros que fallaron (aún recuperables)', n: ventas.cobros_fallidos, alerta: true },
+                { t: 'Reembolsos y contracargos', n: ventas.reembolsados },
+              ]
+                .filter((x) => x.n > 0)
+                .map((x) => (
+                  <li key={x.t} className="flex items-baseline justify-between gap-3">
+                    <span className="text-caption text-ink-1">{x.t}</span>
+                    <span className={`font-display text-xl font-extrabold tabular-nums ${x.alerta ? 'text-warning' : 'text-ink-1'}`}>{entero(x.n)}</span>
+                  </li>
+                ))}
+            </ul>
+          )}
+          {usd && usd.reembolsos_minor + usd.contracargos_minor > 0 && <p className="mt-3 text-caption text-ink-2">Devolviste {dineroMinor(usd.reembolsos_minor + usd.contracargos_minor, 'USD')} este mes.</p>}
+        </Tarjeta>
+
+        <Tarjeta indice={6}>
+          <TituloTarjeta ayuda="Todas las personas registradas, según su situación de hoy.">Tus clientes hoy</TituloTarjeta>
+          {filasClientes.length === 0 ? (
+            <SinDatos porque="Todavía no hay nadie registrado. Aparecen con la primera prueba gratis." />
+          ) : (
+            <ul className="flex flex-col gap-3">
+              {filasClientes.map((f) => (
+                <li key={f.texto} className="grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1">
+                  <span className="text-caption text-ink-1">{f.texto}</span>
+                  <span className="text-caption font-semibold tabular-nums text-ink-1">{entero(f.n)}</span>
+                  <span className="col-span-2">
+                    <Barra pct={(f.n / maxClientes) * 100} tono={f.tono} />
                   </span>
                 </li>
               ))}
             </ul>
           )}
-          {clientes.manuales > 0 && <p className="mt-3 text-caption text-ink-3">Incluye {entero(clientes.manuales)} agregados a mano (no cuentan como venta).</p>}
+          {sinAcceso > 0 && (
+            <Lectura>
+              Los {entero(sinAcceso)} que ya no tienen acceso son, sobre todo, pruebas que terminaron sin pagar.{' '}
+              <Link href="/admin/usuarios?estado=expired" className="font-semibold text-ink-1 underline underline-offset-4">
+                Verlos
+              </Link>
+            </Lectura>
+          )}
         </Tarjeta>
       </div>
 
-      <Tarjeta className="mb-4">
+      <Tarjeta className="mb-4" indice={7}>
         <TituloTarjeta ayuda="Lo que informó Hotmart, del más reciente al más antiguo.">Últimos movimientos</TituloTarjeta>
-        {cobros.length === 0 ? (
-          <SinDatos porque="Aparecen cuando Hotmart avise la primera venta." />
+        <nav aria-label="Filtrar movimientos" className="mb-2 flex flex-wrap gap-2">
+          {[
+            ['todos', 'Todos'],
+            ['devoluciones', 'Solo reembolsos'],
+          ].map(([v, t]) => (
+            <Link
+              key={v}
+              href={`/admin/ventas?mes=${periodo.param}${v === 'todos' ? '' : `&tipo=${v}`}`}
+              aria-current={tipo === v ? 'true' : undefined}
+              className={`${TOCABLE} flex min-h-11 items-center rounded-[var(--radius-pill)] border px-3 text-xs font-semibold ${tipo === v ? 'border-ink-2 bg-raised-2 text-ink-1' : 'border-[var(--line)] text-ink-2'}`}
+            >
+              {t}
+            </Link>
+          ))}
+        </nav>
+        {lista.length === 0 ? (
+          <SinDatos porque={tipo === 'devoluciones' ? 'No hubo reembolsos.' : 'Aparecen cuando Hotmart avise la primera venta.'} />
         ) : (
           <ul className="divide-y divide-[var(--line)]">
-            {cobros.map((c, i) => (
+            {lista.map((c, i) => (
               <li key={`${c.en}-${i}`} className="flex items-center justify-between gap-3 py-2">
                 <span className="min-w-0">
                   <span className="block truncate text-caption text-ink-1">{c.email ?? 'Correo no informado'}</span>
@@ -161,7 +197,7 @@ export default async function VentasPanel() {
                     {NOMBRE_COBRO[c.tipo] ?? c.tipo} · {fechaHora(c.en)}
                   </span>
                 </span>
-                <span className={`shrink-0 text-ayuda font-semibold tabular-nums ${c.tipo === 'sale' ? 'text-ink-1' : 'text-danger'}`}>
+                <span className={`shrink-0 whitespace-nowrap text-ayuda font-semibold tabular-nums ${c.tipo === 'sale' ? 'text-ink-1' : 'text-danger'}`}>
                   {c.tipo === 'sale' ? '' : '−'}
                   {dineroMinor(c.monto_minor, c.moneda)}
                 </span>
@@ -169,10 +205,15 @@ export default async function VentasPanel() {
             ))}
           </ul>
         )}
+        {clientes.manuales > 0 && (
+          <p className="mt-3 text-caption text-ink-3">
+            {entero(clientes.manuales)} {clientes.manuales === 1 ? 'persona tiene acceso regalado' : 'personas tienen acceso regalado'} por ti: no cuentan como venta.
+          </p>
+        )}
       </Tarjeta>
 
       {otras.length > 0 && (
-        <Tarjeta>
+        <Tarjeta indice={8}>
           <TituloTarjeta ayuda="No se suman a los dólares: no hay un tipo de cambio con fuente para convertirlas.">Ventas en otras monedas</TituloTarjeta>
           <ul className="flex flex-col gap-1">
             {otras.map((o) => (

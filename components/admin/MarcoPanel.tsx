@@ -5,13 +5,37 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { Menu, X } from 'lucide-react';
+import { LogOut, Menu, X } from 'lucide-react';
 import { Marca } from '@/components/app/Marca';
 import { SECCIONES } from './secciones';
 
 
+
+/** Cerrar sesión: se invalida en el SERVIDOR (26) y vuelve a la entrada del panel. */
+function Salir({ email }: { email: string }) {
+  const router = useRouter();
+  const [saliendo, setSaliendo] = useState(false);
+  return (
+    <div className="border-t border-[var(--line)] pt-3">
+      <p className="text-caption break-words text-ink-3">Entraste como {email}</p>
+      <button
+        type="button"
+        disabled={saliendo}
+        onClick={async () => {
+          setSaliendo(true);
+          await fetch('/api/acceso/salir', { method: 'POST' }).catch(() => {});
+          router.replace('/admin/entrar');
+        }}
+        className="mt-1 flex min-h-11 items-center gap-2 text-caption font-semibold text-ink-1 transition-transform duration-100 active:scale-[0.98]"
+      >
+        <LogOut size={16} aria-hidden="true" />
+        {saliendo ? 'Saliendo…' : 'Salir del panel'}
+      </button>
+    </div>
+  );
+}
 
 function activa(ruta: string, href: string) {
   return href === '/admin' ? ruta === '/admin' : ruta.startsWith(href);
@@ -28,7 +52,7 @@ function ListaSecciones({ ruta, onElegir }: { ruta: string; onElegir?: () => voi
               href={href}
               onClick={onElegir}
               aria-current={esta ? 'page' : undefined}
-              className={`flex min-h-11 items-center gap-3 rounded-[var(--radius-chip)] px-3 text-ayuda font-semibold transition-colors duration-150 ${
+              className={`flex min-h-11 items-center gap-3 rounded-[var(--radius-chip)] px-3 text-ayuda font-semibold transition-[color,background-color,transform] duration-150 active:scale-[0.98] ${
                 esta ? 'bg-[color-mix(in_oklab,var(--gold)_14%,transparent)] text-gold' : 'text-ink-2 hover:bg-raised hover:text-ink-1'
               }`}
             >
@@ -79,7 +103,9 @@ export function MarcoPanel({ email, children }: { email: string; children: React
               className="border-t border-[var(--line)] bg-raised px-4 py-3 lg:hidden"
             >
               <ListaSecciones ruta={ruta} onElegir={() => setAbierto(false)} />
-              <p className="mt-3 border-t border-[var(--line)] pt-3 text-caption text-ink-3">Entraste como {email}</p>
+              <div className="mt-3">
+                <Salir email={email} />
+              </div>
             </motion.nav>
           )}
         </AnimatePresence>
@@ -88,7 +114,9 @@ export function MarcoPanel({ email, children }: { email: string; children: React
       <div className="mx-auto flex max-w-6xl gap-8 px-4 lg:py-8">
         <nav aria-label="Secciones del panel" className="sticky top-24 hidden h-fit w-56 shrink-0 lg:block">
           <ListaSecciones ruta={ruta} />
-          <p className="mt-4 border-t border-[var(--line)] pt-4 text-caption break-words text-ink-3">Entraste como {email}</p>
+          <div className="mt-4">
+            <Salir email={email} />
+          </div>
         </nav>
         <main className="min-w-0 flex-1 pt-6 pb-16 lg:pt-0">{children}</main>
       </div>

@@ -142,6 +142,55 @@ export function periodoMes(desplazamiento = 0): { desde: Date; hasta: Date; etiq
   const etiqueta = new Intl.DateTimeFormat('es', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(desde);
   return { desde, hasta, etiqueta };
 }
+export interface PeriodoElegido {
+  desde: Date;
+  hasta: Date;
+  etiqueta: string;
+  esActual: boolean;
+  param: string;
+  anterior: string;
+  siguiente: string | null;
+  /** Contra qué se compara: los mismos días del mes pasado (mes en curso) o el mes pasado completo. */
+  comparar: { desde: Date; hasta: Date; etiqueta: string };
+  textoComparar: string;
+  /** Día del mes de hoy si es el mes en curso (para avisar que los costos fijos van completos). */
+  diaDeHoy: number | null;
+}
+
+const aParam = (d: Date) => `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
+
+/** El mes que pide la URL (?mes=2026-10), con sus vecinos para las flechas ← →. Máx. 24 meses atrás. */
+export function periodoElegido(param?: string): PeriodoElegido {
+  const hoy = new Date();
+  let desplazamiento = 0;
+  if (param && /^\d{4}-\d{2}$/.test(param)) {
+    const [a, m] = param.split('-').map(Number);
+    desplazamiento = (a - hoy.getUTCFullYear()) * 12 + (m - 1 - hoy.getUTCMonth());
+    if (desplazamiento > 0 || desplazamiento < -24) desplazamiento = 0;
+  }
+  const p = periodoMes(desplazamiento);
+  const esActual = desplazamiento === 0;
+  const mesDe = (d: number) => new Date(Date.UTC(hoy.getUTCFullYear(), hoy.getUTCMonth() + d, 1));
+  const comparar = esActual ? periodoMesHastaHoy(-1) : periodoMes(desplazamiento - 1);
+  const nombreAnterior = comparar.etiqueta.split(' ')[0];
+  return {
+    ...p,
+    esActual,
+    param: aParam(mesDe(desplazamiento)),
+    anterior: aParam(mesDe(desplazamiento - 1)),
+    siguiente: esActual ? null : aParam(mesDe(desplazamiento + 1)),
+    comparar,
+    textoComparar: esActual ? `los mismos días de ${nombreAnterior}` : nombreAnterior,
+    diaDeHoy: esActual ? hoy.getUTCDate() : null,
+  };
+}
+
+/** Fechas por defecto del formulario de gasto: del día 1 del mes actual a hoy (AAAA-MM-DD). */
+export function fechasPorDefecto(): { desde: string; hasta: string } {
+  const hoy = new Date().toISOString().slice(0, 10);
+  return { desde: `${hoy.slice(0, 8)}01`, hasta: hoy };
+}
+
 /**
  * Los mismos días ya transcurridos de un mes anterior (del 1 al día de hoy): comparar el mes en
  * curso contra un mes COMPLETO siempre haría parecer que todo cae.
@@ -387,6 +436,19 @@ export function calcularAvisos(d: { ganancia: Ganancia; ventas: Ventas; salud: S
       });
     }
   }
+  const conGasto = d.canales.filter((c) => c.gasto_usd > 0);
+  const gasto = conGasto.reduce((t, c) => t + c.gasto_usd, 0);
+  const clientesPagados = conGasto.reduce((t, c) => t + c.clientes, 0);
+  if (d.ltv !== null && clientesPagados > 0 && gasto / clientesPagados > d.ltv) {
+    avisos.push({
+      id: 'cac-ltv',
+      gravedad: 'alta',
+      titulo: `Conseguir un cliente te cuesta ${dinero(gasto / clientesPagados)} y deja unos ${dinero(d.ltv)}`,
+      porque: 'Cada cliente que pagas con anuncios te hace perder dinero, aunque el mes se vea bien.',
+      queHacer: 'Baja el gasto en anuncios o sube lo que deja cada cliente (precio, plan anual) antes de invertir más.',
+      enlace: { texto: 'Ver canales', href: '/admin/canales' },
+    });
+  }
   const peorError = s.errores_7d[0];
   if (s.errores_hoy >= 10 || (peorError && peorError.personas >= 3)) {
     avisos.push({
@@ -447,7 +509,7 @@ export interface Cobro {
   email: string | null;
 }
 
-export const FILTROS_USUARIOS = ['todos', 'activo', 'trialing', 'active', 'cancelled', 'past_due', 'expired', 'refunded', 'sin-acceso', 'vencido', 'manual'] as const;
+export const FILTROS_USUARIOS = ['todos', 'activo', 'trialing', 'active', 'sin-acceso', 'fantasma', 'cancelled', 'past_due', 'expired', 'refunded', 'vencido', 'manual'] as const;
 export type FiltroUsuarios = (typeof FILTROS_USUARIOS)[number];
 export const POR_PAGINA = 25;
 
@@ -488,4 +550,9 @@ export function accesoDe(f: Ficha): { hasta: string | null; vigente: boolean } {
   const hasta = f.estado === 'trialing' ? f.prueba_hasta : f.estado === 'past_due' ? f.gracia_hasta : f.acceso_hasta;
   const vigente = Boolean(hasta && new Date(hasta).getTime() > Date.now() && ['trialing', 'active', 'cancelled', 'past_due'].includes(f.estado));
   return { hasta, vigente };
+}
+
+/** Días desde la última pieza armada (null si nunca armó ninguna). */
+export function diasSinActividad(f: Ficha): number | null {
+  return f.ultima_actividad ? Math.floor((Date.now() - new Date(f.ultima_actividad).getTime()) / 86_400_000) : null;
 }
