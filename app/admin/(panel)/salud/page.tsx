@@ -93,23 +93,30 @@ export default async function SaludPanel() {
               ))}
           </ul>
           {fallidos.length > 0 && (
-            <ul className="mt-3 flex flex-col gap-1 rounded-[var(--radius-chip)] bg-sunken p-3">
+            <ul className="mt-3 flex flex-col divide-y divide-[var(--line)] border-t border-[var(--line)]">
               {fallidos.map((w, i) => (
-                <li key={`${w.en}-${i}`} className="text-caption text-ink-1">
-                  Aviso de {TIPO_AVISO[w.tipo ?? ''] ?? 'un pago'} · {fechaHora(w.en)}
-                  {w.resultado === 'unauthorized' && <span className="text-ink-3"> (llegó con la clave equivocada)</span>}
+                <li key={`${w.en}-${i}`} className="flex items-start gap-2 pt-2">
+                  <CircleAlert size={16} className="mt-0.5 shrink-0 text-danger" aria-hidden="true" />
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-caption font-semibold break-all text-ink-1">{w.email ?? 'Hotmart no envió el correo'}</span>
+                    <span className="block text-xs text-ink-3">
+                      Aviso de {TIPO_AVISO[w.tipo ?? ''] ?? 'un pago'} · {fechaHora(w.en)}
+                      {w.resultado === 'unauthorized' && ' · llegó con la clave equivocada'}
+                    </span>
+                    <span className="flex flex-wrap items-center gap-x-4">
+                      {w.email && <BotonCopiar texto={w.email} etiqueta="Copiar correo" />}
+                      <Link href="/admin/usuarios?agregar=1" className="inline-flex min-h-11 items-center text-caption font-semibold text-ink-1 underline underline-offset-4">
+                        Darle acceso
+                      </Link>
+                    </span>
+                  </span>
                 </li>
               ))}
             </ul>
           )}
           {fallosHotmart7d > 0 && (
-            <p className="mt-3 text-caption text-ink-2">
-              <strong className="font-semibold text-ink-1">Qué hacer:</strong> Hotmart vuelve a intentarlo solo. Si alguien te escribe que pagó y no entra, búscalo en Hotmart por esa fecha y dale
-              acceso en{' '}
-              <Link href="/admin/usuarios?agregar=1" className="font-semibold text-ink-1 underline underline-offset-4">
-                Usuarios
-              </Link>
-              .
+            <p className="mt-2 text-caption text-ink-2">
+              <strong className="font-semibold text-ink-1">Qué hacer:</strong> Hotmart vuelve a intentarlo solo. Si en un día la persona sigue sin acceso, copia su correo y dale acceso tú.
             </p>
           )}
         </>
@@ -117,7 +124,7 @@ export default async function SaludPanel() {
     </Tarjeta>
   );
   const bloqueErrores = (
-    <Tarjeta className="mb-4" indice={fallosHotmart7d > 0 ? 7 : 6}>
+    <Tarjeta className="mb-4 [&>section]:pb-1" indice={fallosHotmart7d > 0 ? 7 : 6}>
       <TituloTarjeta ayuda="Los que más se repiten primero. Copia el detalle y mándaselo a quien te ayuda con la app.">Errores de la app</TituloTarjeta>
       {s.errores_7d.length === 0 ? (
         <SinDatos porque="No hubo errores esta semana." />
@@ -185,7 +192,7 @@ export default async function SaludPanel() {
             etiqueta="Pagos que no se aplicaron"
             numero={fallosHotmart7d}
             tono={fallosHotmart7d > 0 ? 'mal' : 'bien'}
-            detalle={s.webhook_ultimo ? `Último aviso bien: ${fechaHora(s.webhook_ultimo)}` : 'Hotmart todavía no envió avisos'}
+            detalle={fallidos[0] ? `El último falló el ${fechaHora(fallidos[0].en)}` : s.webhook_ultimo ? `Todos bien · el último, ${fechaHora(s.webhook_ultimo)}` : 'Hotmart todavía no envió avisos'}
           />
         </Tarjeta>
         <Tarjeta indice={4}>

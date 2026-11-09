@@ -102,7 +102,7 @@ export interface Salud {
   /** Errores de los últimos 7 días (todos, no solo los 10 más repetidos). */
   errores_7d_total?: number;
   /** Avisos de Hotmart que fallaron en 7 días: tipo de aviso y hora. */
-  webhook_fallidos?: { tipo: string | null; resultado: string; en: string }[];
+  webhook_fallidos?: { tipo: string | null; resultado: string; en: string; email?: string | null }[];
   vencidos_sin_aviso: number;
   pagaron_sin_acceso: number;
   alertas: { clave: string; en: string }[];
@@ -233,6 +233,8 @@ export const leerFunnel = (p: { desde: Date; hasta: Date }, clave = 'panel_funne
 export const leerIa = (p: { desde: Date; hasta: Date }, clave = 'panel_ia') => rpc<Ia>('panel_ia', rango(p), clave);
 export const leerCanales = (p: { desde: Date; hasta: Date }, clave = 'panel_canales') => rpc<Canal[]>('panel_canales', rango(p), clave);
 export const leerSalud = () => rpc<Salud>('panel_salud');
+/** Cuántas personas hay en cada filtro de Usuarios (misma lógica que la lista). */
+export const leerConteosUsuarios = (buscar: string) => rpc<Record<string, number>>('panel_usuarios_conteos', { p_buscar: buscar }, 'usuarios_conteos');
 
 export async function leerAjustes(): Promise<{ impuestosPct: number; costos: CostoFijo[]; gastos: GastoCanal[] }> {
   if (ARCHIVO_CAPTURA) return datoDeCaptura('ajustes');

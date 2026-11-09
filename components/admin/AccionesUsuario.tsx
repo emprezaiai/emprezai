@@ -117,7 +117,7 @@ export function FormAgregarUsuario() {
   );
 }
 
-export function AccionesFicha({ id, puedeEnviarCorreo, conAcceso }: { id: string; puedeEnviarCorreo: boolean; conAcceso: boolean }) {
+export function AccionesFicha({ id, puedeEnviarCorreo, conAcceso, enlaceEsPrincipal = true }: { id: string; puedeEnviarCorreo: boolean; conAcceso: boolean; enlaceEsPrincipal?: boolean }) {
   const [resultado, setResultado] = useState<Resultado | null>(null);
   const [copiado, setCopiado] = useState(false);
   const [deshacer, setDeshacer] = useState<AccesoPrevio | null>(null);
@@ -146,22 +146,29 @@ export function AccionesFicha({ id, puedeEnviarCorreo, conAcceso }: { id: string
   return (
     <div>
       <div className="flex flex-wrap gap-2">
-        <button type="button" disabled={pendiente} onClick={() => correr(() => crearEnlaceAcceso(id))} className={`${TOCABLE} boton-oro flex min-h-11 items-center gap-2 rounded-[var(--radius-pill)] px-4 text-caption font-bold`}>
+        <button
+          type="button"
+          disabled={pendiente}
+          onClick={() => correr(() => crearEnlaceAcceso(id))}
+          className={enlaceEsPrincipal ? `${TOCABLE} boton-oro flex min-h-11 items-center gap-2 rounded-[var(--radius-pill)] px-4 text-caption font-bold` : secundario}
+        >
           <Copy size={16} aria-hidden="true" />
           Copiar enlace de acceso
         </button>
-        <button type="button" disabled={pendiente || !puedeEnviarCorreo} onClick={() => correr(() => reenviarAcceso(id))} className={secundario}>
-          <Mail size={16} aria-hidden="true" />
-          Reenviar acceso por correo
-        </button>
+        {puedeEnviarCorreo && (
+          <button type="button" disabled={pendiente} onClick={() => correr(() => reenviarAcceso(id))} className={secundario}>
+            <Mail size={16} aria-hidden="true" />
+            Reenviar acceso por correo
+          </button>
+        )}
       </div>
       {!puedeEnviarCorreo && <p className="mt-2 text-xs text-ink-3">Reenviar por correo se activa cuando conectemos tus correos. Mientras, usa &quot;Copiar enlace de acceso&quot;.</p>}
 
       <p className="mt-4 text-caption font-semibold text-ink-1">Extender acceso</p>
-      <div className="mt-2 flex flex-wrap gap-2">
+      <div className="mt-2 grid grid-cols-3 gap-2">
         {[7, 30, 365].map((d) => (
-          <button key={d} type="button" disabled={pendiente} onClick={() => correr(() => extenderAcceso(id, d), true)} className={secundario}>
-            <TimerReset size={16} aria-hidden="true" />+{d === 365 ? '1 año' : d === 30 ? '1 mes' : '7 días'}
+          <button key={d} type="button" disabled={pendiente} onClick={() => correr(() => extenderAcceso(id, d), true)} className={`${secundario} px-2`}>
+            <TimerReset size={16} className="shrink-0" aria-hidden="true" />+{d === 365 ? '1 año' : d === 30 ? '1 mes' : '7 días'}
           </button>
         ))}
       </div>

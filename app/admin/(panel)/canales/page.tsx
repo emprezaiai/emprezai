@@ -64,8 +64,7 @@ export default async function CanalesPanel({ searchParams }: { searchParams: Pro
             numero={vida ? vida.ltv : null}
             formato="dinero"
             decimales={2}
-            estimado={Boolean(vida)}
-            detalle={vida ? `Se queda unos ${Math.round(vida.vidaMeses)} meses, según cuántos se van cada mes` : 'Aparece con el primer cliente pagando'}
+            detalle={vida ? `Estimado: se queda unos ${Math.round(vida.vidaMeses)} meses, según cuántos se van cada mes` : 'Aparece con el primer cliente pagando'}
           />
         </Tarjeta>
       </div>
@@ -78,7 +77,7 @@ export default async function CanalesPanel({ searchParams }: { searchParams: Pro
       <Tarjeta className="mb-4" indice={4}>
         <TituloTarjeta ayuda="Ordenados de peor a mejor. Lo sano es que cada $1 que gastas vuelva como $3 o más.">Cada canal</TituloTarjeta>
         {filas.length === 0 ? (
-          <SinDatos porque="Aparecen con los primeros clientes. Para saber de dónde vienen, agrega ?sck=tiktok (o instagram, afiliado-ana…) al final de tu enlace de Hotmart en cada lugar donde lo publiques." />
+          <SinDatos porque="Aparecen con los primeros clientes. Para saber de dónde viene cada uno, usa un enlace de Hotmart distinto en cada red (pídeselos a quien te ayuda con la app)." />
         ) : (
           <ul className="flex flex-col gap-3">
             {filas.map((f, i) => {
@@ -86,19 +85,15 @@ export default async function CanalesPanel({ searchParams }: { searchParams: Pro
               return (
                 <li key={f.canal}>
                 <Entrada indice={i + 5} className="rounded-[var(--radius-chip)] bg-sunken p-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <span className="min-w-0">
-                      <span className="block font-display text-base font-bold break-words text-ink-1">{nombreCanal(f.canal)}</span>
-                      <span className="block text-caption text-ink-2">
-                        {entero(f.clientes)} {f.clientes === 1 ? 'cliente nuevo' : 'clientes nuevos'} · {entero(f.siguen)} siguen
-                        {f.cac !== null && ` · cada uno costó ${dinero(f.cac)}`}
-                      </span>
-                    </span>
-                    <span className="shrink-0 text-right">
-                      <span className={`block font-display text-xl font-extrabold ${f.v.tono}`}>{f.v.texto}</span>
-                      {f.ratio !== null && <span className="block text-xs whitespace-nowrap text-ink-3">vuelven {dinero(f.ratio)} por cada $1</span>}
-                    </span>
+                  <div className="flex flex-wrap items-baseline justify-between gap-x-3">
+                    <span className="font-display text-base font-bold break-words text-ink-1">{nombreCanal(f.canal)}</span>
+                    <span className={`font-display text-lg font-extrabold ${f.v.tono}`}>{f.v.texto}</span>
                   </div>
+                  <p className="text-caption text-ink-2">
+                    {entero(f.clientes)} {f.clientes === 1 ? 'cliente nuevo' : 'clientes nuevos'} · {entero(f.siguen)} siguen
+                    {f.cac !== null && ` · cada uno costó ${dinero(f.cac)}`}
+                    {f.ratio !== null && f.clientes > 0 && ` · vuelven ${dinero(f.ratio)} por cada $1`}
+                  </p>
                   {f.gasto_usd > 0 && (
                     <div className="mt-3 flex flex-col gap-1.5" aria-label={`Gastado ${dinero(f.gasto_usd)}; dejarían ${f.valor !== null ? dinero(f.valor) : 'sin dato'}`}>
                       <div className="grid grid-cols-[5.5rem_1fr_auto] items-center gap-2 text-xs">

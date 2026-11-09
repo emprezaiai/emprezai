@@ -95,7 +95,7 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
       <div className="mb-4 grid grid-cols-2 gap-3">
         <Tarjeta indice={2}>
           <Dato
-            etiqueta="Ingreso mensual recurrente"
+            etiqueta="Entra cada mes"
             numero={pagando > 0 ? mrr : null}
             formato="dinero"
             decimales={2}
@@ -107,7 +107,7 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
             etiqueta="Pruebas que pasaron a pago"
             numero={conversion}
             formato="pct"
-            tono={conversion !== null && conversion >= 40 ? 'bien' : 'neutro'}
+            tono={conversion !== null && conversion >= 40 && pruebasTerminadas >= 10 ? 'bien' : 'neutro'}
             detalle={conversion !== null ? `${entero(ventas.pruebas_a_pago)} de ${entero(pruebasTerminadas)} que terminaron` : `${entero(ventas.pruebas_iniciadas)} pruebas nuevas; ninguna terminó aún`}
           />
         </Tarjeta>
@@ -162,10 +162,7 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
           )}
           {sinAcceso > 0 && (
             <Lectura>
-              {entero(sinAcceso)} ya no tienen acceso: pruebas que terminaron sin pagar, cancelaciones o reembolsos.{' '}
-              <Link href="/admin/usuarios?estado=expired" className="font-semibold text-ink-1 underline underline-offset-4">
-                Verlos
-              </Link>
+              {entero(sinAcceso)} ya no tienen acceso: pruebas que terminaron sin pagar, cancelaciones o reembolsos.
             </Lectura>
           )}
         </Tarjeta>

@@ -4,7 +4,7 @@
 // nada de eso si la persona pidió menos movimiento.
 
 import { useEffect, useRef } from 'react';
-import { animate, motion, useReducedMotion } from 'motion/react';
+import { animate, useReducedMotion } from 'motion/react';
 
 /** Cada bloque entra 60 ms después del anterior. */
 export function Entrada({ indice = 0, children, className = '' }: { indice?: number; children: React.ReactNode; className?: string }) {
@@ -49,15 +49,6 @@ export function Cuenta({ valor, formato = 'entero', decimales = 0 }: { valor: nu
 
 /** Relleno de barra que crece desde 0 al aparecer (baseline 3: barras que crecen); quieto con menos movimiento. */
 export function Llenado({ pct, className, indice = 0 }: { pct: number; className: string; indice?: number }) {
-  const reduce = useReducedMotion();
-  const ancho = `${Math.min(100, Math.max(0, pct))}%`;
-  return (
-    <motion.span
-      className={`block h-full rounded-full ${className}`}
-      initial={{ width: reduce ? ancho : '0%' }}
-      whileInView={{ width: ancho }}
-      viewport={{ once: true }}
-      transition={{ duration: reduce ? 0 : 0.6, delay: reduce ? 0 : 0.1 + indice * 0.05, ease: [0.16, 1, 0.3, 1] }}
-    />
-  );
+  // El ancho final viene en el HTML (se ve aunque el JavaScript tarde); la animación es solo CSS.
+  return <span className={`panel-crecer block h-full rounded-full ${className}`} style={{ width: `${Math.min(100, Math.max(0, pct))}%`, animationDelay: `${150 + indice * 50}ms` }} />;
 }

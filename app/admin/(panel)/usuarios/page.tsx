@@ -3,15 +3,15 @@
 // la lista con el estado como chip bajo el nombre.
 
 import Link from 'next/link';
-import Form from 'next/form';
-import { ChevronDown, ChevronLeft, ChevronRight, Search, UserPlus } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, UserPlus } from 'lucide-react';
+import { BuscadorUsuarios } from '@/components/admin/BuscadorUsuarios';
 import { FormAgregarUsuario } from '@/components/admin/AccionesUsuario';
 import { ChipFiltro } from '@/components/admin/ChipFiltro';
 import { estadoVisible } from '@/components/admin/estados';
 import { Entrada } from '@/components/admin/movimiento';
 import { Encabezado, SinDatos, TOCABLE, Tarjeta, TituloTarjeta } from '@/components/admin/ui';
 import { entero, fechaCorta } from '@/lib/panel-formato';
-import { FILTROS_USUARIOS, POR_PAGINA, leerUsuarios, type FiltroUsuarios } from '@/lib/servidor/panel';
+import { FILTROS_USUARIOS, POR_PAGINA, leerConteosUsuarios, leerUsuarios, type FiltroUsuarios } from '@/lib/servidor/panel';
 
 const ETIQUETA_FILTRO: Record<FiltroUsuarios, string> = {
   todos: 'Todos',
@@ -34,7 +34,7 @@ export default async function UsuariosPanel({ searchParams }: { searchParams: Pr
   const buscar = (sp.q ?? '').trim();
   const estado = (FILTROS_USUARIOS as readonly string[]).includes(sp.estado ?? '') ? (sp.estado as FiltroUsuarios) : 'todos';
   const pagina = Math.max(1, Number(sp.pagina) || 1);
-  const { total, filas } = await leerUsuarios(buscar, estado, pagina);
+  const [{ total, filas }, conteos] = await Promise.all([leerUsuarios(buscar, estado, pagina), leerConteosUsuarios(buscar)]);
   const paginas = Math.max(1, Math.ceil(total / POR_PAGINA));
   const enlace = (cambios: Record<string, string | number | undefined>) => {
     const p = new URLSearchParams();
@@ -44,7 +44,7 @@ export default async function UsuariosPanel({ searchParams }: { searchParams: Pr
     return `/admin/usuarios${qs ? `?${qs}` : ''}`;
   };
   const chip = (f: FiltroUsuarios) => (
-    <ChipFiltro key={f} href={enlace({ estado: f === 'todos' ? undefined : f })} activo={estado === f}>
+    <ChipFiltro key={f} href={f === 'todos' ? '/admin/usuarios' : enlace({ estado: f })} activo={estado === f && (f !== 'todos' || !buscar)} cuenta={conteos[f]}>
       {ETIQUETA_FILTRO[f]}
     </ChipFiltro>
   );
@@ -59,7 +59,7 @@ export default async function UsuariosPanel({ searchParams }: { searchParams: Pr
 
       <Entrada indice={1} className="mb-4">
         <details id="agregar" className="group" open={sp.agregar === '1'}>
-          <summary className={`${TOCABLE} boton-oro flex h-12 w-full cursor-pointer list-none items-center justify-center gap-2 rounded-[var(--radius-pill)] px-5 font-display text-base font-bold sm:w-auto sm:justify-start [&::-webkit-details-marker]:hidden`}>
+          <summary className={`${TOCABLE} boton-oro flex h-12 w-full cursor-pointer list-none items-center justify-center gap-2 rounded-[var(--radius-pill)] px-5 font-display text-base font-bold sm:inline-flex sm:w-auto [&::-webkit-details-marker]:hidden`}>
             <UserPlus size={18} aria-hidden="true" />
             Dar acceso a alguien
             <ChevronDown size={16} className="transition-transform group-open:rotate-180" aria-hidden="true" />
@@ -72,22 +72,7 @@ export default async function UsuariosPanel({ searchParams }: { searchParams: Pr
       </Entrada>
 
       <Tarjeta className="mb-4" indice={1}>
-        <Form action="/admin/usuarios" className="flex gap-2" role="search">
-          {estado !== 'todos' && <input type="hidden" name="estado" value={estado} />}
-          <label className="relative min-w-0 flex-1">
-            <span className="sr-only">Buscar por correo o nombre</span>
-            <Search size={18} className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-ink-3" aria-hidden="true" />
-            <input
-              name="q"
-              defaultValue={buscar}
-              placeholder="Correo o nombre"
-              className="h-12 w-full rounded-[var(--radius-pill)] border border-[color-mix(in_oklab,var(--ink-3)_45%,transparent)] bg-sunken pr-4 pl-11 text-base text-ink-1 placeholder:text-ink-3 focus:border-ink-2 focus:outline-none"
-            />
-          </label>
-          <button type="submit" className={`${TOCABLE} opcion-recorrido min-h-12 shrink-0 px-5 text-caption font-semibold text-ink-1`}>
-            Buscar
-          </button>
-        </Form>
+        <BuscadorUsuarios key={`${buscar}|${estado}`} inicial={buscar} estado={estado} />
         <nav aria-label="Filtrar por estado" className="mt-3 flex flex-wrap gap-2">
           {PRINCIPALES.map(chip)}
         </nav>
@@ -101,7 +86,7 @@ export default async function UsuariosPanel({ searchParams }: { searchParams: Pr
 
       <Tarjeta className="mb-4" indice={2}>
         {filas.length === 0 ? (
-          <SinDatos porque={buscar || estado !== 'todos' ? 'Nadie coincide con este filtro. Prueba con otra búsqueda.' : 'Todavía no hay usuarios. Aparecen con la primera prueba gratis o si das acceso a alguien abajo.'} />
+          <SinDatos porque={buscar || estado !== 'todos' ? 'Nadie coincide con este filtro. Prueba con otra búsqueda.' : 'Todavía no hay usuarios. Aparecen con la primera prueba gratis o si das acceso a alguien con el botón de arriba.'} />
         ) : (
           <ul className="divide-y divide-[var(--line)]">
             {filas.map((u) => {

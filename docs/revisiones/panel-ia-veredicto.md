@@ -1,9 +1,9 @@
 # VEREDICTO revisor-visual — panel-ia
-Fecha: 2026-11-09 18:00
+Fecha: 2026-11-09 21:00
 Screenshot: docs/revisiones/panel/ia-375.png
-Usabilidad: 28/40
-Craft: 13/20
+Usabilidad: 31/40
+Craft: 14/20
 Copy (si vende): N-A
 Fidelidad (si hubo referencia): N-A
 Veredicto: NO LISTA
-Top defectos: 1) [Tarjeta "Topes de gasto", app/admin/(panel)/ia/page.tsx línea 69] "Si quieres cambiar los topes, pídemelo": la voz es la del desarrollador/agente, no la del panel; la dueña no sabe a quién se refiere ni puede hacerlo desde aquí → "Para cambiar los topes, escríbele a quien mantiene tu app" (o un control en Ajustes). 2) [Por función, "Opciones de cada misión", línea 113] "$0,000 cada uno" a 3 decimales: parece gratis o un error → mostrar "menos de $0,001 cada uno" cuando redondea a 0. 3) [KPI "La pieza gratis costó $0,39" + fila "Pieza 1 gratis $0,39"] el mismo dato dos veces en la misma pantalla (defecto de la ronda 1 sin corregir) → quitar el KPI y en su lugar poner "Hoy $0,14" o el costo por uso promedio. 4) [Pantalla completa] sigue sin tendencia: no se ve si el gasto sube día a día (pedido en la ronda 1) → mini-barras por día del mes con GraficoBarrasDia en el héroe o bajo "Topes". 5) [Movimiento, components/admin/ui.tsx Barra] las barras de topes y de función aparecen llenas y estáticas; es la pantalla sin un solo gráfico animado → animar width de Barra (spring, reduced-motion) para cumplir la baseline 3.
+Top defectos: 1) [Tarjeta "Gasto día por día", components/admin/Graficos.tsx GraficoGastoDia líneas 44-65] 9 barras casi iguales sin un solo valor visible (sin etiqueta, sin eje, sin promedio): solo se lee tocando; incumple "label directo sobre el dato" (17) → etiqueta sobre la barra más alta y una línea de lectura ("Promedio $0,11 por día; el más alto, el 4 nov con $0,13"). 2) [Por función, components/admin/movimiento.tsx Llenado] las 3 barras salen vacías en la captura (las de "Topes", que están arriba, sí se ven): Llenado arranca en 0% y depende de whileInView → animación CSS con el ancho final en el HTML, y recapturar. 3) [Tooltip del gráfico diario, Graficos.tsx línea 56] muestra "0,113" sin signo de moneda, a 3 decimales → dinero(v, 2) o cadaUso(). 4) [KPI "Usos de la IA 276 · Todos respondieron bien"] el porcentaje de fallos está bien resuelto, pero "Por cliente que la usa $0,019" a 3 decimales sigue siendo un número que la dueña no sabe juzgar → añadir la referencia ("de $9,99 que paga: 0,2%"). 5) [Movimiento] el gráfico diario usa gris ink-2 al 70%, el mismo tono que las barras de reparto: no hay nada que marque "hoy" ni un día disparado → día de hoy resaltado y en ámbar los días que superen 2× el promedio.

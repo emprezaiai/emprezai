@@ -115,11 +115,11 @@ export default async function InicioPanel({ searchParams }: { searchParams: Prom
         </Tarjeta>
         <Tarjeta indice={4} href={`/admin/ventas?mes=${periodo.param}`}>
           <Dato
-            etiqueta="Ingreso mensual recurrente"
+            etiqueta="Entra cada mes"
             numero={pagando > 0 ? mrr : null}
             formato="dinero"
             decimales={2}
-            detalle={pagando > 0 ? 'A precio de lista; el anual cuenta 1/12 por mes' : 'Aparece con el primer cliente pagando'}
+            detalle={pagando > 0 ? 'Si nadie cancela (el plan anual, dividido en 12)' : 'Aparece con el primer cliente pagando'}
           />
         </Tarjeta>
         <Tarjeta indice={5} href={`/admin/ia?mes=${periodo.param}`}>
@@ -147,7 +147,7 @@ export default async function InicioPanel({ searchParams }: { searchParams: Prom
       </div>
 
       <Tarjeta indice={7}>
-        <TituloTarjeta ayuda="Barra apagada: lo que facturaste. Dorada: lo que te quedó después de todos los costos.">Últimos 6 meses</TituloTarjeta>
+        <TituloTarjeta ayuda="Lo que te quedó cada mes después de todos los costos.">Últimos 6 meses</TituloTarjeta>
         {hayHistoria ? (
           <>
             <GraficoMeses datos={meses} />

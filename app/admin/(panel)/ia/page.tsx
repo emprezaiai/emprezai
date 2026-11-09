@@ -106,7 +106,11 @@ export default async function IaPanel({ searchParams }: { searchParams: Promise<
 
       {ia.por_dia && ia.por_dia.some((d) => d.usd > 0) && (
         <Tarjeta className="mb-4" indice={5}>
-          <TituloTarjeta ayuda="Si un día se dispara, mira abajo quién la usó más.">Gasto día por día</TituloTarjeta>
+          <TituloTarjeta ayuda="La línea punteada es tu promedio. Un día en ámbar gastó más del doble: mira abajo quién la usó más.">Gasto día por día</TituloTarjeta>
+          <p className="mb-2 text-caption text-ink-2">
+            Promedio <strong className="font-semibold text-ink-1 tabular-nums">{dinero(ia.total_usd / ia.por_dia.length, 2)}</strong> por día · el día más caro{' '}
+            <strong className="font-semibold text-ink-1 tabular-nums">{dinero(Math.max(...ia.por_dia.map((d) => d.usd)), 2)}</strong>
+          </p>
           <GraficoGastoDia datos={ia.por_dia} />
         </Tarjeta>
       )}

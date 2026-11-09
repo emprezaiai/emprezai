@@ -124,7 +124,8 @@ export function EntrarPanel() {
         </Entrada>
 
         <Entrada indice={1} key={`titulo-${paso}`}>
-          <h1 className="mt-6 font-display text-pregunta font-extrabold text-ink-1">{paso === 'correo' ? 'Entra a tu panel' : 'Revisa tu correo'}</h1>
+          <span aria-hidden="true" className="rayo-marca mt-6" />
+          <h1 className="mt-3 font-display text-pregunta font-extrabold text-ink-1">{paso === 'correo' ? 'Entra a tu panel' : 'Revisa tu correo'}</h1>
           <p className="mt-2 text-ayuda text-ink-2">
             {paso === 'correo' ? (
               <>
@@ -132,7 +133,7 @@ export function EntrarPanel() {
               </>
             ) : (
               <>
-                Si <strong className="font-semibold [overflow-wrap:anywhere] text-ink-1">{email}</strong> es el correo del panel, ya te llegaron un enlace y un código. Toca el enlace o escribe el código aquí.
+                Te mandamos un enlace y un código a <strong className="font-semibold [overflow-wrap:anywhere] text-ink-1">{email}</strong>. Toca el enlace o escribe el código aquí.
               </>
             )}
           </p>
@@ -189,7 +190,7 @@ export function EntrarPanel() {
                   setCodigo(e.target.value.replace(/\D/g, '').slice(0, 8));
                   setError('');
                 }}
-                placeholder="Solo números"
+                placeholder="Los números del correo"
                 aria-invalid={Boolean(error)}
                 className={`${CAMPO} text-center font-display text-xl font-bold tracking-[0.3em] tabular-nums placeholder:font-sans placeholder:text-base placeholder:font-normal placeholder:tracking-normal`}
               />
@@ -208,7 +209,8 @@ export function EntrarPanel() {
                 {cargando ? <LoaderCircle size={20} className="motion-safe:animate-spin" aria-hidden="true" /> : <KeyRound size={20} aria-hidden="true" />}
                 {cargando ? 'Revisando…' : 'Entrar con el código'}
               </button>
-              <div className="mt-2 flex items-center justify-between gap-3">
+              <p className="mt-3 text-caption text-ink-3">¿No llegó? Revisa las carpetas de Spam o Promociones.</p>
+              <div className="flex items-center justify-between gap-3">
                 <button type="button" onClick={reenviar} disabled={espera > 0} className="flex min-h-11 items-center text-caption font-semibold text-ink-1 underline underline-offset-4 disabled:text-ink-3 disabled:no-underline">
                   {espera > 0 ? `Reenviar en ${espera} s` : 'Reenviar el correo'}
                 </button>

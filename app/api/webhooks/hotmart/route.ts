@@ -32,8 +32,9 @@ const VENTANA_MS = 7 * 86_400_000;
 
 type Resultado = 'applied' | 'duplicate' | 'illegal' | 'unauthorized' | 'rejected' | 'ignored' | 'error';
 
-async function registrar(eventId: string | null, tipo: string | null, result: Resultado) {
-  const { error } = await clienteAdmin().from('webhook_log').insert({ event_id: eventId, type: tipo, result });
+/** Registra el resultado del aviso. En los FALLOS guarda el correo del comprador (el panel muestra a quién darle acceso). */
+async function registrar(eventId: string | null, tipo: string | null, result: Resultado, email: string | null = null) {
+  const { error } = await clienteAdmin().from('webhook_log').insert({ event_id: eventId, type: tipo, result, email: result === 'error' ? email : null });
   if (error) console.error('[hotmart/log]', error.code);
 }
 
@@ -175,7 +176,7 @@ export async function POST(req: Request) {
         await darAccesoTrasCompra(email);
       } catch (e) {
         console.error('[hotmart/acceso]', e instanceof Error ? e.name : 'error');
-        await registrar(eventId, p.event, 'error');
+        await registrar(eventId, p.event, 'error', email);
         return json(200, { received: true, result: 'applied-acceso-pendiente' });
       }
     }
@@ -183,7 +184,7 @@ export async function POST(req: Request) {
     return json(200, { received: true, result: 'applied' });
   } catch (e) {
     console.error('[hotmart]', p.event, e instanceof Error ? e.name : 'error');
-    await registrar(eventId, p.event, 'error');
+    await registrar(eventId, p.event, 'error', email);
     return json(500, { error: 'processing failed' });
   }
 }

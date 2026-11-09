@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { ArrowRight, ChevronLeft, ChevronRight, CircleAlert, CircleCheck, Info, TriangleAlert } from 'lucide-react';
 import type { Aviso, PeriodoElegido } from '@/lib/servidor/panel';
 import { Cuenta, Entrada, Llenado, type Formato } from './movimiento';
+import { FlechaMes } from './ChipFiltro';
 
 /** Respuesta al tocar de todo lo tocable del panel (tap < 150 ms). */
 export const TOCABLE = 'transition-transform duration-100 active:scale-[0.98]';
@@ -23,20 +24,19 @@ export function Encabezado({ titulo, periodo, children }: { titulo: string; peri
 
 /** ← mes anterior · mes · mes siguiente → (regla UX 13: vista con fechas reales y navegación). */
 export function SelectorMes({ periodo, ruta }: { periodo: PeriodoElegido; ruta: string }) {
-  const flecha = `${TOCABLE} flex size-11 items-center justify-center rounded-full border border-[var(--line)] text-ink-1 hover:bg-raised`;
   return (
     <nav aria-label="Cambiar de mes" className="mb-6 flex items-center gap-2">
-      <Link href={`${ruta}?mes=${periodo.anterior}`} className={flecha} aria-label="Mes anterior">
+      <FlechaMes href={`${ruta}?mes=${periodo.anterior}`} etiqueta="Mes anterior">
         <ChevronLeft size={18} aria-hidden="true" />
-      </Link>
+      </FlechaMes>
       <span className="min-w-0 flex-1 text-center text-ayuda font-semibold text-ink-1 first-letter:uppercase">
         {periodo.etiqueta}
         {periodo.diaDeHoy && <span className="block text-xs font-normal text-ink-3">va en el día {periodo.diaDeHoy}</span>}
       </span>
       {periodo.siguiente ? (
-        <Link href={periodo.esActual ? ruta : `${ruta}?mes=${periodo.siguiente}`} className={flecha} aria-label="Mes siguiente">
+        <FlechaMes href={periodo.esActual ? ruta : `${ruta}?mes=${periodo.siguiente}`} etiqueta="Mes siguiente">
           <ChevronRight size={18} aria-hidden="true" />
-        </Link>
+        </FlechaMes>
       ) : (
         <span aria-hidden="true" className="flex size-11 items-center justify-center rounded-full border border-[var(--line)] text-ink-3 opacity-40">
           <ChevronRight size={18} />
@@ -66,7 +66,7 @@ export function Tarjeta({
   return (
     <Entrada indice={indice} className={className}>
       {href ? (
-        <Link href={href} className={`${clase} ${TOCABLE} group relative block hover:bg-raised`}>
+        <Link href={href} className={`${clase} ${TOCABLE} group relative block pr-8 hover:bg-raised`}>
           <ChevronRight size={16} className="absolute top-4 right-3 text-ink-3 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
           {children}
         </Link>
@@ -130,6 +130,7 @@ export function Dato({
   detalle,
   tono = 'neutro',
   estimado = false,
+  reservar = true,
 }: {
   etiqueta: string;
   /** Texto ya formateado (para valores que no son un número, como una fecha). */
@@ -141,11 +142,13 @@ export function Dato({
   detalle?: React.ReactNode;
   tono?: Tono;
   estimado?: boolean;
+  /** Reserva 2 líneas para la etiqueta (alinea los números en cuadrículas de 2 columnas). */
+  reservar?: boolean;
 }) {
   const sinDato = numero === null || (numero === undefined && (valor === null || valor === undefined));
   return (
     <div className="flex min-w-0 flex-col">
-      <p className="line-clamp-2 min-h-[2lh] text-caption font-semibold text-ink-2">{etiqueta}</p>
+      <p className={`line-clamp-2 text-caption font-semibold text-ink-2 ${reservar ? 'min-h-[2lh]' : ''}`}>{etiqueta}</p>
       {sinDato ? (
         <p className="mt-1 font-display text-precio font-extrabold text-ink-3">Sin datos</p>
       ) : (

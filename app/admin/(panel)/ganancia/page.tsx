@@ -12,15 +12,11 @@ import { calcularGanancia, calcularMrr, leerAjustes, leerClientes, leerIa, leerV
 // Colores con significado para la barra: lo que queda en dorado (el dato principal), los costos en
 // tonos neutros escalonados y lo devuelto en rojo.
 // (Cada costo con un tono que se distingue: claro, gris medio, ámbar, turquesa apagado, gris oscuro.)
-const COLOR = {
-  queda: 'var(--gold)',
-  hotmart: 'var(--ink-1)',
-  afiliados: 'var(--ink-3)',
-  impuestos: 'var(--warning)',
-  ia: 'color-mix(in oklab, var(--marca-ai) 65%, var(--ink-3))',
-  fijos: 'color-mix(in oklab, var(--ink-3) 40%, var(--surface-raised-2))',
-  devuelto: 'var(--danger)',
-};
+// Los costos van en grises que se aclaran según su tamaño (el más grande, el más visible); el dorado
+// es solo lo que queda y el rojo, lo devuelto. Bajo la barra, cada tramo con su nombre y su %.
+const GRISES = ['var(--ink-2)', 'color-mix(in oklab, var(--ink-2) 62%, var(--surface-raised-2))', 'color-mix(in oklab, var(--ink-3) 55%, var(--surface-raised-2))', 'color-mix(in oklab, var(--ink-3) 35%, var(--surface-raised-2))', 'color-mix(in oklab, var(--ink-3) 22%, var(--surface-raised-2))'];
+const QUEDA = 'var(--gold)';
+const DEVUELTO = 'var(--danger)';
 const monto = (n: number) => (Math.abs(n) < 0.005 ? dinero(0) : dinero(-n));
 
 export default async function GananciaPanel({ searchParams }: { searchParams: Promise<{ mes?: string }> }) {
@@ -48,6 +44,10 @@ export default async function GananciaPanel({ searchParams }: { searchParams: Pr
     { id: 'devuelto', texto: 'Reembolsos', v: g.devuelto },
   ] as const;
   const mayor = [...tramos].sort((a, b) => b.v - a.v)[0];
+  const ordenCostos = tramos.filter((t) => t.id !== 'devuelto').sort((a, b) => b.v - a.v).map((t) => t.id);
+  const COLOR: Record<string, string> = { queda: QUEDA, devuelto: DEVUELTO };
+  ordenCostos.forEach((id, i) => (COLOR[id] = GRISES[Math.min(i, GRISES.length - 1)]));
+  const leyenda = [{ id: 'queda', texto: 'Te queda', v: Math.max(0, g.ganancia) }, ...tramos].filter((t) => t.v > 0.005);
   const deCadaDolar = g.bruto > 0 ? Math.round((mayor.v / g.bruto) * 100) : 0;
 
   return (
@@ -71,9 +71,17 @@ export default async function GananciaPanel({ searchParams }: { searchParams: Pr
 
             {/* Adónde se va cada dólar */}
             <div className="panel-crecer mt-4 flex h-3 w-full overflow-hidden rounded-full bg-sunken" role="img" aria-label={`De cada dólar: te quedan ${pct(Math.max(0, (g.ganancia / g.bruto) * 100))}, el resto se va en costos.`}>
-              {g.ganancia > 0 && <span style={{ width: `${(g.ganancia / g.bruto) * 100}%`, background: COLOR.queda }} />}
+              {g.ganancia > 0 && <span style={{ width: `${(g.ganancia / g.bruto) * 100}%`, background: QUEDA }} />}
               {tramos.map((t) => t.v > 0 && <span key={t.id} style={{ width: `${(t.v / g.bruto) * 100}%`, background: COLOR[t.id] }} />)}
             </div>
+            <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-ink-2">
+              {leyenda.map((t) => (
+                <li key={t.id} className="inline-flex items-center gap-1.5">
+                  <span aria-hidden="true" className="size-2 rounded-full" style={{ background: COLOR[t.id] }} />
+                  {t.texto} <span className="font-semibold text-ink-1 tabular-nums">{pct((t.v / g.bruto) * 100)}</span>
+                </li>
+              ))}
+            </ul>
             <Lectura tono={g.ganancia >= 0 ? 'neutro' : 'mal'}>
               Tu mayor costo es <strong className="font-semibold text-ink-1">{mayor.texto.toLowerCase()}</strong>: {deCadaDolar} de cada 100 dólares que facturas.
             </Lectura>
@@ -90,7 +98,7 @@ export default async function GananciaPanel({ searchParams }: { searchParams: Pr
       </Tarjeta>
 
       <Tarjeta className="mb-4" indice={2}>
-        <TituloTarjeta ayuda="En dólares. Todo es real (lo informó Hotmart o lo midió la app), salvo lo marcado como estimado. El punto es el color de la barra de arriba.">La cuenta, paso a paso</TituloTarjeta>
+        <TituloTarjeta ayuda="En dólares. Todo es real, salvo lo marcado como estimado.">La cuenta, paso a paso</TituloTarjeta>
         <div className="divide-y divide-[var(--line)]">
           <FilaMonto concepto="Facturaste" monto={dinero(g.bruto)} nota={g.ventas > 0 ? `${entero(g.ventas)} ${g.ventas === 1 ? 'cobro' : 'cobros'} de Hotmart` : 'Sin cobros todavía'} />
           <FilaMonto concepto="Reembolsos y contracargos" color={COLOR.devuelto} monto={monto(g.devuelto)} apagada={g.devuelto < 0.005} />

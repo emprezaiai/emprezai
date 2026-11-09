@@ -8,7 +8,7 @@ import { ChevronLeft, CircleAlert, Mail, TriangleAlert } from 'lucide-react';
 import { BotonCopiar } from '@/components/admin/BotonCopiar';
 import { AccionesFicha } from '@/components/admin/AccionesUsuario';
 import { NOMBRE_ESTADO, estadoVisible } from '@/components/admin/estados';
-import { Entrada } from '@/components/admin/movimiento';
+import { Cuenta, Entrada } from '@/components/admin/movimiento';
 import { SinDatos, TOCABLE, Tarjeta, TituloTarjeta } from '@/components/admin/ui';
 import { dinero, dineroMinor, entero, fechaCorta, fechaHora, nombreCanal } from '@/lib/panel-formato';
 import { accesoDe, diasSinActividad, leerFicha } from '@/lib/servidor/panel';
@@ -34,10 +34,20 @@ export default async function FichaUsuario({ params }: { params: Promise<{ id: s
   const primerPago = ventas.reduce<string | null>((min, p) => (min === null || p.en < min ? p.en : min), null);
   const nombrePago = (tipo: string, en: string) => (tipo === 'sale' ? (en === primerPago ? 'Primer pago' : 'Renovación') : (NOMBRE_COBRO[tipo] ?? tipo));
   const extra = [f.plan && `plan ${f.plan}`, f.origen === 'manual' ? 'lo agregaste tú' : f.canal ? `llegó desde ${nombreCanal(f.canal)}` : null].filter(Boolean).join(' · ');
+  const mailto = `mailto:${f.email}?subject=${encodeURIComponent('Tu ruta en EMPREZAI')}&body=${encodeURIComponent(`Hola ${primerNombre}, ¿cómo vas con tu negocio? Te escribo porque hace unos días no entras a EMPREZAI. ¿Te puedo ayudar con algo?`)}`;
   const contacto = (
     <span className="flex flex-wrap items-center gap-x-4">
-      <a href={`mailto:${f.email}`} className={`${TOCABLE} inline-flex min-h-11 items-center gap-1 text-caption font-semibold text-ink-1 underline underline-offset-4`}>
+      <a href={mailto} className={`${TOCABLE} inline-flex min-h-11 items-center gap-1 text-caption font-semibold text-ink-1 underline underline-offset-4`}>
         <Mail size={14} aria-hidden="true" /> Escribirle por correo
+      </a>
+      <BotonCopiar texto={f.email} etiqueta="Copiar correo" />
+    </span>
+  );
+  // Si paga y no entra, la acción principal es escribirle (botón dorado dentro del aviso).
+  const contactoPrincipal = (
+    <span className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+      <a href={mailto} className={`${TOCABLE} boton-oro inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-pill)] px-4 text-caption font-bold`}>
+        <Mail size={16} aria-hidden="true" /> Escribirle por correo
       </a>
       <BotonCopiar texto={f.email} etiqueta="Copiar correo" />
     </span>
@@ -80,7 +90,7 @@ export default async function FichaUsuario({ params }: { params: Promise<{ id: s
               ) : (
                 <>
                   <strong className="font-semibold">Paga y no entra desde hace {sinVenir} días.</strong> Escríbele hoy a {primerNombre}: es el cliente más fácil de recuperar antes de que cancele.
-                  <div className="mt-1">{contacto}</div>
+                  {contactoPrincipal}
                 </>
               )}
             </div>
@@ -93,7 +103,11 @@ export default async function FichaUsuario({ params }: { params: Promise<{ id: s
         {f.ultima_actividad ? (
           <>
             <p className={`mt-1 font-display text-4xl leading-none font-extrabold ${fantasma ? 'text-danger' : 'text-ink-1'}`}>
-              {sinVenir === 0 ? 'Hoy' : sinVenir === 1 ? 'Ayer' : `Hace ${sinVenir} días`}
+              {sinVenir === 0 ? 'Hoy' : sinVenir === 1 ? 'Ayer' : (
+                <>
+                  Hace <Cuenta valor={sinVenir ?? 0} /> días
+                </>
+              )}
             </p>
             <p className="mt-2 text-caption text-ink-2">
               El {fechaCorta(f.ultima_actividad)}
@@ -128,7 +142,7 @@ export default async function FichaUsuario({ params }: { params: Promise<{ id: s
 
       <Tarjeta className="mb-4" indice={6}>
         <TituloTarjeta ayuda="Cada acción queda registrada con fecha y hora.">Acciones</TituloTarjeta>
-        <AccionesFicha id={f.id} conAcceso={conAcceso} puedeEnviarCorreo={Boolean(leerVariable('RESEND_API_KEY') && leerVariable('EMAIL_FROM'))} />
+        <AccionesFicha id={f.id} conAcceso={conAcceso} enlaceEsPrincipal={!fantasma} puedeEnviarCorreo={Boolean(leerVariable('RESEND_API_KEY') && leerVariable('EMAIL_FROM'))} />
       </Tarjeta>
 
       <div className="grid gap-3 lg:grid-cols-2">

@@ -5,7 +5,7 @@
 // "Quitado · Deshacer" durante 8 s (se vuelve a agregar igual), y todo resultado se ve en pantalla.
 
 import { useActionState, useEffect, useState, useTransition } from 'react';
-import { Check, LoaderCircle, Trash2 } from 'lucide-react';
+import { Check, LoaderCircle, Plus, Trash2 } from 'lucide-react';
 import { agregarCosto, agregarGasto, borrarCosto, borrarGasto, guardarImpuestos, type Resultado } from '@/app/admin/(panel)/acciones';
 import { dinero, fechaCorta, nombreCanal } from '@/lib/panel-formato';
 import type { CostoFijo, GastoCanal } from '@/lib/servidor/panel';
@@ -17,7 +17,7 @@ const ETIQUETA = 'text-caption font-semibold text-ink-1';
 function Aviso({ r }: { r: Resultado | null }) {
   if (!r) return null;
   return (
-    <p role="status" className={`mt-2 text-caption ${r.ok ? 'text-green' : 'text-danger'}`}>
+    <p role="status" className={`panel-entrar mt-2 text-caption ${r.ok ? 'text-green' : 'text-danger'}`}>
       {r.mensaje}
     </p>
   );
@@ -69,7 +69,7 @@ function useQuitarConDeshacer<T extends { id: number }>(quitar: (id: number) => 
 
 function BarraDeshacer({ texto, onDeshacer, pendiente }: { texto: string; onDeshacer: () => void; pendiente: boolean }) {
   return (
-    <div role="status" className="mt-2 flex min-h-11 items-center justify-between gap-3 rounded-[var(--radius-chip)] bg-sunken px-3 text-caption text-ink-1">
+    <div role="status" className="panel-entrar mt-2 flex min-h-11 items-center justify-between gap-3 rounded-[var(--radius-chip)] bg-sunken px-3 text-caption text-ink-1">
       <span className="min-w-0 truncate">{texto}</span>
       <button type="button" onClick={onDeshacer} disabled={pendiente} className="min-h-11 shrink-0 font-semibold text-ink-1 underline underline-offset-4">
         Deshacer
@@ -147,7 +147,12 @@ export function ListaCostos({ costos }: { costos: CostoFijo[] }) {
       )}
       {q.quitado ? <BarraDeshacer texto={`Quitado: ${q.quitado.nombre}`} onDeshacer={q.deshacer} pendiente={q.pendiente} /> : <Aviso r={q.r} />}
 
-      <form action={accion} className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-end">
+      <details className="group mt-3" open={visibles.length === 0}>
+        <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1.5 text-caption font-semibold text-ink-1 [&::-webkit-details-marker]:hidden">
+          <Plus size={16} className="transition-transform group-open:rotate-45" aria-hidden="true" />
+          Agregar un costo
+        </summary>
+      <form action={accion} className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-end">
         <label className="flex flex-1 flex-col gap-1">
           <span className={ETIQUETA}>Qué pagas</span>
           <input name="nombre" required placeholder="Ej.: Vercel Pro" className={CAMPO} />
@@ -158,6 +163,7 @@ export function ListaCostos({ costos }: { costos: CostoFijo[] }) {
         </label>
         <BotonGuardar enviando={enviando} texto="Agregar" />
       </form>
+      </details>
       <Aviso r={r} />
     </div>
   );
@@ -167,13 +173,18 @@ export function ListaGastos({ gastos, canales, desde, hasta }: { gastos: GastoCa
   const [r, accion, enviando] = useActionState(agregarGasto, null);
   const q = useQuitarConDeshacer<GastoCanal>(borrarGasto, (g) => agregarGasto(null, formDe({ canal: g.canal, monto: g.monto_usd, desde: g.desde, hasta: g.hasta, nota: g.nota })));
   const [elegido, setElegido] = useState(canales[0] ?? 'otro');
+  const [inicio, setInicio] = useState(desde);
+  // Agrupados por mes (por la fecha de inicio), del más reciente al más antiguo.
+  const mesDe = (fecha: string) => new Intl.DateTimeFormat('es', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${fecha}T12:00:00Z`));
   const visibles = gastos.filter((g) => g.id !== q.quitado?.id);
   return (
     <div>
       {visibles.length > 0 ? (
         <ul className="divide-y divide-[var(--line)]">
-          {visibles.map((g) => (
-            <li key={g.id} className="flex items-center justify-between gap-3 py-1">
+          {visibles.map((g, i) => (
+            <li key={g.id} className="py-1">
+              {(i === 0 || mesDe(visibles[i - 1].desde) !== mesDe(g.desde)) && <p className="pt-2 pb-1 text-xs font-semibold tracking-[0.08em] text-ink-3 uppercase">{mesDe(g.desde)}</p>}
+              <div className="flex items-center justify-between gap-3">
               <span className="min-w-0">
                 <span className="block text-ayuda font-semibold break-words text-ink-1">{nombreCanal(g.canal)}</span>
                 <span className="block text-xs text-ink-3">
@@ -185,6 +196,7 @@ export function ListaGastos({ gastos, canales, desde, hasta }: { gastos: GastoCa
                 <span className="text-ayuda whitespace-nowrap tabular-nums text-ink-2">{dinero(g.monto_usd)}</span>
                 <BotonQuitar etiqueta={`Quitar el gasto de ${nombreCanal(g.canal)}`} onClick={() => q.quitar(g)} disabled={q.pendiente} />
               </span>
+              </div>
             </li>
           ))}
         </ul>
@@ -193,7 +205,12 @@ export function ListaGastos({ gastos, canales, desde, hasta }: { gastos: GastoCa
       )}
       {q.quitado ? <BarraDeshacer texto={`Quitado: gasto de ${nombreCanal(q.quitado.canal)}`} onDeshacer={q.deshacer} pendiente={q.pendiente} /> : <Aviso r={q.r} />}
 
-      <form action={accion} className="mt-4 grid gap-3 sm:grid-cols-2">
+      <details className="group mt-3" open={visibles.length === 0}>
+        <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1.5 text-caption font-semibold text-ink-1 [&::-webkit-details-marker]:hidden">
+          <Plus size={16} className="transition-transform group-open:rotate-45" aria-hidden="true" />
+          Anotar un gasto
+        </summary>
+      <form action={accion} className="mt-2 grid gap-3 sm:grid-cols-2">
         <label className="flex flex-col gap-1">
           <span className={ETIQUETA}>Dónde pusiste el anuncio</span>
           <select value={elegido} onChange={(e) => setElegido(e.target.value)} name={elegido === 'otro' ? undefined : 'canal'} className={CAMPO}>
@@ -218,11 +235,11 @@ export function ListaGastos({ gastos, canales, desde, hasta }: { gastos: GastoCa
         </label>
         <label className="flex flex-col gap-1">
           <span className={ETIQUETA}>Desde</span>
-          <input name="desde" type="date" required defaultValue={desde} className={CAMPO} />
+          <input name="desde" type="date" required value={inicio} onChange={(e) => setInicio(e.target.value)} className={CAMPO} />
         </label>
         <label className="flex flex-col gap-1">
           <span className={ETIQUETA}>Hasta</span>
-          <input name="hasta" type="date" required defaultValue={hasta} className={CAMPO} />
+          <input name="hasta" type="date" required defaultValue={hasta} min={inicio} className={CAMPO} />
         </label>
         <label className="flex flex-col gap-1 sm:col-span-2">
           <span className={ETIQUETA}>Nota (opcional)</span>
@@ -232,6 +249,7 @@ export function ListaGastos({ gastos, canales, desde, hasta }: { gastos: GastoCa
           <BotonGuardar enviando={enviando} texto="Guardar gasto" className="w-full sm:w-auto" />
         </div>
       </form>
+      </details>
       <Aviso r={r} />
     </div>
   );

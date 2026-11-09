@@ -2,7 +2,6 @@
 // (por días con pieza armada), dónde se quedan en la ruta, el camino de venta del mes elegido y los
 // pagadores fantasma (con enlace para verlos).
 
-import Link from 'next/link';
 import { Barra, Dato, Encabezado, Lectura, SelectorMes, SinDatos, Tarjeta, TituloTarjeta } from '@/components/admin/ui';
 import { GraficoBarrasDia } from '@/components/admin/Graficos';
 import { entero, pct } from '@/lib/panel-formato';
@@ -48,7 +47,7 @@ export default async function UsoPanel({ searchParams }: { searchParams: Promise
 
   return (
     <>
-      <Encabezado titulo="Uso y retención">¿La gente usa la app y vuelve al día siguiente?</Encabezado>
+      <Encabezado titulo="Uso y retención" periodo="Hoy y últimos 30 días">¿La gente usa la app y vuelve al día siguiente?</Encabezado>
 
       <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Tarjeta indice={1}>
@@ -63,19 +62,13 @@ export default async function UsoPanel({ searchParams }: { searchParams: Promise
             detalle={activacion !== null ? 'Armaron su pieza 2 en su primera semana' : 'Se mide cuando alguien cumpla su primera semana'}
           />
         </Tarjeta>
-        <Tarjeta indice={3}>
+        <Tarjeta indice={3} href={uso.fantasmas > 0 ? '/admin/usuarios?estado=fantasma' : undefined}>
           <Dato
             etiqueta="Pagan y no entran"
             numero={uso.con_piezas > 0 ? uso.fantasmas : null}
             tono={uso.fantasmas > 0 ? 'mal' : 'bien'}
             detalle={
-              uso.fantasmas > 0 ? (
-                <Link href="/admin/usuarios?estado=fantasma" className="font-semibold text-ink-1 underline underline-offset-4">
-                  Ver {uso.fantasmas === 1 ? 'quién es' : `los ${uso.fantasmas}`} y escribirles
-                </Link>
-              ) : (
-                'Nadie paga sin usar la app'
-              )
+              uso.fantasmas > 0 ? 'Hace 14 días o más · tócala para escribirles' : 'Nadie paga sin usar la app'
             }
           />
         </Tarjeta>
@@ -97,7 +90,7 @@ export default async function UsoPanel({ searchParams }: { searchParams: Promise
                 { t: 'Al mes', n: r.d30, b: r.base_d30, meta: 10 },
               ].map(({ t, n, b, meta }) => {
                 const v = tasa(n, b);
-                return <Dato key={t} etiqueta={t} numero={v} formato="pct" tono={v !== null && v >= meta ? 'bien' : 'neutro'} detalle={v !== null ? `${entero(n)} de ${entero(b)}` : 'Aún nadie llegó'} />;
+                return <Dato key={t} reservar={false} etiqueta={t} numero={v} formato="pct" tono={v !== null && v >= meta ? 'bien' : 'neutro'} detalle={v !== null ? `${entero(n)} de ${entero(b)}` : 'Aún nadie llegó'} />;
               })}
             </div>
             <Lectura tono={(tasa(r.d7, r.base_d7) ?? 0) >= 20 ? 'bien' : 'mal'}>
@@ -109,7 +102,7 @@ export default async function UsoPanel({ searchParams }: { searchParams: Promise
 
       <div className="mb-4 grid gap-3 lg:grid-cols-2">
         <Tarjeta indice={6}>
-          <TituloTarjeta ayuda="La acción principal de la app, día por día (últimos 30 días).">Piezas armadas</TituloTarjeta>
+          <TituloTarjeta ayuda="Últimos 30 días: la acción principal de la app, día por día.">Piezas armadas</TituloTarjeta>
           {totalPiezas > 0 ? (
             <>
               <p className="mb-2 text-caption text-ink-2">
@@ -122,7 +115,7 @@ export default async function UsoPanel({ searchParams }: { searchParams: Promise
           )}
         </Tarjeta>
         <Tarjeta indice={7}>
-          <TituloTarjeta ayuda="Hasta qué semana de la ruta llegó cada persona.">Dónde se quedan</TituloTarjeta>
+          <TituloTarjeta ayuda="Hoy: hasta qué semana de la ruta llegó cada persona.">Dónde se quedan</TituloTarjeta>
           {uso.con_piezas === 0 ? (
             <SinDatos porque="Aparece cuando la gente arme piezas en la app." />
           ) : (
@@ -150,7 +143,7 @@ export default async function UsoPanel({ searchParams }: { searchParams: Promise
       </div>
 
       <Tarjeta indice={8}>
-        <TituloTarjeta ayuda="Personas distintas en cada paso, sin tus visitas de prueba.">El camino de venta</TituloTarjeta>
+        <TituloTarjeta ayuda="Del mes que elijas: personas distintas en cada paso, sin tus visitas de prueba.">El camino de venta</TituloTarjeta>
         <SelectorMes periodo={periodo} ruta="/admin/uso" />
         {funnel.sin_eventos || base === 0 ? (
           <SinDatos porque="Se llena solo con las visitas a tu página de ventas (se empezaron a medir con este panel)." />
@@ -159,7 +152,8 @@ export default async function UsoPanel({ searchParams }: { searchParams: Promise
             <ol className="flex flex-col gap-3">
               {pasos.map((p, i) => {
                 const delAnterior = i > 0 ? tasa(p.n, pasos[i - 1].n) : null;
-                const esPeor = peor?.i === i;
+                // Se pinta el paso DONDE está la pantalla a mejorar (el de antes de la caída).
+                const esPeor = peor !== null && peor.i - 1 === i;
                 return (
                   <li key={p.texto} className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-1">
                     <span className={`text-caption ${esPeor ? 'font-semibold text-warning' : 'text-ink-1'}`}>{p.texto}</span>

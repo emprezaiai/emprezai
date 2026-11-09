@@ -19,7 +19,7 @@ await db.exec(`
   grant execute on function auth.uid() to anon, authenticated, service_role;
   grant usage on schema public to anon, authenticated, service_role;
 `);
-for (const m of ['20261014000000_inicial.sql', '20261023000000_blindaje.sql', '20261103000000_cierre_tiene_acceso.sql', '20261109000000_panel.sql', '20261109000001_panel_serie.sql', '20261109000002_panel_usuarios.sql', '20261109000003_panel_usuarios_filtros.sql', '20261109000004_panel_ia_por_dia.sql', '20261109000005_panel_salud_semana.sql']) {
+for (const m of ['20261014000000_inicial.sql', '20261023000000_blindaje.sql', '20261103000000_cierre_tiene_acceso.sql', '20261109000000_panel.sql', '20261109000001_panel_serie.sql', '20261109000002_panel_usuarios.sql', '20261109000003_panel_usuarios_filtros.sql', '20261109000004_panel_ia_por_dia.sql', '20261109000005_panel_salud_semana.sql', '20261109000006_webhook_log_email.sql']) {
   await db.exec(readFileSync(`${raiz}/supabase/migrations/${m}`, 'utf8'));
 }
 // El historial se siembra con fechas del pasado: el disparador (que usa now()) se apaga para sembrar.
@@ -200,7 +200,7 @@ await db.query(`insert into public.event_log (nombre, anon_id, qa) values ('land
 // Salud: avisos de Hotmart recibidos (uno falló) y algunos errores de pantalla.
 for (let i = 0; i < 40; i++) await db.query(`insert into public.webhook_log (event_id, type, result, received_at) values ($1,'PURCHASE_APPROVED','applied',$2)`, [`w${i}`, iso(ahora - azar() * 6 * DIA)]);
 await db.query(`insert into public.webhook_log (event_id, type, result, received_at) values ('w-dup','PURCHASE_APPROVED','duplicate',$1)`, [iso(ahora - 2 * DIA)]);
-await db.query(`insert into public.webhook_log (event_id, type, result, received_at) values ('w-err','PURCHASE_APPROVED','error',$1)`, [iso(ahora - 3 * DIA)]);
+await db.query(`insert into public.webhook_log (event_id, type, result, received_at, email) values ('w-err','PURCHASE_APPROVED','error',$1,'rocio.prueba@ejemplo.com')`, [iso(ahora - 3 * DIA)]);
 for (const [mensaje, ruta, veces] of [['TypeError: No se pudo leer la pieza guardada', '/app/empresa', 4], ['ia/mision: IaNoDisponible', 'ia/mision', 2]]) {
   for (let i = 0; i < veces; i++) {
     await db.query(`insert into public.error_log (origen, mensaje, ruta, user_id, created_at) values ($1,$2,$3,$4,$5)`, [ruta.startsWith('/') ? 'cliente' : 'servidor', mensaje, ruta, perfiles[i].userId, iso(ahora - azar() * 5 * DIA)]);
@@ -247,6 +247,7 @@ const datos = {
   ajustes,
   pruebas_sin_pago_mes: await r(`public.panel_pruebas_sin_pago($1, $2)`, mes),
   usuarios: await r(`public.panel_usuarios('', 'todos', 25, 0)`),
+  usuarios_conteos: await r(`public.panel_usuarios_conteos('')`),
   ultimos_cobros: (await db.query(`select economic_kind as tipo, amount_minor::int as monto_minor, currency as moneda, occurred_at as en, email from public.payment_transactions order by occurred_at desc limit 300`)).rows,
 };
 // La ficha de captura: alguien que paga, con historial y pagos.
