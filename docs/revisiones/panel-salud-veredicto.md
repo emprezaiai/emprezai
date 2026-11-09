@@ -1,9 +1,9 @@
 # VEREDICTO revisor-visual — Panel · Salud
-Fecha: 2026-11-10 00:00
+Fecha: 2026-11-10 02:00
 Screenshot: docs/revisiones/panel/salud-375.png
-Usabilidad: 35/40
+Usabilidad: 36/40
 Craft: 16/20
 Copy (si vende): N-A
 Fidelidad (si hubo referencia): N-A
-Veredicto: NO LISTA
-Top defectos: 1) [banner + 2 tarjetas rojas] El mismo problema se cuenta dos veces: el banner dice "1 pagó y no tiene acceso · 1 aviso de pago no se aplicó" y arriba hay dos tarjetas rojas con 1 ("Pagaron sin acceso" y "Pagos fallidos"), pero es UNA sola compradora (rocío) por UN solo aviso; la dueña lee dos problemas → en el banner unir las dos razones cuando la persona sin acceso viene del aviso fallido ("1 compra no se aplicó y esa persona no tiene acceso"), y en la tarjeta "Pagos fallidos" bajar a ámbar o decir "es el mismo de la izquierda" (salud/page.tsx, razones y tarjetas). 2) [Qué hacer] Dice "la app vuelve a intentarlo sola", pero antes (y en la ayuda del bloque) el que reintenta es Hotmart: dos versiones de quién reintenta → decir solo lo verificado contra el webhook real ("Hotmart vuelve a mandar el aviso") (salud/page.tsx, bloque fallidos). 3) [tarjeta "Errores (7 días)"] El 6 en rojo con "La semana pasada: 0" no dice cuántos fueron hoy (el dato que estaba antes se perdió) → "La semana pasada: 0 · hoy: 0".
+Veredicto: LISTA
+Top defectos: 1) [Alertas enviadas vs tarjeta "Vencidos sin aviso"] La alerta del 7 nov "Accesos que vencieron sin aviso de Hotmart" convive con la tarjeta "0 · Ninguno" sin decir que ya se resolvió → "(ya resuelto)" o "hoy: 0" junto a la alerta cuando el contador está en cero (salud/page.tsx, bloque Alertas enviadas). 2) [Errores de la app] Sigue habiendo algo más de aire al pie de la tarjeta que arriba (min-h-11 del último "Copiar el detalle") → ajuste fino de padding inferior. 3) [tarjeta "Errores (7 días)"] El 6 va en rojo aunque hoy hubo 0; con la comparación "la semana pasada: 0" está bien, pero ámbar comunicaría "a revisar" sin alarma. Ninguno bloquea.

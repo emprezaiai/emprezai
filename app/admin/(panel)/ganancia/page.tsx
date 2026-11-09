@@ -2,9 +2,7 @@
 // va cada dólar (una barra por tramos), después la cuenta paso a paso. Lo real se marca como real y
 // lo estimado, como estimado. Con flechas para ver otros meses.
 
-import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
-import { Encabezado, FilaMonto, Lectura, SelectorMes, TOCABLE, Tarjeta, TituloTarjeta, Variacion } from '@/components/admin/ui';
+import { Encabezado, FilaMonto, Lectura, SelectorMes, Tarjeta, TituloTarjeta, Variacion } from '@/components/admin/ui';
 import { Cuenta } from '@/components/admin/movimiento';
 import { dinero, entero, pct, variacion } from '@/lib/panel-formato';
 import { calcularGanancia, leerAjustes, leerIa, leerVentas, periodoElegido } from '@/lib/servidor/panel';
@@ -92,7 +90,7 @@ export default async function GananciaPanel({ searchParams }: { searchParams: Pr
       <Tarjeta className="mb-4" indice={2}>
         <TituloTarjeta ayuda="Todo es real, salvo lo estimado.">La cuenta, paso a paso</TituloTarjeta>
         <div className="divide-y divide-[var(--line)]">
-          <FilaMonto concepto="Facturaste" monto={dinero(g.bruto)} nota={g.ventas > 0 ? `${entero(g.ventas)} ${g.ventas === 1 ? 'cobro' : 'cobros'} de Hotmart` : 'Sin cobros todavía'} />
+          <FilaMonto reservarFlecha concepto="Facturaste" monto={dinero(g.bruto)} nota={g.ventas > 0 ? `${entero(g.ventas)} ${g.ventas === 1 ? 'cobro' : 'cobros'} de Hotmart` : 'Sin cobros todavía'} />
           {g.devuelto >= 0.005 && <FilaMonto concepto="Devoluciones" color={COLOR.devuelto} monto={monto(g.devuelto)} href={`/admin/ventas?mes=${periodo.param}&tipo=devoluciones`} />}
           <FilaMonto
             concepto="Comisión de Hotmart"
@@ -100,8 +98,9 @@ export default async function GananciaPanel({ searchParams }: { searchParams: Pr
             monto={monto(g.comision)}
             nota={g.comisionEstimada ? 'Parte estimada (9,9% + $0,45) en las ventas que llegaron sin el detalle' : undefined}
             apagada={g.comision < 0.005}
+            reservarFlecha
           />
-          {g.afiliados >= 0.005 && <FilaMonto concepto="Afiliados" color={COLOR.afiliados} monto={monto(g.afiliados)} nota={g.afiliadosSinInformar > 0 ? `${g.afiliadosSinInformar} ventas llegaron sin el detalle` : undefined} />}
+          {g.afiliados >= 0.005 && <FilaMonto reservarFlecha concepto="Afiliados" color={COLOR.afiliados} monto={monto(g.afiliados)} nota={g.afiliadosSinInformar > 0 ? `${g.afiliadosSinInformar} ventas llegaron sin el detalle` : undefined} />}
           <FilaMonto concepto="Impuestos" color={COLOR.impuestos} monto={monto(g.impuestos)} nota={`Estimado: el ${pct(g.impuestosPct)} que pusiste en Ajustes`} apagada={g.impuestos < 0.005} href="/admin/ajustes" />
           <FilaMonto concepto="IA" color={COLOR.ia} monto={monto(g.ia)} nota={`${entero(ia.llamadas)} usos`} apagada={g.ia < 0.005} href={`/admin/ia?mes=${periodo.param}`} />
           <FilaMonto
@@ -113,15 +112,11 @@ export default async function GananciaPanel({ searchParams }: { searchParams: Pr
             href="/admin/ajustes"
           />
           {g.devuelto < 0.005 && g.afiliados < 0.005 && <p className="py-2 text-xs text-ink-3">Sin devoluciones ni afiliados este mes.</p>}
-          <FilaMonto total concepto="Te quedaron limpios" monto={dinero(g.ganancia)} color={COLOR.queda} />
+          <FilaMonto reservarFlecha total concepto="Te quedaron limpios" monto={dinero(g.ganancia)} color={COLOR.queda} />
         </div>
         {g.otrasMonedas.length > 0 && <p className="mt-2 text-caption text-ink-3">Las ventas en {g.otrasMonedas.join(', ')} no están en esta cuenta: no se suman sin un tipo de cambio con fuente.</p>}
       </Tarjeta>
 
-      <Link href="/admin/ajustes" className={`${TOCABLE} inline-flex min-h-11 items-center gap-1 text-caption text-ink-2 underline underline-offset-4 hover:text-ink-1`}>
-        Cambiar impuestos o costos fijos
-        <ArrowRight size={14} aria-hidden="true" />
-      </Link>
     </div>
   );
 }

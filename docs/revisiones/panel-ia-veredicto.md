@@ -1,9 +1,9 @@
 # VEREDICTO revisor-visual — panel-ia
-Fecha: 2026-11-10 03:00
+Fecha: 2026-11-10 05:00
 Screenshot: docs/revisiones/panel/ia-375.png
-Usabilidad: 34/40
+Usabilidad: 35/40
 Craft: 16/20
 Copy (si vende): N-A
 Fidelidad (si hubo referencia): N-A
 Veredicto: NO LISTA
-Top defectos: 1) [Lista "Quiénes más la usan", app/admin/(panel)/ia/page.tsx línea 166] los correos ya son enlaces a la ficha, pero en el celular no se nota (solo hover:underline, que no existe al tocar) y cada enlace mide ~20px de alto, muy por debajo de los 44px → fila completa tocable (min-h-11) con chevron ink-3 al final, como las tarjetas. 2) [KPI "IA por cliente", línea 72] el detalle ocupa 3 líneas ("De unos $8,84 que paga cada uno al mes (0,2%)") y deja a "Usos de la IA" con un hueco abajo → "0,2% de lo que paga ($8,84)". 3) [Gráfico diario, components/admin/Graficos.tsx línea 75] la barra de hoy (lavanda clara) es casi igual a las demás: "la barra clara, hoy" obliga a comparar tonos → etiqueta "hoy" debajo de la última barra en vez de solo color. 4) [Ayuda de "Gasto día por día"] dos frases de ayuda + una línea de resumen antes del gráfico → fusionar: "Promedio $0,11 por día (línea punteada) · el más caro, el 4 nov ($0,12)". 5) [Por función] "Pieza 1 gratis (antes de pagar)" cuesta casi tanto como la función principal y no se dice si eso está bien → lectura de 1 línea ("La pieza gratis es el 41% del gasto: es lo que convierte").
+Top defectos: 1) [Barra de hoy en "Gasto día por día", components/admin/Graficos.tsx línea 75] ahora va en VERDE: en la ficha y en todo el panel el verde significa "bien / progreso hecho", y en un gráfico de COSTO la barra más alta del día se lee como algo positivo → hoy en ink-2 sólido con la etiqueta "hoy" bajo la barra (texto, no color). 2) [KPI "IA por cliente", app/admin/(panel)/ia/page.tsx línea 72] "0,2% de lo que paga uno" suena a traducción → "0,2% de lo que te paga cada cliente". 3) [Por función] "Pieza 1 gratis (antes de pagar)" es el 41% del gasto y no se interpreta (pedido en la ronda 6) → una lectura de 1 línea: "La pieza gratis es el 41% del gasto: es la que convierte a quien prueba". 4) [Ayuda "Punteada: tu promedio · verde: hoy"] estilo telegráfico de leyenda técnica → "La línea punteada es tu promedio diario." (y la etiqueta "hoy" en el eje). 5) [Lista "Quiénes más la usan"] con filas de 44px y sin divisores, los 5 correos quedan separados por huecos grandes que parecen vacío → divide-y con la línea del kit, o py-3 con el correo y el costo alineados a la misma línea base.

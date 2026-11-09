@@ -62,7 +62,7 @@ export function GraficoGastoDia({ datos }: { datos: { fecha: string; usd: number
   return (
     <div className="h-36 w-full min-w-0" role="img" title="Línea punteada: tu promedio por día" aria-label={`Gasto de IA por día: US${total.toFixed(2)} en total`}>
       <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-        <BarChart data={datos} margin={{ top: 8, right: 0, bottom: 0, left: 0 }}>
+        <BarChart data={datos} margin={{ top: 18, right: 0, bottom: 0, left: 0 }}>
           <XAxis dataKey="fecha" ticks={marcas} tickFormatter={fechaEje} axisLine={false} tickLine={false} tick={{ fill: 'var(--ink-3)', fontSize: 11 }} interval="preserveStartEnd" />
           <Tooltip
             cursor={{ fill: 'rgb(255 255 255 / 0.04)' }}
@@ -72,9 +72,10 @@ export function GraficoGastoDia({ datos }: { datos: { fecha: string; usd: number
             labelStyle={{ color: 'var(--ink-2)' }}
           />
           <ReferenceLine y={promedio} stroke="var(--ink-3)" strokeDasharray="3 3" />
+          {hoy && <ReferenceLine x={hoy} stroke="transparent" label={{ value: 'hoy', position: 'top', fill: 'var(--ink-2)', fontSize: 11, fontWeight: 600 }} />}
           <Bar dataKey="usd" radius={[3, 3, 0, 0]} isAnimationActive={!reduce} animationDuration={600}>
             {datos.map((d) => (
-              <Cell key={d.fecha} fill={d.usd > promedio * 2 && promedio > 0 ? 'var(--warning)' : d.fecha === hoy ? 'var(--green)' : 'color-mix(in oklab, var(--ink-2) 60%, transparent)'} />
+              <Cell key={d.fecha} fill={d.usd > promedio * 2 && promedio > 0 ? 'var(--warning)' : 'color-mix(in oklab, var(--ink-2) 60%, transparent)'} />
             ))}
           </Bar>
         </BarChart>

@@ -35,6 +35,8 @@ export default async function IaPanel({ searchParams }: { searchParams: Promise<
   const promedioDia = serie.length > 0 ? ia.total_usd / serie.length : 0;
   const hayDisparados = serie.some((d) => promedioDia > 0 && d.usd > promedioDia * 2);
   const { mrr, pagando } = calcularMrr(clientes);
+  const piezaGratis = ia.por_funcion.find((f) => f.tipo === 'primera_pieza');
+  const piezaGratisPct = piezaGratis && ia.total_usd > 0 ? (piezaGratis.usd / ia.total_usd) * 100 : null;
   const pagaUno = pagando > 0 ? mrr / pagando : null;
   const sospechosos = porUsuario !== null ? ia.top_usuarios.filter((u) => u.usd > porUsuario * 3) : [];
 
@@ -70,7 +72,7 @@ export default async function IaPanel({ searchParams }: { searchParams: Promise<
             numero={porUsuario}
             formato="dinero"
             decimales={3}
-            detalle={porUsuario !== null ? (pagaUno ? `${pct((porUsuario / pagaUno) * 100, 1)} de lo que paga uno` : `${entero(ia.usuarios_con_ia)} clientes`) : 'Aún ningún cliente la usó'}
+            detalle={porUsuario !== null ? (pagaUno ? `de los ${dinero(pagaUno)} que paga cada uno al mes` : `${entero(ia.usuarios_con_ia)} clientes`) : 'Aún ningún cliente la usó'}
           />
         </Tarjeta>
         <Tarjeta indice={3}>
@@ -115,7 +117,7 @@ export default async function IaPanel({ searchParams }: { searchParams: Promise<
 
       {ia.por_dia && ia.por_dia.some((d) => d.usd > 0) && (
         <Tarjeta className="mb-4" indice={5}>
-          <TituloTarjeta ayuda={`Punteada: tu promedio · verde: hoy${hayDisparados ? ' · ámbar: más del doble' : ''}.`}>Gasto día por día</TituloTarjeta>
+          <TituloTarjeta ayuda={`Punteada: tu promedio${hayDisparados ? ' · ámbar: más del doble' : ''}.`}>Gasto día por día</TituloTarjeta>
           <p className="mb-2 text-caption text-ink-2">
             Promedio <strong className="font-semibold text-ink-1 tabular-nums">{dinero(promedioDia, 2)}</strong> por día
             {diaMasCaro && (
@@ -149,6 +151,11 @@ export default async function IaPanel({ searchParams }: { searchParams: Promise<
                 </li>
               ))}
             </ul>
+          )}
+          {piezaGratisPct !== null && piezaGratisPct >= 25 && (
+            <Lectura>
+              La pieza gratis es el {pct(piezaGratisPct)} del gasto: es lo que cuesta mostrarle el resultado a quien todavía no paga. Vale la pena si muchas de esas personas terminan comprando (míralo en Uso).
+            </Lectura>
           )}
         </Tarjeta>
         <Tarjeta indice={7}>

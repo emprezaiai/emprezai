@@ -115,14 +115,14 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
             numero={conversion}
             formato="pct"
             tono={conversion !== null && conversion >= 40 && pruebasTerminadas >= 10 ? 'bien' : 'neutro'}
-            detalle={conversion !== null ? `${entero(ventas.pruebas_a_pago)} de ${entero(pruebasTerminadas)} que terminaron${pruebasTerminadas < 10 ? ' (aún son pocas para sacar conclusiones)' : ''}` : `${entero(ventas.pruebas_iniciadas)} pruebas nuevas; ninguna terminó aún`}
+            detalle={conversion !== null ? `${entero(ventas.pruebas_a_pago)} de ${entero(pruebasTerminadas)} que terminaron${pruebasTerminadas < 10 ? ' (aún pocas)' : ''}` : `${entero(ventas.pruebas_iniciadas)} pruebas nuevas; ninguna terminó aún`}
           />
         </Tarjeta>
       </div>
 
       <div className="mb-4 grid gap-3 lg:grid-cols-2">
         <Tarjeta indice={5}>
-          <TituloTarjeta ayuda="Separado porque se resuelve distinto: unos decidieron irse, a otros les falló el pago.">Quién se fue y por qué</TituloTarjeta>
+          <TituloTarjeta ayuda={nadieSeFue ? undefined : 'Separado porque se resuelve distinto: unos decidieron irse, a otros les falló el pago.'}>Quién se fue y por qué</TituloTarjeta>
           {churn.total !== null && (
             <p className="mb-3 text-caption text-ink-2">
               <strong className={`font-display text-xl font-extrabold tabular-nums ${churn.total > 8 ? 'text-danger' : 'text-ink-1'}`}>{churn.total.toLocaleString('es', { maximumFractionDigits: 1 })}%</strong> de los {entero(ventas.pagando_al_inicio)} que pagaban al empezar el mes
@@ -241,7 +241,7 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
         )}
         {clientes.manuales > 0 && (
           <p className="mt-3 text-caption text-ink-3">
-            {entero(clientes.manuales)} {clientes.manuales === 1 ? 'persona tiene acceso regalado' : 'personas tienen acceso regalado'} por ti: no cuentan como venta.
+            {entero(clientes.manuales)} {clientes.manuales === 1 ? 'persona tiene acceso regalado por ti: no cuenta como venta.' : 'personas tienen acceso regalado por ti: no cuentan como venta.'}
           </p>
         )}
       </Tarjeta>

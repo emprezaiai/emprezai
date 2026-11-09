@@ -11,7 +11,7 @@ import { calcularChurn, calcularLtv, leerCanales, leerClientes, leerVentas, peri
 
 function veredicto(canal: string, ratio: number | null, gasto: number, clientes: number) {
   const neutro = 'border border-[var(--line)]';
-  if (gasto <= 0) return /^afiliad/.test(canal) ? { texto: 'Paga por venta', tono: 'text-ink-2', fondo: neutro, orden: 3 } : { texto: 'Sin gasto', tono: 'text-ink-3', fondo: '', orden: 3 };
+  if (gasto <= 0) return /^afiliad/.test(canal) ? { texto: 'Paga por venta', tono: 'text-ink-2', fondo: neutro, orden: 3 } : { texto: 'Sin gasto', tono: 'text-ink-2', fondo: neutro, orden: 3 };
   if (clientes === 0) return { texto: 'Sin clientes nuevos', tono: 'text-danger', fondo: 'bg-[color-mix(in_oklab,var(--danger)_14%,transparent)]', orden: 0 };
   if (ratio === null) return { texto: 'Sin datos', tono: 'text-ink-3', fondo: '', orden: 2 };
   if (ratio >= 3) return { texto: 'Sano', tono: 'text-green', fondo: 'bg-[color-mix(in_oklab,var(--green)_14%,transparent)]', orden: 2 };
@@ -57,7 +57,7 @@ export default async function CanalesPanel({ searchParams }: { searchParams: Pro
             numero={cacGeneral}
             formato="dinero"
             decimales={2}
-            detalle={cacGeneral !== null ? 'Promedio de los canales con gasto' : 'Se calcula con gasto y clientes del mismo canal'}
+            detalle={cacGeneral !== null ? 'De anuncios, promedio de todos los canales' : 'Se calcula con gasto y clientes del mismo canal'}
           />
         </Tarjeta>
         <Tarjeta indice={3} className="col-span-2 lg:col-span-1">
@@ -72,12 +72,13 @@ export default async function CanalesPanel({ searchParams }: { searchParams: Pro
       </div>
       {pierde && cacGeneral !== null && vida && (
         <div role="status" className="mb-4 rounded-[var(--radius-card)] border border-[color-mix(in_oklab,var(--danger)_45%,transparent)] bg-[color-mix(in_oklab,var(--danger)_8%,transparent)] p-4 text-ayuda text-ink-1">
-          <strong className="block font-display text-base font-bold">Los anuncios te cuestan más de lo que dejan</strong>
+          <strong className="block font-display text-base font-bold text-ink-1">Los anuncios te cuestan más de lo que dejan</strong>
           <span className="mt-1 block text-caption text-ink-2">Cada cliente de anuncios cuesta {dinero(cacGeneral)} y deja unos {dinero(vida.ltv)}.</span>
           {(perdedores.length > 0 || ganadores.length > 0) && (
             <span className="mt-1 block text-caption text-ink-2">
               {perdedores.length > 0 && `Baja primero el gasto en ${perdedores.map((f) => nombreCanal(f.canal)).join(' y ')}.`}
-              {ganadores.length > 0 && ` ${ganadores.map((f) => nombreCanal(f.canal)).join(' y ')} sí se ${ganadores.length === 1 ? 'paga' : 'pagan'}.`}
+              {ganadores.length > 0 && ` ${ganadores.map((f) => nombreCanal(f.canal)).join(' y ')} sí se ${ganadores.length === 1 ? 'paga' : 'pagan'}`}
+              {ganadores.length > 0 && ' (una suscripción tarda meses en pagarse).'}
             </span>
           )}
         </div>
@@ -139,7 +140,7 @@ export default async function CanalesPanel({ searchParams }: { searchParams: Pro
             })}
           </ul>
         )}
-        <Lectura>Una suscripción casi nunca se paga en el primer mes: por eso un canal puede ir en negativo este mes y aun así ser sano.</Lectura>
+        {!pierde && <Lectura>Una suscripción casi nunca se paga en el primer mes: por eso un canal puede ir en negativo este mes y aun así ser sano.</Lectura>}
       </Tarjeta>
 
       <Link href="/admin/ajustes#gastos" className={`${TOCABLE} tarjeta-relieve-base flex min-h-12 items-center gap-3 rounded-[var(--radius-card)] px-4 text-ayuda font-semibold text-ink-1 hover:bg-raised`}>

@@ -247,7 +247,26 @@ export function BannerAvisos({ avisos, periodo }: { avisos: Aviso[]; periodo: st
 }
 
 /** Fila "concepto · monto" de la cascada de ganancia. El signo vive SOLO en el monto. */
-export function FilaMonto({ concepto, monto, nota, total = false, color, apagada = false, href }: { concepto: string; monto: string; nota?: string; total?: boolean; color?: string; apagada?: boolean; href?: string }) {
+export function FilaMonto({
+  concepto,
+  monto,
+  nota,
+  total = false,
+  color,
+  apagada = false,
+  href,
+  reservarFlecha = false,
+}: {
+  concepto: string;
+  monto: string;
+  nota?: string;
+  total?: boolean;
+  color?: string;
+  apagada?: boolean;
+  href?: string;
+  /** En listas donde algunas filas son tocables: deja el lugar de la flecha para que los montos queden alineados. */
+  reservarFlecha?: boolean;
+}) {
   if (href) {
     return (
       <Link href={href} className={`${TOCABLE} group flex items-center gap-1 hover:bg-[color-mix(in_oklab,var(--ink-1)_4%,transparent)]`}>
@@ -256,6 +275,16 @@ export function FilaMonto({ concepto, monto, nota, total = false, color, apagada
         </span>
         <ChevronRight size={14} className="shrink-0 text-ink-3 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
       </Link>
+    );
+  }
+  if (reservarFlecha) {
+    return (
+      <div className="flex items-center gap-1">
+        <span className="min-w-0 flex-1">
+          <FilaMonto concepto={concepto} monto={monto} nota={nota} total={total} color={color} apagada={apagada} />
+        </span>
+        <span aria-hidden="true" className="w-3.5 shrink-0" />
+      </div>
     );
   }
   return (
