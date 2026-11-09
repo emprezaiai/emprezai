@@ -6,6 +6,7 @@
 
 import { readFileSync } from 'node:fs';
 import { clienteAdmin } from './supabase';
+import { nombreCanal } from '@/lib/panel-formato';
 
 /* ── Tipos de lo que devuelven las funciones de la base ── */
 export interface DineroMoneda {
@@ -82,6 +83,8 @@ export interface Ia {
   usuarios_con_ia: number;
   top_usuarios: { email: string; usd: number; llamadas: number }[];
   anonima_usd: number;
+  /** Gasto de cada día del mes (hasta hoy). */
+  por_dia?: { fecha: string; usd: number }[];
 }
 export interface Canal {
   canal: string;
@@ -96,6 +99,10 @@ export interface Salud {
   webhook_errores_24h: number;
   errores_7d: { mensaje: string; ruta: string | null; origen: string; veces: number; personas: number; ultima: string }[];
   errores_hoy: number;
+  /** Errores de los últimos 7 días (todos, no solo los 10 más repetidos). */
+  errores_7d_total?: number;
+  /** Avisos de Hotmart que fallaron en 7 días: tipo de aviso y hora. */
+  webhook_fallidos?: { tipo: string | null; resultado: string; en: string }[];
   vencidos_sin_aviso: number;
   pagaron_sin_acceso: number;
   alertas: { clave: string; en: string }[];
@@ -420,16 +427,16 @@ export function calcularAvisos(d: { ganancia: Ganancia; ventas: Ventas; salud: S
       avisos.push({
         id: `canal-${c.canal}`,
         gravedad: 'media',
-        titulo: `El canal "${c.canal}" no trajo clientes este mes`,
-        porque: `Llevas ${dinero(c.gasto_usd)} gastados ahí sin ninguna prueba ni compra.`,
-        queHacer: 'Revisa el anuncio y el enlace (que lleve tu código de seguimiento) o pausa el gasto.',
+        titulo: `${nombreCanal(c.canal)} no trajo clientes nuevos este mes`,
+        porque: `Llevas ${dinero(c.gasto_usd)} gastados en anuncios ahí y nadie nuevo empezó la prueba ni compró.`,
+        queHacer: 'Revisa el anuncio y que el enlace termine con el nombre del canal, o pausa el gasto.',
         enlace: { texto: 'Ver canales', href: '/admin/canales' },
       });
     } else if (d.ltv !== null && (c.siguen * d.ltv) / c.gasto_usd < 1) {
       avisos.push({
         id: `canal-${c.canal}`,
         gravedad: 'media',
-        titulo: `El canal "${c.canal}" cuesta más de lo que deja`,
+        titulo: `${nombreCanal(c.canal)} cuesta más de lo que deja`,
         porque: `Gastaste ${dinero(c.gasto_usd)} y sus ${c.siguen} clientes activos dejarían unos ${dinero(c.siguen * d.ltv)} en total.`,
         queHacer: 'Baja el gasto ahí o mejora el anuncio antes de invertir más.',
         enlace: { texto: 'Ver canales', href: '/admin/canales' },
@@ -456,7 +463,7 @@ export function calcularAvisos(d: { ganancia: Ganancia; ventas: Ventas; salud: S
       gravedad: 'media',
       titulo: peorError && peorError.personas >= 3 ? `${peorError.personas} personas chocaron con el mismo error esta semana` : `${s.errores_hoy} errores hoy en la app`,
       porque: 'Un error repetido hace que la gente abandone sin avisarte.',
-      queHacer: 'Mira en Salud cuál es el error más común y pásamelo para arreglarlo.',
+      queHacer: 'Mira en Salud cuál es el error más común, copia el detalle y mándaselo a quien te ayuda con la app.',
       enlace: { texto: 'Ver salud', href: '/admin/salud' },
     });
   }
@@ -525,11 +532,17 @@ export function leerUsuarios(buscar: string, estado: FiltroUsuarios, pagina: num
 
 export const leerFicha = (id: string) => rpc<Ficha | null>('panel_ficha', { p_id: id }, 'ficha');
 
-export async function leerUltimosCobros(limite = 12): Promise<Cobro[]> {
-  if (ARCHIVO_CAPTURA) return datoDeCaptura('ultimos_cobros');
+/** Los movimientos de Hotmart DEL MES elegido, del más reciente al más antiguo. */
+export async function leerCobrosDelMes(p: { desde: Date; hasta: Date }, limite = 50): Promise<Cobro[]> {
+  if (ARCHIVO_CAPTURA) {
+    const todos: Cobro[] = datoDeCaptura('ultimos_cobros');
+    return todos.filter((c) => new Date(c.en) >= p.desde && new Date(c.en) < p.hasta).slice(0, limite);
+  }
   const { data, error } = await clienteAdmin()
     .from('payment_transactions')
     .select('economic_kind, amount_minor, currency, occurred_at, email')
+    .gte('occurred_at', p.desde.toISOString())
+    .lt('occurred_at', p.hasta.toISOString())
     .order('occurred_at', { ascending: false })
     .limit(limite);
   if (error) throw error;

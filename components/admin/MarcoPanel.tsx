@@ -53,7 +53,7 @@ function ListaSecciones({ ruta, onElegir }: { ruta: string; onElegir?: () => voi
               onClick={onElegir}
               aria-current={esta ? 'page' : undefined}
               className={`flex min-h-11 items-center gap-3 rounded-[var(--radius-chip)] px-3 text-ayuda font-semibold transition-[color,background-color,transform] duration-150 active:scale-[0.98] ${
-                esta ? 'bg-[color-mix(in_oklab,var(--gold)_14%,transparent)] text-gold' : 'text-ink-2 hover:bg-raised hover:text-ink-1'
+                esta ? 'bg-[color-mix(in_oklab,var(--ink-1)_9%,transparent)] text-ink-1 [&>svg]:text-green' : 'text-ink-2 hover:bg-raised hover:text-ink-1'
               }`}
             >
               <Icono size={18} strokeWidth={2.2} aria-hidden="true" />

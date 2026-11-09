@@ -4,8 +4,12 @@
 
 import { Barra, Dato, Encabezado, Lectura, SelectorMes, SinDatos, Tarjeta, TituloTarjeta } from '@/components/admin/ui';
 import { Cuenta } from '@/components/admin/movimiento';
+import { GraficoGastoDia } from '@/components/admin/Graficos';
 import { dinero, entero, pct } from '@/lib/panel-formato';
 import { calcularGanancia, leerAjustes, leerIa, leerVentas, periodoElegido, topesIa } from '@/lib/servidor/panel';
+
+/** Costo por uso legible: nunca "$0,000" (parece gratis o un error). */
+const cadaUso = (usd: number) => (usd > 0 && usd < 0.001 ? 'menos de $0,001' : dinero(usd, 3));
 
 const FUNCION: Record<string, string> = {
   primera_pieza: 'Pieza 1 gratis (antes de pagar)',
@@ -61,12 +65,17 @@ export default async function IaPanel({ searchParams }: { searchParams: Promise<
           />
         </Tarjeta>
         <Tarjeta indice={3}>
-          <Dato etiqueta="La pieza gratis costó" numero={ia.anonima_usd} formato="dinero" decimales={2} detalle="Antes de pagar, en este mes" />
+          <Dato
+            etiqueta="Usos de la IA"
+            numero={ia.llamadas}
+            detalle={ia.fallos > 0 ? `${entero(ia.fallos)} no respondieron (se armó sin IA)` : 'Todos respondieron bien'}
+            tono={ia.llamadas > 0 && ia.fallos / ia.llamadas > 0.1 ? 'mal' : 'neutro'}
+          />
         </Tarjeta>
       </div>
 
       <Tarjeta className="mb-4" indice={4}>
-        <TituloTarjeta ayuda="Si se llega a un tope, la IA se pausa sola y las piezas se arman con las respuestas de cada persona. Si quieres cambiar los topes, pídemelo.">Topes de gasto</TituloTarjeta>
+        <TituloTarjeta ayuda="Si se llega a un tope, la IA se pausa sola y las piezas se arman con las respuestas de cada persona. Para subirlos o bajarlos, pídeselo a quien te ayuda con la app.">Topes de gasto</TituloTarjeta>
         <div className="flex flex-col gap-3">
           {periodo.esActual && (
             <div>
@@ -95,8 +104,15 @@ export default async function IaPanel({ searchParams }: { searchParams: Promise<
         </div>
       </Tarjeta>
 
+      {ia.por_dia && ia.por_dia.some((d) => d.usd > 0) && (
+        <Tarjeta className="mb-4" indice={5}>
+          <TituloTarjeta ayuda="Si un día se dispara, mira abajo quién la usó más.">Gasto día por día</TituloTarjeta>
+          <GraficoGastoDia datos={ia.por_dia} />
+        </Tarjeta>
+      )}
+
       <div className="grid gap-3 lg:grid-cols-2">
-        <Tarjeta indice={5}>
+        <Tarjeta indice={6}>
           <TituloTarjeta ayuda="Qué parte de la app gasta más.">Por función</TituloTarjeta>
           {ia.por_funcion.length === 0 ? (
             <SinDatos porque="Aparece con el primer uso de la IA." />
@@ -107,17 +123,17 @@ export default async function IaPanel({ searchParams }: { searchParams: Promise<
                   <span className="text-caption text-ink-1">{FUNCION[f.tipo] ?? f.tipo}</span>
                   <span className="text-caption font-semibold tabular-nums text-ink-1">{dinero(f.usd)}</span>
                   <span className="col-span-2">
-                    <Barra pct={ia.total_usd > 0 ? (f.usd / ia.total_usd) * 100 : 0} tono="neutra" />
+                    <Barra pct={ia.total_usd > 0 ? (f.usd / ia.total_usd) * 100 : 0} tono="neutra" indice={ia.por_funcion.indexOf(f)} />
                   </span>
                   <span className="col-span-2 text-xs text-ink-3">
-                    {entero(f.llamadas)} usos · {dinero(f.llamadas > 0 ? f.usd / f.llamadas : 0, 3)} cada uno{f.fallos > 0 && ` · ${entero(f.fallos)} fallaron`}
+                    {entero(f.llamadas)} usos · {cadaUso(f.llamadas > 0 ? f.usd / f.llamadas : 0)} cada uno{f.fallos > 0 && ` · ${entero(f.fallos)} fallaron`}
                   </span>
                 </li>
               ))}
             </ul>
           )}
         </Tarjeta>
-        <Tarjeta indice={6}>
+        <Tarjeta indice={7}>
           <TituloTarjeta>Quiénes más la usan</TituloTarjeta>
           {ia.top_usuarios.length === 0 ? (
             <SinDatos porque="Aparece cuando los clientes usen la IA dentro de la app." />

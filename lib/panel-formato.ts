@@ -47,7 +47,7 @@ export function decimal(n: number, decimales = 1): string {
 
 /** Nombre legible de un canal (el código sck del enlace de Hotmart). */
 export function nombreCanal(codigo: string): string {
-  if (codigo === 'sin código') return 'Llegaron solos (sin código)';
+  if (codigo === 'sin código') return 'Llegaron por su cuenta';
   const conocidos: Record<string, string> = { tiktok: 'TikTok', instagram: 'Instagram', facebook: 'Facebook', youtube: 'YouTube', whatsapp: 'WhatsApp', google: 'Google', email: 'Correo' };
   if (conocidos[codigo]) return conocidos[codigo];
   const afiliado = /^afiliad[oa]-(.+)$/.exec(codigo);

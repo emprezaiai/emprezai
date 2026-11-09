@@ -8,14 +8,14 @@ import { useEffect, useId, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { motion, useReducedMotion } from 'motion/react';
-import { ArrowRight, KeyRound, LoaderCircle, ShieldCheck } from 'lucide-react';
+import { ArrowRight, CircleAlert, KeyRound, LoaderCircle, ShieldCheck } from 'lucide-react';
 import { Marca } from '@/components/app/Marca';
 import { Entrada } from '@/components/admin/movimiento';
 
 const CORREO_VALIDO = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const ESPERA_REENVIO = 60;
 const CAMPO =
-  'h-14 w-full rounded-[var(--radius-pill)] border border-[color-mix(in_oklab,var(--ink-3)_45%,transparent)] bg-sunken px-5 text-base text-ink-1 placeholder:text-ink-3 focus:border-ink-2 focus:outline-none';
+  'h-14 w-full rounded-[var(--radius-pill)] border border-[color-mix(in_oklab,var(--ink-3)_45%,transparent)] bg-sunken px-5 text-base text-ink-1 placeholder:text-ink-3 focus:border-ink-2 focus:outline-none aria-invalid:border-danger';
 const BOTON = 'boton-oro mt-4 flex h-14 w-full items-center justify-center gap-2 rounded-[var(--radius-pill)] font-display text-base font-bold transition-transform duration-100 active:scale-[0.97] disabled:opacity-70';
 
 export function EntrarPanel() {
@@ -46,7 +46,7 @@ export function EntrarPanel() {
         res.status === 429
           ? 'Pediste varios enlaces seguidos. Espera unos minutos.'
           : res.status === 503
-            ? 'Todavía no conectamos el envío de correos. Escríbeme y lo activamos.'
+            ? 'El envío de correos todavía no está conectado. Avísale a quien te ayuda con la app.'
             : 'No pudimos enviar el correo ahora. Intenta en un minuto.',
       );
     } catch {
@@ -102,20 +102,28 @@ export function EntrarPanel() {
   }
 
   return (
-    <main className="fondo-recorrido flex min-h-dvh flex-col items-center justify-center px-4 py-12">
+    <main className="fondo-recorrido flex min-h-dvh flex-col items-center justify-start px-4 pt-14 pb-12 sm:justify-center sm:py-12">
       <div className="w-full max-w-sm">
-        <Entrada indice={0} className="flex items-center justify-between gap-3">
+        <Entrada indice={0} className="flex min-h-16 items-center justify-between gap-3">
           <span className="flex items-center gap-2">
             <Marca tamano="md" />
             <span className="rounded-[var(--radius-pill)] border border-[var(--line)] px-2 py-0.5 text-xs font-semibold text-ink-2">Panel</span>
           </span>
-          {/* El guía de la marca, flotando suave (quieto si se pidió menos movimiento) */}
-          <motion.span aria-hidden="true" className="block size-16 shrink-0" animate={reduce ? undefined : { y: [0, -6, 0] }} transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}>
-            <Image src="/marca/personaje.webp" alt="" width={64} height={64} unoptimized className="size-full object-contain drop-shadow-[0_6px_8px_rgb(0_0_0/0.5)]" />
-          </motion.span>
+          {/* El guía de la marca celebra que el correo salió (una sola vez; sin salto si se pidió menos movimiento) */}
+          {paso === 'codigo' && (
+            <motion.span
+              aria-hidden="true"
+              className="block size-16 shrink-0"
+              initial={{ opacity: 0, scale: reduce ? 1 : 0.6, y: reduce ? 0 : 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={reduce ? { duration: 0.2 } : { type: 'spring', bounce: 0.4, duration: 0.6 }}
+            >
+              <Image src="/marca/personaje.webp" alt="" width={64} height={64} unoptimized className="size-full object-contain drop-shadow-[0_6px_8px_rgb(0_0_0/0.5)]" />
+            </motion.span>
+          )}
         </Entrada>
 
-        <Entrada indice={1}>
+        <Entrada indice={1} key={`titulo-${paso}`}>
           <h1 className="mt-6 font-display text-pregunta font-extrabold text-ink-1">{paso === 'correo' ? 'Entra a tu panel' : 'Revisa tu correo'}</h1>
           <p className="mt-2 text-ayuda text-ink-2">
             {paso === 'correo' ? (
@@ -131,7 +139,7 @@ export function EntrarPanel() {
         </Entrada>
 
         {paso === 'correo' ? (
-          <Entrada indice={2}>
+          <Entrada indice={2} key="correo">
             <form onSubmit={pedir} noValidate className="mt-8 flex flex-col gap-2">
               <label htmlFor={idCorreo} className="text-caption font-semibold text-ink-1">
                 Tu correo
@@ -152,7 +160,8 @@ export function EntrarPanel() {
                 className={CAMPO}
               />
               {error && (
-                <p role="alert" className="text-caption text-danger">
+                <p role="alert" className="flex items-start gap-1.5 text-caption text-danger">
+                  <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
                   {error}
                 </p>
               )}
@@ -164,7 +173,7 @@ export function EntrarPanel() {
             </form>
           </Entrada>
         ) : (
-          <Entrada indice={2}>
+          <Entrada indice={2} key="codigo">
             <form onSubmit={verificar} noValidate className="mt-8 flex flex-col gap-2">
               <label htmlFor={idCodigo} className="text-caption font-semibold text-ink-1">
                 Código del correo
@@ -185,7 +194,8 @@ export function EntrarPanel() {
                 className={`${CAMPO} text-center font-display text-xl font-bold tracking-[0.3em] tabular-nums placeholder:font-sans placeholder:text-base placeholder:font-normal placeholder:tracking-normal`}
               />
               {error && (
-                <p role="alert" className="text-caption text-danger">
+                <p role="alert" className="flex items-start gap-1.5 text-caption text-danger">
+                  <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
                   {error}
                 </p>
               )}

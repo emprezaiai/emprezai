@@ -16,6 +16,10 @@ const PASOS = [
   { clave: 'checkout_iniciado', texto: 'Fueron a pagar a Hotmart' },
 ] as const;
 
+// La pantalla que decide cada salto del camino (para saber QUÉ mejorar, no a quién culpar).
+const PANTALLA = ['tu página de ventas', 'las preguntas de bienvenida', 'la pieza 1 que ven al terminar', 'la pantalla de planes', 'la página de pago de Hotmart'];
+const enMinuscula = (t: string) => t.charAt(0).toLowerCase() + t.slice(1);
+
 const semanaDeDia = (d: number) => (d <= 7 ? 1 : d <= 14 ? 2 : d <= 21 ? 3 : 4);
 const tasa = (n: number, base: number) => (base > 0 ? (n / base) * 100 : null);
 
@@ -40,6 +44,7 @@ export default async function UsoPanel({ searchParams }: { searchParams: Promise
   const caidas = pasos.slice(1).map((p, i) => ({ i: i + 1, t: tasa(p.n, pasos[i].n) ?? 100 }));
   const peor = caidas.length > 0 ? caidas.reduce((a, b) => (b.t < a.t ? b : a)) : null;
   const totalPiezas = uso.piezas_por_dia.reduce((t, d) => t + d.piezas, 0);
+  const semanaMasComun = semanas.reduce((a, b) => (b.personas > a.personas ? b : a));
 
   return (
     <>
@@ -75,7 +80,7 @@ export default async function UsoPanel({ searchParams }: { searchParams: Promise
           />
         </Tarjeta>
         <Tarjeta indice={4}>
-          <Dato etiqueta="Terminaron los 30 días" numero={uso.con_piezas > 0 ? terminaronRuta : null} detalle={`De ${entero(uso.con_piezas)} que usan la app`} />
+          <Dato etiqueta="Llegaron al día 30" numero={uso.con_piezas > 0 ? terminaronRuta : null} detalle={`De ${entero(uso.con_piezas)} que usan la app`} />
         </Tarjeta>
       </div>
 
@@ -129,11 +134,17 @@ export default async function UsoPanel({ searchParams }: { searchParams: Promise
                     {entero(s.personas)} <span className="font-normal text-ink-3">({pct((s.personas / totalSemanas) * 100)})</span>
                   </span>
                   <span className="col-span-2">
-                    <Barra pct={(s.personas / totalSemanas) * 100} tono="verde" />
+                    <Barra pct={(s.personas / totalSemanas) * 100} tono="verde" indice={s.semana} />
                   </span>
                 </li>
               ))}
             </ul>
+          )}
+          {uso.con_piezas > 0 && semanaMasComun.personas > 0 && (
+            <Lectura tono={semanaMasComun.semana === 1 ? 'mal' : 'neutro'}>
+              La mayoría ({pct((semanaMasComun.personas / totalSemanas) * 100)}) está en la semana {semanaMasComun.semana}.
+              {semanaMasComun.semana === 1 ? ' Si no pasan de ahí, mira qué misión de la semana 1 los frena.' : ' Van avanzando por la ruta.'}
+            </Lectura>
           )}
         </Tarjeta>
       </div>
@@ -157,7 +168,7 @@ export default async function UsoPanel({ searchParams }: { searchParams: Promise
                       {delAnterior !== null && <span className={`ml-2 font-normal ${esPeor ? 'text-warning' : 'text-ink-3'}`}>{pct(delAnterior)}</span>}
                     </span>
                     <span className="col-span-2">
-                      <Barra pct={(p.n / base) * 100} tono={esPeor ? 'ambar' : 'verde'} />
+                      <Barra pct={(p.n / base) * 100} tono={esPeor ? 'ambar' : 'verde'} indice={i} />
                     </span>
                   </li>
                 );
@@ -165,7 +176,7 @@ export default async function UsoPanel({ searchParams }: { searchParams: Promise
             </ol>
             <Lectura tono={peor && peor.t < 30 ? 'mal' : 'neutro'}>
               De cada 100 visitas, <strong className="font-semibold text-ink-1">{pct((funnel.pruebas_o_compras / base) * 100, 1)}</strong> terminan empezando la prueba o comprando.
-              {peor && ` Donde más gente se pierde es en "${pasos[peor.i].texto.toLowerCase()}" (solo sigue el ${pct(peor.t)}): empieza a mejorar por ahí.`}
+              {peor && ` Donde más gente se pierde es entre "${enMinuscula(pasos[peor.i - 1].texto)}" y "${enMinuscula(pasos[peor.i].texto)}" (solo sigue el ${pct(peor.t)}): mejora primero ${PANTALLA[peor.i - 1]}.`}
             </Lectura>
           </>
         )}

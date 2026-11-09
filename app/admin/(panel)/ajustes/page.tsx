@@ -12,8 +12,8 @@ export default async function AjustesPanel() {
   const periodo = periodoElegido();
   const [a, ventas, canalesMes] = await Promise.all([leerAjustes(), leerVentas(periodo, 'ventas_mes'), leerCanales(periodo, 'canales_mes')]);
   const impuestosMes = calcularGanancia(ventas, 0, a.impuestosPct, 0).impuestos;
-  // Los canales que ya conoce el panel (de las ventas y de gastos anteriores) + los más comunes.
-  const canales = [...new Set([...canalesMes.map((c) => c.canal), ...a.gastos.map((g) => g.canal), ...CANALES_BASE])].filter((c) => c !== 'sin código');
+  // Los más comunes primero, luego los que ya conoce el panel. Sin afiliados: no tienen gasto en anuncios.
+  const canales = [...new Set([...CANALES_BASE, ...a.gastos.map((g) => g.canal), ...canalesMes.map((c) => c.canal)])].filter((c) => c !== 'sin código' && !/^afiliad/.test(c));
   const { desde, hasta } = fechasPorDefecto();
 
   return (

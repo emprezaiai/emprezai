@@ -4,30 +4,39 @@
 
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { Encabezado, FilaMonto, Lectura, SelectorMes, TOCABLE, Tarjeta, TituloTarjeta } from '@/components/admin/ui';
+import { Encabezado, FilaMonto, Lectura, SelectorMes, TOCABLE, Tarjeta, TituloTarjeta, Variacion } from '@/components/admin/ui';
 import { Cuenta } from '@/components/admin/movimiento';
-import { dinero, entero, pct } from '@/lib/panel-formato';
+import { dinero, entero, pct, variacion } from '@/lib/panel-formato';
 import { calcularGanancia, calcularMrr, leerAjustes, leerClientes, leerIa, leerVentas, periodoElegido } from '@/lib/servidor/panel';
 
 // Colores con significado para la barra: lo que queda en dorado (el dato principal), los costos en
 // tonos neutros escalonados y lo devuelto en rojo.
+// (Cada costo con un tono que se distingue: claro, gris medio, ámbar, turquesa apagado, gris oscuro.)
 const COLOR = {
   queda: 'var(--gold)',
-  hotmart: 'color-mix(in oklab, var(--ink-2) 70%, transparent)',
-  afiliados: 'color-mix(in oklab, var(--ink-2) 50%, transparent)',
-  impuestos: 'color-mix(in oklab, var(--ink-3) 70%, transparent)',
-  ia: 'color-mix(in oklab, var(--ink-1) 30%, transparent)',
-  fijos: 'color-mix(in oklab, var(--ink-3) 45%, transparent)',
+  hotmart: 'var(--ink-1)',
+  afiliados: 'var(--ink-3)',
+  impuestos: 'var(--warning)',
+  ia: 'color-mix(in oklab, var(--marca-ai) 65%, var(--ink-3))',
+  fijos: 'color-mix(in oklab, var(--ink-3) 40%, var(--surface-raised-2))',
   devuelto: 'var(--danger)',
 };
 const monto = (n: number) => (Math.abs(n) < 0.005 ? dinero(0) : dinero(-n));
 
 export default async function GananciaPanel({ searchParams }: { searchParams: Promise<{ mes?: string }> }) {
   const periodo = periodoElegido((await searchParams).mes);
-  const [ventas, ia, ajustes, clientes] = await Promise.all([leerVentas(periodo, 'ventas_mes'), leerIa(periodo, 'ia_mes'), leerAjustes(), leerClientes()]);
+  const [ventas, ia, ajustes, clientes, ventasAnt, iaAnt] = await Promise.all([
+    leerVentas(periodo, 'ventas_mes'),
+    leerIa(periodo, 'ia_mes'),
+    leerAjustes(),
+    leerClientes(),
+    leerVentas(periodo.comparar, 'ventas_mes_anterior'),
+    leerIa(periodo.comparar, 'ia_mes_anterior'),
+  ]);
   const costosActivos = ajustes.costos.filter((c) => c.activo);
   const fijos = costosActivos.reduce((t, c) => t + c.monto_usd, 0);
   const g = calcularGanancia(ventas, ia.total_usd, ajustes.impuestosPct, fijos);
+  const gAnt = calcularGanancia(ventasAnt, iaAnt.total_usd, ajustes.impuestosPct, fijos);
   const { pagando } = calcularMrr(clientes);
   const porCliente = pagando > 0 && g.bruto > 0 ? g.ganancia / pagando : null;
   const tramos = [
@@ -56,19 +65,19 @@ export default async function GananciaPanel({ searchParams }: { searchParams: Pr
               <Cuenta valor={g.ganancia} formato="dinero" decimales={2} />
             </p>
             <p className="mt-2 text-caption text-ink-2">
-              limpios · margen {g.margenPct !== null ? pct(g.margenPct) : '—'}
-              {porCliente !== null && <> · {dinero(porCliente)} por cliente pagando</>}
+              limpios · margen {g.margenPct !== null ? pct(g.margenPct) : '—'} · <Variacion cambio={variacion(g.ganancia, gAnt.bruto > 0 ? gAnt.ganancia : 0)} contra={periodo.textoComparar} />
             </p>
+            {porCliente !== null && <p className="mt-1 text-caption text-ink-2">{dinero(porCliente)} por cada cliente pagando</p>}
 
             {/* Adónde se va cada dólar */}
-            <div className="mt-4 flex h-3 w-full overflow-hidden rounded-full bg-sunken" role="img" aria-label={`De cada dólar: te quedan ${pct(Math.max(0, (g.ganancia / g.bruto) * 100))}, el resto se va en costos.`}>
+            <div className="panel-crecer mt-4 flex h-3 w-full overflow-hidden rounded-full bg-sunken" role="img" aria-label={`De cada dólar: te quedan ${pct(Math.max(0, (g.ganancia / g.bruto) * 100))}, el resto se va en costos.`}>
               {g.ganancia > 0 && <span style={{ width: `${(g.ganancia / g.bruto) * 100}%`, background: COLOR.queda }} />}
               {tramos.map((t) => t.v > 0 && <span key={t.id} style={{ width: `${(t.v / g.bruto) * 100}%`, background: COLOR[t.id] }} />)}
             </div>
             <Lectura tono={g.ganancia >= 0 ? 'neutro' : 'mal'}>
               Tu mayor costo es <strong className="font-semibold text-ink-1">{mayor.texto.toLowerCase()}</strong>: {deCadaDolar} de cada 100 dólares que facturas.
-              {periodo.diaDeHoy && ` Los costos fijos van completos aunque el mes va en el día ${periodo.diaDeHoy}: el margen sube a medida que entren más ventas.`}
             </Lectura>
+            {periodo.diaDeHoy && <p className="mt-1 pl-6 text-xs text-ink-3">Los costos fijos ya van completos (el mes va en el día {periodo.diaDeHoy}).</p>}
           </>
         ) : (
           <>
@@ -81,24 +90,26 @@ export default async function GananciaPanel({ searchParams }: { searchParams: Pr
       </Tarjeta>
 
       <Tarjeta className="mb-4" indice={2}>
-        <TituloTarjeta ayuda="En dólares (la moneda de tus planes). El punto de color es el mismo de la barra de arriba.">La cuenta, paso a paso</TituloTarjeta>
+        <TituloTarjeta ayuda="En dólares. Todo es real (lo informó Hotmart o lo midió la app), salvo lo marcado como estimado. El punto es el color de la barra de arriba.">La cuenta, paso a paso</TituloTarjeta>
         <div className="divide-y divide-[var(--line)]">
           <FilaMonto concepto="Facturaste" monto={dinero(g.bruto)} nota={g.ventas > 0 ? `${entero(g.ventas)} ${g.ventas === 1 ? 'cobro' : 'cobros'} de Hotmart` : 'Sin cobros todavía'} />
-          <FilaMonto concepto="Reembolsos y contracargos" color={COLOR.devuelto} monto={monto(g.devuelto)} nota="Real (lo informó Hotmart)" />
+          <FilaMonto concepto="Reembolsos y contracargos" color={COLOR.devuelto} monto={monto(g.devuelto)} apagada={g.devuelto < 0.005} />
           <FilaMonto
             concepto="Comisión de Hotmart"
             color={COLOR.hotmart}
             monto={monto(g.comision)}
-            nota={g.comisionEstimada ? 'Parte real y parte estimada (9,9% + $0,45 en las ventas que llegaron sin el detalle)' : g.ventas > 0 ? 'Real (lo informó Hotmart)' : undefined}
+            nota={g.comisionEstimada ? 'Parte estimada (9,9% + $0,45) en las ventas que llegaron sin el detalle' : undefined}
+            apagada={g.comision < 0.005}
           />
-          <FilaMonto concepto="Afiliados" color={COLOR.afiliados} monto={monto(g.afiliados)} nota={g.afiliadosSinInformar > 0 ? `Real; ${g.afiliadosSinInformar} ventas llegaron sin el detalle` : 'Real (lo informó Hotmart)'} />
-          <FilaMonto concepto="Impuestos" color={COLOR.impuestos} monto={monto(g.impuestos)} nota={`Estimado: ${pct(g.impuestosPct)} que pusiste en Ajustes`} />
-          <FilaMonto concepto="IA" color={COLOR.ia} monto={monto(g.ia)} nota={`Real: lo que costó cada uso de la IA (${entero(ia.llamadas)} usos)`} />
+          <FilaMonto concepto="Afiliados" color={COLOR.afiliados} monto={monto(g.afiliados)} nota={g.afiliadosSinInformar > 0 ? `${g.afiliadosSinInformar} ventas llegaron sin el detalle` : undefined} apagada={g.afiliados < 0.005} />
+          <FilaMonto concepto="Impuestos" color={COLOR.impuestos} monto={monto(g.impuestos)} nota={`Estimado: el ${pct(g.impuestosPct)} que pusiste en Ajustes`} apagada={g.impuestos < 0.005} />
+          <FilaMonto concepto="IA" color={COLOR.ia} monto={monto(g.ia)} nota={`${entero(ia.llamadas)} usos`} apagada={g.ia < 0.005} />
           <FilaMonto
             concepto="Servidores, dominio y correo"
             color={COLOR.fijos}
             monto={monto(g.fijos)}
             nota={costosActivos.length > 0 ? costosActivos.map((c) => `${c.nombre} ${dinero(c.monto_usd)}`).join(' · ') : 'Aún no anotaste tus costos fijos en Ajustes'}
+            apagada={g.fijos < 0.005}
           />
           <FilaMonto total concepto="Te quedaron limpios" monto={dinero(g.ganancia)} color={COLOR.queda} />
         </div>

@@ -101,19 +101,19 @@ export default async function InicioPanel({ searchParams }: { searchParams: Prom
         )}
       </Tarjeta>
 
-      {/* Los 4 números del negocio (hoy) */}
+      {/* Los 4 números del negocio: cada tarjeta lleva a su sección */}
       <Entrada indice={3}>
-        <p className="mb-2 text-xs font-semibold tracking-[0.08em] text-ink-3 uppercase">Hoy</p>
+        <p className="mb-2 text-xs font-semibold tracking-[0.08em] text-ink-3 uppercase">Números clave</p>
       </Entrada>
       <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Tarjeta indice={3}>
+        <Tarjeta indice={3} href="/admin/usuarios?estado=activo">
           <Dato
-            etiqueta="Clientes activos"
+            etiqueta="Clientes activos hoy"
             numero={clientes.total > 0 ? activos : null}
             detalle={clientes.total > 0 ? `${entero(pagando)} pagando · ${entero(clientes.en_prueba)} en prueba` : 'Aún nadie compró'}
           />
         </Tarjeta>
-        <Tarjeta indice={4}>
+        <Tarjeta indice={4} href={`/admin/ventas?mes=${periodo.param}`}>
           <Dato
             etiqueta="Ingreso mensual recurrente"
             numero={pagando > 0 ? mrr : null}
@@ -122,7 +122,7 @@ export default async function InicioPanel({ searchParams }: { searchParams: Prom
             detalle={pagando > 0 ? 'A precio de lista; el anual cuenta 1/12 por mes' : 'Aparece con el primer cliente pagando'}
           />
         </Tarjeta>
-        <Tarjeta indice={5}>
+        <Tarjeta indice={5} href={`/admin/ia?mes=${periodo.param}`}>
           <Dato
             etiqueta="Costo de la IA del mes"
             numero={ia.llamadas > 0 ? ia.total_usd : null}
@@ -132,9 +132,9 @@ export default async function InicioPanel({ searchParams }: { searchParams: Prom
             detalle={ia.llamadas === 0 ? 'La IA no se usó este mes' : pctIa !== null ? `${pct(pctIa, 1)} de lo que facturaste` : `${entero(ia.llamadas)} usos, sin ventas aún`}
           />
         </Tarjeta>
-        <Tarjeta indice={6}>
+        <Tarjeta indice={6} href={`/admin/ventas?mes=${periodo.param}`}>
           <Dato
-            etiqueta="Se fueron este mes"
+            etiqueta={periodo.esActual ? 'Se fueron este mes' : 'Se fueron ese mes'}
             numero={churn.total}
             formato="pct"
             decimales={1}

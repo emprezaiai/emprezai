@@ -19,7 +19,7 @@ await db.exec(`
   grant execute on function auth.uid() to anon, authenticated, service_role;
   grant usage on schema public to anon, authenticated, service_role;
 `);
-for (const m of ['20261014000000_inicial.sql', '20261023000000_blindaje.sql', '20261103000000_cierre_tiene_acceso.sql', '20261109000000_panel.sql', '20261109000001_panel_serie.sql', '20261109000002_panel_usuarios.sql', '20261109000003_panel_usuarios_filtros.sql']) {
+for (const m of ['20261014000000_inicial.sql', '20261023000000_blindaje.sql', '20261103000000_cierre_tiene_acceso.sql', '20261109000000_panel.sql', '20261109000001_panel_serie.sql', '20261109000002_panel_usuarios.sql', '20261109000003_panel_usuarios_filtros.sql', '20261109000004_panel_ia_por_dia.sql', '20261109000005_panel_salud_semana.sql']) {
   await db.exec(readFileSync(`${raiz}/supabase/migrations/${m}`, 'utf8'));
 }
 // El historial se siembra con fechas del pasado: el disparador (que usa now()) se apaga para sembrar.
@@ -247,7 +247,7 @@ const datos = {
   ajustes,
   pruebas_sin_pago_mes: await r(`public.panel_pruebas_sin_pago($1, $2)`, mes),
   usuarios: await r(`public.panel_usuarios('', 'todos', 25, 0)`),
-  ultimos_cobros: (await db.query(`select economic_kind as tipo, amount_minor::int as monto_minor, currency as moneda, occurred_at as en, email from public.payment_transactions order by occurred_at desc limit 12`)).rows,
+  ultimos_cobros: (await db.query(`select economic_kind as tipo, amount_minor::int as monto_minor, currency as moneda, occurred_at as en, email from public.payment_transactions order by occurred_at desc limit 300`)).rows,
 };
 // La ficha de captura: alguien que paga, con historial y pagos.
 const pagando = (await db.query(`select id from public.profiles where status='active' and plan='mensual' and origen_acceso='hotmart' order by created_at limit 1`)).rows[0].id;

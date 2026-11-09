@@ -5,8 +5,7 @@
 import Link from 'next/link';
 import { Barra, Dato, Encabezado, Lectura, SelectorMes, SinDatos, TOCABLE, Tarjeta, TituloTarjeta, Variacion } from '@/components/admin/ui';
 import { Cuenta } from '@/components/admin/movimiento';
-import { GraficoMeses } from '@/components/admin/Graficos';
-import { dineroMinor, entero, fechaHora, variacion } from '@/lib/panel-formato';
+import { dinero, dineroMinor, entero, fechaHora, mesCorto, variacion } from '@/lib/panel-formato';
 import {
   calcularChurn,
   calcularMrr,
@@ -15,12 +14,12 @@ import {
   leerClientes,
   leerPruebasSinPago,
   leerSerie,
-  leerUltimosCobros,
+  leerCobrosDelMes,
   leerVentas,
   periodoElegido,
 } from '@/lib/servidor/panel';
 
-const NOMBRE_COBRO: Record<string, string> = { sale: 'Venta', refund: 'Reembolso', chargeback: 'Contracargo' };
+const NOMBRE_COBRO: Record<string, string> = { sale: 'Cobro', refund: 'Reembolso', chargeback: 'Contracargo' };
 
 export default async function VentasPanel({ searchParams }: { searchParams: Promise<{ mes?: string; tipo?: string }> }) {
   const sp = await searchParams;
@@ -31,7 +30,7 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
     leerVentas(periodo.comparar, 'ventas_mes_anterior'),
     leerClientes(),
     leerPruebasSinPago(periodo),
-    leerUltimosCobros(30),
+    leerCobrosDelMes(periodo, 50),
     leerSerie(6),
     leerAjustes(),
   ]);
@@ -45,6 +44,7 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
   const conversion = pruebasTerminadas > 0 ? (ventas.pruebas_a_pago / pruebasTerminadas) * 100 : null;
   const otras = ventas.dinero.filter((d) => d.moneda !== 'USD' && d.ventas > 0);
   const meses = gananciaPorMes(serie, ajustes.impuestosPct, 0);
+  const maxMes = Math.max(1, ...meses.map((m) => m.ingresos));
   const nadieSeFue = ventas.cancelaciones_voluntarias + ventas.perdidos_por_pago + ventas.cobros_fallidos + ventas.reembolsados === 0;
   // Tus clientes HOY, contados igual que en Inicio (quien entró a mano no cuenta como pago).
   const sinAcceso = Math.max(0, clientes.total - pagando - clientes.en_prueba - clientes.manuales);
@@ -77,14 +77,22 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
           <p className="mt-1 text-ayuda text-ink-2">{periodo.esActual ? 'Aún no hay cobros este mes.' : 'No hubo cobros ese mes.'}</p>
         )}
         {meses.some((m) => m.hayVentas) && (
-          <div className="mt-3">
-            <GraficoMeses datos={meses} />
-            <p className="text-xs text-ink-3">Barra apagada: lo facturado · dorada: lo que quedó tras Hotmart, impuestos e IA (sin costos fijos).</p>
-          </div>
+          <ul className="mt-4 flex flex-col gap-2" aria-label="Lo que entró en los últimos 6 meses">
+            {meses.map((m, i) => {
+              const elegido = m.mes === periodo.param;
+              return (
+                <li key={m.mes} className="grid grid-cols-[2.5rem_1fr_auto] items-center gap-2 text-xs">
+                  <span className={elegido ? 'font-semibold text-ink-1' : 'text-ink-3'}>{mesCorto(m.mes)}</span>
+                  <Barra pct={(m.ingresos / maxMes) * 100} tono={elegido ? 'verde' : 'neutra'} indice={i} />
+                  <span className={`whitespace-nowrap tabular-nums ${elegido ? 'font-semibold text-ink-1' : 'text-ink-2'}`}>{dinero(m.ingresos, 0)}</span>
+                </li>
+              );
+            })}
+          </ul>
         )}
       </Tarjeta>
 
-      <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-3">
+      <div className="mb-4 grid grid-cols-2 gap-3">
         <Tarjeta indice={2}>
           <Dato
             etiqueta="Ingreso mensual recurrente"
@@ -103,21 +111,16 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
             detalle={conversion !== null ? `${entero(ventas.pruebas_a_pago)} de ${entero(pruebasTerminadas)} que terminaron` : `${entero(ventas.pruebas_iniciadas)} pruebas nuevas; ninguna terminó aún`}
           />
         </Tarjeta>
-        <Tarjeta indice={4} className="col-span-2 lg:col-span-1">
-          <Dato
-            etiqueta="Se fueron este mes"
-            numero={churn.total}
-            formato="pct"
-            decimales={1}
-            tono={churn.total !== null && churn.total > 8 ? 'mal' : 'neutro'}
-            detalle={churn.total !== null ? `de ${entero(ventas.pagando_al_inicio)} que pagaban al empezar el mes` : 'Se mide con clientes pagando desde el mes anterior'}
-          />
-        </Tarjeta>
       </div>
 
       <div className="mb-4 grid gap-3 lg:grid-cols-2">
         <Tarjeta indice={5}>
           <TituloTarjeta ayuda="Separado porque se resuelve distinto: unos decidieron irse, a otros les falló el pago.">Quién se fue y por qué</TituloTarjeta>
+          {churn.total !== null && (
+            <p className="mb-3 text-caption text-ink-2">
+              <strong className={`font-display text-xl font-extrabold tabular-nums ${churn.total > 8 ? 'text-danger' : 'text-ink-1'}`}>{churn.total.toLocaleString('es', { maximumFractionDigits: 1 })}%</strong> de los {entero(ventas.pagando_al_inicio)} que pagaban al empezar el mes
+            </p>
+          )}
           {nadieSeFue ? (
             <Lectura tono="bien">Nadie se fue este mes: ni cancelaciones, ni pagos fallidos, ni reembolsos.</Lectura>
           ) : (
@@ -159,7 +162,7 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
           )}
           {sinAcceso > 0 && (
             <Lectura>
-              Los {entero(sinAcceso)} que ya no tienen acceso son, sobre todo, pruebas que terminaron sin pagar.{' '}
+              {entero(sinAcceso)} ya no tienen acceso: pruebas que terminaron sin pagar, cancelaciones o reembolsos.{' '}
               <Link href="/admin/usuarios?estado=expired" className="font-semibold text-ink-1 underline underline-offset-4">
                 Verlos
               </Link>
@@ -169,7 +172,7 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
       </div>
 
       <Tarjeta className="mb-4" indice={7}>
-        <TituloTarjeta ayuda="Lo que informó Hotmart, del más reciente al más antiguo.">Últimos movimientos</TituloTarjeta>
+        <TituloTarjeta ayuda="Lo que informó Hotmart, del más reciente al más antiguo.">{`Movimientos de ${periodo.etiqueta.split(' ')[0]}`}</TituloTarjeta>
         <nav aria-label="Filtrar movimientos" className="mb-2 flex flex-wrap gap-2">
           {[
             ['todos', 'Todos'],
@@ -186,7 +189,7 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
           ))}
         </nav>
         {lista.length === 0 ? (
-          <SinDatos porque={tipo === 'devoluciones' ? 'No hubo reembolsos.' : 'Aparecen cuando Hotmart avise la primera venta.'} />
+          <SinDatos porque={tipo === 'devoluciones' ? 'No hubo reembolsos en este mes.' : 'No hubo movimientos de Hotmart en este mes.'} />
         ) : (
           <ul className="divide-y divide-[var(--line)]">
             {lista.map((c, i) => (

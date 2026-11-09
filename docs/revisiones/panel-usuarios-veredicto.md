@@ -1,0 +1,9 @@
+# VEREDICTO revisor-visual — Panel · Usuarios
+Fecha: 2026-11-09 16:00
+Screenshot: docs/revisiones/panel/usuarios-375.png
+Usabilidad: 28/40
+Craft: 12/20
+Copy (si vende): N-A
+Fidelidad (si hubo referencia): N-A
+Veredicto: NO LISTA
+Top defectos: 1) [filas de la lista a 375px] La columna de estado (punto + "En prueba" + flecha) ocupa ~110px y la línea "Desde 8 nov · 2 piezas · última vez 10 nov" se parte en 2-3 renglones con "10 nov" / "nov" huérfanos en casi todas las filas, y el correo de "Mentora invitada" sale cortado ("regalo.mentora@correo....") → en móvil pasar el estado a un chip bajo el nombre (usuarios/page.tsx, span flex-col items-end) y dejar la fila a ancho completo. 2) [botón "Dar acceso a alguien"] Flota a la derecha en su propia fila con hueco muerto a la izquierda (375 y 1440) y es un ancla a un formulario que está ~3.000px más abajo, tras 25 filas (regla UX 12: crear junto a lo que crea) → ponerlo en la fila del título y abrir el formulario en una hoja/desplegable arriba, no al pie. 3) [chips de filtro] Tocar un chip no da ninguna señal: loading.tsx no se dispara al cambiar solo los searchParams y la búsqueda es un form HTML plano (recarga completa) → useTransition/useLinkStatus con estado "Cargando…" en el chip y en la lista (o key por searchParams en un Suspense). 4) [menú lateral 1440 y menú móvil] Desvío de FICHA-ARTE que sigue sin corregirse: el ítem activo va en dorado (MarcoPanel.tsx línea 56, text-gold + fondo oro 14%); el dorado está reservado a CTA/dato héroe → activo en ink-1 con fondo raised-2. 5) [chips + puntos de estado] Los chips no muestran cuántas personas hay en cada estado y "Acceso regalado" (bg-ink-2) y "Sin acceso" (ink-3 60%) usan casi el mismo punto gris → contador en cada chip ("Pagando 12") y punto distinto para regalado (estados.ts).

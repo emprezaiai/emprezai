@@ -40,6 +40,30 @@ export function GraficoMeses({ datos }: { datos: { mes: string; ingresos: number
 
 const fechaEje = (f: string) => new Intl.DateTimeFormat('es', { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(new Date(`${f}T12:00:00Z`)).replace('.', '');
 
+/** Gasto de IA por día del mes, con 3 fechas en el eje. */
+export function GraficoGastoDia({ datos }: { datos: { fecha: string; usd: number }[] }) {
+  const reduce = useReducedMotion();
+  const marcas = datos.length > 2 ? [datos[0].fecha, datos[Math.floor(datos.length / 2)].fecha, datos[datos.length - 1].fecha] : datos.map((d) => d.fecha);
+  const total = datos.reduce((t, d) => t + d.usd, 0);
+  return (
+    <div className="h-36 w-full min-w-0" role="img" aria-label={`Gasto de IA por día: US${total.toFixed(2)} en total`}>
+      <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+        <BarChart data={datos} margin={{ top: 8, right: 0, bottom: 0, left: 0 }}>
+          <XAxis dataKey="fecha" ticks={marcas} tickFormatter={fechaEje} axisLine={false} tickLine={false} tick={{ fill: 'var(--ink-3)', fontSize: 11 }} interval="preserveStartEnd" />
+          <Tooltip
+            cursor={{ fill: 'rgb(255 255 255 / 0.04)' }}
+            contentStyle={ESTILO_TOOLTIP}
+            formatter={(v) => [`${Number(v).toLocaleString('es', { minimumFractionDigits: 3, maximumFractionDigits: 3 })}`, 'Gasto']}
+            labelFormatter={(f) => fechaEje(String(f))}
+            labelStyle={{ color: 'var(--ink-2)' }}
+          />
+          <Bar dataKey="usd" fill="color-mix(in oklab, var(--ink-2) 70%, transparent)" radius={[3, 3, 0, 0]} isAnimationActive={!reduce} animationDuration={600} />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
 /** Piezas armadas por día (últimos 30 días): la acción principal de la app, con 3 fechas en el eje. */
 export function GraficoBarrasDia({ datos }: { datos: { fecha: string; piezas: number }[] }) {
   const reduce = useReducedMotion();

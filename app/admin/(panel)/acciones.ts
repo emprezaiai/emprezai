@@ -5,6 +5,7 @@
 // datos con zod y queda en la auditoría. Nunca se guardan enlaces ni códigos de acceso.
 
 import { revalidatePath } from 'next/cache';
+import { nombreCanal } from '@/lib/panel-formato';
 import { z } from 'zod';
 import { adminActual, auditar, type Admin } from '@/lib/servidor/admin';
 import { asegurarCuenta, enlaceDeAcceso } from '@/lib/servidor/accesos';
@@ -302,7 +303,7 @@ export async function agregarGasto(_previo: Resultado | null, datos: FormData): 
     if (error) throw error;
     await auditar(admin, 'agregar_gasto', { canal, monto, desde, hasta });
     revalidatePath('/admin', 'layout');
-    return { ok: true, mensaje: `Gasto de "${canal}" guardado.` };
+    return { ok: true, mensaje: `Gasto de ${nombreCanal(canal)} guardado.` };
   } catch (e) {
     return falla(e, 'gasto');
   }

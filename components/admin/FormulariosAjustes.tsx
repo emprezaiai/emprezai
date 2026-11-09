@@ -23,13 +23,13 @@ function Aviso({ r }: { r: Resultado | null }) {
   );
 }
 
-/** El mismo botón de guardar en los tres formularios. */
-function BotonGuardar({ enviando, texto = 'Guardar' }: { enviando: boolean; texto?: string }) {
+/** El mismo botón de guardar en los tres formularios (secundario: en Ajustes no hay una acción principal). */
+function BotonGuardar({ enviando, texto = 'Guardar', className = '' }: { enviando: boolean; texto?: string; className?: string }) {
   return (
     <button
       type="submit"
       disabled={enviando}
-      className="boton-oro flex h-12 shrink-0 items-center justify-center gap-2 rounded-[var(--radius-pill)] px-5 font-display text-base font-bold transition-transform duration-100 active:scale-[0.97] disabled:opacity-70"
+      className={`flex h-12 shrink-0 items-center justify-center gap-2 rounded-[var(--radius-pill)] border border-[color-mix(in_oklab,var(--ink-2)_45%,transparent)] bg-raised-2 px-5 font-display text-base font-bold text-ink-1 transition-[transform,background-color] duration-100 hover:bg-raised active:scale-[0.97] disabled:opacity-70 ${className}`}
     >
       {enviando ? <LoaderCircle size={18} className="motion-safe:animate-spin" aria-hidden="true" /> : <Check size={18} aria-hidden="true" />}
       {enviando ? 'Guardando…' : texto}
@@ -154,7 +154,7 @@ export function ListaCostos({ costos }: { costos: CostoFijo[] }) {
         </label>
         <label className="flex flex-col gap-1 sm:w-40">
           <span className={ETIQUETA}>Cuánto al mes (USD)</span>
-          <input name="monto" type="number" min={0} step="0.01" required placeholder="20" inputMode="decimal" className={CAMPO} />
+          <input name="monto" type="number" min={0} step="0.01" required placeholder="Ej.: 20" inputMode="decimal" className={CAMPO} />
         </label>
         <BotonGuardar enviando={enviando} texto="Agregar" />
       </form>
@@ -214,7 +214,7 @@ export function ListaGastos({ gastos, canales, desde, hasta }: { gastos: GastoCa
         )}
         <label className="flex flex-col gap-1">
           <span className={ETIQUETA}>Cuánto gastaste (USD)</span>
-          <input name="monto" type="number" min={0} step="0.01" required inputMode="decimal" placeholder="150" className={CAMPO} />
+          <input name="monto" type="number" min={0} step="0.01" required inputMode="decimal" placeholder="Ej.: 150" className={CAMPO} />
         </label>
         <label className="flex flex-col gap-1">
           <span className={ETIQUETA}>Desde</span>
@@ -226,10 +226,10 @@ export function ListaGastos({ gastos, canales, desde, hasta }: { gastos: GastoCa
         </label>
         <label className="flex flex-col gap-1 sm:col-span-2">
           <span className={ETIQUETA}>Nota (opcional)</span>
-          <input name="nota" maxLength={200} placeholder="Ej.: anuncio del video de la hoja en blanco" className={CAMPO} />
+          <input name="nota" maxLength={200} placeholder="Ej.: video de la hoja en blanco" className={CAMPO} />
         </label>
         <div className="sm:col-span-2">
-          <BotonGuardar enviando={enviando} texto="Guardar gasto" />
+          <BotonGuardar enviando={enviando} texto="Guardar gasto" className="w-full sm:w-auto" />
         </div>
       </form>
       <Aviso r={r} />

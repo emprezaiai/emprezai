@@ -5,12 +5,13 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { Dato, Encabezado, Lectura, SelectorMes, SinDatos, TOCABLE, Tarjeta, TituloTarjeta } from '@/components/admin/ui';
-import { decimal, dinero, entero, nombreCanal } from '@/lib/panel-formato';
+import { dinero, entero, nombreCanal } from '@/lib/panel-formato';
+import { Entrada, Llenado } from '@/components/admin/movimiento';
 import { calcularChurn, calcularLtv, leerCanales, leerClientes, leerVentas, periodoElegido } from '@/lib/servidor/panel';
 
-function veredicto(ratio: number | null, gasto: number, clientes: number) {
-  if (gasto <= 0) return { texto: 'Gratis', tono: 'text-ink-2', orden: 3 };
-  if (clientes === 0) return { texto: 'Sin clientes', tono: 'text-danger', orden: 0 };
+function veredicto(canal: string, ratio: number | null, gasto: number, clientes: number) {
+  if (gasto <= 0) return /^afiliad/.test(canal) ? { texto: 'Paga por venta', tono: 'text-ink-2', orden: 3 } : { texto: 'Sin gasto', tono: 'text-ink-2', orden: 3 };
+  if (clientes === 0) return { texto: 'Sin clientes nuevos', tono: 'text-danger', orden: 0 };
   if (ratio === null) return { texto: 'Sin datos', tono: 'text-ink-3', orden: 2 };
   if (ratio >= 3) return { texto: 'Sano', tono: 'text-green', orden: 2 };
   if (ratio >= 1) return { texto: 'Gana poco', tono: 'text-warning', orden: 1 };
@@ -30,7 +31,7 @@ export default async function CanalesPanel({ searchParams }: { searchParams: Pro
       const ratio = c.gasto_usd > 0 && valor !== null ? valor / c.gasto_usd : null;
       const arpuMes = vida ? vida.ltv / vida.vidaMeses : null;
       const recupero = cac !== null && arpuMes ? Math.max(1, Math.ceil(cac / arpuMes)) : null;
-      return { ...c, neto, cac, valor, ratio, recupero, v: veredicto(ratio, c.gasto_usd, c.clientes) };
+      return { ...c, neto, cac, valor, ratio, recupero, v: veredicto(c.canal, ratio, c.gasto_usd, c.clientes) };
     })
     .sort((a, b) => a.v.orden - b.v.orden || b.gasto_usd - a.gasto_usd);
   const gastoTotal = filas.reduce((t, f) => t + f.gasto_usd, 0);
@@ -64,7 +65,7 @@ export default async function CanalesPanel({ searchParams }: { searchParams: Pro
             formato="dinero"
             decimales={2}
             estimado={Boolean(vida)}
-            detalle={vida ? `Se queda unos ${Math.round(vida.vidaMeses)} meses (tope 24) según quiénes se van` : 'Aparece con el primer cliente pagando'}
+            detalle={vida ? `Se queda unos ${Math.round(vida.vidaMeses)} meses, según cuántos se van cada mes` : 'Aparece con el primer cliente pagando'}
           />
         </Tarjeta>
       </div>
@@ -80,10 +81,11 @@ export default async function CanalesPanel({ searchParams }: { searchParams: Pro
           <SinDatos porque="Aparecen con los primeros clientes. Para saber de dónde vienen, agrega ?sck=tiktok (o instagram, afiliado-ana…) al final de tu enlace de Hotmart en cada lugar donde lo publiques." />
         ) : (
           <ul className="flex flex-col gap-3">
-            {filas.map((f) => {
+            {filas.map((f, i) => {
               const tope = Math.max(f.gasto_usd, f.valor ?? 0, 1);
               return (
-                <li key={f.canal} className="rounded-[var(--radius-chip)] bg-sunken p-3">
+                <li key={f.canal}>
+                <Entrada indice={i + 5} className="rounded-[var(--radius-chip)] bg-sunken p-3">
                   <div className="flex items-start justify-between gap-3">
                     <span className="min-w-0">
                       <span className="block font-display text-base font-bold break-words text-ink-1">{nombreCanal(f.canal)}</span>
@@ -94,23 +96,23 @@ export default async function CanalesPanel({ searchParams }: { searchParams: Pro
                     </span>
                     <span className="shrink-0 text-right">
                       <span className={`block font-display text-xl font-extrabold ${f.v.tono}`}>{f.v.texto}</span>
-                      {f.ratio !== null && <span className="block text-xs whitespace-nowrap text-ink-3">vuelve ${decimal(f.ratio)} por cada $1</span>}
+                      {f.ratio !== null && <span className="block text-xs whitespace-nowrap text-ink-3">vuelven {dinero(f.ratio)} por cada $1</span>}
                     </span>
                   </div>
                   {f.gasto_usd > 0 && (
                     <div className="mt-3 flex flex-col gap-1.5" aria-label={`Gastado ${dinero(f.gasto_usd)}; dejarían ${f.valor !== null ? dinero(f.valor) : 'sin dato'}`}>
                       <div className="grid grid-cols-[5.5rem_1fr_auto] items-center gap-2 text-xs">
                         <span className="text-ink-3">Gastaste</span>
-                        <span className="h-2 rounded-full bg-base">
-                          <span className="block h-full rounded-full bg-[color-mix(in_oklab,var(--ink-2)_55%,transparent)]" style={{ width: `${(f.gasto_usd / tope) * 100}%` }} />
+                        <span className="block h-2 rounded-full bg-base">
+                          <Llenado pct={(f.gasto_usd / tope) * 100} className="bg-[color-mix(in_oklab,var(--ink-2)_55%,transparent)]" indice={i} />
                         </span>
                         <span className="whitespace-nowrap tabular-nums text-ink-1">{dinero(f.gasto_usd, 0)}</span>
                       </div>
                       {f.valor !== null && (
                         <div className="grid grid-cols-[5.5rem_1fr_auto] items-center gap-2 text-xs">
                           <span className="text-ink-3">Te dejarán</span>
-                          <span className="h-2 rounded-full bg-base">
-                            <span className={`block h-full rounded-full ${f.valor >= f.gasto_usd ? 'bg-green' : 'bg-danger'}`} style={{ width: `${(f.valor / tope) * 100}%` }} />
+                          <span className="block h-2 rounded-full bg-base">
+                            <Llenado pct={(f.valor / tope) * 100} className={f.valor >= f.gasto_usd ? 'bg-green' : 'bg-danger'} indice={i + 1} />
                           </span>
                           <span className="whitespace-nowrap tabular-nums text-ink-1">{dinero(f.valor, 0)}</span>
                         </div>
@@ -118,7 +120,8 @@ export default async function CanalesPanel({ searchParams }: { searchParams: Pro
                     </div>
                   )}
                   <p className="mt-2 text-caption text-ink-2">
-                    Cobrado este mes: <span className="font-semibold whitespace-nowrap text-ink-1 tabular-nums">{dinero(f.neto)}</span>
+                    Cobrado en el mes: <span className="font-semibold whitespace-nowrap text-ink-1 tabular-nums">{dinero(f.neto)}</span>
+                    {f.clientes === 0 && f.neto > 0 && ' (renovaciones de clientes anteriores)'}
                     {f.recupero !== null && (
                       <>
                         {' '}
@@ -126,6 +129,7 @@ export default async function CanalesPanel({ searchParams }: { searchParams: Pro
                       </>
                     )}
                   </p>
+                </Entrada>
                 </li>
               );
             })}

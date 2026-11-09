@@ -20,6 +20,17 @@ const RESULTADO: Record<string, string> = {
   error: 'No se pudieron aplicar',
 };
 
+const TIPO_AVISO: Record<string, string> = {
+  PURCHASE_APPROVED: 'una compra',
+  PURCHASE_COMPLETE: 'una compra',
+  PURCHASE_CANCELED: 'una cancelación',
+  PURCHASE_REFUNDED: 'un reembolso',
+  PURCHASE_CHARGEBACK: 'un contracargo',
+  PURCHASE_DELAYED: 'un pago atrasado',
+  SUBSCRIPTION_CANCELLATION: 'una cancelación de suscripción',
+  SWITCH_PLAN: 'un cambio de plan',
+};
+
 const ALERTA: [string, string][] = [
   ['ia-tope', 'La IA se pausó por llegar al tope de gasto'],
   ['accesos-vencidos', 'Accesos que vencieron sin aviso de Hotmart'],
@@ -52,14 +63,80 @@ export default async function SaludPanel() {
   const s = await leerSalud();
   const fallosHotmart7d = (s.webhook_7d.error ?? 0) + (s.webhook_7d.unauthorized ?? 0);
   const repetidos = s.errores_7d.filter((e) => e.veces >= 3 || e.personas >= 2);
-  const problemas = s.webhook_errores_24h + s.pagaron_sin_acceso + s.vencidos_sin_aviso + fallosHotmart7d + repetidos.length + (s.errores_hoy >= 10 ? 1 : 0);
+  const problemas = s.pagaron_sin_acceso + s.vencidos_sin_aviso + fallosHotmart7d + repetidos.length + (s.errores_hoy >= 10 ? 1 : 0);
   const totalWebhook = Object.values(s.webhook_7d).reduce((t, n) => t + n, 0);
+  const erroresSemana = s.errores_7d_total ?? s.errores_7d.reduce((t, e) => t + e.veces, 0);
+  const fallidos = s.webhook_fallidos ?? [];
   const razones = [
     s.pagaron_sin_acceso > 0 && `${s.pagaron_sin_acceso} pagaron y no tienen acceso`,
     fallosHotmart7d > 0 && `${fallosHotmart7d} ${fallosHotmart7d === 1 ? 'aviso de pago no se aplicó' : 'avisos de pago no se aplicaron'}`,
     s.vencidos_sin_aviso > 0 && `${s.vencidos_sin_aviso} accesos vencieron sin aviso`,
     repetidos.length > 0 && `${repetidos.length} ${repetidos.length === 1 ? 'error se repite' : 'errores se repiten'}`,
   ].filter(Boolean) as string[];
+
+  // Bloques en orden de impacto: si hay pagos que no se aplicaron, Hotmart va antes que los errores.
+  const bloqueHotmart = (
+    <Tarjeta className="mb-4" indice={fallosHotmart7d > 0 ? 6 : 7}>
+      <TituloTarjeta ayuda="Cada compra, renovación, cancelación o reembolso llega como un aviso de Hotmart.">Avisos de pago de Hotmart</TituloTarjeta>
+      {totalWebhook === 0 ? (
+        <SinDatos porque="Aparecen cuando conectes Hotmart y entre el primer aviso." />
+      ) : (
+        <>
+          <ul className="flex flex-col gap-2">
+            {Object.entries(s.webhook_7d)
+              .sort((a, b) => b[1] - a[1])
+              .map(([r, n]) => (
+                <li key={r} className="flex justify-between gap-3 text-caption">
+                  <span className={r === 'error' || r === 'unauthorized' ? 'font-semibold text-danger' : 'text-ink-1'}>{RESULTADO[r] ?? r}</span>
+                  <span className="tabular-nums text-ink-2">{entero(n)}</span>
+                </li>
+              ))}
+          </ul>
+          {fallidos.length > 0 && (
+            <ul className="mt-3 flex flex-col gap-1 rounded-[var(--radius-chip)] bg-sunken p-3">
+              {fallidos.map((w, i) => (
+                <li key={`${w.en}-${i}`} className="text-caption text-ink-1">
+                  Aviso de {TIPO_AVISO[w.tipo ?? ''] ?? 'un pago'} · {fechaHora(w.en)}
+                  {w.resultado === 'unauthorized' && <span className="text-ink-3"> (llegó con la clave equivocada)</span>}
+                </li>
+              ))}
+            </ul>
+          )}
+          {fallosHotmart7d > 0 && (
+            <p className="mt-3 text-caption text-ink-2">
+              <strong className="font-semibold text-ink-1">Qué hacer:</strong> Hotmart vuelve a intentarlo solo. Si alguien te escribe que pagó y no entra, búscalo en Hotmart por esa fecha y dale
+              acceso en{' '}
+              <Link href="/admin/usuarios?agregar=1" className="font-semibold text-ink-1 underline underline-offset-4">
+                Usuarios
+              </Link>
+              .
+            </p>
+          )}
+        </>
+      )}
+    </Tarjeta>
+  );
+  const bloqueErrores = (
+    <Tarjeta className="mb-4" indice={fallosHotmart7d > 0 ? 7 : 6}>
+      <TituloTarjeta ayuda="Los que más se repiten primero. Copia el detalle y mándaselo a quien te ayuda con la app.">Errores de la app</TituloTarjeta>
+      {s.errores_7d.length === 0 ? (
+        <SinDatos porque="No hubo errores esta semana." />
+      ) : (
+        <ul className="divide-y divide-[var(--line)]">
+          {s.errores_7d.map((e, i) => (
+            <li key={`${e.mensaje}-${i}`} className="pt-2 last:pb-0">
+              <p className="text-caption font-semibold text-ink-1">{enSimple(e.mensaje, e.ruta, e.origen)}</p>
+              <p className="mt-1 text-xs text-ink-3">
+                {entero(e.veces)} {e.veces === 1 ? 'vez' : 'veces'}
+                {e.personas > 0 && ` · ${entero(e.personas)} ${e.personas === 1 ? 'persona' : 'personas'}`} · la última {fechaHora(e.ultima)}
+              </p>
+              <BotonCopiar texto={`${e.origen} · ${e.ruta ?? '-'} · ${e.mensaje} · ${e.veces} veces · último ${e.ultima}`} etiqueta="Copiar el detalle" />
+            </li>
+          ))}
+        </ul>
+      )}
+    </Tarjeta>
+  );
 
   return (
     <>
@@ -74,7 +151,11 @@ export default async function SaludPanel() {
               : 'border-[color-mix(in_oklab,var(--warning)_45%,transparent)] bg-[color-mix(in_oklab,var(--warning)_8%,transparent)]'
           }`}
         >
-          {problemas === 0 ? <CircleCheck size={22} className="mt-0.5 shrink-0 text-green" aria-hidden="true" /> : <CircleAlert size={22} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />}
+          {problemas === 0 ? (
+            <CircleCheck size={22} className="mt-0.5 shrink-0 text-green" aria-hidden="true" />
+          ) : (
+            <CircleAlert size={22} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />
+          )}
           <p className="text-ayuda text-ink-1">
             <strong className="font-semibold">{problemas === 0 ? 'Todo funciona bien.' : 'Hay cosas que revisar.'}</strong>{' '}
             {problemas === 0 ? 'Los pagos dan acceso y no hay errores que se repitan.' : `${razones.join(' · ')}. Están abajo, de lo que más afecta a lo que menos.`}
@@ -100,7 +181,12 @@ export default async function SaludPanel() {
           />
         </Tarjeta>
         <Tarjeta indice={3}>
-          <Dato etiqueta="Fallos de Hotmart hoy" numero={s.webhook_errores_24h} tono={s.webhook_errores_24h > 0 ? 'mal' : 'bien'} detalle={s.webhook_ultimo ? `Último aviso: ${fechaHora(s.webhook_ultimo)}` : 'Hotmart todavía no envió avisos'} />
+          <Dato
+            etiqueta="Pagos que no se aplicaron"
+            numero={fallosHotmart7d}
+            tono={fallosHotmart7d > 0 ? 'mal' : 'bien'}
+            detalle={s.webhook_ultimo ? `Último aviso bien: ${fechaHora(s.webhook_ultimo)}` : 'Hotmart todavía no envió avisos'}
+          />
         </Tarjeta>
         <Tarjeta indice={4}>
           <Dato
@@ -119,75 +205,27 @@ export default async function SaludPanel() {
           />
         </Tarjeta>
         <Tarjeta indice={5}>
-          <Dato etiqueta="Errores hoy" numero={s.errores_hoy} tono={s.errores_hoy >= 10 ? 'mal' : 'neutro'} detalle="En pantallas y servidor" />
+          <Dato etiqueta="Errores de la semana" numero={erroresSemana} tono={repetidos.length > 0 ? 'mal' : 'neutro'} detalle={`${entero(s.errores_hoy)} hoy`} />
         </Tarjeta>
       </div>
 
-      <Tarjeta className="mb-4" indice={6}>
-        <TituloTarjeta ayuda="Los que afectan a más personas primero. Copia el detalle y pásamelo para arreglarlo.">Errores de la app</TituloTarjeta>
-        {s.errores_7d.length === 0 ? (
-          <SinDatos porque="No hubo errores esta semana." />
+      {fallosHotmart7d > 0 ? bloqueHotmart : bloqueErrores}
+      {fallosHotmart7d > 0 ? bloqueErrores : bloqueHotmart}
+      <Tarjeta indice={8}>
+        <TituloTarjeta ayuda="Avisos que la app te mandó por correo.">Alertas enviadas</TituloTarjeta>
+        {s.alertas.length === 0 ? (
+          <SinDatos porque="No hubo alertas." />
         ) : (
-          <ul className="divide-y divide-[var(--line)]">
-            {s.errores_7d.map((e, i) => (
-              <li key={`${e.mensaje}-${i}`} className="py-2">
-                <p className="text-caption font-semibold text-ink-1">{enSimple(e.mensaje, e.ruta, e.origen)}</p>
-                <p className="mt-1 text-xs text-ink-3">
-                  {entero(e.veces)} {e.veces === 1 ? 'vez' : 'veces'}
-                  {e.personas > 0 && ` · ${entero(e.personas)} ${e.personas === 1 ? 'persona' : 'personas'}`} · la última {fechaHora(e.ultima)}
-                </p>
-                <BotonCopiar texto={`${e.origen} · ${e.ruta ?? '-'} · ${e.mensaje} · ${e.veces} veces · último ${e.ultima}`} etiqueta="Copiar el detalle" />
+          <ul className="flex flex-col gap-2">
+            {s.alertas.map((a) => (
+              <li key={a.clave} className="flex justify-between gap-3 text-caption">
+                <span className="text-ink-1">{ALERTA.find(([k]) => a.clave.startsWith(k))?.[1] ?? 'Alerta de la app'}</span>
+                <span className="shrink-0 text-ink-3">{fechaHora(a.en)}</span>
               </li>
             ))}
           </ul>
         )}
       </Tarjeta>
-
-      <div className="grid gap-3 lg:grid-cols-2">
-        <Tarjeta indice={7}>
-          <TituloTarjeta ayuda="Cada compra, renovación, cancelación o reembolso llega como un aviso de Hotmart.">Avisos de pago de Hotmart</TituloTarjeta>
-          {totalWebhook === 0 ? (
-            <SinDatos porque="Aparecen cuando conectes Hotmart y entre el primer aviso." />
-          ) : (
-            <>
-              <ul className="flex flex-col gap-2">
-                {Object.entries(s.webhook_7d)
-                  .sort((a, b) => b[1] - a[1])
-                  .map(([r, n]) => (
-                    <li key={r} className="flex justify-between gap-3 text-caption">
-                      <span className={r === 'error' || r === 'unauthorized' ? 'font-semibold text-danger' : 'text-ink-1'}>{RESULTADO[r] ?? r}</span>
-                      <span className="tabular-nums text-ink-2">{entero(n)}</span>
-                    </li>
-                  ))}
-              </ul>
-              {fallosHotmart7d > 0 && (
-                <p className="mt-3 text-caption text-ink-2">
-                  <strong className="font-semibold text-ink-1">Qué hacer:</strong> Hotmart reintenta solo. Si en un día sigue igual, revisa en{' '}
-                  <Link href="/admin/usuarios?estado=sin-acceso" className="font-semibold text-ink-1 underline underline-offset-4">
-                    Usuarios
-                  </Link>{' '}
-                  que nadie haya quedado sin acceso.
-                </p>
-              )}
-            </>
-          )}
-        </Tarjeta>
-        <Tarjeta indice={8}>
-          <TituloTarjeta ayuda="Avisos que la app te mandó por correo.">Alertas enviadas</TituloTarjeta>
-          {s.alertas.length === 0 ? (
-            <SinDatos porque="No hubo alertas." />
-          ) : (
-            <ul className="flex flex-col gap-2">
-              {s.alertas.map((a) => (
-                <li key={a.clave} className="flex justify-between gap-3 text-caption">
-                  <span className="text-ink-1">{ALERTA.find(([k]) => a.clave.startsWith(k))?.[1] ?? 'Alerta de la app'}</span>
-                  <span className="shrink-0 text-ink-3">{fechaHora(a.en)}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Tarjeta>
-      </div>
     </>
   );
 }

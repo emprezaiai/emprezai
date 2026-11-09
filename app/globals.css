@@ -466,3 +466,26 @@ body {
 .ficha-3d.relieve-noche svg {
   filter: none;
 }
+
+/* Panel: entrada escalonada en CSS (corre al pintar, sin esperar a que cargue el JavaScript). */
+@keyframes panel-entrar {
+  from { opacity: 0; transform: translateY(10px); }
+}
+.panel-entrar { animation: panel-entrar 350ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+/* Rayo de marca del panel: el trazo oro→verde del isotipo, bajo cada título. */
+.rayo-marca {
+  display: block;
+  height: 3px;
+  width: 40px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--gold), var(--green));
+}
+/* Barras de tramos que crecen de izquierda a derecha al aparecer. */
+@keyframes panel-crecer {
+  from { transform: scaleX(0); }
+}
+.panel-crecer { transform-origin: left center; animation: panel-crecer 700ms cubic-bezier(0.16, 1, 0.3, 1) 150ms both; }
+@media (prefers-reduced-motion: reduce) {
+  .panel-entrar,
+  .panel-crecer { animation: none; }
+}

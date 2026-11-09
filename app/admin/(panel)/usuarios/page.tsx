@@ -1,14 +1,17 @@
-// USUARIOS: buscador por correo o nombre, filtros por estado (los 5 más usados a la vista, el resto
-// en "Más filtros"), lista con lo importante de cada persona y el alta manual.
+// USUARIOS: "Dar acceso a alguien" arriba (se abre ahí mismo), buscador por correo o nombre, filtros
+// por estado (los 5 más usados a la vista, el resto en "Más filtros", con señal de carga al tocar) y
+// la lista con el estado como chip bajo el nombre.
 
 import Link from 'next/link';
+import Form from 'next/form';
 import { ChevronDown, ChevronLeft, ChevronRight, Search, UserPlus } from 'lucide-react';
 import { FormAgregarUsuario } from '@/components/admin/AccionesUsuario';
+import { ChipFiltro } from '@/components/admin/ChipFiltro';
 import { estadoVisible } from '@/components/admin/estados';
 import { Entrada } from '@/components/admin/movimiento';
 import { Encabezado, SinDatos, TOCABLE, Tarjeta, TituloTarjeta } from '@/components/admin/ui';
 import { entero, fechaCorta } from '@/lib/panel-formato';
-import { FILTROS_USUARIOS, POR_PAGINA, leerUsuarios, modoCaptura, type FiltroUsuarios } from '@/lib/servidor/panel';
+import { FILTROS_USUARIOS, POR_PAGINA, leerUsuarios, type FiltroUsuarios } from '@/lib/servidor/panel';
 
 const ETIQUETA_FILTRO: Record<FiltroUsuarios, string> = {
   todos: 'Todos',
@@ -41,16 +44,9 @@ export default async function UsuariosPanel({ searchParams }: { searchParams: Pr
     return `/admin/usuarios${qs ? `?${qs}` : ''}`;
   };
   const chip = (f: FiltroUsuarios) => (
-    <Link
-      key={f}
-      href={enlace({ estado: f === 'todos' ? undefined : f })}
-      aria-current={estado === f ? 'true' : undefined}
-      className={`${TOCABLE} flex min-h-11 items-center rounded-[var(--radius-pill)] border px-3 text-xs font-semibold ${
-        estado === f ? 'border-ink-2 bg-raised-2 text-ink-1' : 'border-[var(--line)] text-ink-2 hover:text-ink-1'
-      }`}
-    >
+    <ChipFiltro key={f} href={enlace({ estado: f === 'todos' ? undefined : f })} activo={estado === f}>
       {ETIQUETA_FILTRO[f]}
-    </Link>
+    </ChipFiltro>
   );
   const otros = FILTROS_USUARIOS.filter((f) => !PRINCIPALES.includes(f));
 
@@ -61,15 +57,22 @@ export default async function UsuariosPanel({ searchParams }: { searchParams: Pr
         {estado !== 'todos' || buscar ? ' con este filtro' : ' en total'}
       </Encabezado>
 
-      <Entrada indice={1} className="mb-4 flex justify-end">
-        <a href="#agregar" className={`${TOCABLE} boton-oro flex h-11 items-center gap-2 rounded-[var(--radius-pill)] px-5 font-display text-base font-bold`}>
-          <UserPlus size={18} aria-hidden="true" />
-          Dar acceso a alguien
-        </a>
+      <Entrada indice={1} className="mb-4">
+        <details id="agregar" className="group" open={sp.agregar === '1'}>
+          <summary className={`${TOCABLE} boton-oro flex h-12 w-full cursor-pointer list-none items-center justify-center gap-2 rounded-[var(--radius-pill)] px-5 font-display text-base font-bold sm:w-auto sm:justify-start [&::-webkit-details-marker]:hidden`}>
+            <UserPlus size={18} aria-hidden="true" />
+            Dar acceso a alguien
+            <ChevronDown size={16} className="transition-transform group-open:rotate-180" aria-hidden="true" />
+          </summary>
+          <div className="tarjeta-relieve mt-3 rounded-[var(--radius-card)] p-4">
+            <TituloTarjeta ayuda="Para regalar acceso o para alguien a quien no le llegó. Se crea su cuenta y te damos el enlace para entrar.">Dar acceso a alguien</TituloTarjeta>
+            <FormAgregarUsuario />
+          </div>
+        </details>
       </Entrada>
 
       <Tarjeta className="mb-4" indice={1}>
-        <form action="/admin/usuarios" className="flex gap-2" role="search">
+        <Form action="/admin/usuarios" className="flex gap-2" role="search">
           {estado !== 'todos' && <input type="hidden" name="estado" value={estado} />}
           <label className="relative min-w-0 flex-1">
             <span className="sr-only">Buscar por correo o nombre</span>
@@ -84,7 +87,7 @@ export default async function UsuariosPanel({ searchParams }: { searchParams: Pr
           <button type="submit" className={`${TOCABLE} opcion-recorrido min-h-12 shrink-0 px-5 text-caption font-semibold text-ink-1`}>
             Buscar
           </button>
-        </form>
+        </Form>
         <nav aria-label="Filtrar por estado" className="mt-3 flex flex-wrap gap-2">
           {PRINCIPALES.map(chip)}
         </nav>
@@ -106,23 +109,21 @@ export default async function UsuariosPanel({ searchParams }: { searchParams: Pr
               const sinEnvio = !u.acceso_enviado && ['trialing', 'active'].includes(u.estado);
               return (
                 <li key={u.id}>
-                  <Link href={`/admin/usuarios/${u.id}`} className={`${TOCABLE} flex items-center gap-3 rounded-[var(--radius-chip)] py-3 hover:bg-raised`}>
+                  <Link href={`/admin/usuarios/${u.id}`} className={`${TOCABLE} -mx-2 flex items-center gap-3 rounded-[var(--radius-chip)] px-2 py-3 hover:bg-raised`}>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-ayuda font-semibold text-ink-1">{u.nombre || u.email}</span>
-                      <span className="block truncate text-caption text-ink-2">{u.email}</span>
-                      <span className="mt-1 block text-xs text-ink-3">
-                        Desde {fechaCorta(u.alta)}
-                        {u.plan && ` · plan ${u.plan}`}
-                        {` · ${entero(u.piezas)} ${u.piezas === 1 ? 'pieza' : 'piezas'}`}
-                        {u.ultima_actividad && ` · última vez ${fechaCorta(u.ultima_actividad)}`}
+                      {u.nombre && <span className="block truncate text-caption text-ink-2">{u.email}</span>}
+                      <span className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <span className="inline-flex items-center gap-1.5 rounded-[var(--radius-pill)] bg-sunken px-2 py-0.5 text-xs font-semibold text-ink-1">
+                          <span aria-hidden="true" className={`size-2 rounded-full ${e.punto}`} />
+                          {e.texto}
+                        </span>
+                        {sinEnvio && <span className="text-xs font-semibold text-danger">Sin acceso enviado</span>}
+                        <span className="text-xs text-ink-3">
+                          {entero(u.piezas)} {u.piezas === 1 ? 'pieza' : 'piezas'}
+                          {u.ultima_actividad ? ` · entró el ${fechaCorta(u.ultima_actividad)}` : ` · desde el ${fechaCorta(u.alta)}`}
+                        </span>
                       </span>
-                    </span>
-                    <span className="flex shrink-0 flex-col items-end gap-1">
-                      <span className="flex items-center gap-1.5 text-caption font-semibold text-ink-1">
-                        <span aria-hidden="true" className={`size-2 rounded-full ${e.punto}`} />
-                        {e.texto}
-                      </span>
-                      {sinEnvio && <span className="text-xs font-semibold text-danger">Sin acceso enviado</span>}
                     </span>
                     <ChevronRight size={16} className="shrink-0 text-ink-3" aria-hidden="true" />
                   </Link>
@@ -154,10 +155,6 @@ export default async function UsuariosPanel({ searchParams }: { searchParams: Pr
         )}
       </Tarjeta>
 
-      <Tarjeta id="agregar" indice={3}>
-        <TituloTarjeta ayuda="Para regalar acceso o para alguien a quien no le llegó. Se crea su cuenta y te damos el enlace para entrar.">Dar acceso a alguien</TituloTarjeta>
-        {modoCaptura ? <SinDatos porque="El formulario funciona en el panel real (en esta captura de prueba no hay base de datos)." /> : <FormAgregarUsuario />}
-      </Tarjeta>
     </>
   );
 }

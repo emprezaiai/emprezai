@@ -14,6 +14,6 @@ export const NOMBRE_ESTADO: Record<string, { texto: string; punto: string }> = {
 
 /** Estado a mostrar: quien entró a mano no "paga", tiene un acceso regalado. */
 export function estadoVisible(estado: string, origen: 'hotmart' | 'manual') {
-  if (origen === 'manual' && estado === 'active') return { texto: 'Acceso regalado', punto: 'bg-ink-2' };
+  if (origen === 'manual' && estado === 'active') return { texto: 'Acceso regalado', punto: 'border-2 border-green bg-transparent' };
   return NOMBRE_ESTADO[estado] ?? { texto: estado, punto: 'bg-ink-3' };
 }

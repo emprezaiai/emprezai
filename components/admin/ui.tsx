@@ -5,7 +5,7 @@
 import Link from 'next/link';
 import { ArrowRight, ChevronLeft, ChevronRight, CircleAlert, CircleCheck, Info, TriangleAlert } from 'lucide-react';
 import type { Aviso, PeriodoElegido } from '@/lib/servidor/panel';
-import { Cuenta, Entrada, type Formato } from './movimiento';
+import { Cuenta, Entrada, Llenado, type Formato } from './movimiento';
 
 /** Respuesta al tocar de todo lo tocable del panel (tap < 150 ms). */
 export const TOCABLE = 'transition-transform duration-100 active:scale-[0.98]';
@@ -13,6 +13,7 @@ export const TOCABLE = 'transition-transform duration-100 active:scale-[0.98]';
 export function Encabezado({ titulo, periodo, children }: { titulo: string; periodo?: React.ReactNode; children?: React.ReactNode }) {
   return (
     <Entrada className="mb-6">
+      <span aria-hidden="true" className="rayo-marca mb-3" />
       {periodo && <div className="text-xs font-semibold tracking-[0.08em] text-ink-3 uppercase">{periodo}</div>}
       <h1 className="mt-1 font-display text-pregunta font-extrabold text-ink-1">{titulo}</h1>
       {children && <div className="mt-2 text-ayuda text-ink-2">{children}</div>}
@@ -51,18 +52,29 @@ export function Tarjeta({
   destacada = false,
   id,
   indice = 0,
+  href,
 }: {
   children: React.ReactNode;
   className?: string;
   destacada?: boolean;
   id?: string;
   indice?: number;
+  /** Si la tarjeta lleva a otra sección: toda ella es tocable y muestra la flecha. */
+  href?: string;
 }) {
+  const clase = `${destacada ? 'hairline-oro relieve-tarjeta' : 'tarjeta-relieve'} h-full rounded-[var(--radius-card)] p-4`;
   return (
     <Entrada indice={indice} className={className}>
-      <section id={id} className={`${destacada ? 'hairline-oro relieve-tarjeta' : 'tarjeta-relieve'} h-full rounded-[var(--radius-card)] p-4`}>
-        {children}
-      </section>
+      {href ? (
+        <Link href={href} className={`${clase} ${TOCABLE} group relative block hover:bg-raised`}>
+          <ChevronRight size={16} className="absolute top-4 right-3 text-ink-3 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+          {children}
+        </Link>
+      ) : (
+        <section id={id} className={clase}>
+          {children}
+        </section>
+      )}
     </Entrada>
   );
 }
@@ -133,7 +145,7 @@ export function Dato({
   const sinDato = numero === null || (numero === undefined && (valor === null || valor === undefined));
   return (
     <div className="flex min-w-0 flex-col">
-      <p className="text-caption font-semibold text-ink-2">{etiqueta}</p>
+      <p className="line-clamp-2 min-h-[2lh] text-caption font-semibold text-ink-2">{etiqueta}</p>
       {sinDato ? (
         <p className="mt-1 font-display text-precio font-extrabold text-ink-3">Sin datos</p>
       ) : (
@@ -171,9 +183,7 @@ export function BannerAvisos({ avisos, periodo }: { avisos: Aviso[]; periodo: st
       </Entrada>
     );
   }
-  return (
-    <section aria-label="Avisos" className="mb-6 flex flex-col gap-3">
-      {avisos.map((a, i) => {
+  const tarjeta = (a: Aviso, i: number) => {
         const alta = a.gravedad === 'alta';
         const Icono = alta ? CircleAlert : TriangleAlert;
         return (
@@ -189,50 +199,69 @@ export function BannerAvisos({ avisos, periodo }: { avisos: Aviso[]; periodo: st
                 <Icono size={20} className={`mt-0.5 shrink-0 ${alta ? 'text-danger' : 'text-warning'}`} aria-hidden="true" />
                 <div className="min-w-0">
                   <h2 className="font-display text-base font-bold text-ink-1">{a.titulo}</h2>
-                  <p className="mt-1 text-caption text-ink-2">
-                    <strong className="font-semibold text-ink-1">Por qué importa:</strong> {a.porque}
-                  </p>
-                  <p className="mt-1 text-caption text-ink-2">
-                    <strong className="font-semibold text-ink-1">Qué hacer:</strong> {a.queHacer}
-                  </p>
-                  {a.enlace && (
-                    <Link href={a.enlace.href} className={`${TOCABLE} mt-1 inline-flex min-h-11 items-center gap-1 text-caption font-semibold text-ink-1 underline underline-offset-4`}>
-                      {a.enlace.texto}
-                      <ArrowRight size={14} aria-hidden="true" />
-                    </Link>
-                  )}
+                  <p className="mt-1 text-caption text-ink-2">{a.queHacer}</p>
+                  {/* Enlace y "Por qué importa" en la misma fila; el porqué ocupa la fila entera al abrirse. */}
+                  <div className="flex flex-wrap items-center gap-x-5">
+                    {a.enlace && (
+                      <Link href={a.enlace.href} className={`${TOCABLE} inline-flex min-h-11 items-center gap-1 text-caption font-semibold text-ink-1 underline underline-offset-4`}>
+                        {a.enlace.texto}
+                        <ArrowRight size={14} aria-hidden="true" />
+                      </Link>
+                    )}
+                    <details className="group/porque open:basis-full">
+                      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1 text-caption font-semibold text-ink-2 [&::-webkit-details-marker]:hidden">
+                        <ChevronRight size={14} className="transition-transform group-open/porque:rotate-90" aria-hidden="true" />
+                        Por qué importa
+                      </summary>
+                      <p className="pb-1 text-caption text-ink-2">{a.porque}</p>
+                    </details>
+                  </div>
                 </div>
               </div>
             </article>
           </Entrada>
         );
-      })}
+  };
+  const primeros = avisos.slice(0, 2);
+  const resto = avisos.slice(2);
+  return (
+    <section aria-label="Avisos" className="mb-6 flex flex-col gap-3">
+      {primeros.map(tarjeta)}
+      {resto.length > 0 && (
+        <details className="group">
+          <summary className={`${TOCABLE} flex min-h-11 cursor-pointer list-none items-center gap-1 text-caption font-semibold text-ink-1 underline underline-offset-4 [&::-webkit-details-marker]:hidden`}>
+            <ChevronRight size={14} className="transition-transform group-open:rotate-90" aria-hidden="true" />
+            Ver {resto.length === 1 ? '1 aviso más' : `${resto.length} avisos más`}
+          </summary>
+          <div className="mt-3 flex flex-col gap-3">{resto.map((a, i) => tarjeta(a, i + 2))}</div>
+        </details>
+      )}
     </section>
   );
 }
 
 /** Fila "concepto · monto" de la cascada de ganancia. El signo vive SOLO en el monto. */
-export function FilaMonto({ concepto, monto, nota, total = false, color }: { concepto: string; monto: string; nota?: string; total?: boolean; color?: string }) {
+export function FilaMonto({ concepto, monto, nota, total = false, color, apagada = false }: { concepto: string; monto: string; nota?: string; total?: boolean; color?: string; apagada?: boolean }) {
   return (
     <div className={`flex items-baseline justify-between gap-4 py-2 ${total ? 'border-t border-[var(--line)] pt-3' : ''}`}>
       <span className="flex min-w-0 items-baseline gap-2">
-        {color && <span aria-hidden="true" className="size-2.5 shrink-0 translate-y-[-1px] rounded-full" style={{ background: color }} />}
+        <span aria-hidden="true" className="size-2.5 shrink-0 translate-y-[-1px] rounded-full" style={{ background: color && !apagada ? color : 'transparent' }} />
         <span className="min-w-0">
-          <span className={total ? 'font-display text-base font-bold text-ink-1' : 'text-ayuda text-ink-1'}>{concepto}</span>
+          <span className={total ? 'font-display text-base font-bold text-ink-1' : `text-ayuda ${apagada ? 'text-ink-3' : 'text-ink-1'}`}>{concepto}</span>
           {nota && <span className="block text-caption text-ink-3">{nota}</span>}
         </span>
       </span>
-      <span className={`shrink-0 whitespace-nowrap tabular-nums ${total ? 'font-display text-base font-extrabold text-gold' : 'text-ayuda text-ink-2'}`}>{monto}</span>
+      <span className={`shrink-0 whitespace-nowrap tabular-nums ${total ? 'font-display text-base font-extrabold text-gold' : `text-ayuda ${apagada ? 'text-ink-3' : 'text-ink-1'}`}`}>{monto}</span>
     </div>
   );
 }
 
 /** Barra de progreso simple (verde = avance, neutra = reparto, ámbar = alerta). */
-export function Barra({ pct, tono = 'verde' }: { pct: number; tono?: 'verde' | 'neutra' | 'ambar' }) {
+export function Barra({ pct, tono = 'verde', indice = 0 }: { pct: number; tono?: 'verde' | 'neutra' | 'ambar'; indice?: number }) {
   const color = tono === 'verde' ? 'bg-green' : tono === 'ambar' ? 'bg-warning' : 'bg-[color-mix(in_oklab,var(--ink-2)_55%,transparent)]';
   return (
     <span className="block h-1.5 rounded-full bg-sunken">
-      <span className={`block h-full rounded-full ${color}`} style={{ width: `${Math.min(100, Math.max(pct > 0 ? 2 : 0, pct))}%` }} />
+      <Llenado pct={Math.max(pct > 0 ? 2 : 0, pct)} className={color} indice={indice} />
     </span>
   );
 }

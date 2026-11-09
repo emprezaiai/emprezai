@@ -7,17 +7,11 @@ import { useEffect, useRef } from 'react';
 import { animate, motion, useReducedMotion } from 'motion/react';
 
 /** Cada bloque entra 60 ms después del anterior. */
-export function Entrada({ indice = 0, children, className }: { indice?: number; children: React.ReactNode; className?: string }) {
-  const reduce = useReducedMotion();
+export function Entrada({ indice = 0, children, className = '' }: { indice?: number; children: React.ReactNode; className?: string }) {
   return (
-    <motion.div
-      className={className}
-      initial={{ opacity: 0, y: reduce ? 0 : 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: reduce ? 0 : 0.35, delay: reduce ? 0 : indice * 0.06, ease: [0.16, 1, 0.3, 1] }}
-    >
+    <div className={`panel-entrar ${className}`} style={{ animationDelay: `${indice * 60}ms` }}>
       {children}
-    </motion.div>
+    </div>
   );
 }
 
@@ -50,5 +44,20 @@ export function Cuenta({ valor, formato = 'entero', decimales = 0 }: { valor: nu
     <span ref={nodo} className="tabular-nums">
       {formatear(valor, formato, decimales)}
     </span>
+  );
+}
+
+/** Relleno de barra que crece desde 0 al aparecer (baseline 3: barras que crecen); quieto con menos movimiento. */
+export function Llenado({ pct, className, indice = 0 }: { pct: number; className: string; indice?: number }) {
+  const reduce = useReducedMotion();
+  const ancho = `${Math.min(100, Math.max(0, pct))}%`;
+  return (
+    <motion.span
+      className={`block h-full rounded-full ${className}`}
+      initial={{ width: reduce ? ancho : '0%' }}
+      whileInView={{ width: ancho }}
+      viewport={{ once: true }}
+      transition={{ duration: reduce ? 0 : 0.6, delay: reduce ? 0 : 0.1 + indice * 0.05, ease: [0.16, 1, 0.3, 1] }}
+    />
   );
 }
