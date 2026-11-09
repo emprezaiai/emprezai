@@ -1,9 +1,9 @@
 # VEREDICTO revisor-visual — panel-canales
-Fecha: 2026-11-10 05:00
+Fecha: 2026-11-10 07:00
 Screenshot: docs/revisiones/panel/canales-375.png
-Usabilidad: 35/40
-Craft: 15/20
+Usabilidad: 36/40
+Craft: 16/20
 Copy (si vende): N-A
 Fidelidad (si hubo referencia): N-A
-Veredicto: NO LISTA
-Top defectos: 1) [Título del aviso rojo "Los anuncios te cuestan más de lo que dejan", app/admin/(panel)/canales/page.tsx línea 75] en la captura sale casi invisible: texto oscuro sobre el fondo rojo oscuro (contraste muy por debajo de 4.5:1); es el mensaje más importante de la pantalla y no se lee. El <strong> no declara color y algo en esa cascada lo oscurece → poner text-ink-1 explícito en el <strong>, verificar el color computado en el navegador y recapturar. 2) [Tarjeta "Llegaron por su cuenta"] "Sin gasto" ahora alinea bien, pero en ink-3 sin borde parece texto deshabilitado frente a las otras pastillas → borde de 1px como "Paga por venta" para que las 4 etiquetas sean del mismo sistema. 3) [Nota final "Una suscripción casi nunca se paga en el primer mes…"] 3 líneas al pie que matizan el aviso rojo de arriba, lejos de él (pedido en la ronda 6) → moverla al aviso como última línea corta o quitarla. 4) [KPI "Costo por cliente $100,00"] promedia Instagram, que no trajo clientes; el aviso ya lo explica, pero el número sigue siendo el más grande de la primera vista → detalle "TikTok: $46,67 · Instagram: sin clientes". 5) [Tarjeta TikTok] "cada uno costó $46,67" parte en 2 líneas con el número solo en la segunda → $46,67 con whitespace-nowrap junto a "cada uno costó".
+Veredicto: LISTA
+Top defectos: 1) [KPI "Costo por cliente $100,00", app/admin/(panel)/canales/page.tsx líneas 51-59] el detalle pasó a 3 líneas ("De anuncios, promedio de todos los canales") y sigue promediando un canal sin clientes; es el número más grande de la primera vista y no aplica a TikTok → detalle de 1 línea "TikTok: $46,67 · Instagram: sin clientes". 2) [Tarjeta "Llegaron por su cuenta"] la pastilla "Sin gasto" baja a su propia línea bajo el nombre, mientras las demás van a la derecha en la misma fila → pastillas en una fila propia en todas las tarjetas, o nombre que permita la pastilla a la derecha (truncar o text-base). 3) [Aviso rojo] el título ocupa 2 líneas a 375 → "Los anuncios cuestan más de lo que dejan" o "Instagram hunde tu promedio" (1 línea). 4) [Tarjeta TikTok] "cada uno costó $46,67" parte con el número solo en la segunda línea → whitespace-nowrap en "costó $46,67". 5) [KPI "Lo que deja un cliente"] el detalle de 2 líneas ("Estimado: se queda unos 10 meses, según cuántos se van cada mes") → "Estimado · se queda ~10 meses".
