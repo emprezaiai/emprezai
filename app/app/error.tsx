@@ -3,11 +3,23 @@
 // Si algo falla dentro de la app (por ejemplo, el almacenamiento del celular), nunca pantalla en
 // blanco: se explica qué pasó y se ofrece reintentar. Las piezas guardadas no se tocan.
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { RotateCcw } from 'lucide-react';
 import { RESPONSABLE } from '@/lib/legal';
 
-export default function ErrorApp({ reset }: { error: Error; reset: () => void }) {
+export default function ErrorApp({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+  // Queda registrado para la sección Salud del panel (solo el tipo de error y la pantalla).
+  useEffect(() => {
+    const mensaje = `${error.name}: ${error.message}`.slice(0, 160) + (error.digest ? ` · ${error.digest}` : '');
+    void fetch('/api/errores', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mensaje, ruta: window.location.pathname }),
+      keepalive: true,
+    }).catch(() => {});
+  }, [error]);
+
   return (
     <main className="flex flex-1 flex-col items-center justify-center px-4 py-16 text-center">
       <h1 className="font-display text-2xl font-extrabold text-ink-1">Algo no cargó bien</h1>

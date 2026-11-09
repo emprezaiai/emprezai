@@ -9,6 +9,7 @@ import { leerVariable, supabaseConfigurado } from '@/lib/servidor/config';
 import {
   PayloadHotmart,
   accesoTrasPago,
+  canalDe,
   emailDe,
   estadoPorEvento,
   fechaDe,
@@ -17,6 +18,7 @@ import {
   planDe,
   productoDe,
   proximoCobroDe,
+  repartoDe,
   suscriptorDe,
   tipoEconomico,
 } from '@/lib/servidor/hotmart';
@@ -36,6 +38,22 @@ async function registrar(eventId: string | null, tipo: string | null, result: Re
 }
 
 const json = (estado: number, cuerpo: Record<string, unknown>) => NextResponse.json(cuerpo, { status: estado });
+
+async function completarDatosDelPanel(p: PayloadHotmart, email: string, economico: string | null, transaccion: string | null) {
+  const db = clienteAdmin();
+  if (economico && transaccion) {
+    const { error } = await db
+      .from('payment_transactions')
+      .update({ email, ...(economico === 'sale' ? repartoDe(p) : {}) })
+      .match({ provider: 'hotmart', transaction_id: transaccion, economic_kind: economico });
+    if (error) console.error('[hotmart/panel-venta]', error.code);
+  }
+  const canal = canalDe(p);
+  if (canal) {
+    const { error } = await db.from('profiles').update({ source: canal }).eq('email', email).is('source', null);
+    if (error) console.error('[hotmart/panel-canal]', error.code);
+  }
+}
 
 export async function POST(req: Request) {
   const hottok = leerVariable('HOTMART_HOTTOK');
@@ -137,6 +155,10 @@ export async function POST(req: Request) {
       await registrar(eventId, p.event, 'duplicate');
       return json(200, { received: true, result: 'duplicate' });
     }
+    // Datos para el panel (no deciden acceso): el reparto real de la venta y el canal de origen.
+    // Si fallan, el evento ya quedó aplicado: se registra el error y se sigue.
+    await completarDatosDelPanel(p, email, economico, compra?.transaction ?? null);
+
     if (estado === 'stale') {
       // Aviso más viejo que el último aplicado (llegó tarde): queda en el libro, no cambia el acceso.
       await registrar(eventId, p.event, 'ignored');

@@ -12,6 +12,8 @@ export async function GET(req: NextRequest) {
   destino.search = '';
   const tokenHash = req.nextUrl.searchParams.get('token_hash');
   const tipo = req.nextUrl.searchParams.get('type') ?? 'magiclink';
+  // Solo dos destinos posibles (nunca una URL que venga en el enlace: evita redirecciones abiertas).
+  const alPanel = req.nextUrl.searchParams.get('ir') === 'admin';
 
   if (!supabaseConfigurado() || !tokenHash || !TIPOS.has(tipo)) {
     destino.pathname = '/login';
@@ -21,10 +23,10 @@ export async function GET(req: NextRequest) {
   const db = await clienteSesion();
   const { error } = await db.auth.verifyOtp({ token_hash: tokenHash, type: tipo as 'magiclink' | 'email' });
   if (error) {
-    destino.pathname = '/login';
+    destino.pathname = alPanel ? '/admin/entrar' : '/login';
     destino.searchParams.set('estado', 'enlace-vencido');
     return NextResponse.redirect(destino);
   }
-  destino.pathname = '/app';
+  destino.pathname = alPanel ? '/admin' : '/app';
   return NextResponse.redirect(destino);
 }

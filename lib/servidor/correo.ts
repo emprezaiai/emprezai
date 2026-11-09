@@ -77,6 +77,21 @@ export async function enviarAcceso(para: string, enlace: string, codigo: string 
   );
 }
 
+/** Entrada al panel de administración (solo la dueña). */
+export async function enviarAccesoPanel(para: string, enlace: string, codigo: string | undefined) {
+  await enviar(
+    para,
+    'Tu enlace para entrar al panel de EMPREZAI',
+    plantilla({
+      titulo: 'Entra a tu panel',
+      parrafos: ['Toca el botón para ver los números de tu negocio. El enlace es solo para ti: no lo reenvíes.'],
+      boton: { texto: 'Entrar a mi panel', url: enlace },
+      codigo,
+      pie: 'El enlace y el código son de un solo uso y vencen en 1 hora. Si no pediste entrar al panel, ignora este correo: nadie puede entrar sin él.',
+    }),
+  );
+}
+
 /**
  * Pidieron entrar con un correo sin compra vigente. Lo recibe SOLO quien tiene ese buzón, así que no
  * revela a nadie más si existe una cuenta (26), y quien pagó con otro correo no espera para siempre.

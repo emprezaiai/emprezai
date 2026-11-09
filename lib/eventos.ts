@@ -1,8 +1,9 @@
 'use client';
 
 // Contrato de eventos del funnel (SECUENCIA MAESTRA: se siembran junto a cada pantalla, no al final — 36/60).
-// Mientras no se conecte el proveedor de analítica (Sesión 6/8), los eventos se encolan en memoria del
-// navegador y, en desarrollo, se muestran en consola. Las sesiones de prueba se marcan con ?qa=1.
+// Cada evento viaja a NUESTRO servidor (/api/eventos → event_log, la fuente del panel de la dueña) con
+// el mismo id anónimo que acompaña la compra en Hotmart (src), así el camino de venta se une con el
+// pago. Las sesiones de prueba se marcan con ?qa=1 y el panel las excluye.
 
 import { useEffect } from 'react';
 
@@ -50,6 +51,35 @@ function atribucion(): Propiedades {
   return props;
 }
 
+// El MISMO id que la pantalla de planes manda a Hotmart como src (Paywall.tsx, misma clave).
+function idAnonimo(): string | undefined {
+  try {
+    const previo = localStorage.getItem('empresai_anon');
+    if (previo) return previo;
+    const nuevo = crypto.randomUUID();
+    localStorage.setItem('empresai_anon', nuevo);
+    return nuevo;
+  } catch {
+    return undefined;
+  }
+}
+
+function enviar(evento: EventoRegistrado) {
+  const { qa, ...propiedades } = evento.propiedades;
+  try {
+    void fetch('/api/eventos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nombre: evento.nombre, anonId: idAnonimo(), propiedades, qa: qa === true }),
+      keepalive: true,
+    }).catch(() => {
+      // Sin conexión: el evento se pierde (no bloquea nada de la persona).
+    });
+  } catch {
+    // Navegador sin fetch: nada que hacer.
+  }
+}
+
 export function registrarEvento(nombre: NombreEvento, propiedades: Propiedades = {}): void {
   if (typeof window === 'undefined') return;
   const evento: EventoRegistrado = {
@@ -59,6 +89,7 @@ export function registrarEvento(nombre: NombreEvento, propiedades: Propiedades =
   };
   window.__empresaiEventos = [...(window.__empresaiEventos ?? []), evento];
   if (process.env.NODE_ENV === 'development') console.info('[evento]', evento.nombre, evento.propiedades);
+  enviar(evento);
 }
 
 export function useEventoAlMontar(nombre: NombreEvento, propiedades?: Propiedades): void {

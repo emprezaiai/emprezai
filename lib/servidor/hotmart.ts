@@ -53,6 +53,12 @@ export const PayloadHotmart = z
         // y la fecha del próximo cobro en la raíz de data, no en "buyer"/"purchase".
         subscriber: z.object({ code: z.string(), email: z.string().email(), name: z.string() }).partial().optional(),
         date_next_charge: num.optional(),
+        // Reparto de cada venta (21/40: ganancia real): MARKETPLACE = comisión de Hotmart,
+        // PRODUCER = lo que le queda a la productora, AFFILIATE/COPRODUCER = terceros.
+        // Verificar los nombres exactos en la compra de prueba.
+        commissions: z
+          .array(z.object({ value: num, source: z.string(), currency_value: z.string() }).partial())
+          .optional(),
       })
       .passthrough()
       .optional(),
@@ -123,6 +129,26 @@ export function productoDe(p: PayloadHotmart): string | undefined {
 
 export function proximoCobroDe(p: PayloadHotmart): number | undefined {
   return p.data?.purchase?.date_next_charge ?? p.data?.date_next_charge;
+}
+
+/**
+ * Reparto de la venta en unidad menor, solo si viene en la MISMA moneda que el precio (nunca se
+ * mezclan monedas: si no coincide, queda sin informar y el panel usa el bruto marcado como tal).
+ */
+export function repartoDe(p: PayloadHotmart): { fee_minor: number | null; affiliate_minor: number | null; net_minor: number | null } {
+  const moneda = p.data?.purchase?.price?.currency_value;
+  const lista = (p.data?.commissions ?? []).filter((c) => c.value !== undefined && (!c.currency_value || c.currency_value === moneda));
+  const suma = (fuentes: string[]) => {
+    const items = lista.filter((c) => fuentes.includes((c.source ?? '').toUpperCase()));
+    return items.length ? Math.round(items.reduce((t, c) => t + (c.value ?? 0), 0) * 100) : null;
+  };
+  return { fee_minor: suma(['MARKETPLACE']), affiliate_minor: suma(['AFFILIATE', 'COPRODUCER']), net_minor: suma(['PRODUCER']) };
+}
+
+/** Canal de origen: el código sck del enlace de pago (ej. "tiktok", "afiliado-ana"). */
+export function canalDe(p: PayloadHotmart): string | null {
+  const sck = p.data?.purchase?.origin?.sck?.trim().toLowerCase();
+  return sck ? sck.slice(0, 60) : null;
 }
 
 /** Días extra tras el próximo cobro: Hotmart reintenta el cobro antes de avisar que falló. */

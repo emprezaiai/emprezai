@@ -22,7 +22,7 @@ await db.exec(`
   grant execute on function auth.uid() to anon, authenticated, service_role;
   grant usage on schema public to anon, authenticated, service_role;
 `);
-for (const m of ['20261014000000_inicial.sql', '20261023000000_blindaje.sql', '20261103000000_cierre_tiene_acceso.sql']) {
+for (const m of ['20261014000000_inicial.sql', '20261023000000_blindaje.sql', '20261103000000_cierre_tiene_acceso.sql', '20261109000000_panel.sql']) {
   await db.exec(readFileSync(`${raiz}/supabase/migrations/${m}`, 'utf8'));
   console.log('migración aplicada:', m);
 }
@@ -152,6 +152,71 @@ await db.query(`select set_config('request.jwt.claim.sub', $1, false)`, [u2]);
 await db.query(`delete from public.piezas where user_id=$1`, [u2]);
 await db.exec(`reset role`);
 ok((await db.query(`select count(*)::int as c from public.piezas`)).rows[0].c === 0, 'authenticated sí puede BORRAR sus piezas (derecho a borrar)');
+
+// 14) PANEL: el historial de estados lo escribe el disparador, en orden y sin huecos
+const historial = (
+  await db.query(
+    `select from_status, to_status from public.profile_events e join public.profiles p on p.id=e.profile_id where p.email='carla@x.com' order by e.id`,
+  )
+).rows.map((r) => `${r.from_status ?? '∅'}→${r.to_status}`);
+ok(
+  JSON.stringify(historial) === JSON.stringify(['∅→trialing', 'trialing→active', 'active→cancelled', 'cancelled→refunded']),
+  `historial de estados completo: ${historial.join(' · ')}`,
+);
+
+// 15) PANEL: los resúmenes calculan con datos reales (venta con neto informado y otra sin neto)
+await db.query(`update public.payment_transactions set email='carla@x.com'`);
+await db.query(
+  `insert into public.payment_transactions (provider, transaction_id, economic_kind, product_id, amount_minor, currency, occurred_at, raw_event_id, email, fee_minor, affiliate_minor, net_minor)
+   values ('hotmart','T-NETO','sale','P1',999,'USD',now(),'evx','carla@x.com',150,0,849),
+          ('hotmart','T-SIN','sale','P1',7999,'USD',now(),'evy','nuevo@x.com',null,null,null),
+          ('hotmart','T-BRL','sale','P1',4990,'BRL',now(),'evz','nuevo@x.com',null,null,null)`,
+);
+const ventas = (await db.query(`select public.panel_ventas(now() - interval '1 day', now() + interval '1 day') as v`)).rows[0].v;
+const usd = ventas.dinero.find((m) => m.moneda === 'USD');
+ok(usd && usd.ventas === 2 && Number(usd.bruto_minor) === 8998 && Number(usd.neto_minor) === 849 && usd.ventas_sin_neto === 1, 'panel_ventas suma por moneda y marca las ventas sin neto informado');
+ok(ventas.dinero.some((m) => m.moneda === 'BRL'), 'panel_ventas nunca mezcla monedas (BRL aparte)');
+for (const f of [
+  'panel_clientes()',
+  'panel_serie_mensual(6)',
+  'panel_uso()',
+  "panel_funnel(now() - interval '30 days', now())",
+  "panel_ia(now() - interval '30 days', now())",
+  "panel_canales(now() - interval '30 days', now() + interval '1 day')",
+  'panel_salud()',
+]) {
+  let bien = true;
+  try {
+    await db.query(`select public.${f}`);
+  } catch (e) {
+    bien = false;
+    console.log('   ', e.message);
+  }
+  ok(bien, `${f.split('(')[0]} responde`);
+}
+const canales = (await db.query(`select public.panel_canales(now() - interval '30 days', now() + interval '1 day') as c`)).rows[0].c;
+ok(Array.isArray(canales) && canales.some((c) => c.canal === 'sin código'), 'panel_canales agrupa a quien llegó sin código de seguimiento');
+
+// 16) PANEL: un usuario normal no lee NADA del panel (tablas ni resúmenes)
+await db.exec(`set role authenticated`);
+await db.query(`select set_config('request.jwt.claim.sub', $1, false)`, [u]);
+for (const t of ['admins', 'profile_events', 'event_log', 'error_log', 'panel_ajustes', 'costos_fijos', 'acquisition_spend', 'admin_auditoria']) {
+  let bloqueada = false;
+  try {
+    await db.query(`select * from public.${t} limit 1`);
+  } catch (e) {
+    bloqueada = /permission denied/.test(e.message);
+  }
+  ok(bloqueada, `authenticated no lee ${t}`);
+}
+let resumenBloqueado = false;
+try {
+  await db.query(`select public.panel_ventas(now() - interval '1 day', now())`);
+} catch (e) {
+  resumenBloqueado = /permission denied/.test(e.message);
+}
+ok(resumenBloqueado, 'authenticated no puede pedir los resúmenes del panel');
+await db.exec(`reset role`);
 
 console.log(fallas ? `\n${fallas} FALLA(S)` : '\nTODO OK');
 process.exit(fallas ? 1 : 0);

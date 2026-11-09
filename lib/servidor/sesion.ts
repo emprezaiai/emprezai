@@ -5,7 +5,7 @@ import type { SupabaseClient, User } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { tieneAcceso, type Membresia } from '@/lib/membresia';
 import { FaltaConfiguracion, supabaseConfigurado } from './config';
-import { clienteSesion } from './supabase';
+import { clienteAdmin, clienteSesion } from './supabase';
 
 export type Acceso =
   | { estado: 'sin-servicio' }
@@ -46,6 +46,11 @@ export async function exigirAcceso(): Promise<{ ok: true; user: User; db: Supaba
 /** Errores inesperados: se registran sin datos personales y se responde genérico. */
 export function errorInterno(donde: string, e: unknown) {
   if (e instanceof FaltaConfiguracion) return respuesta(503, { error: 'no-configurado' });
-  console.error(`[${donde}]`, e instanceof Error ? e.name : 'error');
+  const tipo = e instanceof Error ? e.name : 'error';
+  console.error(`[${donde}]`, tipo);
+  // Queda en la sección Salud del panel (dónde y qué tipo de error; nunca datos de la persona).
+  void Promise.resolve(clienteAdmin().from('error_log').insert({ origen: 'servidor', mensaje: `${donde}: ${tipo}`.slice(0, 300), ruta: donde }))
+    .then(({ error }) => error && console.error('[error_log]', error.code))
+    .catch(() => {});
   return respuesta(500, { error: 'interno' });
 }

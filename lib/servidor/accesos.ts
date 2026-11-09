@@ -25,34 +25,42 @@ export async function perfilPorEmail(email: string): Promise<PerfilAcceso | null
 }
 
 /** Garantiza que el perfil tenga su cuenta de auth (la crea o reutiliza) y devuelve su id. */
-async function asegurarCuenta(perfil: PerfilAcceso): Promise<string> {
+export async function asegurarCuenta(perfil: Pick<PerfilAcceso, 'id' | 'user_id' | 'email'>): Promise<string> {
   if (perfil.user_id) return perfil.user_id;
-  const db = clienteAdmin();
-  let userId: string | null = null;
-  const { data, error } = await db.auth.admin.createUser({ email: perfil.email, email_confirm: true });
-  if (data?.user) userId = data.user.id;
-  else if (error?.code === 'email_exists' || error?.code === 'user_already_exists') {
-    const { data: existente, error: errorBusqueda } = await db.rpc('auth_user_id_por_email', { p_email: perfil.email });
-    if (errorBusqueda) throw errorBusqueda;
-    userId = (existente as string | null) ?? null;
-  } else if (error) throw error;
-  if (!userId) throw new Error('No se pudo crear ni encontrar la cuenta de acceso');
-  const { error: errorUpdate } = await db.from('profiles').update({ user_id: userId }).eq('id', perfil.id);
+  const userId = await cuentaPara(perfil.email);
+  const { error: errorUpdate } = await clienteAdmin().from('profiles').update({ user_id: userId }).eq('id', perfil.id);
   if (errorUpdate) throw errorUpdate;
   return userId;
 }
 
-/** Enlace de un solo uso (vuelve a NUESTRO dominio con token_hash, sesión SSR en cookies) + código. */
-async function enlaceDeAcceso(email: string): Promise<{ url: string; codigo?: string }> {
+/**
+ * Enlace de un solo uso (vuelve a NUESTRO dominio con token_hash, sesión SSR en cookies) + código.
+ * destino 'admin' lleva al panel de la dueña al confirmar.
+ */
+export async function enlaceDeAcceso(email: string, destino: 'app' | 'admin' = 'app'): Promise<{ url: string; codigo?: string }> {
   const sitio = urlDelSitio();
   const { data, error } = await clienteAdmin().auth.admin.generateLink({
     type: 'magiclink',
     email,
-    options: { redirectTo: `${sitio}/app` },
+    options: { redirectTo: `${sitio}/${destino}` },
   });
   if (error || !data?.properties) throw error ?? new Error('Sin enlace');
   const { hashed_token, email_otp } = data.properties;
-  return { url: `${sitio}/auth/confirmar?token_hash=${encodeURIComponent(hashed_token)}&type=magiclink`, codigo: email_otp || undefined };
+  const ir = destino === 'admin' ? '&ir=admin' : '';
+  return { url: `${sitio}/auth/confirmar?token_hash=${encodeURIComponent(hashed_token)}&type=magiclink${ir}`, codigo: email_otp || undefined };
+}
+
+/** Cuenta de acceso para un correo (la crea si no existe). Para la dueña y para altas a mano. */
+export async function cuentaPara(email: string): Promise<string> {
+  const db = clienteAdmin();
+  const { data, error } = await db.auth.admin.createUser({ email, email_confirm: true });
+  if (data?.user) return data.user.id;
+  if (error?.code === 'email_exists' || error?.code === 'user_already_exists') {
+    const { data: existente, error: errorBusqueda } = await db.rpc('auth_user_id_por_email', { p_email: email });
+    if (errorBusqueda) throw errorBusqueda;
+    if (existente) return existente as string;
+  }
+  throw error ?? new Error('No se pudo crear ni encontrar la cuenta de acceso');
 }
 
 /** Tras una compra/prueba aprobada: cuenta + bienvenida. Idempotente (no reenvía si ya salió). */
