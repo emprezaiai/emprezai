@@ -22,7 +22,7 @@ await db.exec(`
   grant execute on function auth.uid() to anon, authenticated, service_role;
   grant usage on schema public to anon, authenticated, service_role;
 `);
-for (const m of ['20261014000000_inicial.sql', '20261023000000_blindaje.sql', '20261103000000_cierre_tiene_acceso.sql', '20261109000000_panel.sql']) {
+for (const m of ['20261014000000_inicial.sql', '20261023000000_blindaje.sql', '20261103000000_cierre_tiene_acceso.sql', '20261109000000_panel.sql', '20261109000001_panel_serie.sql', '20261109000002_panel_usuarios.sql']) {
   await db.exec(readFileSync(`${raiz}/supabase/migrations/${m}`, 'utf8'));
   console.log('migración aplicada:', m);
 }
@@ -184,6 +184,8 @@ for (const f of [
   "panel_ia(now() - interval '30 days', now())",
   "panel_canales(now() - interval '30 days', now() + interval '1 day')",
   'panel_salud()',
+  "panel_pruebas_sin_pago(now() - interval '30 days', now())",
+  "panel_usuarios('carla', 'todos', 10, 0)",
 ]) {
   let bien = true;
   try {
@@ -196,6 +198,12 @@ for (const f of [
 }
 const canales = (await db.query(`select public.panel_canales(now() - interval '30 days', now() + interval '1 day') as c`)).rows[0].c;
 ok(Array.isArray(canales) && canales.some((c) => c.canal === 'sin código'), 'panel_canales agrupa a quien llegó sin código de seguimiento');
+
+const lista = (await db.query("select public.panel_usuarios('carla@x', 'todos', 10, 0) as l")).rows[0].l;
+ok(lista.total === 1 && lista.filas[0].email === 'carla@x.com', 'panel_usuarios busca por correo');
+const ficha = (await db.query('select public.panel_ficha($1) as f', [lista.filas[0].id])).rows[0].f;
+ok(ficha && ficha.historial.length === 4, 'panel_ficha trae el historial completo');
+ok((await db.query("select public.panel_ficha('00000000-0000-0000-0000-000000000000') as f")).rows[0].f === null, 'panel_ficha de un id inexistente devuelve null');
 
 // 16) PANEL: un usuario normal no lee NADA del panel (tablas ni resúmenes)
 await db.exec(`set role authenticated`);
