@@ -7,6 +7,7 @@ import { ChevronDown, ChevronLeft, ChevronRight, UserPlus } from 'lucide-react';
 import { BuscadorUsuarios } from '@/components/admin/BuscadorUsuarios';
 import { FormAgregarUsuario } from '@/components/admin/AccionesUsuario';
 import { ChipFiltro, EnlaceCarga } from '@/components/admin/ChipFiltro';
+import { SelectorOrden } from '@/components/admin/OrdenUsuarios';
 import { estadoVisible } from '@/components/admin/estados';
 import { Entrada } from '@/components/admin/movimiento';
 import { Encabezado, SinDatos, TOCABLE, Tarjeta, TituloTarjeta } from '@/components/admin/ui';
@@ -92,14 +93,11 @@ export default async function UsuariosPanel({ searchParams }: { searchParams: Pr
       </Tarjeta>
 
       <Tarjeta className="mb-4" indice={2}>
-        <nav aria-label="Ordenar la lista" className="mb-2 flex flex-wrap items-center gap-2">
-          <span className="text-xs text-ink-3">Ordenar:</span>
-          {ORDENES_USUARIOS.map((o) => (
-            <ChipFiltro key={o} href={enlace({ orden: o === 'recientes' ? undefined : o })} activo={orden === o}>
-              {ETIQUETA_ORDEN[o]}
-            </ChipFiltro>
-          ))}
-        </nav>
+        <SelectorOrden
+          actual={orden}
+          opciones={ORDENES_USUARIOS.map((o) => ({ valor: o, texto: ETIQUETA_ORDEN[o] }))}
+          urls={Object.fromEntries(ORDENES_USUARIOS.map((o) => [o, enlace({ orden: o === 'recientes' ? undefined : o })]))}
+        />
         {filas.length === 0 ? (
           <SinDatos porque={buscar || estado !== 'todos' ? 'Nadie coincide con este filtro. Prueba con otra búsqueda.' : 'Todavía no hay usuarios. Aparecen con la primera prueba gratis o si das acceso a alguien con el botón de arriba.'} />
         ) : (

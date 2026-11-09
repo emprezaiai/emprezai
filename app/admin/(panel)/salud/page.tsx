@@ -72,8 +72,9 @@ export default async function SaludPanel() {
   const fallidosSinAcceso = fallidos.filter((w) => w.email && !w.con_acceso).length;
   const sinAccesoTotal = s.pagaron_sin_acceso + fallidosSinAcceso;
   const razones = [
-    sinAccesoTotal > 0 && `${sinAccesoTotal} ${sinAccesoTotal === 1 ? 'pagó y no tiene' : 'pagaron y no tienen'} acceso`,
-    fallosHotmart7d > 0 && `${fallosHotmart7d} ${fallosHotmart7d === 1 ? 'aviso de pago no se aplicó' : 'avisos de pago no se aplicaron'}`,
+    sinAccesoTotal > 0 && `${sinAccesoTotal} ${sinAccesoTotal === 1 ? 'pagó y no tiene' : 'pagaron y no tienen'} acceso${fallidosSinAcceso > 0 ? ' (por un aviso de pago que falló)' : ''}`,
+    // Un aviso fallido que dejó a alguien sin acceso ya está contado arriba: no se cuenta dos veces.
+    fallosHotmart7d - fallidosSinAcceso > 0 && `${fallosHotmart7d - fallidosSinAcceso} ${fallosHotmart7d - fallidosSinAcceso === 1 ? 'aviso de pago no se aplicó' : 'avisos de pago no se aplicaron'}`,
     s.vencidos_sin_aviso > 0 && `${s.vencidos_sin_aviso} accesos vencieron sin aviso`,
     repetidos.length > 0 && `${repetidos.length} ${repetidos.length === 1 ? 'error se repite' : 'errores se repiten'}`,
   ].filter(Boolean) as string[];
@@ -81,7 +82,7 @@ export default async function SaludPanel() {
   // Bloques en orden de impacto: si hay pagos que no se aplicaron, Hotmart va antes que los errores.
   const bloqueHotmart = (
     <Tarjeta className="mb-4" indice={fallosHotmart7d > 0 ? 6 : 7}>
-      <TituloTarjeta ayuda="Cada compra, renovación, cancelación o reembolso llega como un aviso de Hotmart.">Avisos de pago de Hotmart</TituloTarjeta>
+      <TituloTarjeta ayuda="Cada compra, renovación, cancelación o reembolso llega como un aviso de Hotmart. Si uno falla, Hotmart lo reenvía y la app reintenta dar el acceso cada día.">Avisos de pago de Hotmart</TituloTarjeta>
       {totalWebhook === 0 ? (
         <SinDatos porque="Aparecen cuando conectes Hotmart y entre el primer aviso." />
       ) : (
@@ -140,7 +141,7 @@ export default async function SaludPanel() {
           )}
           {fallosHotmart7d > 0 && (
             <p className="mt-2 text-caption text-ink-2">
-              <strong className="font-semibold text-ink-1">Qué hacer:</strong> la app vuelve a intentarlo sola. Si mañana sigue “Todavía sin acceso”, dáselo tú aquí.
+              <strong className="font-semibold text-ink-1">Qué hacer:</strong> si mañana sigue “Todavía sin acceso”, dáselo tú aquí.
             </p>
           )}
         </>
@@ -217,8 +218,16 @@ export default async function SaludPanel() {
           <Dato
             etiqueta="Pagos fallidos"
             numero={fallosHotmart7d}
-            tono={fallosHotmart7d > 0 ? 'mal' : 'bien'}
-            detalle={fallidos[0] ? `El último falló el ${fechaHora(fallidos[0].en)}` : s.webhook_ultimo ? `Todos bien · el último, ${fechaHora(s.webhook_ultimo)}` : 'Hotmart todavía no envió avisos'}
+            tono={fallosHotmart7d - fallidosSinAcceso > 0 ? 'mal' : fallosHotmart7d > 0 ? 'neutro' : 'bien'}
+            detalle={
+              fallosHotmart7d > 0 && fallosHotmart7d === fallidosSinAcceso
+                ? 'Es la misma compra de al lado'
+                : fallidos[0]
+                  ? `El último falló el ${fechaHora(fallidos[0].en)}`
+                  : s.webhook_ultimo
+                    ? `Todos bien · el último, ${fechaHora(s.webhook_ultimo)}`
+                    : 'Hotmart todavía no envió avisos'
+            }
           />
         </Tarjeta>
         <Tarjeta indice={4}>
@@ -238,7 +247,7 @@ export default async function SaludPanel() {
           />
         </Tarjeta>
         <Tarjeta indice={5}>
-          <Dato etiqueta="Errores (7 días)" numero={erroresSemana} tono={repetidos.length > 0 ? 'mal' : 'neutro'} detalle={s.errores_7d_anterior !== undefined ? `La semana pasada: ${entero(s.errores_7d_anterior)}` : `${entero(s.errores_hoy)} hoy`} />
+          <Dato etiqueta="Errores (7 días)" numero={erroresSemana} tono={repetidos.length > 0 ? 'mal' : 'neutro'} detalle={s.errores_7d_anterior !== undefined ? `${entero(s.errores_hoy)} hoy · la semana pasada: ${entero(s.errores_7d_anterior)}` : `${entero(s.errores_hoy)} hoy`} />
         </Tarjeta>
       </div>
 

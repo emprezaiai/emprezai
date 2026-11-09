@@ -107,7 +107,7 @@ export default async function InicioPanel({ searchParams }: { searchParams: Prom
       <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Tarjeta indice={3} href="/admin/usuarios?estado=activo">
           <Dato
-            etiqueta="Clientes activos"
+            etiqueta="Con acceso hoy"
             numero={clientes.total > 0 ? activos : null}
             detalle={clientes.total > 0 ? `${entero(pagando)} pagando · ${entero(clientes.en_prueba)} en prueba` : 'Aún nadie compró'}
           />
@@ -118,7 +118,7 @@ export default async function InicioPanel({ searchParams }: { searchParams: Prom
             numero={pagando > 0 ? mrr : null}
             formato="dinero"
             decimales={2}
-            detalle={pagando > 0 ? `Lo que suman al mes tus ${entero(pagando)} clientes (el plan anual cuenta su parte de cada mes)` : 'Aparece con el primer cliente pagando'}
+            detalle={pagando > 0 ? `Pagan tus ${entero(pagando)} clientes` : 'Aparece con el primer cliente pagando'}
           />
         </Tarjeta>
         <Tarjeta indice={5} href={`/admin/ia?mes=${periodo.param}`}>

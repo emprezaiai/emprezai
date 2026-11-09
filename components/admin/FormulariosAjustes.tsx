@@ -164,7 +164,7 @@ export function ListaCostos({ costos }: { costos: CostoFijo[] }) {
           </p>
         </>
       ) : (
-        <p className="text-caption text-ink-3">Aún no anotaste costos fijos.</p>
+        <p className="text-caption text-ink-2">Anota lo que pagas cada mes por servidores, dominio y correos: se resta de tu ganancia real.</p>
       )}
       {q.quitado ? <BarraDeshacer texto={`Quitado: ${q.quitado.nombre}`} onDeshacer={q.deshacer} pendiente={q.pendiente} /> : <Aviso r={q.r} />}
 
@@ -195,6 +195,8 @@ export function ListaGastos({ gastos, canales, desde, hasta }: { gastos: GastoCa
   const q = useQuitarConDeshacer<GastoCanal>(borrarGasto, (g) => agregarGasto(null, formDe({ canal: g.canal, monto: g.monto_usd, desde: g.desde, hasta: g.hasta, nota: g.nota })));
   const [elegido, setElegido] = useState(canales[0] ?? 'otro');
   const [inicio, setInicio] = useState(desde);
+  // Sugerencia: lo que gastó la última vez en el canal elegido.
+  const anterior = gastos.find((g) => g.canal === elegido)?.monto_usd ?? null;
   // Agrupados por mes (por la fecha de inicio), del más reciente al más antiguo.
   const totalMes = (fecha: string) => visibles.filter((x) => mesDe(x.desde) === mesDe(fecha)).reduce((t, x) => t + x.monto_usd, 0);
   const mesDe = (fecha: string) => new Intl.DateTimeFormat('es', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${fecha}T12:00:00Z`));
@@ -228,7 +230,7 @@ export function ListaGastos({ gastos, canales, desde, hasta }: { gastos: GastoCa
           ))}
         </ul>
       ) : (
-        <p className="text-caption text-ink-3">Aún no anotaste gastos en anuncios.</p>
+        <p className="text-caption text-ink-2">Anota lo que gastas en anuncios por canal: así Canales te dice cuál deja dinero.</p>
       )}
       {q.quitado ? <BarraDeshacer texto={`Quitado: gasto de ${nombreCanal(q.quitado.canal)}`} onDeshacer={q.deshacer} pendiente={q.pendiente} /> : <Aviso r={q.r} />}
 
@@ -258,7 +260,7 @@ export function ListaGastos({ gastos, canales, desde, hasta }: { gastos: GastoCa
         )}
         <label className="flex flex-col gap-1">
           <span className={ETIQUETA}>Cuánto gastaste (USD)</span>
-          <input name="monto" type="number" min={0} step="0.01" required inputMode="decimal" placeholder="Ej.: 150" className={CAMPO} />
+          <input name="monto" type="number" min={0} step="0.01" required inputMode="decimal" placeholder={anterior ? `La última vez: ${dinero(anterior)}` : 'Ej.: 150'} className={CAMPO} />
         </label>
         <label className="flex flex-col gap-1">
           <span className={ETIQUETA}>Desde</span>

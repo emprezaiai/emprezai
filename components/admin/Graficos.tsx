@@ -74,7 +74,7 @@ export function GraficoGastoDia({ datos }: { datos: { fecha: string; usd: number
           <ReferenceLine y={promedio} stroke="var(--ink-3)" strokeDasharray="3 3" />
           <Bar dataKey="usd" radius={[3, 3, 0, 0]} isAnimationActive={!reduce} animationDuration={600}>
             {datos.map((d) => (
-              <Cell key={d.fecha} fill={d.usd > promedio * 2 && promedio > 0 ? 'var(--warning)' : d.fecha === hoy ? 'var(--ink-2)' : 'color-mix(in oklab, var(--ink-2) 60%, transparent)'} />
+              <Cell key={d.fecha} fill={d.usd > promedio * 2 && promedio > 0 ? 'var(--warning)' : d.fecha === hoy ? 'var(--green)' : 'color-mix(in oklab, var(--ink-2) 60%, transparent)'} />
             ))}
           </Bar>
         </BarChart>

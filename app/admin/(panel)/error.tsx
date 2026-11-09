@@ -18,7 +18,7 @@ export default function ErrorPanel({ error, reset }: { error: Error & { digest?:
 
   return (
     <div role="alert" className="tarjeta-relieve rounded-[var(--radius-card)] p-6 text-center">
-      <h1 className="font-display text-2xl font-extrabold text-ink-1">No pudimos cargar estos números</h1>
+      <h1 className="font-display text-2xl font-extrabold text-ink-1">No pudimos cargar esta sección</h1>
       <p className="mx-auto mt-2 max-w-sm text-ayuda text-ink-2">
         Puede ser un corte de conexión con la base de datos. Tus datos están a salvo: vuelve a intentarlo en un momento.
       </p>

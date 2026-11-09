@@ -70,7 +70,7 @@ export default async function IaPanel({ searchParams }: { searchParams: Promise<
             numero={porUsuario}
             formato="dinero"
             decimales={3}
-            detalle={porUsuario !== null ? (pagaUno ? `De unos ${dinero(pagaUno)} que paga cada uno al mes (${pct((porUsuario / pagaUno) * 100, 1)})` : `${entero(ia.usuarios_con_ia)} clientes · sin contar la pieza gratis`) : 'Aún ningún cliente la usó'}
+            detalle={porUsuario !== null ? (pagaUno ? `${pct((porUsuario / pagaUno) * 100, 1)} de lo que paga uno` : `${entero(ia.usuarios_con_ia)} clientes`) : 'Aún ningún cliente la usó'}
           />
         </Tarjeta>
         <Tarjeta indice={3}>
@@ -115,7 +115,7 @@ export default async function IaPanel({ searchParams }: { searchParams: Promise<
 
       {ia.por_dia && ia.por_dia.some((d) => d.usd > 0) && (
         <Tarjeta className="mb-4" indice={5}>
-          <TituloTarjeta ayuda={`La línea punteada es tu promedio; la barra clara, hoy.${hayDisparados ? ' En ámbar, los días que gastaron más del doble: mira abajo quién la usó más.' : ''}`}>Gasto día por día</TituloTarjeta>
+          <TituloTarjeta ayuda={`Punteada: tu promedio · verde: hoy${hayDisparados ? ' · ámbar: más del doble' : ''}.`}>Gasto día por día</TituloTarjeta>
           <p className="mb-2 text-caption text-ink-2">
             Promedio <strong className="font-semibold text-ink-1 tabular-nums">{dinero(promedioDia, 2)}</strong> por día
             {diaMasCaro && (
@@ -161,9 +161,9 @@ export default async function IaPanel({ searchParams }: { searchParams: Promise<
                 {ia.top_usuarios.map((u, i) => {
                   const alto = sospechosos.includes(u);
                   return (
-                    <li key={`${u.email}-${i}`} className="flex justify-between gap-3 text-caption">
+                    <li key={`${u.email}-${i}`} className="flex items-center justify-between gap-3 text-caption">
                       {u.id ? (
-                        <Link href={`/admin/usuarios/${u.id}`} className={`min-w-0 truncate underline-offset-4 hover:underline ${alto ? 'font-semibold text-warning' : 'text-ink-1'}`}>
+                        <Link href={`/admin/usuarios/${u.id}`} className={`flex min-h-11 min-w-0 items-center truncate underline underline-offset-4 ${alto ? 'font-semibold text-warning' : 'text-ink-1'}`}>
                           {u.email}
                         </Link>
                       ) : (

@@ -90,7 +90,7 @@ export default async function GananciaPanel({ searchParams }: { searchParams: Pr
       </Tarjeta>
 
       <Tarjeta className="mb-4" indice={2}>
-        <TituloTarjeta ayuda="En dólares. Todo es real, salvo lo marcado como estimado.">La cuenta, paso a paso</TituloTarjeta>
+        <TituloTarjeta ayuda="Todo es real, salvo lo estimado.">La cuenta, paso a paso</TituloTarjeta>
         <div className="divide-y divide-[var(--line)]">
           <FilaMonto concepto="Facturaste" monto={dinero(g.bruto)} nota={g.ventas > 0 ? `${entero(g.ventas)} ${g.ventas === 1 ? 'cobro' : 'cobros'} de Hotmart` : 'Sin cobros todavía'} />
           {g.devuelto >= 0.005 && <FilaMonto concepto="Devoluciones" color={COLOR.devuelto} monto={monto(g.devuelto)} href={`/admin/ventas?mes=${periodo.param}&tipo=devoluciones`} />}
@@ -112,9 +112,9 @@ export default async function GananciaPanel({ searchParams }: { searchParams: Pr
             apagada={g.fijos < 0.005}
             href="/admin/ajustes"
           />
+          {g.devuelto < 0.005 && g.afiliados < 0.005 && <p className="py-2 text-xs text-ink-3">Sin devoluciones ni afiliados este mes.</p>}
           <FilaMonto total concepto="Te quedaron limpios" monto={dinero(g.ganancia)} color={COLOR.queda} />
         </div>
-        {g.devuelto < 0.005 && g.afiliados < 0.005 && <p className="mt-2 text-xs text-ink-3">Sin devoluciones ni afiliados este mes.</p>}
         {g.otrasMonedas.length > 0 && <p className="mt-2 text-caption text-ink-3">Las ventas en {g.otrasMonedas.join(', ')} no están en esta cuenta: no se suman sin un tipo de cambio con fuente.</p>}
       </Tarjeta>
 

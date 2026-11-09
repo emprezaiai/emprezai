@@ -72,9 +72,14 @@ export default async function CanalesPanel({ searchParams }: { searchParams: Pro
       </div>
       {pierde && cacGeneral !== null && vida && (
         <div role="status" className="mb-4 rounded-[var(--radius-card)] border border-[color-mix(in_oklab,var(--danger)_45%,transparent)] bg-[color-mix(in_oklab,var(--danger)_8%,transparent)] p-4 text-ayuda text-ink-1">
-          <strong className="font-semibold">En promedio, cada cliente de anuncios te cuesta más de lo que deja</strong> ({dinero(cacGeneral)} contra unos {dinero(vida.ltv)}).
-          {perdedores.length > 0 && ` Lo hunde ${perdedores.map((f) => nombreCanal(f.canal)).join(' y ')}: baja el gasto ahí primero.`}
-          {ganadores.length > 0 && ` ${ganadores.map((f) => nombreCanal(f.canal)).join(' y ')} sí se ${ganadores.length === 1 ? 'paga' : 'pagan'}.`}
+          <strong className="block font-display text-base font-bold">Los anuncios te cuestan más de lo que dejan</strong>
+          <span className="mt-1 block text-caption text-ink-2">Cada cliente de anuncios cuesta {dinero(cacGeneral)} y deja unos {dinero(vida.ltv)}.</span>
+          {(perdedores.length > 0 || ganadores.length > 0) && (
+            <span className="mt-1 block text-caption text-ink-2">
+              {perdedores.length > 0 && `Baja primero el gasto en ${perdedores.map((f) => nombreCanal(f.canal)).join(' y ')}.`}
+              {ganadores.length > 0 && ` ${ganadores.map((f) => nombreCanal(f.canal)).join(' y ')} sí se ${ganadores.length === 1 ? 'paga' : 'pagan'}.`}
+            </span>
+          )}
         </div>
       )}
 
@@ -91,7 +96,7 @@ export default async function CanalesPanel({ searchParams }: { searchParams: Pro
                 <Entrada indice={i + 5} className="rounded-[var(--radius-chip)] bg-sunken p-3">
                   <div className="flex flex-wrap items-baseline justify-between gap-x-3">
                     <span className="font-display text-lg font-bold break-words text-ink-1">{nombreCanal(f.canal)}</span>
-                    <span className={`rounded-[var(--radius-pill)] px-2.5 py-0.5 text-caption font-bold ${f.v.fondo} ${f.v.tono}`}>{f.v.texto}</span>
+                    <span className={`rounded-[var(--radius-pill)] py-0.5 text-caption font-bold ${f.v.fondo ? `px-2.5 ${f.v.fondo}` : ''} ${f.v.tono}`}>{f.v.texto}</span>
                   </div>
                   <p className="text-caption text-ink-2">
                     {entero(f.clientes)} {f.clientes === 1 ? 'cliente nuevo' : 'clientes nuevos'} · {entero(f.siguen)} siguen
@@ -107,7 +112,7 @@ export default async function CanalesPanel({ searchParams }: { searchParams: Pro
                         </span>
                         <span className="whitespace-nowrap tabular-nums text-ink-1">{dinero(f.gasto_usd, 0)}</span>
                       </div>
-                      {f.valor !== null && (
+                      {f.valor !== null && f.valor > 0 && (
                         <div className="grid grid-cols-[5.5rem_1fr_auto] items-center gap-2 text-xs">
                           <span className="text-ink-3">Te dejarán</span>
                           <span className="block h-2 rounded-full bg-base">

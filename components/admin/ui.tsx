@@ -35,6 +35,7 @@ export function SelectorMes({ periodo, ruta }: { periodo: PeriodoElegido; ruta: 
         {periodo.etiqueta}
         {periodo.diaDeHoy && <span className="block text-xs font-normal text-ink-3">va en el día {periodo.diaDeHoy}</span>}
       </span>
+      <span className="sr-only lg:not-sr-only lg:order-last lg:text-xs lg:text-ink-3">← → del teclado</span>
       {periodo.siguiente ? (
         <FlechaMes href={periodo.esActual ? ruta : `${ruta}?mes=${periodo.siguiente}`} etiqueta="Mes siguiente">
           <ChevronRight size={18} aria-hidden="true" />
@@ -227,8 +228,8 @@ export function BannerAvisos({ avisos, periodo }: { avisos: Aviso[]; periodo: st
           </Entrada>
         );
   };
-  const primeros = avisos.slice(0, 2);
-  const resto = avisos.slice(2);
+  const primeros = avisos.slice(0, 1);
+  const resto = avisos.slice(1);
   return (
     <section aria-label="Avisos" className="mb-6 flex flex-col gap-3">
       {primeros.map(tarjeta)}
@@ -249,8 +250,11 @@ export function BannerAvisos({ avisos, periodo }: { avisos: Aviso[]; periodo: st
 export function FilaMonto({ concepto, monto, nota, total = false, color, apagada = false, href }: { concepto: string; monto: string; nota?: string; total?: boolean; color?: string; apagada?: boolean; href?: string }) {
   if (href) {
     return (
-      <Link href={href} className={`${TOCABLE} group -mx-2 block rounded-[var(--radius-chip)] px-2 hover:bg-raised-2`}>
-        <FilaMonto concepto={concepto} monto={monto} nota={nota} total={total} color={color} apagada={apagada} />
+      <Link href={href} className={`${TOCABLE} group flex items-center gap-1 hover:bg-[color-mix(in_oklab,var(--ink-1)_4%,transparent)]`}>
+        <span className="min-w-0 flex-1">
+          <FilaMonto concepto={concepto} monto={monto} nota={nota} total={total} color={color} apagada={apagada} />
+        </span>
+        <ChevronRight size={14} className="shrink-0 text-ink-3 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
       </Link>
     );
   }

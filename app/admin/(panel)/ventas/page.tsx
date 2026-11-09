@@ -3,7 +3,8 @@
 // cobros. Dinero separado por moneda; con flechas para ver otros meses.
 
 import Link from 'next/link';
-import { Barra, Dato, Encabezado, Lectura, SelectorMes, SinDatos, Tarjeta, TituloTarjeta, Variacion } from '@/components/admin/ui';
+import { ArrowRight } from 'lucide-react';
+import { Barra, Dato, Encabezado, Lectura, SelectorMes, SinDatos, TOCABLE, Tarjeta, TituloTarjeta, Variacion } from '@/components/admin/ui';
 import { Cuenta } from '@/components/admin/movimiento';
 import { ChipFiltro } from '@/components/admin/ChipFiltro';
 import { dinero, dineroMinor, entero, fechaHora, mesCorto, variacion } from '@/lib/panel-formato';
@@ -32,7 +33,7 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
     leerVentas(periodo.comparar, 'ventas_mes_anterior'),
     leerClientes(),
     leerPruebasSinPago(periodo),
-    leerCobrosDelMes(periodo, 50),
+    leerCobrosDelMes(periodo, 300),
     leerConteosUsuarios(''),
     leerSerie(6),
     leerAjustes(),
@@ -89,7 +90,7 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
               return (
                 <li key={m.mes} className="grid grid-cols-[2.5rem_1fr_auto] items-center gap-2 text-xs">
                   <span className={elegido ? 'font-semibold text-ink-1' : 'text-ink-3'}>{mesCorto(m.mes)}</span>
-                  <Barra pct={(m.ingresos / maxMes) * 100} tono={elegido ? 'clara' : 'neutra'} indice={i} />
+                  <Barra pct={(m.ingresos / maxMes) * 100} tono="neutra" indice={i} />
                   <span className={`whitespace-nowrap tabular-nums ${elegido ? 'font-semibold text-ink-1' : 'text-ink-2'}`}>{dinero(m.ingresos, 0)}</span>
                 </li>
               );
@@ -105,7 +106,7 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
             numero={pagando > 0 ? mrr : null}
             formato="dinero"
             decimales={2}
-            detalle={pagando > 0 ? `Lo que suman al mes tus ${entero(pagando)} clientes (${entero(clientes.activos_mensual)} mensual · ${entero(clientes.activos_anual)} anual)` : 'Aparece con el primer cliente pagando'}
+            detalle={pagando > 0 ? `${entero(clientes.activos_mensual)} mensual · ${entero(clientes.activos_anual)} anual` : 'Aparece con el primer cliente pagando'}
           />
         </Tarjeta>
         <Tarjeta indice={3}>
@@ -167,12 +168,15 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
             </ul>
           )}
           {sinAcceso > 0 && (
+            <>
             <Lectura>
-              {entero(sinAcceso)} ya no tienen acceso: pruebas que terminaron sin pagar, cancelaciones o reembolsos.{' '}
-              <Link href="/admin/usuarios?estado=inactivo" className="font-semibold text-ink-1 underline underline-offset-4">
-                Verlos
-              </Link>
+              {entero(sinAcceso)} ya no tienen acceso: pruebas que terminaron sin pagar, cancelaciones o reembolsos.
             </Lectura>
+            <Link href="/admin/usuarios?estado=inactivo" className={`${TOCABLE} mt-1 flex min-h-11 items-center gap-1 pl-6 text-caption font-semibold text-ink-1 underline underline-offset-4`}>
+              Ver a los {entero(sinAcceso)} sin acceso
+              <ArrowRight size={14} aria-hidden="true" />
+            </Link>
+            </>
           )}
         </Tarjeta>
       </div>
@@ -232,7 +236,7 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
                 </ul>
               </details>
             )}
-            {cobros.length >= 50 && <p className="mt-2 text-xs text-ink-3">Se muestran los 50 más recientes del mes.</p>}
+            {cobros.length >= 300 && <p className="mt-2 text-xs text-ink-3">Se muestran los 300 más recientes del mes.</p>}
           </>
         )}
         {clientes.manuales > 0 && (
