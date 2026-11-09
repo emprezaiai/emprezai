@@ -14,7 +14,7 @@ function veredicto(canal: string, ratio: number | null, gasto: number, clientes:
   if (clientes === 0) return { texto: 'Sin clientes nuevos', tono: 'text-danger', orden: 0 };
   if (ratio === null) return { texto: 'Sin datos', tono: 'text-ink-3', orden: 2 };
   if (ratio >= 3) return { texto: 'Sano', tono: 'text-green', orden: 2 };
-  if (ratio >= 1) return { texto: 'Gana poco', tono: 'text-warning', orden: 1 };
+  if (ratio >= 1) return { texto: 'Se paga', tono: 'text-ink-1', orden: 1 };
   return { texto: 'Pierde dinero', tono: 'text-danger', orden: 0 };
 }
 
@@ -38,19 +38,21 @@ export default async function CanalesPanel({ searchParams }: { searchParams: Pro
   const clientesConGasto = filas.filter((f) => f.gasto_usd > 0).reduce((t, f) => t + f.clientes, 0);
   const cacGeneral = gastoTotal > 0 && clientesConGasto > 0 ? gastoTotal / clientesConGasto : null;
   const pierde = cacGeneral !== null && vida !== null && cacGeneral > vida.ltv;
+  const perdedores = filas.filter((f) => f.gasto_usd > 0 && (f.clientes === 0 || (f.ratio !== null && f.ratio < 1)));
+  const ganadores = filas.filter((f) => f.gasto_usd > 0 && f.ratio !== null && f.ratio >= 1);
 
   return (
-    <>
+    <div key={periodo.param} className="panel-fundido">
       <Encabezado titulo="Canales">De dónde vienen tus clientes y si cada canal te deja dinero.</Encabezado>
       <SelectorMes periodo={periodo} ruta="/admin/canales" />
 
       <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-3">
         <Tarjeta indice={1}>
-          <Dato etiqueta="Gastaste en anuncios" numero={gastoTotal > 0 ? gastoTotal : null} formato="dinero" decimales={2} detalle={gastoTotal > 0 ? 'Lo que anotaste en Ajustes' : 'Anota tu gasto por canal en Ajustes'} />
+          <Dato etiqueta="Gasto en anuncios" numero={gastoTotal > 0 ? gastoTotal : null} formato="dinero" decimales={2} detalle={gastoTotal > 0 ? 'Lo que anotaste en Ajustes' : 'Anota tu gasto por canal en Ajustes'} />
         </Tarjeta>
         <Tarjeta indice={2}>
           <Dato
-            etiqueta="Conseguir un cliente te cuesta"
+            etiqueta="Costo por cliente"
             numero={cacGeneral}
             formato="dinero"
             decimales={2}
@@ -60,7 +62,7 @@ export default async function CanalesPanel({ searchParams }: { searchParams: Pro
         </Tarjeta>
         <Tarjeta indice={3} className="col-span-2 lg:col-span-1">
           <Dato
-            etiqueta="Un cliente te deja en total"
+            etiqueta="Lo que deja un cliente"
             numero={vida ? vida.ltv : null}
             formato="dinero"
             decimales={2}
@@ -70,7 +72,9 @@ export default async function CanalesPanel({ searchParams }: { searchParams: Pro
       </div>
       {pierde && cacGeneral !== null && vida && (
         <div role="status" className="mb-4 rounded-[var(--radius-card)] border border-[color-mix(in_oklab,var(--danger)_45%,transparent)] bg-[color-mix(in_oklab,var(--danger)_8%,transparent)] p-4 text-ayuda text-ink-1">
-          <strong className="font-semibold">Cada cliente de anuncios te cuesta más de lo que deja</strong> ({dinero(cacGeneral)} contra unos {dinero(vida.ltv)}). Baja el gasto en los canales en rojo o sube lo que deja cada cliente (precio, plan anual).
+          <strong className="font-semibold">En promedio, cada cliente de anuncios te cuesta más de lo que deja</strong> ({dinero(cacGeneral)} contra unos {dinero(vida.ltv)}).
+          {perdedores.length > 0 && ` Lo hunde ${perdedores.map((f) => nombreCanal(f.canal)).join(' y ')}: baja el gasto ahí primero.`}
+          {ganadores.length > 0 && ` ${ganadores.map((f) => nombreCanal(f.canal)).join(' y ')} sí se ${ganadores.length === 1 ? 'paga' : 'pagan'}.`}
         </div>
       )}
 
@@ -86,8 +90,8 @@ export default async function CanalesPanel({ searchParams }: { searchParams: Pro
                 <li key={f.canal}>
                 <Entrada indice={i + 5} className="rounded-[var(--radius-chip)] bg-sunken p-3">
                   <div className="flex flex-wrap items-baseline justify-between gap-x-3">
-                    <span className="font-display text-base font-bold break-words text-ink-1">{nombreCanal(f.canal)}</span>
-                    <span className={`font-display text-lg font-extrabold ${f.v.tono}`}>{f.v.texto}</span>
+                    <span className="font-display text-lg font-bold break-words text-ink-1">{nombreCanal(f.canal)}</span>
+                    <span className={`text-caption font-bold ${f.v.tono}`}>{f.v.texto}</span>
                   </div>
                   <p className="text-caption text-ink-2">
                     {entero(f.clientes)} {f.clientes === 1 ? 'cliente nuevo' : 'clientes nuevos'} · {entero(f.siguen)} siguen
@@ -137,6 +141,6 @@ export default async function CanalesPanel({ searchParams }: { searchParams: Pro
         Anotar lo que gastas en cada canal
         <ArrowRight size={16} className="ml-auto text-ink-3" aria-hidden="true" />
       </Link>
-    </>
+    </div>
   );
 }

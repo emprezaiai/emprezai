@@ -3,8 +3,9 @@
 // cobros. Dinero separado por moneda; con flechas para ver otros meses.
 
 import Link from 'next/link';
-import { Barra, Dato, Encabezado, Lectura, SelectorMes, SinDatos, TOCABLE, Tarjeta, TituloTarjeta, Variacion } from '@/components/admin/ui';
+import { Barra, Dato, Encabezado, Lectura, SelectorMes, SinDatos, Tarjeta, TituloTarjeta, Variacion } from '@/components/admin/ui';
 import { Cuenta } from '@/components/admin/movimiento';
+import { ChipFiltro } from '@/components/admin/ChipFiltro';
 import { dinero, dineroMinor, entero, fechaHora, mesCorto, variacion } from '@/lib/panel-formato';
 import {
   calcularChurn,
@@ -15,6 +16,7 @@ import {
   leerPruebasSinPago,
   leerSerie,
   leerCobrosDelMes,
+  leerConteosUsuarios,
   leerVentas,
   periodoElegido,
 } from '@/lib/servidor/panel';
@@ -25,12 +27,13 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
   const sp = await searchParams;
   const periodo = periodoElegido(sp.mes);
   const tipo = sp.tipo === 'devoluciones' ? 'devoluciones' : 'todos';
-  const [ventas, ventasAnt, clientes, sinPago, cobros, serie, ajustes] = await Promise.all([
+  const [ventas, ventasAnt, clientes, sinPago, cobros, conteos, serie, ajustes] = await Promise.all([
     leerVentas(periodo, 'ventas_mes'),
     leerVentas(periodo.comparar, 'ventas_mes_anterior'),
     leerClientes(),
     leerPruebasSinPago(periodo),
     leerCobrosDelMes(periodo, 50),
+    leerConteosUsuarios(''),
     leerSerie(6),
     leerAjustes(),
   ]);
@@ -47,7 +50,8 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
   const maxMes = Math.max(1, ...meses.map((m) => m.ingresos));
   const nadieSeFue = ventas.cancelaciones_voluntarias + ventas.perdidos_por_pago + ventas.cobros_fallidos + ventas.reembolsados === 0;
   // Tus clientes HOY, contados igual que en Inicio (quien entró a mano no cuenta como pago).
-  const sinAcceso = Math.max(0, clientes.total - pagando - clientes.en_prueba - clientes.manuales);
+  // "Ya no tienen acceso" = el mismo filtro de Usuarios (así el número y su lista coinciden).
+  const sinAcceso = conteos.inactivo ?? 0;
   const filasClientes = [
     { texto: 'Pagando', n: pagando, tono: 'verde' as const },
     { texto: 'En prueba gratis', n: clientes.en_prueba, tono: 'verde' as const },
@@ -58,7 +62,7 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
   const lista = (tipo === 'devoluciones' ? cobros.filter((c) => c.tipo !== 'sale') : cobros).slice(0, 12);
 
   return (
-    <>
+    <div key={periodo.param} className="panel-fundido">
       <Encabezado titulo="Ventas" />
       <SelectorMes periodo={periodo} ruta="/admin/ventas" />
 
@@ -95,16 +99,16 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
       <div className="mb-4 grid grid-cols-2 gap-3">
         <Tarjeta indice={2}>
           <Dato
-            etiqueta="Entra cada mes"
+            etiqueta="Suscripciones al mes"
             numero={pagando > 0 ? mrr : null}
             formato="dinero"
             decimales={2}
-            detalle={pagando > 0 ? `${entero(clientes.activos_mensual)} mensual · ${entero(clientes.activos_anual)} anual` : 'Aparece con el primer cliente pagando'}
+            detalle={pagando > 0 ? `Lo que pagan tus ${entero(pagando)} clientes cada mes (${entero(clientes.activos_mensual)} mensual · ${entero(clientes.activos_anual)} anual)` : 'Aparece con el primer cliente pagando'}
           />
         </Tarjeta>
         <Tarjeta indice={3}>
           <Dato
-            etiqueta="Pruebas que pasaron a pago"
+            etiqueta="Pruebas que pagaron"
             numero={conversion}
             formato="pct"
             tono={conversion !== null && conversion >= 40 && pruebasTerminadas >= 10 ? 'bien' : 'neutro'}
@@ -162,7 +166,10 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
           )}
           {sinAcceso > 0 && (
             <Lectura>
-              {entero(sinAcceso)} ya no tienen acceso: pruebas que terminaron sin pagar, cancelaciones o reembolsos.
+              {entero(sinAcceso)} ya no tienen acceso: pruebas que terminaron sin pagar, cancelaciones o reembolsos.{' '}
+              <Link href="/admin/usuarios?estado=inactivo" className="font-semibold text-ink-1 underline underline-offset-4">
+                Verlos
+              </Link>
             </Lectura>
           )}
         </Tarjeta>
@@ -175,14 +182,9 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
             ['todos', 'Todos'],
             ['devoluciones', 'Solo reembolsos'],
           ].map(([v, t]) => (
-            <Link
-              key={v}
-              href={`/admin/ventas?mes=${periodo.param}${v === 'todos' ? '' : `&tipo=${v}`}`}
-              aria-current={tipo === v ? 'true' : undefined}
-              className={`${TOCABLE} flex min-h-11 items-center rounded-[var(--radius-pill)] border px-3 text-xs font-semibold ${tipo === v ? 'border-ink-2 bg-raised-2 text-ink-1' : 'border-[var(--line)] text-ink-2'}`}
-            >
+            <ChipFiltro key={v} href={`/admin/ventas?mes=${periodo.param}${v === 'todos' ? '' : `&tipo=${v}`}`} activo={tipo === v}>
               {t}
-            </Link>
+            </ChipFiltro>
           ))}
         </nav>
         {lista.length === 0 ? (
@@ -227,6 +229,6 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
           </ul>
         </Tarjeta>
       )}
-    </>
+    </div>
   );
 }

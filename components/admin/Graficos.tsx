@@ -15,6 +15,7 @@ export function GraficoMeses({ datos }: { datos: { mes: string; ingresos: number
   const reduce = useReducedMotion();
   const filas = datos.map((d) => ({ ...d, etiqueta: mesCorto(d.mes) }));
   return (
+    <div className="w-full min-w-0">
     <div className="h-56 w-full min-w-0" role="img" aria-label={`Ingresos y lo que quedó por mes: ${filas.map((f) => `${f.etiqueta} ${dinero(f.ingresos, 0)} y ${dinero(f.quedo, 0)}`).join('; ')}`}>
       <ResponsiveContainer width="100%" height="100%" minWidth={0}>
         <BarChart data={filas} margin={{ top: 24, right: 4, bottom: 0, left: 4 }} barGap={4}>
@@ -34,7 +35,8 @@ export function GraficoMeses({ datos }: { datos: { mes: string; ingresos: number
           </Bar>
         </BarChart>
       </ResponsiveContainer>
-      <p className="mt-1 flex flex-wrap items-center justify-center gap-x-4 text-xs text-ink-2">
+    </div>
+      <p className="mt-2 flex flex-wrap items-center justify-center gap-x-4 text-xs text-ink-2">
         <span className="inline-flex items-center gap-1.5">
           <span aria-hidden="true" className="size-2.5 rounded-sm bg-[color-mix(in_oklab,var(--ink-3)_45%,transparent)]" />
           Facturaste

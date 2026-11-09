@@ -24,6 +24,16 @@ function IconoOCarga({ children }: { children: React.ReactNode }) {
   return pending ? <LoaderCircle size={18} className="motion-safe:animate-spin" aria-label="Cargando" /> : <>{children}</>;
 }
 
+/** Enlace de texto que muestra que carga apenas se toca (paginación). */
+export function EnlaceCarga({ href, className, children }: { href: string; className: string; children: React.ReactNode }) {
+  return (
+    <Link href={href} className={className}>
+      {children}
+      <Cargando />
+    </Link>
+  );
+}
+
 export function ChipFiltro({ href, activo, children, cuenta }: { href: string; activo: boolean; children: React.ReactNode; cuenta?: number }) {
   return (
     <Link

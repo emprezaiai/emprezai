@@ -63,7 +63,7 @@ function EnlaceCopiable({ enlace, codigo, copiadoAlInicio }: { enlace: string; c
   );
 }
 
-export function FormAgregarUsuario() {
+export function FormAgregarUsuario({ emailInicial = '' }: { emailInicial?: string }) {
   const [resultado, accion, enviando] = useActionState(agregarUsuario, null);
   const [duracion, setDuracion] = useState('30');
   const [copiado, setCopiado] = useState(false);
@@ -75,7 +75,7 @@ export function FormAgregarUsuario() {
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="flex flex-col gap-1">
           <span className="text-caption font-semibold text-ink-1">Correo</span>
-          <input name="email" type="email" required autoComplete="off" placeholder="persona@correo.com" className={CAMPO} />
+          <input name="email" type="email" required autoComplete="off" defaultValue={emailInicial} placeholder="persona@correo.com" className={CAMPO} />
         </label>
         <label className="flex flex-col gap-1">
           <span className="text-caption font-semibold text-ink-1">Nombre</span>
@@ -162,13 +162,12 @@ export function AccionesFicha({ id, puedeEnviarCorreo, conAcceso, enlaceEsPrinci
           </button>
         )}
       </div>
-      {!puedeEnviarCorreo && <p className="mt-2 text-xs text-ink-3">Reenviar por correo se activa cuando conectemos tus correos. Mientras, usa &quot;Copiar enlace de acceso&quot;.</p>}
 
       <p className="mt-4 text-caption font-semibold text-ink-1">Extender acceso</p>
       <div className="mt-2 grid grid-cols-3 gap-2">
         {[7, 30, 365].map((d) => (
-          <button key={d} type="button" disabled={pendiente} onClick={() => correr(() => extenderAcceso(id, d), true)} className={`${secundario} px-2`}>
-            <TimerReset size={16} className="shrink-0" aria-hidden="true" />+{d === 365 ? '1 año' : d === 30 ? '1 mes' : '7 días'}
+          <button key={d} type="button" disabled={pendiente} onClick={() => correr(() => extenderAcceso(id, d), true)} className={`${secundario} px-2 whitespace-nowrap`}>
+            <TimerReset size={16} className="hidden shrink-0 sm:block" aria-hidden="true" />+{d === 365 ? '1 año' : d === 30 ? '1 mes' : '7 días'}
           </button>
         ))}
       </div>

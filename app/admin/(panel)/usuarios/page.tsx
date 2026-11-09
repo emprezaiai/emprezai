@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { ChevronDown, ChevronLeft, ChevronRight, UserPlus } from 'lucide-react';
 import { BuscadorUsuarios } from '@/components/admin/BuscadorUsuarios';
 import { FormAgregarUsuario } from '@/components/admin/AccionesUsuario';
-import { ChipFiltro } from '@/components/admin/ChipFiltro';
+import { ChipFiltro, EnlaceCarga } from '@/components/admin/ChipFiltro';
 import { estadoVisible } from '@/components/admin/estados';
 import { Entrada } from '@/components/admin/movimiento';
 import { Encabezado, SinDatos, TOCABLE, Tarjeta, TituloTarjeta } from '@/components/admin/ui';
@@ -22,12 +22,15 @@ const ETIQUETA_FILTRO: Record<FiltroUsuarios, string> = {
   fantasma: 'Pagan y no entran',
   cancelled: 'Cancelaron',
   past_due: 'Pago atrasado',
-  expired: 'Sin acceso',
+  expired: 'Prueba o acceso vencido',
   refunded: 'Reembolsados',
   vencido: 'Vencidos sin aviso de Hotmart',
   manual: 'Acceso regalado',
+  inactivo: 'Sin acceso hoy',
 };
-const PRINCIPALES: FiltroUsuarios[] = ['todos', 'activo', 'trialing', 'active', 'sin-acceso'];
+// A la vista: los que más se usan + "Pagan y no entran" (pide actuar hoy). "Pagaron sin acceso" sube
+// a la vista solo cuando hay alguien (si está en 0 no merece un lugar).
+const BASE: FiltroUsuarios[] = ['todos', 'activo', 'trialing', 'active', 'fantasma'];
 
 export default async function UsuariosPanel({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const sp = await searchParams;
@@ -48,6 +51,7 @@ export default async function UsuariosPanel({ searchParams }: { searchParams: Pr
       {ETIQUETA_FILTRO[f]}
     </ChipFiltro>
   );
+  const PRINCIPALES: FiltroUsuarios[] = (conteos['sin-acceso'] ?? 0) > 0 ? [...BASE.slice(0, 4), 'sin-acceso', 'fantasma'] : BASE;
   const otros = FILTROS_USUARIOS.filter((f) => !PRINCIPALES.includes(f));
 
   return (
@@ -120,9 +124,9 @@ export default async function UsuariosPanel({ searchParams }: { searchParams: Pr
         {paginas > 1 && (
           <nav aria-label="Páginas" className="mt-3 flex items-center justify-between border-t border-[var(--line)] pt-3">
             {pagina > 1 ? (
-              <Link href={enlace({ pagina: pagina - 1 })} className={`${TOCABLE} flex min-h-11 items-center gap-1 text-caption font-semibold text-ink-1`}>
+              <EnlaceCarga href={enlace({ pagina: pagina - 1 })} className={`${TOCABLE} flex min-h-11 items-center gap-1 text-caption font-semibold text-ink-1`}>
                 <ChevronLeft size={16} aria-hidden="true" /> Anterior
-              </Link>
+              </EnlaceCarga>
             ) : (
               <span />
             )}
@@ -130,9 +134,9 @@ export default async function UsuariosPanel({ searchParams }: { searchParams: Pr
               Página {pagina} de {paginas}
             </span>
             {pagina < paginas ? (
-              <Link href={enlace({ pagina: pagina + 1 })} className={`${TOCABLE} flex min-h-11 items-center gap-1 text-caption font-semibold text-ink-1`}>
+              <EnlaceCarga href={enlace({ pagina: pagina + 1 })} className={`${TOCABLE} flex min-h-11 items-center gap-1 text-caption font-semibold text-ink-1`}>
                 Siguiente <ChevronRight size={16} aria-hidden="true" />
-              </Link>
+              </EnlaceCarga>
             ) : (
               <span />
             )}

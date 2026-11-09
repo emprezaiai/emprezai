@@ -5,6 +5,7 @@
 import Link from 'next/link';
 import { CircleAlert, CircleCheck } from 'lucide-react';
 import { BotonCopiar } from '@/components/admin/BotonCopiar';
+import { FormAgregarUsuario } from '@/components/admin/AccionesUsuario';
 import { Entrada } from '@/components/admin/movimiento';
 import { Dato, Encabezado, SinDatos, Tarjeta, TituloTarjeta } from '@/components/admin/ui';
 import { entero, fechaHora } from '@/lib/panel-formato';
@@ -103,12 +104,31 @@ export default async function SaludPanel() {
                       Aviso de {TIPO_AVISO[w.tipo ?? ''] ?? 'un pago'} · {fechaHora(w.en)}
                       {w.resultado === 'unauthorized' && ' · llegó con la clave equivocada'}
                     </span>
-                    <span className="flex flex-wrap items-center gap-x-4">
-                      {w.email && <BotonCopiar texto={w.email} etiqueta="Copiar correo" />}
-                      <Link href="/admin/usuarios?agregar=1" className="inline-flex min-h-11 items-center text-caption font-semibold text-ink-1 underline underline-offset-4">
-                        Darle acceso
-                      </Link>
-                    </span>
+                    {w.con_acceso ? (
+                      <span className="mt-1 flex flex-wrap items-center gap-x-4 text-caption">
+                        <span className="font-semibold text-green">Ya tiene acceso</span>
+                        {w.perfil_id && (
+                          <Link href={`/admin/usuarios/${w.perfil_id}`} className="inline-flex min-h-11 items-center font-semibold text-ink-1 underline underline-offset-4">
+                            Ver su ficha
+                          </Link>
+                        )}
+                      </span>
+                    ) : (
+                      <>
+                        <span className="mt-1 block text-caption font-semibold text-danger">Todavía sin acceso</span>
+                        <span className="flex flex-wrap items-center gap-x-4">
+                          {w.email && <BotonCopiar texto={w.email} etiqueta="Copiar correo" />}
+                        </span>
+                        <details className="group/dar">
+                          <summary className="inline-flex min-h-11 cursor-pointer list-none items-center text-caption font-semibold text-ink-1 underline underline-offset-4 [&::-webkit-details-marker]:hidden">
+                            Darle acceso aquí
+                          </summary>
+                          <div className="mt-2">
+                            <FormAgregarUsuario emailInicial={w.email ?? ''} />
+                          </div>
+                        </details>
+                      </>
+                    )}
                   </span>
                 </li>
               ))}
@@ -189,7 +209,7 @@ export default async function SaludPanel() {
         </Tarjeta>
         <Tarjeta indice={3}>
           <Dato
-            etiqueta="Pagos que no se aplicaron"
+            etiqueta="Pagos fallidos"
             numero={fallosHotmart7d}
             tono={fallosHotmart7d > 0 ? 'mal' : 'bien'}
             detalle={fallidos[0] ? `El último falló el ${fechaHora(fallidos[0].en)}` : s.webhook_ultimo ? `Todos bien · el último, ${fechaHora(s.webhook_ultimo)}` : 'Hotmart todavía no envió avisos'}
@@ -212,7 +232,7 @@ export default async function SaludPanel() {
           />
         </Tarjeta>
         <Tarjeta indice={5}>
-          <Dato etiqueta="Errores de la semana" numero={erroresSemana} tono={repetidos.length > 0 ? 'mal' : 'neutro'} detalle={`${entero(s.errores_hoy)} hoy`} />
+          <Dato etiqueta="Errores (7 días)" numero={erroresSemana} tono={repetidos.length > 0 ? 'mal' : 'neutro'} detalle={s.errores_7d_anterior !== undefined ? (s.errores_7d_anterior === erroresSemana ? 'Igual que la semana pasada' : `${erroresSemana > s.errores_7d_anterior ? 'Más' : 'Menos'} que la semana pasada (${entero(s.errores_7d_anterior)})`) : `${entero(s.errores_hoy)} hoy`} />
         </Tarjeta>
       </div>
 

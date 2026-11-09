@@ -7,11 +7,8 @@ import { ArrowRight } from 'lucide-react';
 import { Encabezado, FilaMonto, Lectura, SelectorMes, TOCABLE, Tarjeta, TituloTarjeta, Variacion } from '@/components/admin/ui';
 import { Cuenta } from '@/components/admin/movimiento';
 import { dinero, entero, pct, variacion } from '@/lib/panel-formato';
-import { calcularGanancia, calcularMrr, leerAjustes, leerClientes, leerIa, leerVentas, periodoElegido } from '@/lib/servidor/panel';
+import { calcularGanancia, leerAjustes, leerIa, leerVentas, periodoElegido } from '@/lib/servidor/panel';
 
-// Colores con significado para la barra: lo que queda en dorado (el dato principal), los costos en
-// tonos neutros escalonados y lo devuelto en rojo.
-// (Cada costo con un tono que se distingue: claro, gris medio, ámbar, turquesa apagado, gris oscuro.)
 // Los costos van en grises que se aclaran según su tamaño (el más grande, el más visible); el dorado
 // es solo lo que queda y el rojo, lo devuelto. Bajo la barra, cada tramo con su nombre y su %.
 const GRISES = ['var(--ink-2)', 'color-mix(in oklab, var(--ink-2) 62%, var(--surface-raised-2))', 'color-mix(in oklab, var(--ink-3) 55%, var(--surface-raised-2))', 'color-mix(in oklab, var(--ink-3) 35%, var(--surface-raised-2))', 'color-mix(in oklab, var(--ink-3) 22%, var(--surface-raised-2))'];
@@ -21,11 +18,10 @@ const monto = (n: number) => (Math.abs(n) < 0.005 ? dinero(0) : dinero(-n));
 
 export default async function GananciaPanel({ searchParams }: { searchParams: Promise<{ mes?: string }> }) {
   const periodo = periodoElegido((await searchParams).mes);
-  const [ventas, ia, ajustes, clientes, ventasAnt, iaAnt] = await Promise.all([
+  const [ventas, ia, ajustes, ventasAnt, iaAnt] = await Promise.all([
     leerVentas(periodo, 'ventas_mes'),
     leerIa(periodo, 'ia_mes'),
     leerAjustes(),
-    leerClientes(),
     leerVentas(periodo.comparar, 'ventas_mes_anterior'),
     leerIa(periodo.comparar, 'ia_mes_anterior'),
   ]);
@@ -33,8 +29,6 @@ export default async function GananciaPanel({ searchParams }: { searchParams: Pr
   const fijos = costosActivos.reduce((t, c) => t + c.monto_usd, 0);
   const g = calcularGanancia(ventas, ia.total_usd, ajustes.impuestosPct, fijos);
   const gAnt = calcularGanancia(ventasAnt, iaAnt.total_usd, ajustes.impuestosPct, fijos);
-  const { pagando } = calcularMrr(clientes);
-  const porCliente = pagando > 0 && g.bruto > 0 ? g.ganancia / pagando : null;
   const tramos = [
     { id: 'hotmart', texto: 'Comisión de Hotmart', v: g.comision },
     { id: 'afiliados', texto: 'Afiliados', v: g.afiliados },
@@ -47,11 +41,11 @@ export default async function GananciaPanel({ searchParams }: { searchParams: Pr
   const ordenCostos = tramos.filter((t) => t.id !== 'devuelto').sort((a, b) => b.v - a.v).map((t) => t.id);
   const COLOR: Record<string, string> = { queda: QUEDA, devuelto: DEVUELTO };
   ordenCostos.forEach((id, i) => (COLOR[id] = GRISES[Math.min(i, GRISES.length - 1)]));
-  const leyenda = [{ id: 'queda', texto: 'Te queda', v: Math.max(0, g.ganancia) }, ...tramos].filter((t) => t.v > 0.005);
+  const leyenda = tramos.filter((t) => t.v > 0.005);
   const deCadaDolar = g.bruto > 0 ? Math.round((mayor.v / g.bruto) * 100) : 0;
 
   return (
-    <>
+    <div key={periodo.param} className="panel-fundido">
       <Encabezado titulo="Ganancia real">Lo que de verdad te queda después de pagar todo.</Encabezado>
       <SelectorMes periodo={periodo} ruta="/admin/ganancia" />
 
@@ -67,7 +61,6 @@ export default async function GananciaPanel({ searchParams }: { searchParams: Pr
             <p className="mt-2 text-caption text-ink-2">
               limpios · margen {g.margenPct !== null ? pct(g.margenPct) : '—'} · <Variacion cambio={variacion(g.ganancia, gAnt.bruto > 0 ? gAnt.ganancia : 0)} contra={periodo.textoComparar} />
             </p>
-            {porCliente !== null && <p className="mt-1 text-caption text-ink-2">{dinero(porCliente)} por cada cliente pagando</p>}
 
             {/* Adónde se va cada dólar */}
             <div className="panel-crecer mt-4 flex h-3 w-full overflow-hidden rounded-full bg-sunken" role="img" aria-label={`De cada dólar: te quedan ${pct(Math.max(0, (g.ganancia / g.bruto) * 100))}, el resto se va en costos.`}>
@@ -85,7 +78,6 @@ export default async function GananciaPanel({ searchParams }: { searchParams: Pr
             <Lectura tono={g.ganancia >= 0 ? 'neutro' : 'mal'}>
               Tu mayor costo es <strong className="font-semibold text-ink-1">{mayor.texto.toLowerCase()}</strong>: {deCadaDolar} de cada 100 dólares que facturas.
             </Lectura>
-            {periodo.diaDeHoy && <p className="mt-1 pl-6 text-xs text-ink-3">Los costos fijos ya van completos (el mes va en el día {periodo.diaDeHoy}).</p>}
           </>
         ) : (
           <>
@@ -124,13 +116,10 @@ export default async function GananciaPanel({ searchParams }: { searchParams: Pr
         {g.otrasMonedas.length > 0 && <p className="mt-2 text-caption text-ink-3">Las ventas en {g.otrasMonedas.join(', ')} no están en esta cuenta: no se suman sin un tipo de cambio con fuente.</p>}
       </Tarjeta>
 
-      <Link
-        href="/admin/ajustes"
-        className={`${TOCABLE} tarjeta-relieve-base flex min-h-12 items-center gap-3 rounded-[var(--radius-card)] px-4 text-ayuda font-semibold text-ink-1 hover:bg-raised`}
-      >
-        Cambiar el % de impuestos o tus costos fijos
-        <ArrowRight size={16} className="ml-auto text-ink-3" aria-hidden="true" />
+      <Link href="/admin/ajustes" className={`${TOCABLE} inline-flex min-h-11 items-center gap-1 text-caption text-ink-2 underline underline-offset-4 hover:text-ink-1`}>
+        Cambiar impuestos o costos fijos
+        <ArrowRight size={14} aria-hidden="true" />
       </Link>
-    </>
+    </div>
   );
 }

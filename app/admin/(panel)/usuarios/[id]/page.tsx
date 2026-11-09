@@ -47,7 +47,7 @@ export default async function FichaUsuario({ params }: { params: Promise<{ id: s
   const contactoPrincipal = (
     <span className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
       <a href={mailto} className={`${TOCABLE} boton-oro inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-pill)] px-4 text-caption font-bold`}>
-        <Mail size={16} aria-hidden="true" /> Escribirle por correo
+        <Mail size={16} aria-hidden="true" /> Escribirle
       </a>
       <BotonCopiar texto={f.email} etiqueta="Copiar correo" />
     </span>

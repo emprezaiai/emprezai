@@ -2,9 +2,9 @@
 // (por días con pieza armada), dónde se quedan en la ruta, el camino de venta del mes elegido y los
 // pagadores fantasma (con enlace para verlos).
 
-import { Barra, Dato, Encabezado, Lectura, SelectorMes, SinDatos, Tarjeta, TituloTarjeta } from '@/components/admin/ui';
+import { Barra, Dato, Encabezado, Lectura, SelectorMes, SinDatos, Tarjeta, TituloTarjeta, Variacion } from '@/components/admin/ui';
 import { GraficoBarrasDia } from '@/components/admin/Graficos';
-import { entero, pct } from '@/lib/panel-formato';
+import { entero, pct, variacion } from '@/lib/panel-formato';
 import { leerFunnel, leerUso, periodoElegido } from '@/lib/servidor/panel';
 
 const PASOS = [
@@ -46,8 +46,8 @@ export default async function UsoPanel({ searchParams }: { searchParams: Promise
   const semanaMasComun = semanas.reduce((a, b) => (b.personas > a.personas ? b : a));
 
   return (
-    <>
-      <Encabezado titulo="Uso y retención" periodo="Hoy y últimos 30 días">¿La gente usa la app y vuelve al día siguiente?</Encabezado>
+    <div key={periodo.param} className="panel-fundido">
+      <Encabezado titulo="Uso y retención">¿La gente usa la app y vuelve al día siguiente?</Encabezado>
 
       <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Tarjeta indice={1}>
@@ -68,7 +68,7 @@ export default async function UsoPanel({ searchParams }: { searchParams: Promise
             numero={uso.con_piezas > 0 ? uso.fantasmas : null}
             tono={uso.fantasmas > 0 ? 'mal' : 'bien'}
             detalle={
-              uso.fantasmas > 0 ? 'Hace 14 días o más · tócala para escribirles' : 'Nadie paga sin usar la app'
+              uso.fantasmas > 0 ? 'Hace 14 días o más · tócala para verlos' : 'Nadie paga sin usar la app'
             }
           />
         </Tarjeta>
@@ -106,7 +106,8 @@ export default async function UsoPanel({ searchParams }: { searchParams: Promise
           {totalPiezas > 0 ? (
             <>
               <p className="mb-2 text-caption text-ink-2">
-                <strong className="font-display text-xl font-extrabold text-ink-1 tabular-nums">{entero(totalPiezas)}</strong> piezas · unas {entero(Math.round(totalPiezas / 30))} por día
+                <strong className="font-display text-xl font-extrabold text-ink-1 tabular-nums">{entero(totalPiezas)}</strong> piezas · unas {entero(Math.round(totalPiezas / 30))} por día ·{' '}
+                <Variacion cambio={uso.piezas_30_anterior ? variacion(totalPiezas, uso.piezas_30_anterior) : null} contra="los 30 días anteriores" />
               </p>
               <GraficoBarrasDia datos={uso.piezas_por_dia} />
             </>
@@ -175,6 +176,6 @@ export default async function UsoPanel({ searchParams }: { searchParams: Promise
           </>
         )}
       </Tarjeta>
-    </>
+    </div>
   );
 }

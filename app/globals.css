@@ -489,3 +489,12 @@ body {
   .panel-entrar,
   .panel-crecer { animation: none; }
 }
+
+/* Panel: fundido corto al cambiar de mes (la página se re-monta con la clave del mes). */
+@keyframes panel-fundido {
+  from { opacity: 0.35; }
+}
+.panel-fundido { animation: panel-fundido 200ms ease-out both; }
+@media (prefers-reduced-motion: reduce) {
+  .panel-fundido { animation: none; }
+}

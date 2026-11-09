@@ -1,9 +1,9 @@
 # VEREDICTO revisor-visual — Panel · Usuarios
-Fecha: 2026-11-09 18:00
+Fecha: 2026-11-09 20:00
 Screenshot: docs/revisiones/panel/usuarios-375.png
-Usabilidad: 30/40
-Craft: 14/20
+Usabilidad: 32/40
+Craft: 15/20
 Copy (si vende): N-A
 Fidelidad (si hubo referencia): N-A
 Veredicto: NO LISTA
-Top defectos: 1) [chips de filtro] Siguen sin decir cuántas personas hay en cada estado: para saber cuántos pagan hay que tocar "Pagando" y leer el subtítulo → contador en cada chip ("Pagando 12", "En prueba 10") desde leerUsuarios (usuarios/page.tsx + ChipFiltro.tsx). 2) [botón "Dar acceso a alguien" a 1440px] El summary es flex de bloque con sm:w-auto, que en un bloque sigue ocupando todo el ancho: en computador es una barra dorada de ~740px que domina la pantalla → inline-flex en sm (usuarios/page.tsx línea 62). 3) [buscador + chip "Todos"] Una búsqueda no se puede limpiar: "Todos" conserva q en el enlace y no hay botón para borrar el texto → botón "×" dentro del campo cuando hay búsqueda y que "Todos" quite también q (enlace() en usuarios/page.tsx). 4) [estado vacío] Dice "si das acceso a alguien abajo" pero el formulario ahora está arriba → "con el botón de arriba" (usuarios/page.tsx línea 104). 5) [botón "Buscar"] Con next/form no hay señal de carga al enviar la búsqueda (los chips sí la tienen) → useFormStatus en el botón con spinner/"Buscando…".
+Top defectos: 1) [lista a 375px] 25 filas por página = unos 2.600px de scroll seguido sin agrupar (falla el gate "≤4-5 ítems antes de agrupar"); la dueña no tiene forma de ordenar por "última vez que entró" o "piezas" → POR_PAGINA 10-12 en móvil o subtítulos por estado dentro de la lista, más un orden "Más recientes / Hace más que no entran" (usuarios/page.tsx + leerUsuarios en lib/servidor/panel.ts). 2) [chips principales] "Pagaron sin acceso 0" ocupa uno de los 5 lugares visibles estando en cero, mientras "Pagan y no entran" (el que pide acción hoy) queda escondido en "Más filtros" → poner "Pagan y no entran" entre los principales y atenuar o mover a "Más filtros" el chip que esté en 0 (PRINCIPALES en usuarios/page.tsx línea 30). 3) [paginación "Siguiente"/"Anterior"] Sin señal de carga al tocar (los chips y el buscador sí la tienen) → mismo indicador useLinkStatus de ChipFiltro.tsx en los enlaces de página (usuarios/page.tsx líneas 135-155).

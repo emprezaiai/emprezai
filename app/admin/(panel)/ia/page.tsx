@@ -5,8 +5,8 @@
 import { Barra, Dato, Encabezado, Lectura, SelectorMes, SinDatos, Tarjeta, TituloTarjeta } from '@/components/admin/ui';
 import { Cuenta } from '@/components/admin/movimiento';
 import { GraficoGastoDia } from '@/components/admin/Graficos';
-import { dinero, entero, pct } from '@/lib/panel-formato';
-import { calcularGanancia, leerAjustes, leerIa, leerVentas, periodoElegido, topesIa } from '@/lib/servidor/panel';
+import { dinero, entero, fechaCorta, pct } from '@/lib/panel-formato';
+import { calcularGanancia, calcularMrr, leerAjustes, leerClientes, leerIa, leerVentas, periodoElegido, topesIa } from '@/lib/servidor/panel';
 
 /** Costo por uso legible: nunca "$0,000" (parece gratis o un error). */
 const cadaUso = (usd: number) => (usd > 0 && usd < 0.001 ? 'menos de $0,001' : dinero(usd, 3));
@@ -19,18 +19,26 @@ const FUNCION: Record<string, string> = {
 
 export default async function IaPanel({ searchParams }: { searchParams: Promise<{ mes?: string }> }) {
   const periodo = periodoElegido((await searchParams).mes);
-  const [ia, ventas, ajustes] = await Promise.all([leerIa(periodo, 'ia_mes'), leerVentas(periodo, 'ventas_mes'), leerAjustes()]);
+  const [ia, ventas, ajustes, clientes] = await Promise.all([leerIa(periodo, 'ia_mes'), leerVentas(periodo, 'ventas_mes'), leerAjustes(), leerClientes()]);
   const g = calcularGanancia(ventas, ia.total_usd, ajustes.impuestosPct, 0);
   const topes = topesIa();
   const porcentaje = g.bruto > 0 ? (ia.total_usd / g.bruto) * 100 : null;
   const deClientes = ia.total_usd - ia.anonima_usd;
   const porUsuario = ia.usuarios_con_ia > 0 ? deClientes / ia.usuarios_con_ia : null;
   const usoMes = Math.min(100, (ia.total_usd / topes.mensual) * 100);
-  const usoHoy = Math.min(100, (ia.hoy_usd / topes.diario) * 100);
+  // "Hoy" sale de la MISMA serie día por día (así nunca contradice al día más caro).
+  const serie = ia.por_dia ?? [];
+  const hoyUsd = periodo.esActual && serie.length > 0 ? serie[serie.length - 1].usd : ia.hoy_usd;
+  const usoHoy = Math.min(100, (hoyUsd / topes.diario) * 100);
+  const diaMasCaro = serie.length > 0 ? serie.reduce((a, b) => (b.usd > a.usd ? b : a)) : null;
+  const promedioDia = serie.length > 0 ? ia.total_usd / serie.length : 0;
+  const hayDisparados = serie.some((d) => promedioDia > 0 && d.usd > promedioDia * 2);
+  const { mrr, pagando } = calcularMrr(clientes);
+  const pagaUno = pagando > 0 ? mrr / pagando : null;
   const sospechosos = porUsuario !== null ? ia.top_usuarios.filter((u) => u.usd > porUsuario * 3) : [];
 
   return (
-    <>
+    <div key={periodo.param} className="panel-fundido">
       <Encabezado titulo="IA">Lo que cuesta de verdad cada vez que la IA trabaja.</Encabezado>
       <SelectorMes periodo={periodo} ruta="/admin/ia" />
 
@@ -57,11 +65,11 @@ export default async function IaPanel({ searchParams }: { searchParams: Promise<
       <div className="mb-4 grid grid-cols-2 gap-3">
         <Tarjeta indice={2}>
           <Dato
-            etiqueta="Por cliente que la usa"
+            etiqueta="Por cliente"
             numero={porUsuario}
             formato="dinero"
             decimales={3}
-            detalle={porUsuario !== null ? `${entero(ia.usuarios_con_ia)} clientes · sin contar la pieza gratis` : 'Aún ningún cliente la usó'}
+            detalle={porUsuario !== null ? (pagaUno ? `De unos ${dinero(pagaUno)} que paga cada uno al mes (${pct((porUsuario / pagaUno) * 100, 1)})` : `${entero(ia.usuarios_con_ia)} clientes · sin contar la pieza gratis`) : 'Aún ningún cliente la usó'}
           />
         </Tarjeta>
         <Tarjeta indice={3}>
@@ -81,7 +89,7 @@ export default async function IaPanel({ searchParams }: { searchParams: Promise<
             <div>
               <div className="flex items-baseline justify-between gap-3 text-caption">
                 <span className="text-ink-1">
-                  Hoy: <strong className="font-semibold tabular-nums">{dinero(ia.hoy_usd)}</strong> de {dinero(topes.diario, 0)}
+                  Hoy: <strong className="font-semibold tabular-nums">{dinero(hoyUsd)}</strong> de {dinero(topes.diario, 0)}
                 </span>
                 <span className="font-semibold tabular-nums text-ink-2">{pct(usoHoy)}</span>
               </div>
@@ -106,10 +114,15 @@ export default async function IaPanel({ searchParams }: { searchParams: Promise<
 
       {ia.por_dia && ia.por_dia.some((d) => d.usd > 0) && (
         <Tarjeta className="mb-4" indice={5}>
-          <TituloTarjeta ayuda="La línea punteada es tu promedio. Un día en ámbar gastó más del doble: mira abajo quién la usó más.">Gasto día por día</TituloTarjeta>
+          <TituloTarjeta ayuda={`La línea punteada es tu promedio; la barra clara, hoy.${hayDisparados ? ' En ámbar, los días que gastaron más del doble: mira abajo quién la usó más.' : ''}`}>Gasto día por día</TituloTarjeta>
           <p className="mb-2 text-caption text-ink-2">
-            Promedio <strong className="font-semibold text-ink-1 tabular-nums">{dinero(ia.total_usd / ia.por_dia.length, 2)}</strong> por día · el día más caro{' '}
-            <strong className="font-semibold text-ink-1 tabular-nums">{dinero(Math.max(...ia.por_dia.map((d) => d.usd)), 2)}</strong>
+            Promedio <strong className="font-semibold text-ink-1 tabular-nums">{dinero(promedioDia, 2)}</strong> por día
+            {diaMasCaro && (
+              <>
+                {' '}
+                · el más caro fue el {fechaCorta(`${diaMasCaro.fecha}T12:00:00Z`)} (<strong className="font-semibold text-ink-1 tabular-nums">{dinero(diaMasCaro.usd, 2)}</strong>)
+              </>
+            )}
           </p>
           <GraficoGastoDia datos={ia.por_dia} />
         </Tarjeta>
@@ -165,6 +178,6 @@ export default async function IaPanel({ searchParams }: { searchParams: Promise<
           )}
         </Tarjeta>
       </div>
-    </>
+    </div>
   );
 }

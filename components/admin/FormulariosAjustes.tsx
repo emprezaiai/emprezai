@@ -41,6 +41,7 @@ function BotonGuardar({ enviando, texto = 'Guardar', className = '' }: { enviand
 function useQuitarConDeshacer<T extends { id: number }>(quitar: (id: number) => Promise<Resultado>, rehacer: (item: T) => Promise<Resultado>) {
   const [pendiente, iniciar] = useTransition();
   const [quitado, setQuitado] = useState<T | null>(null);
+  const [saliendo, setSaliendo] = useState<number | null>(null);
   const [r, setR] = useState<Resultado | null>(null);
   useEffect(() => {
     if (!quitado) return;
@@ -51,12 +52,16 @@ function useQuitarConDeshacer<T extends { id: number }>(quitar: (id: number) => 
     pendiente,
     quitado,
     r,
-    quitar: (item: T) =>
+    saliendo,
+    quitar: (item: T) => {
+      setSaliendo(item.id);
       iniciar(async () => {
         const res = await quitar(item.id);
         setR(res);
         setQuitado(res.ok ? item : null);
-      }),
+        setSaliendo(null);
+      });
+    },
     deshacer: () =>
       iniciar(async () => {
         if (!quitado) return;
@@ -78,13 +83,17 @@ function BarraDeshacer({ texto, onDeshacer, pendiente }: { texto: string; onDesh
   );
 }
 
-function BotonQuitar({ etiqueta, onClick, disabled }: { etiqueta: string; onClick: () => void; disabled: boolean }) {
+function BotonQuitar({ etiqueta, onClick, disabled, quitando = false }: { etiqueta: string; onClick: () => void; disabled: boolean; quitando?: boolean }) {
   return (
     <button type="button" disabled={disabled} onClick={onClick} aria-label={etiqueta} className="flex size-11 items-center justify-center rounded-full text-ink-3 transition-colors hover:bg-sunken hover:text-danger active:scale-[0.95]">
-      <Trash2 size={16} aria-hidden="true" />
+      {quitando ? <LoaderCircle size={16} className="motion-safe:animate-spin" aria-hidden="true" /> : <Trash2 size={16} aria-hidden="true" />}
     </button>
   );
 }
+
+/** Clase de la fila que se está quitando: se desvanece antes de salir de la lista. */
+const SALIDA = 'transition-[opacity,transform] duration-200 motion-reduce:transition-none';
+const salida = (sale: boolean) => `${SALIDA} ${sale ? '-translate-x-2 opacity-40' : ''}`;
 
 const formDe = (campos: Record<string, string | number | null>) => {
   const fd = new FormData();
@@ -128,11 +137,11 @@ export function ListaCostos({ costos }: { costos: CostoFijo[] }) {
         <>
           <ul className="divide-y divide-[var(--line)]">
             {visibles.map((c) => (
-              <li key={c.id} className="flex items-center justify-between gap-3 py-1">
+              <li key={c.id} className={`flex items-center justify-between gap-3 py-1 ${salida(q.saliendo === c.id)}`}>
                 <span className="min-w-0 text-ayuda break-words text-ink-1">{c.nombre}</span>
                 <span className="flex shrink-0 items-center gap-1">
                   <span className="text-ayuda whitespace-nowrap tabular-nums text-ink-2">{dinero(c.monto_usd)} al mes</span>
-                  <BotonQuitar etiqueta={`Quitar ${c.nombre}`} onClick={() => q.quitar(c)} disabled={q.pendiente} />
+                  <BotonQuitar etiqueta={`Quitar ${c.nombre}`} onClick={() => q.quitar(c)} disabled={q.pendiente} quitando={q.saliendo === c.id} />
                 </span>
               </li>
             ))}
@@ -175,6 +184,7 @@ export function ListaGastos({ gastos, canales, desde, hasta }: { gastos: GastoCa
   const [elegido, setElegido] = useState(canales[0] ?? 'otro');
   const [inicio, setInicio] = useState(desde);
   // Agrupados por mes (por la fecha de inicio), del más reciente al más antiguo.
+  const totalMes = (fecha: string) => visibles.filter((x) => mesDe(x.desde) === mesDe(fecha)).reduce((t, x) => t + x.monto_usd, 0);
   const mesDe = (fecha: string) => new Intl.DateTimeFormat('es', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${fecha}T12:00:00Z`));
   const visibles = gastos.filter((g) => g.id !== q.quitado?.id);
   return (
@@ -182,8 +192,13 @@ export function ListaGastos({ gastos, canales, desde, hasta }: { gastos: GastoCa
       {visibles.length > 0 ? (
         <ul className="divide-y divide-[var(--line)]">
           {visibles.map((g, i) => (
-            <li key={g.id} className="py-1">
-              {(i === 0 || mesDe(visibles[i - 1].desde) !== mesDe(g.desde)) && <p className="pt-2 pb-1 text-xs font-semibold tracking-[0.08em] text-ink-3 uppercase">{mesDe(g.desde)}</p>}
+            <li key={g.id} className={`py-1 ${salida(q.saliendo === g.id)}`}>
+              {(i === 0 || mesDe(visibles[i - 1].desde) !== mesDe(g.desde)) && (
+                <p className="flex justify-between pt-2 pb-1 text-xs font-semibold tracking-[0.08em] text-ink-3 uppercase">
+                  <span>{mesDe(g.desde)}</span>
+                  <span className="tabular-nums">{dinero(totalMes(g.desde))}</span>
+                </p>
+              )}
               <div className="flex items-center justify-between gap-3">
               <span className="min-w-0">
                 <span className="block text-ayuda font-semibold break-words text-ink-1">{nombreCanal(g.canal)}</span>
@@ -194,7 +209,7 @@ export function ListaGastos({ gastos, canales, desde, hasta }: { gastos: GastoCa
               </span>
               <span className="flex shrink-0 items-center gap-1">
                 <span className="text-ayuda whitespace-nowrap tabular-nums text-ink-2">{dinero(g.monto_usd)}</span>
-                <BotonQuitar etiqueta={`Quitar el gasto de ${nombreCanal(g.canal)}`} onClick={() => q.quitar(g)} disabled={q.pendiente} />
+                <BotonQuitar etiqueta={`Quitar el gasto de ${nombreCanal(g.canal)}`} onClick={() => q.quitar(g)} disabled={q.pendiente} quitando={q.saliendo === g.id} />
               </span>
               </div>
             </li>
@@ -226,7 +241,7 @@ export function ListaGastos({ gastos, canales, desde, hasta }: { gastos: GastoCa
           <label className="flex flex-col gap-1">
             <span className={ETIQUETA}>Nombre del canal</span>
             <input name="canal" required placeholder="Ej.: pinterest" className={CAMPO} />
-            <span className="text-xs text-ink-3">Igual que lo pusiste al final de tu enlace de Hotmart.</span>
+            <span className="text-xs text-ink-3">Por ejemplo: pinterest, un evento o una alianza.</span>
           </label>
         )}
         <label className="flex flex-col gap-1">

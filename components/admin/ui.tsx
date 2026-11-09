@@ -66,8 +66,8 @@ export function Tarjeta({
   return (
     <Entrada indice={indice} className={className}>
       {href ? (
-        <Link href={href} className={`${clase} ${TOCABLE} group relative block pr-8 hover:bg-raised`}>
-          <ChevronRight size={16} className="absolute top-4 right-3 text-ink-3 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+        <Link href={href} className={`${clase} ${TOCABLE} group relative block hover:bg-raised`}>
+          <ChevronRight size={16} className="absolute right-3 bottom-4 text-ink-3 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
           {children}
         </Link>
       ) : (
@@ -130,7 +130,7 @@ export function Dato({
   detalle,
   tono = 'neutro',
   estimado = false,
-  reservar = true,
+  reservar = false,
 }: {
   etiqueta: string;
   /** Texto ya formateado (para valores que no son un número, como una fecha). */

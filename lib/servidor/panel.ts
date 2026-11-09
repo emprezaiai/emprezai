@@ -66,6 +66,8 @@ export interface Uso {
   base_activacion: number;
   retencion: { base_d1: number; d1: number; base_d7: number; d7: number; base_d30: number; d30: number };
   piezas_por_dia: { fecha: string; piezas: number }[];
+  /** Piezas de los 30 días anteriores a los últimos 30 (para comparar). */
+  piezas_30_anterior?: number;
   dia_maximo: Record<string, number>;
   fantasmas: number;
 }
@@ -101,8 +103,10 @@ export interface Salud {
   errores_hoy: number;
   /** Errores de los últimos 7 días (todos, no solo los 10 más repetidos). */
   errores_7d_total?: number;
+  /** Errores de la semana anterior (para comparar). */
+  errores_7d_anterior?: number;
   /** Avisos de Hotmart que fallaron en 7 días: tipo de aviso y hora. */
-  webhook_fallidos?: { tipo: string | null; resultado: string; en: string; email?: string | null }[];
+  webhook_fallidos?: { tipo: string | null; resultado: string; en: string; email?: string | null; perfil_id?: string | null; con_acceso?: boolean }[];
   vencidos_sin_aviso: number;
   pagaron_sin_acceso: number;
   alertas: { clave: string; en: string }[];
@@ -518,9 +522,9 @@ export interface Cobro {
   email: string | null;
 }
 
-export const FILTROS_USUARIOS = ['todos', 'activo', 'trialing', 'active', 'sin-acceso', 'fantasma', 'cancelled', 'past_due', 'expired', 'refunded', 'vencido', 'manual'] as const;
+export const FILTROS_USUARIOS = ['todos', 'activo', 'trialing', 'active', 'sin-acceso', 'fantasma', 'cancelled', 'past_due', 'expired', 'refunded', 'vencido', 'manual', 'inactivo'] as const;
 export type FiltroUsuarios = (typeof FILTROS_USUARIOS)[number];
-export const POR_PAGINA = 25;
+export const POR_PAGINA = 12;
 
 export const leerPruebasSinPago = (p: { desde: Date; hasta: Date }, clave = 'pruebas_sin_pago_mes') => rpc<number>('panel_pruebas_sin_pago', rango(p), clave);
 

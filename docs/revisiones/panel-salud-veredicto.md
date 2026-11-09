@@ -1,9 +1,9 @@
 # VEREDICTO revisor-visual — Panel · Salud
-Fecha: 2026-11-09 18:00
+Fecha: 2026-11-09 20:00
 Screenshot: docs/revisiones/panel/salud-375.png
-Usabilidad: 30/40
-Craft: 14/20
+Usabilidad: 32/40
+Craft: 15/20
 Copy (si vende): N-A
 Fidelidad (si hubo referencia): N-A
 Veredicto: NO LISTA
-Top defectos: 1) [aviso fallido "Aviso de una compra · 6 nov, 11:36"] No dice quién compró: el "Qué hacer" manda a la dueña a buscar en Hotmart por fecha y volver a darle acceso a mano (tiene que recordar el dato de una pantalla y llevarlo a otra) → mostrar el correo del comprador del aviso (está en el payload del aviso) con "Darle acceso" que abra el formulario ya con ese correo (salud/page.tsx líneas 95-114 + webhook_fallidos en lib/servidor/panel.ts). 2) [caja negra del aviso fallido] Fondo hundido con radio de campo: a 375px parece un campo de texto o un botón y no hace nada → quitar el fondo hundido y dejarlo como fila con ícono de alerta, o hacerlo tocable de verdad (ver punto 1). 3) [tarjeta "Pagos que no se aplicaron"] "Último aviso bien: 9 nov, 11:36" suena raro y no explica el 1 de arriba → "Fallo: 6 nov · el último que entró bien: 9 nov". 4) [Errores de la app] Sigue sobrando aire al pie de la tarjeta (min-h-11 del último "Copiar el detalle" + padding de la tarjeta) → pb-0 en la tarjeta o min-h-10 en el último botón. 5) [encabezado "Últimos 7 días"] Sin forma de ver la semana anterior para saber si el error de Mi Empresa es nuevo o viene de antes (regla UX 13) → flechas de semana o "vs semana pasada" en "Errores de la semana".
+Top defectos: 1) ["Darle acceso" del aviso fallido] Lleva a /admin/usuarios?agregar=1 con el formulario VACÍO: la dueña tiene que tocar "Copiar correo", ir, pegar y escribir el nombre (memoria entre pantallas) → pasar &email= (y nombre si el aviso lo trae) y usarlo como defaultValue en FormAgregarUsuario (salud/page.tsx línea 108 + AccionesUsuario.tsx línea 78). 2) [Qué hacer de Hotmart] "Si en un día la persona sigue sin acceso…" no dice cómo saberlo → si el correo ya existe como usuario, enlace "Ver su ficha" con su estado; si no existe, "Todavía no tiene cuenta: dale acceso" (salud/page.tsx, bloque fallidos). 3) ["Errores de la semana 6"] Sin comparación con la semana anterior (pedido en ronda 2, sigue pendiente): no se sabe si el error de Mi Empresa es nuevo → "vs semana pasada" en el detalle de la tarjeta (salud/page.tsx línea 208). 4) [tarjetas de arriba] "Vencidos sin aviso" y "Errores de la semana" son de una línea pero reservan dos: queda un hueco antes del número → mismo ajuste de Dato (ui.tsx línea 148) que en Uso.

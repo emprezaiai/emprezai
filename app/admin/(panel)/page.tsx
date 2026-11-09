@@ -55,7 +55,7 @@ export default async function InicioPanel({ searchParams }: { searchParams: Prom
   const mejorMes = hayHistoria ? meses.reduce((a, b) => (b.quedo > a.quedo ? b : a)) : null;
 
   return (
-    <>
+    <div key={periodo.param} className="panel-fundido">
       <Encabezado titulo="Tu negocio hoy" />
       <SelectorMes periodo={periodo} ruta="/admin" />
       {periodo.esActual && <BannerAvisos avisos={avisos} periodo={periodo.etiqueta} />}
@@ -108,23 +108,23 @@ export default async function InicioPanel({ searchParams }: { searchParams: Prom
       <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Tarjeta indice={3} href="/admin/usuarios?estado=activo">
           <Dato
-            etiqueta="Clientes activos hoy"
+            etiqueta="Clientes activos"
             numero={clientes.total > 0 ? activos : null}
             detalle={clientes.total > 0 ? `${entero(pagando)} pagando · ${entero(clientes.en_prueba)} en prueba` : 'Aún nadie compró'}
           />
         </Tarjeta>
         <Tarjeta indice={4} href={`/admin/ventas?mes=${periodo.param}`}>
           <Dato
-            etiqueta="Entra cada mes"
+            etiqueta="Suscripciones al mes"
             numero={pagando > 0 ? mrr : null}
             formato="dinero"
             decimales={2}
-            detalle={pagando > 0 ? 'Si nadie cancela (el plan anual, dividido en 12)' : 'Aparece con el primer cliente pagando'}
+            detalle={pagando > 0 ? `Lo que pagan tus ${entero(pagando)} clientes cada mes` : 'Aparece con el primer cliente pagando'}
           />
         </Tarjeta>
         <Tarjeta indice={5} href={`/admin/ia?mes=${periodo.param}`}>
           <Dato
-            etiqueta="Costo de la IA del mes"
+            etiqueta="Gasto en IA"
             numero={ia.llamadas > 0 ? ia.total_usd : null}
             formato="dinero"
             decimales={2}
@@ -134,7 +134,7 @@ export default async function InicioPanel({ searchParams }: { searchParams: Prom
         </Tarjeta>
         <Tarjeta indice={6} href={`/admin/ventas?mes=${periodo.param}`}>
           <Dato
-            etiqueta={periodo.esActual ? 'Se fueron este mes' : 'Se fueron ese mes'}
+            etiqueta="Se fueron"
             numero={churn.total}
             formato="pct"
             decimales={1}
@@ -162,6 +162,6 @@ export default async function InicioPanel({ searchParams }: { searchParams: Prom
           <SinDatos porque="El gráfico aparece con la primera venta." />
         )}
       </Tarjeta>
-    </>
+    </div>
   );
 }

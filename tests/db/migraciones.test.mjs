@@ -22,7 +22,7 @@ await db.exec(`
   grant execute on function auth.uid() to anon, authenticated, service_role;
   grant usage on schema public to anon, authenticated, service_role;
 `);
-for (const m of ['20261014000000_inicial.sql', '20261023000000_blindaje.sql', '20261103000000_cierre_tiene_acceso.sql', '20261109000000_panel.sql', '20261109000001_panel_serie.sql', '20261109000002_panel_usuarios.sql', '20261109000003_panel_usuarios_filtros.sql', '20261109000004_panel_ia_por_dia.sql', '20261109000005_panel_salud_semana.sql', '20261109000006_webhook_log_email.sql']) {
+for (const m of ['20261014000000_inicial.sql', '20261023000000_blindaje.sql', '20261103000000_cierre_tiene_acceso.sql', '20261109000000_panel.sql', '20261109000001_panel_serie.sql', '20261109000002_panel_usuarios.sql', '20261109000003_panel_usuarios_filtros.sql', '20261109000004_panel_ia_por_dia.sql', '20261109000005_panel_salud_semana.sql', '20261109000006_webhook_log_email.sql', '20261109000007_panel_comparaciones.sql']) {
   await db.exec(readFileSync(`${raiz}/supabase/migrations/${m}`, 'utf8'));
   console.log('migración aplicada:', m);
 }
@@ -213,6 +213,7 @@ ok(manualFiltro.filas.some((f) => f.email === 'regalo@x.com'), 'el filtro Agrega
 ok((await db.query("select public.panel_usuarios('', 'fantasma', 50, 0) as l")).rows[0].l.total >= 0, 'el filtro fantasma responde');
 const conteos = (await db.query("select public.panel_usuarios_conteos('') as c")).rows[0].c;
 ok(conteos.manual === manualFiltro.total && conteos.active === pagandoFiltro.total, 'los conteos de los chips coinciden con la lista de cada filtro');
+ok(conteos.activo + conteos.inactivo === conteos.todos, 'con acceso hoy + sin acceso hoy = todos');
 
 // 16) PANEL: un usuario normal no lee NADA del panel (tablas ni resúmenes)
 await db.exec(`set role authenticated`);
