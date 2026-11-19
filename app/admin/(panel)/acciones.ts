@@ -74,7 +74,10 @@ export async function agregarUsuario(_previo: Resultado | null, datos: FormData)
     const { data: previo, error: errorPrevio } = await db.from('profiles').select('id, user_id, email, status, access_until').eq('email', email).maybeSingle();
     if (errorPrevio) throw errorPrevio;
     if (previo && ['active', 'cancelled'].includes(previo.status) && previo.access_until && new Date(previo.access_until) > new Date()) {
-      return { ok: false, mensaje: 'Esa persona ya tiene acceso. Búscala en la lista y usa "Extender acceso".' };
+      return {
+        ok: false,
+        mensaje: 'Esa persona ya tiene acceso (si compró en Hotmart, su compra sí llegó). Búscala en la lista y, en su ficha, toca "Copiar enlace de acceso" para mandárselo, o "Extender acceso".',
+      };
     }
     let perfil = previo;
     if (previo) {
@@ -226,6 +229,44 @@ export async function restaurarAcceso(id: string, previo: AccesoPrevio): Promise
     return { ok: true, mensaje: 'Listo: quedó como estaba.' };
   } catch (e) {
     return falla(e, 'deshacer');
+  }
+}
+
+/* ── Acceso al panel (otras administradoras) ── */
+
+/**
+ * Da o quita acceso a ESTE panel a una persona de la lista (por su correo, tabla admins). Solo una
+ * admin puede hacerlo; nadie puede quitarse a sí misma y siempre queda al menos una admin.
+ */
+export async function cambiarAccesoPanel(id: string, dar: boolean): Promise<Resultado> {
+  const admin = await exigirAdmin();
+  if (!admin) return SIN_PERMISO;
+  if (!Id.safeParse(id).success) return { ok: false, mensaje: 'Usuario no válido.' };
+  try {
+    const p = await perfilPorId(id);
+    if (!p?.email) return { ok: false, mensaje: 'No encontramos a esa persona.' };
+    const email = p.email.toLowerCase();
+    const nombre = p.name || email;
+    const db = clienteAdmin();
+    if (dar) {
+      const { error } = await db.from('admins').upsert({ email }, { onConflict: 'email', ignoreDuplicates: true });
+      if (error) throw error;
+    } else {
+      if (email === admin.email) return { ok: false, mensaje: 'No puedes quitarte a ti misma el acceso al panel.' };
+      const { count, error: errorConteo } = await db.from('admins').select('email', { count: 'exact', head: true });
+      if (errorConteo) throw errorConteo;
+      if ((count ?? 0) <= 1) return { ok: false, mensaje: 'Tiene que quedar al menos una persona con acceso al panel.' };
+      const { error } = await db.from('admins').delete().eq('email', email);
+      if (error) throw error;
+    }
+    await auditar(admin, dar ? 'dar_acceso_panel' : 'quitar_acceso_panel', { email });
+    revalidatePath('/admin', 'layout');
+    return {
+      ok: true,
+      mensaje: dar ? `Listo: ${nombre} ya puede entrar a este panel con su correo, desde la página para entrar al panel.` : `Listo: ${nombre} ya no puede entrar al panel.`,
+    };
+  } catch (e) {
+    return falla(e, dar ? 'dar-panel' : 'quitar-panel');
   }
 }
 

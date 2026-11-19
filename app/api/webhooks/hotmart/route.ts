@@ -49,6 +49,12 @@ async function completarDatosDelPanel(p: PayloadHotmart, email: string, economic
       .match({ provider: 'hotmart', transaction_id: transaccion, economic_kind: economico });
     if (error) console.error('[hotmart/panel-venta]', error.code);
   }
+  // Si la dueña le había dado acceso a mano (p. ej. porque su compra no se activó) y Hotmart confirma
+  // la venta, deja de ser "acceso regalado": cuenta como cliente que paga.
+  if (economico === 'sale') {
+    const { error } = await db.from('profiles').update({ origen_acceso: 'hotmart' }).eq('email', email).eq('origen_acceso', 'manual');
+    if (error) console.error('[hotmart/panel-origen]', error.code);
+  }
   const canal = canalDe(p);
   if (canal) {
     const { error } = await db.from('profiles').update({ source: canal }).eq('email', email).is('source', null);

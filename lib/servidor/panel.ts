@@ -237,6 +237,14 @@ export const leerFunnel = (p: { desde: Date; hasta: Date }, clave = 'panel_funne
 export const leerIa = (p: { desde: Date; hasta: Date }, clave = 'panel_ia') => rpc<Ia>('panel_ia', rango(p), clave);
 export const leerCanales = (p: { desde: Date; hasta: Date }, clave = 'panel_canales') => rpc<Canal[]>('panel_canales', rango(p), clave);
 export const leerSalud = () => rpc<Salud>('panel_salud');
+/** Quiénes pueden entrar al panel (en la captura de prueba no hay base: lista vacía). */
+export async function leerAdmins(): Promise<{ email: string; desde: string }[]> {
+  if (ARCHIVO_CAPTURA) return [];
+  const { data, error } = await clienteAdmin().from('admins').select('email, created_at').order('created_at');
+  if (error) throw error;
+  return (data ?? []).map((a) => ({ email: a.email, desde: a.created_at }));
+}
+
 /** Cuántas personas hay en cada filtro de Usuarios (misma lógica que la lista). */
 export const leerConteosUsuarios = (buscar: string) => rpc<Record<string, number>>('panel_usuarios_conteos', { p_buscar: buscar }, 'usuarios_conteos');
 

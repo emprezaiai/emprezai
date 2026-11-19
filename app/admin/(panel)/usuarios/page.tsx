@@ -73,7 +73,7 @@ export default async function UsuariosPanel({ searchParams }: { searchParams: Pr
             <ChevronDown size={16} className="transition-transform group-open:rotate-180" aria-hidden="true" />
           </summary>
           <div className="tarjeta-relieve mt-3 rounded-[var(--radius-card)] p-4">
-            <TituloTarjeta ayuda="Para regalar acceso o para alguien a quien no le llegó. Se crea su cuenta y te damos el enlace para entrar.">Dar acceso a alguien</TituloTarjeta>
+            <TituloTarjeta ayuda="Para regalar acceso, o para quien compró en Hotmart y no pudo entrar. Se crea su cuenta y te damos el enlace para entrar. Si compró, cuando Hotmart confirme su pago pasa sola a «Pagando».">Dar acceso a alguien</TituloTarjeta>
             <FormAgregarUsuario />
           </div>
         </details>

@@ -4,13 +4,14 @@
 
 import { FormImpuestos, ListaCostos, ListaGastos } from '@/components/admin/FormulariosAjustes';
 import { Encabezado, Tarjeta, TituloTarjeta } from '@/components/admin/ui';
-import { calcularGanancia, fechasPorDefecto, leerAjustes, leerCanales, leerVentas, periodoElegido } from '@/lib/servidor/panel';
+import { calcularGanancia, fechasPorDefecto, leerAdmins, leerAjustes, leerCanales, leerVentas, periodoElegido } from '@/lib/servidor/panel';
+import { fechaCorta } from '@/lib/panel-formato';
 
 const CANALES_BASE = ['tiktok', 'instagram', 'facebook', 'youtube', 'google'];
 
 export default async function AjustesPanel() {
   const periodo = periodoElegido();
-  const [a, ventas, canalesMes] = await Promise.all([leerAjustes(), leerVentas(periodo, 'ventas_mes'), leerCanales(periodo, 'canales_mes')]);
+  const [a, ventas, canalesMes, admins] = await Promise.all([leerAjustes(), leerVentas(periodo, 'ventas_mes'), leerCanales(periodo, 'canales_mes'), leerAdmins()]);
   const impuestosMes = calcularGanancia(ventas, 0, a.impuestosPct, 0).impuestos;
   // Los más comunes primero, luego los que ya conoce el panel. Sin afiliados: no tienen gasto en anuncios.
   const canales = [...new Set([...CANALES_BASE, ...a.gastos.map((g) => g.canal), ...canalesMes.map((c) => c.canal)])].filter((c) => c !== 'sin código' && !/^afiliad/.test(c));
@@ -33,6 +34,22 @@ export default async function AjustesPanel() {
       <Tarjeta id="gastos" indice={3}>
         <TituloTarjeta ayuda="Para saber qué canal te deja dinero. Anota cuánto gastaste y en qué fechas.">Gasto en anuncios por canal</TituloTarjeta>
         <ListaGastos gastos={a.gastos} canales={canales} desde={desde} hasta={hasta} />
+      </Tarjeta>
+
+      <Tarjeta className="mt-4" indice={4}>
+        <TituloTarjeta ayuda="Para sumar a alguien: búscalo en Usuarios, abre su ficha y toca «Darle acceso al panel».">Quién puede entrar al panel</TituloTarjeta>
+        {admins.length === 0 ? (
+          <p className="text-caption text-ink-2">Se ve en el panel real.</p>
+        ) : (
+          <ul className="divide-y divide-[var(--line)]">
+            {admins.map((x) => (
+              <li key={x.email} className="flex justify-between gap-3 py-2 text-caption">
+                <span className="min-w-0 break-all text-ink-1">{x.email}</span>
+                <span className="shrink-0 text-ink-3">desde el {fechaCorta(x.desde)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
       </Tarjeta>
     </>
   );

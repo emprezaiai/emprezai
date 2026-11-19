@@ -5,9 +5,10 @@
 // llama a una acción de servidor que vuelve a verificar que eres admin.
 
 import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
-import { Check, Copy, LoaderCircle, Mail, RotateCcw, TimerReset, UserPlus, UserX } from 'lucide-react';
+import { Check, Copy, LoaderCircle, Mail, RotateCcw, ShieldCheck, ShieldOff, TimerReset, UserPlus, UserX } from 'lucide-react';
 import {
   agregarUsuario,
+  cambiarAccesoPanel,
   crearEnlaceAcceso,
   extenderAcceso,
   quitarAcceso,
@@ -230,6 +231,61 @@ export function AccionesFicha({ id, puedeEnviarCorreo, conAcceso, enlaceEsPrinci
         </div>
       )}
       {resultado?.ok && resultado.enlace && <EnlaceCopiable key={resultado.enlace} enlace={resultado.enlace} codigo={resultado.codigo} copiadoAlInicio={copiado} />}
+    </div>
+  );
+}
+
+/**
+ * "Acceso al panel": convierte a esta persona en administradora (o le quita ese acceso). Pide
+ * confirmación porque verá las ventas y los datos de todos los clientes.
+ */
+export function AccesoPanel({ id, nombre, esAdmin, esYo }: { id: string; nombre: string; esAdmin: boolean; esYo: boolean }) {
+  const [resultado, setResultado] = useState<Resultado | null>(null);
+  const [confirmar, setConfirmar] = useState(false);
+  const [pendiente, iniciar] = useTransition();
+  const [admin, setAdmin] = useState(esAdmin);
+  const secundario = `${TOCABLE} opcion-recorrido flex min-h-11 items-center justify-center gap-2 px-4 text-caption font-semibold text-ink-1 disabled:opacity-50`;
+
+  const cambiar = (dar: boolean) =>
+    iniciar(async () => {
+      const r = await cambiarAccesoPanel(id, dar);
+      setResultado(r);
+      setConfirmar(false);
+      if (r.ok) setAdmin(dar);
+    });
+
+  return (
+    <div>
+      <p className="flex items-center gap-2 text-caption text-ink-1">
+        {admin ? <ShieldCheck size={16} className="text-green" aria-hidden="true" /> : <ShieldOff size={16} className="text-ink-3" aria-hidden="true" />}
+        {admin ? (esYo ? 'Eres tú: tienes acceso a este panel.' : `${nombre} puede entrar a este panel.`) : `${nombre} no puede entrar a este panel.`}
+      </p>
+
+      {!esYo &&
+        (confirmar ? (
+          <div className="panel-entrar mt-3 rounded-[var(--radius-chip)] border border-[color-mix(in_oklab,var(--warning)_45%,transparent)] p-3">
+            <p className="text-caption text-ink-1">
+              {admin
+                ? `¿Quitarle el acceso al panel a ${nombre}? Su cuenta de cliente sigue igual.`
+                : `¿Darle acceso al panel a ${nombre}? Podrá ver tus ventas, tu ganancia y los datos de todos tus clientes, y hacer cambios. Hazlo solo con alguien de total confianza.`}
+            </p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <button type="button" disabled={pendiente} onClick={() => cambiar(!admin)} className={secundario}>
+                {pendiente ? <LoaderCircle size={16} className="motion-safe:animate-spin" aria-hidden="true" /> : admin ? <ShieldOff size={16} aria-hidden="true" /> : <ShieldCheck size={16} aria-hidden="true" />}
+                {admin ? 'Sí, quitar acceso al panel' : 'Sí, darle acceso al panel'}
+              </button>
+              <button type="button" onClick={() => setConfirmar(false)} className={secundario}>
+                Cancelar
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button type="button" disabled={pendiente} onClick={() => setConfirmar(true)} className={`${secundario} mt-3`}>
+            {admin ? <ShieldOff size={16} aria-hidden="true" /> : <ShieldCheck size={16} aria-hidden="true" />}
+            {admin ? 'Quitarle el acceso al panel' : 'Darle acceso al panel'}
+          </button>
+        ))}
+      <Aviso r={resultado} />
     </div>
   );
 }

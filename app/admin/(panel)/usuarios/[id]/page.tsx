@@ -6,12 +6,13 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ChevronLeft, CircleAlert, Mail, TriangleAlert } from 'lucide-react';
 import { BotonCopiar } from '@/components/admin/BotonCopiar';
-import { AccionesFicha } from '@/components/admin/AccionesUsuario';
+import { AccesoPanel, AccionesFicha } from '@/components/admin/AccionesUsuario';
+import { adminActual, esAdmin } from '@/lib/servidor/admin';
 import { NOMBRE_ESTADO, estadoVisible } from '@/components/admin/estados';
 import { Cuenta, Entrada } from '@/components/admin/movimiento';
 import { SinDatos, TOCABLE, Tarjeta, TituloTarjeta } from '@/components/admin/ui';
 import { dinero, dineroMinor, entero, fechaCorta, fechaHora, nombreCanal } from '@/lib/panel-formato';
-import { accesoDe, diasSinActividad, leerFicha } from '@/lib/servidor/panel';
+import { accesoDe, diasSinActividad, leerFicha, modoCaptura } from '@/lib/servidor/panel';
 import { leerVariable } from '@/lib/servidor/config';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -23,6 +24,9 @@ export default async function FichaUsuario({ params }: { params: Promise<{ id: s
   if (!UUID.test(id)) notFound();
   const f = await leerFicha(id);
   if (!f) notFound();
+  // ¿Esta persona puede entrar al panel? ¿Es quien está mirando? (En la captura de prueba no hay base.)
+  const [fichaEsAdmin, yo] = modoCaptura ? [false, null] : await Promise.all([esAdmin(f.email), adminActual()]);
+  const esYo = yo?.email === f.email.toLowerCase();
   const e = estadoVisible(f.estado, f.origen);
   const { hasta, vigente: conAcceso } = accesoDe(f);
   const sinVenir = diasSinActividad(f);
@@ -143,6 +147,11 @@ export default async function FichaUsuario({ params }: { params: Promise<{ id: s
       <Tarjeta className="mb-4" indice={6}>
         <TituloTarjeta ayuda="Lo que cambies aquí se aplica al instante.">Acciones</TituloTarjeta>
         <AccionesFicha id={f.id} conAcceso={conAcceso} enlaceEsPrincipal={!fantasma} puedeEnviarCorreo={Boolean(leerVariable('RESEND_API_KEY') && leerVariable('EMAIL_FROM'))} />
+      </Tarjeta>
+
+      <Tarjeta className="mb-4" indice={7}>
+        <TituloTarjeta ayuda="Para que otra persona de confianza te ayude a administrar la app.">Acceso al panel</TituloTarjeta>
+        <AccesoPanel id={f.id} nombre={f.nombre || f.email} esAdmin={fichaEsAdmin} esYo={esYo} />
       </Tarjeta>
 
       <div className="grid gap-3 lg:grid-cols-2">
