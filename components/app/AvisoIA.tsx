@@ -19,7 +19,7 @@ export function AvisoIA({ className = '' }: { className?: string }) {
 export function AvisoAntesDeEnviar({ className = '' }: { className?: string }) {
   return (
     <span className={`block ${className}`}>
-      Al continuar, tu idea y tus respuestas se envían a un servicio de IA (Anthropic, EE. UU.) para armar tu pieza, y aceptas los{' '}
+      Al continuar, tu idea se envía a un servicio de IA (Anthropic, EE. UU.) y aceptas los{' '}
       <Link href="/terminos" className="underline underline-offset-4 hover:text-ink-2">
         Términos
       </Link>{' '}
@@ -27,7 +27,7 @@ export function AvisoAntesDeEnviar({ className = '' }: { className?: string }) {
       <Link href="/privacidad" className="underline underline-offset-4 hover:text-ink-2">
         Política de Privacidad
       </Link>
-      . No escribas contraseñas ni datos bancarios.
+      .
     </span>
   );
 }

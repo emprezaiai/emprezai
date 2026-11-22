@@ -423,10 +423,8 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
 
           <nav aria-label="Condiciones" className="flex items-center justify-center gap-4 text-sm text-ink-3">
             {[
-              { href: '/terminos', texto: 'Términos' },
-              { href: '/privacidad', texto: 'Privacidad' },
               { href: '/reembolsos', texto: 'Reembolsos' },
-              { href: '/cancelar', texto: 'Cancelar' },
+              { href: '/cancelar', texto: 'Cómo cancelar' },
             ].map((l) => (
               <Link key={l.href} href={l.href} className="flex min-h-11 items-center underline-offset-4 hover:text-ink-2 hover:underline">
                 {l.texto}
@@ -449,7 +447,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
             {yendo ? 'Abriendo la página de pago…' : pieza ? `Seguir mi ruta: ${PRECIOS.diasPrueba} días gratis` : `Empezar mis ${PRECIOS.diasPrueba} días gratis`}
             {!yendo && <ArrowRight size={20} aria-hidden="true" />}
           </motion.button>
-          <p className="mt-2 text-center text-sm text-ink-2" aria-live="polite">
+          <p className="mt-2 text-center text-sm text-balance text-ink-2" aria-live="polite">
             {errorPago ? (
               <span className="text-warning">
                 No pudimos abrir la página de pago.{' '}
@@ -468,12 +466,12 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
               </span>
             ) : (
               <>
-                Hoy <strong className="font-semibold text-ink-1">$0</strong> con tarjeta · luego <Monto valor={p.monto} /> {p.periodo} · cancela cuando quieras
+                Hoy <strong className="font-semibold text-ink-1">$0</strong> con tarjeta · luego <Monto valor={p.monto} /> {p.periodo}, se renueva solo · cancelas cuando quieras
               </>
             )}
           </p>
-          <p className="mt-1 text-center text-xs text-ink-3">
-            Se renueva solo hasta que cancelas. Al continuar aceptas los{' '}
+          <p className="mt-1 text-center text-caption text-ink-3">
+            Al continuar aceptas los{' '}
             <Link href="/terminos" className="underline underline-offset-4 hover:text-ink-2">
               Términos
             </Link>{' '}

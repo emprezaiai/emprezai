@@ -98,7 +98,7 @@ export function PasoIdea({
           <p className="flex items-start gap-2 text-caption text-ink-2">
             <LockKeyhole size={16} className="mt-0.5 shrink-0 text-green" aria-hidden="true" />
             <span>
-              <strong className="font-semibold text-ink-1">Tu idea es tuya.</strong> Solo tú la ves y no se usa para entrenar IA.
+              <strong className="font-semibold text-ink-1">Tu idea es tuya</strong> y no se usa para entrenar IA. No pongas contraseñas ni datos bancarios.
             </span>
           </p>
           <span className="text-caption tabular-nums text-ink-3" aria-hidden="true">
