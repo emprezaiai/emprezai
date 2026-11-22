@@ -426,6 +426,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
               { href: '/terminos', texto: 'Términos' },
               { href: '/privacidad', texto: 'Privacidad' },
               { href: '/reembolsos', texto: 'Reembolsos' },
+              { href: '/cancelar', texto: 'Cancelar' },
             ].map((l) => (
               <Link key={l.href} href={l.href} className="flex min-h-11 items-center underline-offset-4 hover:text-ink-2 hover:underline">
                 {l.texto}
@@ -470,6 +471,17 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
                 Hoy <strong className="font-semibold text-ink-1">$0</strong> con tarjeta · luego <Monto valor={p.monto} /> {p.periodo} · cancela cuando quieras
               </>
             )}
+          </p>
+          <p className="mt-1 text-center text-xs text-ink-3">
+            Se renueva solo hasta que cancelas. Al continuar aceptas los{' '}
+            <Link href="/terminos" className="underline underline-offset-4 hover:text-ink-2">
+              Términos
+            </Link>{' '}
+            y la{' '}
+            <Link href="/privacidad" className="underline underline-offset-4 hover:text-ink-2">
+              Privacidad
+            </Link>
+            .
           </p>
         </div>
       </div>

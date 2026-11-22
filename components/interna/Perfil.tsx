@@ -132,10 +132,10 @@ export function Perfil() {
         <h2 id="titulo-datos" className="font-display text-base font-bold text-ink-1">
           Tus datos
         </h2>
-        <p className="mt-1 text-caption text-ink-2">Tu idea es tuya: solo tú la ves y te la llevas cuando quieras.</p>
+        <p className="mt-1 text-caption text-ink-2">Tu idea es tuya: te la llevas cuando quieras y puedes borrar tu cuenta y todo lo que guardamos de ti.</p>
         <ul className="mt-3 flex flex-col gap-2">
           <FilaAccion icono={Download} texto="Descargar todo lo que armé" onClick={descargar} />
-          <FilaAccion icono={Trash2} texto="Borrar mis datos" onClick={() => setConfirmarBorrado(true)} peligro />
+          <FilaAccion icono={Trash2} texto="Borrar mi cuenta y mis datos" onClick={() => setConfirmarBorrado(true)} peligro />
         </ul>
       </motion.section>
 
@@ -145,7 +145,8 @@ export function Perfil() {
         </h2>
         <ul className="mt-3 flex flex-col gap-2">
           <FilaEnlace href={`mailto:${RESPONSABLE.emailContacto}?subject=${encodeURIComponent('Ayuda con EMPREZAI')}`} icono={LifeBuoy} texto="Escribir a soporte" />
-          <FilaEnlace href="/reembolsos" texto="Cómo cancelar o pedir reembolso" />
+          <FilaEnlace href="/cancelar" texto="Cómo cancelar mi suscripción" />
+          <FilaEnlace href="/reembolsos" texto="Pedir un reembolso" />
           <FilaEnlace href="/terminos" texto="Términos" />
           <FilaEnlace href="/privacidad" texto="Privacidad" />
           <FilaEnlace href="/aviso-ia" texto="Cómo usamos la IA" />
@@ -225,13 +226,20 @@ function ConfirmarBorrado({ onCancelar, onBorrar }: { onCancelar: () => void; on
         className="tarjeta-relieve w-full max-w-md rounded-t-[var(--radius-card)] px-4 pt-6 pb-[max(16px,env(safe-area-inset-bottom))]"
       >
         <h2 id="titulo-borrar" className="font-display text-xl font-bold text-ink-1">
-          ¿Borrar todo lo que armaste?
+          ¿Borrar tu cuenta y todo lo que armaste?
         </h2>
         <p id="texto-borrar" className="mt-2 text-ayuda text-ink-2">
-          Se borran tus piezas, tu racha y tus respuestas de este celular. No se puede deshacer. Si quieres guardarlas, descárgalas antes.
+          Borramos tu cuenta, tu correo, tus piezas y tu registro de uso. No se puede deshacer. Si quieres guardar tus piezas, descárgalas antes.
+        </p>
+        <p className="mt-2 text-caption text-ink-2">
+          <strong className="font-semibold text-ink-1">Ojo:</strong> esto no cancela el cobro de tu suscripción.{' '}
+          <Link href="/cancelar" className="font-semibold text-ink-1 underline underline-offset-4">
+            Mira cómo cancelarla en Hotmart
+          </Link>{' '}
+          antes o después de borrar.
         </p>
         <button type="button" onClick={onBorrar} className="mt-6 flex h-12 w-full items-center justify-center rounded-[var(--radius-pill)] bg-danger font-display text-base font-bold text-[var(--surface-base)]">
-          Sí, borrar todo
+          Sí, borrar mi cuenta
         </button>
         <button ref={cancelar} type="button" onClick={onCancelar} className="mt-2 flex h-12 w-full items-center justify-center rounded-[var(--radius-pill)] text-sm font-semibold text-ink-1">
           No, conservar mis datos

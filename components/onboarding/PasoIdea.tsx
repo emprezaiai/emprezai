@@ -8,6 +8,7 @@ import { useId, useRef, useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { ArrowRight, LockKeyhole, Sparkles } from 'lucide-react';
 import { IDEAS_SUGERIDAS, LARGO_MAX_IDEA, NOMBRE_AREA, type IdArea, type IdPunto } from '@/lib/onboarding';
+import { AvisoAntesDeEnviar } from '@/components/app/AvisoIA';
 import { BotonPrincipal, EASE_SALIDA, TituloAcento, vibrar } from './piezas';
 
 export function PasoIdea({
@@ -118,9 +119,10 @@ export function PasoIdea({
           window.setTimeout(() => campo.current?.focus(), 0);
         }}
         nota={
-          valida ? undefined : (
-            <span className={aviso ? 'text-warning' : undefined}>Escribe al menos unas palabras o toca una sugerencia.</span>
-          )
+          <>
+            {!valida && <span className={`block ${aviso ? 'text-warning' : ''}`}>Escribe al menos unas palabras o toca una sugerencia.</span>}
+            <AvisoAntesDeEnviar className={valida ? '' : 'mt-1'} />
+          </>
         }
       >
         Esta es mi idea

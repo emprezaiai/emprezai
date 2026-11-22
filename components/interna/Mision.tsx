@@ -18,6 +18,7 @@ import { RUTA, diaRuta, type DiaRuta } from '@/lib/ruta';
 import { limpiarTexto } from '@/lib/onboarding';
 import { BotonPrincipal, EASE_SALIDA, TituloAcento, vibrar } from '@/components/onboarding/piezas';
 import { useCuentaActiva, useModoApp } from './Marco';
+import { AvisoIA } from '@/components/app/AvisoIA';
 import { ModalCelebracion } from './ModalCelebracion';
 import { olvidarOpciones, pedirArmado, pedirOpciones, type OpcionIA } from '@/lib/ia-cliente';
 
@@ -266,7 +267,7 @@ function MisionBorrador({ onGuardada }: { onGuardada: (dia: number) => void }) {
         <BotonPrincipal
           onClick={guardar}
           nota={
-            errorGuardado ? <NotaError /> : 'Se guarda como tu pieza de hoy'
+            errorGuardado ? <NotaError /> : <>Se guarda como tu pieza de hoy<AvisoIA className="mt-1 text-xs" /></>
           }
         >
           Guardar en Mi Empresa
@@ -503,7 +504,7 @@ function CierreSemana({ onGuardada }: { onGuardada: (dia: number) => void }) {
   return (
     <Pantalla
       accion={
-        <BotonPrincipal onClick={guardar} nota={errorGuardado ? <NotaError /> : 'Se guarda como tu pieza de hoy'}>
+        <BotonPrincipal onClick={guardar} nota={errorGuardado ? <NotaError /> : <>Se guarda como tu pieza de hoy<AvisoIA className="mt-1 text-xs" /></>}>
           {dia.dia === 30 ? 'Guardar mi negocio completo' : 'Cerrar mi semana'}
           <ArrowRight size={20} aria-hidden="true" />
         </BotonPrincipal>
@@ -932,7 +933,7 @@ function MisionGuiadaFlujo({ onGuardada }: { onGuardada: (dia: number) => void }
         </BotonPrincipal>
       )}
       {fase === 'resultado' && (
-        <BotonPrincipal onClick={guardar} nota={errorGuardado ? <NotaError /> : 'Se guarda como tu pieza de hoy'}>
+        <BotonPrincipal onClick={guardar} nota={errorGuardado ? <NotaError /> : <>Se guarda como tu pieza de hoy<AvisoIA className="mt-1 text-xs" /></>}>
           Guardar en Mi Empresa
           <ArrowRight size={20} aria-hidden="true" />
         </BotonPrincipal>

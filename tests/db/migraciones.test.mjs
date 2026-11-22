@@ -22,7 +22,7 @@ await db.exec(`
   grant execute on function auth.uid() to anon, authenticated, service_role;
   grant usage on schema public to anon, authenticated, service_role;
 `);
-for (const m of ['20261014000000_inicial.sql', '20261023000000_blindaje.sql', '20261103000000_cierre_tiene_acceso.sql', '20261109000000_panel.sql', '20261109000001_panel_serie.sql', '20261109000002_panel_usuarios.sql', '20261109000003_panel_usuarios_filtros.sql', '20261109000004_panel_ia_por_dia.sql', '20261109000005_panel_salud_semana.sql', '20261109000006_webhook_log_email.sql', '20261109000007_panel_comparaciones.sql', '20261109000008_panel_usuarios_orden.sql']) {
+for (const m of ['20261014000000_inicial.sql', '20261023000000_blindaje.sql', '20261103000000_cierre_tiene_acceso.sql', '20261109000000_panel.sql', '20261109000001_panel_serie.sql', '20261109000002_panel_usuarios.sql', '20261109000003_panel_usuarios_filtros.sql', '20261109000004_panel_ia_por_dia.sql', '20261109000005_panel_salud_semana.sql', '20261109000006_webhook_log_email.sql', '20261109000007_panel_comparaciones.sql', '20261109000008_panel_usuarios_orden.sql', '20261122000000_borrar_cuenta.sql']) {
   await db.exec(readFileSync(`${raiz}/supabase/migrations/${m}`, 'utf8'));
   console.log('migración aplicada:', m);
 }
@@ -237,6 +237,44 @@ try {
 }
 ok(resumenBloqueado, 'authenticated no puede pedir los resúmenes del panel');
 await db.exec(`reset role`);
+
+// 17) BORRAR CUENTA (47): se va todo lo que identifica a la persona; los cobros (sin datos personales) se quedan
+await db.exec(`reset role`);
+const ub = (await db.query(`insert into auth.users (email) values ('borrame@x.com') returning id`)).rows[0].id;
+await db.query(`insert into public.profiles (email, name, status, user_id, anon_id, idea, respuestas) values ('borrame@x.com','Borra','active',$1,'anon-borrame','mi idea','{"a":1}')`, [ub]);
+const pb = (await db.query(`select id from public.profiles where email='borrame@x.com'`)).rows[0].id;
+await db.query(`insert into public.piezas (user_id, dia, titulo, contenido, fecha) values ($1, 1, 't', 'c', current_date)`, [ub]);
+await db.query(`insert into public.ai_calls (user_id, kind, model, ok) values ($1, 'mision_armar', 'm', true)`, [ub]);
+await db.query(`insert into public.event_log (nombre, anon_id, user_id) values ('landing_vista','anon-borrame',null), ('paywall_visto','otro-anon',null), ('x',null,$1)`, [ub]);
+await db.query(`insert into public.error_log (origen, mensaje, user_id) values ('servidor','falló',$1)`, [ub]);
+await db.query(`insert into public.webhook_log (type, result, email) values ('PURCHASE_APPROVED','error','borrame@x.com'), ('PURCHASE_APPROVED','error','otra@x.com')`);
+await db.query(`insert into public.admin_auditoria (admin_email, accion, detalle) values ('yo@x.com','crear_enlace','{"email":"borrame@x.com"}')`);
+await db.query(`insert into public.payment_transactions (provider, transaction_id, economic_kind, product_id, amount_minor, currency, occurred_at, raw_event_id) values ('hotmart','HP-BORRA','sale','P1',999,'USD',now(),'ev-b')`);
+await db.exec(`set role authenticated`);
+await db.query(`select set_config('request.jwt.claim.sub', $1, false)`, [ub]);
+let usuarioNoBorra = false;
+try {
+  await db.query(`select public.borrar_cuenta($1)`, [ub]);
+} catch (e) {
+  usuarioNoBorra = /permission denied/.test(e.message);
+}
+ok(usuarioNoBorra, 'un usuario normal no puede llamar a borrar_cuenta directamente (solo el servidor)');
+await db.exec(`reset role`);
+await db.exec(`set role service_role`);
+await db.query(`select public.borrar_cuenta($1)`, [ub]);
+await db.query(`select public.borrar_cuenta($1)`, [ub]);
+await db.exec(`reset role`);
+const cuenta = async (sql, p = []) => Number((await db.query(sql, p)).rows[0].n);
+ok((await cuenta(`select count(*) n from public.profiles where email='borrame@x.com'`)) === 0, 'borrar cuenta: el perfil (correo, nombre, idea) desaparece');
+ok((await cuenta(`select count(*) n from public.profile_events where profile_id=$1`, [pb])) === 0, 'borrar cuenta: se va el historial de estados del perfil');
+ok((await cuenta(`select count(*) n from public.piezas where user_id=$1`, [ub])) === 0, 'borrar cuenta: se van las piezas');
+ok((await cuenta(`select count(*) n from public.ai_calls where user_id=$1`, [ub])) === 0, 'borrar cuenta: se va el registro de usos de IA');
+ok((await cuenta(`select count(*) n from public.error_log where user_id=$1`, [ub])) === 0, 'borrar cuenta: se van sus errores registrados');
+ok((await cuenta(`select count(*) n from public.event_log where anon_id='anon-borrame' or user_id=$1`, [ub])) === 0, 'borrar cuenta: se van sus eventos (por cuenta y por código anónimo)');
+ok((await cuenta(`select count(*) n from public.event_log where anon_id='otro-anon'`)) === 1, 'borrar cuenta: NO toca los eventos de otras personas');
+ok((await cuenta(`select count(*) n from public.webhook_log where email='borrame@x.com'`)) === 0 && (await cuenta(`select count(*) n from public.webhook_log where email='otra@x.com'`)) === 1, 'borrar cuenta: quita su correo de los avisos de Hotmart y respeta los de otros');
+ok((await cuenta(`select count(*) n from public.admin_auditoria where detalle ? 'email'`)) === 0, 'borrar cuenta: quita su correo del registro de acciones del panel');
+ok((await cuenta(`select count(*) n from public.payment_transactions where transaction_id='HP-BORRA'`)) === 1, 'borrar cuenta: conserva los cobros (registro contable sin datos personales)');
 
 console.log(fallas ? `\n${fallas} FALLA(S)` : '\nTODO OK');
 process.exit(fallas ? 1 : 0);

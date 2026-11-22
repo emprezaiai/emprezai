@@ -9,8 +9,8 @@ export const RESPONSABLE = {
 } as const;
 
 export const VERSION_LEGAL = {
-  version: '1.2',
-  actualizado: '14 de octubre de 2026',
+  version: '1.3',
+  actualizado: '22 de noviembre de 2026',
 } as const;
 
 export const PRECIOS = {

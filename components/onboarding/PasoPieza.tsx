@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { animate, motion, useMotionValue, useReducedMotion, useTransform } from 'motion/react';
 import { ArrowRight, Check, Copy, LockKeyhole, PencilLine, Sparkles, Target } from 'lucide-react';
 import type { PrimeraPieza } from '@/lib/onboarding';
+import { AvisoIA } from '@/components/app/AvisoIA';
 import { BotonPrincipal, EASE_SALIDA, TituloAcento } from './piezas';
 
 const CHISPAS = [0, 60, 120, 180, 240, 300];
@@ -182,6 +183,7 @@ export function PasoPieza({
             />
           </div>
           <p className="mt-2 text-xs text-ink-3">En este celular por ahora; pasa a tu cuenta al crearla.</p>
+          <AvisoIA className="mt-2 text-xs text-ink-3" />
         </motion.div>
 
         {/* Mañana: el Día 2 bloqueado (pérdida honesta) */}

@@ -1,9 +1,10 @@
 // La cuenta de la persona en el servidor: GET (perfil + piezas) · PUT (respuestas del recorrido) ·
-// DELETE ("Borrar mis datos": piezas y respuestas; la suscripción la gestiona Hotmart).
+// DELETE (borrar mi cuenta: todo lo que identifica a la persona; el cobro de la suscripción lo cancela
+// ella en Hotmart — ver /cancelar).
 // Todo con SU sesión: RLS decide qué puede leer y escribir.
 
 import { PerfilEntrante } from '@/lib/esquemas';
-import { clienteSesion } from '@/lib/servidor/supabase';
+import { clienteAdmin, clienteSesion } from '@/lib/servidor/supabase';
 import { errorInterno, exigirAcceso, respuesta, revisarAcceso } from '@/lib/servidor/sesion';
 
 export async function GET() {
@@ -46,15 +47,16 @@ export async function DELETE() {
   if (acceso.estado === 'sin-servicio') return respuesta(503, { error: 'no-configurado' });
   if (acceso.estado === 'sin-sesion') return respuesta(401, { error: 'sin-sesion' });
   try {
+    // 1) Datos (perfil, piezas, registros de uso): una sola función en la base, repetible si algo falla.
+    const admin = clienteAdmin();
+    const { error: errorDatos } = await admin.rpc('borrar_cuenta', { p_user: acceso.user.id });
+    if (errorDatos) throw errorDatos;
+    // 2) La cuenta de acceso (correo + sesiones). Si falla, la persona repite el botón y se completa.
+    const { error: errorCuenta } = await admin.auth.admin.deleteUser(acceso.user.id);
+    if (errorCuenta) throw errorCuenta;
+    // 3) Cierra la sesión de este navegador (la cuenta ya no existe).
     const db = acceso.estado === 'ok' ? acceso.db : await clienteSesion();
-    const { error: errorPiezas } = await db.from('piezas').delete().eq('user_id', acceso.user.id);
-    if (errorPiezas) throw errorPiezas;
-    const { error: errorPerfil } = await db
-      .from('profiles')
-      .update({ idea: null, area: null, momento: null, respuestas: {} })
-      .eq('user_id', acceso.user.id);
-    if (errorPerfil) throw errorPerfil;
-    await db.auth.signOut();
+    await db.auth.signOut().catch(() => undefined);
     return respuesta(200, { ok: true });
   } catch (e) {
     return errorInterno('cuenta/delete', e);

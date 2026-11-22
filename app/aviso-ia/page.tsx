@@ -22,7 +22,7 @@ export default function AvisoIa() {
         <h2>2. La IA puede equivocarse</h2>
         <p>
           La IA puede producir información incorrecta, incompleta o desactualizada. Revisa cada pieza antes de usarla,
-          sobre todo precios, datos de competidores y afirmaciones sobre tu producto.
+          sobre todo precios, datos de competidores y afirmaciones sobre tu producto. Como la IA puede dar textos parecidos a distintas personas, revisa también que tu pieza suene a tu negocio y no copie algo existente.
         </p>
       </section>
 
@@ -38,7 +38,7 @@ export default function AvisoIa() {
         <h2>4. Qué se envía a la IA</h2>
         <p>
           Para armar cada pieza, enviamos a nuestro proveedor de IA (Anthropic, en Estados Unidos) las respuestas de tu
-          misión y las piezas anteriores de tu negocio. No incluyas contraseñas, datos bancarios ni información personal
+          misión, tu idea y las piezas anteriores de tu negocio; no enviamos tu correo ni tu nombre. No incluyas contraseñas, datos bancarios ni información personal
           sensible en tus respuestas.
         </p>
       </section>
@@ -46,8 +46,7 @@ export default function AvisoIa() {
       <section>
         <h2>5. Tu idea es tuya</h2>
         <p>
-          Tu negocio no se comparte con otros usuarios ni se usa para entrenar modelos de IA. Puedes borrarlo todo cuando
-          quieras desde tu perfil.
+          Tu negocio no se comparte con otros usuarios. Según las condiciones comerciales de nuestro proveedor de IA, lo que le enviamos no se usa para entrenar sus modelos. Puedes borrarlo todo cuando quieras desde Perfil → Borrar mi cuenta y mis datos.
         </p>
       </section>
     </PaginaLegal>

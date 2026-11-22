@@ -677,6 +677,17 @@ export function Acceso() {
                     ni se comparte.
                   </span>
                 </p>
+                <p className="mt-2 text-xs text-ink-3">
+                  Al entrar aceptas los{' '}
+                  <Link href="/terminos" className="underline underline-offset-4 hover:text-ink-2">
+                    Términos
+                  </Link>{' '}
+                  y la{' '}
+                  <Link href="/privacidad" className="underline underline-offset-4 hover:text-ink-2">
+                    Política de Privacidad
+                  </Link>
+                  .
+                </p>
               </motion.form>
 
               <motion.div {...entrar(3)} className="mt-10">

@@ -112,5 +112,17 @@ export async function GET(req: Request) {
   ]);
   if (e1 || e2) console.error('[cron/higiene]', e1?.code ?? e2?.code);
 
+  // 4b) Plazos de la Política de Privacidad (47): errores 90 días · visitas 13 meses · el correo de los avisos
+  // fallidos de Hotmart 90 días · el vínculo persona↔uso de IA 13 meses (el gasto queda, sin persona).
+  const hace13m = new Date(Date.now() - 395 * 86_400_000).toISOString();
+  const retencion = await Promise.all([
+    db.from('error_log').delete().lt('created_at', hace90),
+    db.from('event_log').delete().lt('created_at', hace13m),
+    db.from('webhook_log').update({ email: null }).not('email', 'is', null).lt('received_at', hace90),
+    db.from('ai_calls').update({ user_id: null }).not('user_id', 'is', null).lt('created_at', hace13m),
+  ]);
+  const falloRetencion = retencion.find((r) => r.error);
+  if (falloRetencion) console.error('[cron/retencion]', falloRetencion.error?.code);
+
   return NextResponse.json({ ok: true, ...resumen });
 }
