@@ -3,8 +3,11 @@
 // se escribe con la clave del servidor, siempre con el user_id de la sesión (nunca del navegador).
 // Una pieza ya guardada conserva su fecha y su creación (la racha no se puede reescribir);
 // una nueva acepta la fecha del celular solo si está a ±2 días del servidor (zonas horarias).
+// Límite por persona (30 por minuto, 300 por día): de sobra para el uso real (se guarda al tocar
+// un botón) y frena un script que escriba sin parar. Con 429 el celular conserva la pieza y reintenta.
 
 import { PiezaEntrante } from '@/lib/esquemas';
+import { tomarCupo } from '@/lib/servidor/limites';
 import { errorInterno, exigirAcceso, respuesta } from '@/lib/servidor/sesion';
 import { clienteAdmin } from '@/lib/servidor/supabase';
 
@@ -17,6 +20,7 @@ export async function PUT(req: Request) {
   if (!datos.success) return respuesta(400, { error: 'pieza-invalida' });
   const p = datos.data;
   try {
+    if (!(await tomarCupo(`piezas:${acceso.user.id}`, 30, 1, 300, 24 * 60))) return respuesta(429, { error: 'espera' });
     const { data: previa, error: errorPrevia } = await acceso.db
       .from('piezas')
       .select('fecha, creada_en')

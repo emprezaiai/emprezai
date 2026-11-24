@@ -232,7 +232,7 @@ export function Acceso() {
       }
       if (res.status === 429) {
         setEstado(reenvio ? 'enviado' : 'inicio');
-        const mensaje = 'Pediste varios enlaces seguidos. Espera unos minutos y vuelve a intentarlo.';
+        const mensaje = 'Pediste varios enlaces seguidos. Usa el último que te llegó (revisa también Spam) o vuelve a intentarlo más tarde.';
         if (reenvio) setErrorCodigo(mensaje);
         else setErrorCampo(mensaje);
         return;

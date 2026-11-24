@@ -99,6 +99,11 @@ ok(JSON.stringify(cupos) === '[true,true,false,false]', `tomar_cupo respeta el m
 const largo = [];
 for (let i = 0; i < 4; i++) largo.push((await db.query(`select public.tomar_cupo('k2', 10, 60, 3, 1440) as c`)).rows[0].c);
 ok(JSON.stringify(largo) === '[true,true,true,false]', `tomar_cupo respeta la ventana larga: ${JSON.stringify(largo)}`);
+// Tope diario de enlaces por correo (3 cada 5 min, 6 por día): 5 pedidos hace 2 h → pasa 1 más y el 7.º no.
+await db.query(`insert into public.limite_intentos (clave, created_at) select 'enviar:k3', now() - interval '2 hours' from generate_series(1, 5)`);
+const diario = [];
+for (let i = 0; i < 2; i++) diario.push((await db.query(`select public.tomar_cupo('enviar:k3', 3, 5, 6, 1440) as c`)).rows[0].c);
+ok(JSON.stringify(diario) === '[true,false]', `tope diario de enlaces por correo: ${JSON.stringify(diario)}`);
 
 // 12) Gasto de IA con más de 1000 filas
 await db.query(`insert into public.ai_calls (kind, model, cost_usd, ok) select 'mision_opciones', 'm', 0.01, true from generate_series(1, 2500)`);
