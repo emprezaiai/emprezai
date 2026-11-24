@@ -14,7 +14,8 @@ import { useEffect, useId, useRef, useState, useSyncExternalStore } from 'react'
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { ArrowRight, Check, CheckCircle2, CircleAlert, Copy, KeyRound, LoaderCircle, MailCheck, RotateCcw, ShieldCheck } from 'lucide-react';
+import Image from 'next/image';
+import { ArrowRight, Check, Mail, CheckCircle2, CircleAlert, Copy, KeyRound, LoaderCircle, MailCheck, RotateCcw, ShieldCheck } from 'lucide-react';
 import { Marca } from '@/components/app/Marca';
 import { CheckCustom, EASE_SALIDA, RutaMini, TituloAcento, vibrar } from '@/components/onboarding/piezas';
 import { crearCuenta, useCuenta } from '@/lib/cuenta';
@@ -522,9 +523,22 @@ export function Acceso() {
               transition={{ duration: 0.25 }}
               className="flex flex-1 flex-col justify-center py-8"
             >
-              <motion.div {...entrar(1)}>
-                <TituloAcento texto="Entra a tu ruta de 30 días" acento="tu ruta" className="text-pregunta" />
-                <p className="mt-2 text-base text-ink-2">
+              <motion.div {...entrar(1)} className="text-center">
+                <p className="text-xs font-semibold tracking-[0.16em] text-ink-2 uppercase">Tu primer paso</p>
+                <h1 className="mt-3 font-display text-pregunta font-extrabold text-ink-1">Tu idea te espera.</h1>
+                <p className="mt-2 text-base font-semibold text-ink-1">Te enviamos un enlace a tu correo para entrar.</p>
+                <div className="relative mx-auto mt-2 aspect-square w-full max-w-44">
+                  <Image
+                    src="/images/jaguar-login.webp"
+                    alt=""
+                    fill
+                    priority
+                    sizes="176px"
+                    style={reduce ? undefined : { animation: 'personaje-flota 3.2s ease-in-out infinite' }}
+                    className="object-contain [mask-image:radial-gradient(closest-side,#000_72%,transparent_100%)]"
+                  />
+                </div>
+                <p className="text-base text-ink-2">
                   {tienePieza ? (
                     <>
                       Usa el <strong className="font-semibold text-ink-1">mismo correo con el que pagaste en Hotmart</strong>: así guardas tu pieza 1 y tu plan.
@@ -582,6 +596,8 @@ export function Acceso() {
                     Ya guardaste este correo. El acceso todavía no abre: cuando abra, entras con él.
                   </p>
                 )}
+                <div className="relative">
+                <Mail size={20} className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-ink-3" aria-hidden="true" />
                 <input
                   ref={campo}
                   id={idCampo}
@@ -601,10 +617,11 @@ export function Acceso() {
                   aria-invalid={Boolean(errorCampo)}
                   aria-describedby={errorCampo ? `${idCampo}-error` : undefined}
                   key={intentos}
-                  className={`h-14 w-full rounded-[var(--radius-pill)] border bg-sunken px-5 text-base text-ink-1 placeholder:text-ink-3 focus:outline-none ${
-                    errorCampo ? 'sacudir border-danger' : 'border-[color-mix(in_oklab,var(--ink-3)_45%,transparent)] focus:border-ink-2'
+                  className={`h-14 w-full rounded-[var(--radius-pill)] border bg-[var(--portada-campo)] pr-5 pl-12 text-base text-ink-1 placeholder:text-ink-3 focus:outline-none ${
+                    errorCampo ? 'sacudir border-danger' : 'border-[var(--portada-borde)] focus:border-[var(--portada-verde)]'
                   }`}
                 />
+                </div>
                 {errorCampo && (
                   <p id={`${idCampo}-error`} role="alert" className="text-caption text-danger">
                     {errorCampo}
@@ -653,7 +670,7 @@ export function Acceso() {
                 <button
                   type="submit"
                   disabled={estado === 'enviando'}
-                  className="boton-oro mt-4 flex h-14 w-full items-center justify-center gap-2 rounded-[var(--radius-pill)] font-display text-base font-bold"
+                  className="boton-portada mt-4 flex h-14 w-full items-center justify-center gap-2 rounded-full font-display text-base"
                 >
                   {estado === 'enviando' ? (
                     <>
@@ -703,6 +720,9 @@ export function Acceso() {
                       : [{ texto: '5 minutos al día', tipo: 'freno' }]
                   }
                 />
+                {!tienePieza && (
+                  <p className="mt-4 text-center text-caption text-ink-2">Tu primera pieza es gratis y no pide tarjeta.</p>
+                )}
               </motion.div>
 
               {!tienePieza && (

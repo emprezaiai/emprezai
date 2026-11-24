@@ -6,10 +6,8 @@
 
 import {
   BookX,
-  CalendarCheck,
   CalendarRange,
   CalendarX2,
-  Gift,
   Hourglass,
   Lightbulb,
   Lock,
@@ -17,7 +15,6 @@ import {
   MessageSquareOff,
   MessageSquareText,
   MonitorPlay,
-  Moon,
   Puzzle,
   Search,
   ShieldCheck,
@@ -28,7 +25,7 @@ import {
   Zap,
 } from 'lucide-react';
 import Image from 'next/image';
-import { Hero } from '@/components/landing/Hero';
+import { HeroPortada } from '@/components/landing/HeroPortada';
 import { Problema } from '@/components/landing/Problema';
 import { Agitacion } from '@/components/landing/Agitacion';
 import { Solucion } from '@/components/landing/Solucion';
@@ -39,7 +36,6 @@ import { Faq } from '@/components/landing/Faq';
 import { CtaFinal } from '@/components/landing/CtaFinal';
 import { FooterLegal } from '@/components/landing/FooterLegal';
 import { StickyCtaMobile } from '@/components/landing/ui';
-import { DemoMisionHero } from '@/components/app/DemoMisionHero';
 import { Marca } from '@/components/app/Marca';
 import { useEventoAlMontar } from '@/lib/eventos';
 import { RESPONSABLE } from '@/lib/legal';
@@ -68,39 +64,7 @@ export default function PaginaDeVentas() {
 
   return (
     <div className="min-h-dvh bg-[var(--bg)] text-[var(--text-primary)] [font-family:var(--font-body)]">
-      <Hero
-        loginHref="/login"
-        appName="EMPREZAI"
-        marca={<Marca tamano="md" />}
-        gancho={
-          <span className="inline-flex items-center gap-2 rounded-full bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] py-1.5 pr-3 pl-1.5 text-[13px] font-semibold text-ink-1">
-            <span className="relieve-noche flex size-7 items-center justify-center rounded-full">
-              <Moon size={14} fill="currentColor" strokeWidth={0} aria-hidden="true" />
-            </span>
-            ¿Otra noche en blanco frente a ChatGPT?
-          </span>
-        }
-        h1Marked="[acento]Tu negocio armado[/acento] en 30 días, pieza a pieza"
-        subtitleMarked="[b]Esta noche, en 5 minutos,[/b] la IA arma tu primera pieza. Sin cursos."
-        ctaLabel={CTA_LABEL}
-        ctaHref={CTA_HREF}
-        socialProof={
-          <ul className="grid grid-cols-3 gap-2">
-            {[
-              { icono: Gift, texto: '7 días gratis' },
-              { icono: ShieldCheck, texto: 'Garantía 15 días' },
-              { icono: CalendarCheck, texto: 'Sin permanencia' },
-            ].map(({ icono: Icono, texto }) => (
-              // Datos, no botones: ícono plano en el acento (una ficha en relieve se ve tocable).
-              <li key={texto} className="flex flex-col items-center gap-1.5 text-center text-[12px] leading-tight whitespace-nowrap">
-                <Icono size={16} strokeWidth={2.2} className="text-[var(--accent)]" aria-hidden="true" />
-                {texto}
-              </li>
-            ))}
-          </ul>
-        }
-        visual={<DemoMisionHero />}
-      />
+      <HeroPortada ctaHref={CTA_HREF} loginHref="/login" />
 
       <Problema
         titulo="¿Te suena [acento]alguna de estas noches[/acento]?"
