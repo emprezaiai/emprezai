@@ -9,6 +9,7 @@ import { ArrowRight } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { Marca } from '@/components/app/Marca';
 import { EnlaceCta } from './ui';
+import { FraseOferta } from './FraseOferta';
 
 export function HeroPortada({ ctaHref, loginHref }: { ctaHref: string; loginHref: string }) {
   const reduce = useReducedMotion();
@@ -76,13 +77,8 @@ export function HeroPortada({ ctaHref, loginHref }: { ctaHref: string; loginHref
           </motion.div>
 
           <motion.div {...entrar(4)} className="mt-3 flex flex-col items-center gap-1 text-caption text-ink-2">
-            <p>
-              <strong className="font-semibold text-ink-1">5 minutos al día</strong> · <strong className="font-semibold text-ink-1">Empieza gratis</strong>
-            </p>
-            <p className="max-w-[30ch] text-balance">
-              Cada día la IA arma <strong className="font-semibold text-ink-1">una pieza de tu negocio</strong>.
-            </p>
-            <p className="text-ink-2">Prueba de 7 días · Garantía de 15 días · Cancelas cuando quieras</p>
+            <p className="font-semibold text-ink-1">5 minutos al día</p>
+            <p className="font-semibold text-ink-1"><FraseOferta /></p>
           </motion.div>
 
           <motion.div {...entrar(5)} className="relative mt-4 aspect-square w-full max-w-60">

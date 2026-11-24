@@ -8,6 +8,7 @@
 // la card recomendada (el uso canónico de la técnica) · checkmarks custom.
 // El destino de los CTAs sigue al MODELO de 02C (checkout vs /onboarding).
 
+import { FraseOferta } from './FraseOferta';
 import { motion } from 'motion/react';
 import { ShieldCheck, Star } from 'lucide-react';
 import { CheckCustom, CtaButton, Hairline, Kicker, SectionShell, useReveal, VIEWPORT_ONCE, EnlaceCta } from './ui';
@@ -114,6 +115,7 @@ export function Oferta({
           <h2 className="text-balance text-[30px] font-bold leading-[1.15] text-[var(--text-primary)] [font-family:var(--font-display)] md:text-[40px]">
             <MarkedCopy text={tituloMarked} />
           </h2>
+          <p className="mt-3 text-balance text-center text-[16px] font-semibold text-[var(--text-primary)]"><FraseOferta /></p>
         </motion.div>
 
         {/* Stack de valor Hormozi — ARRIBA de los planes; el tachado es del TOTAL
@@ -124,7 +126,7 @@ export function Oferta({
             className="tarjeta-relieve mx-auto mt-8 max-w-[560px] rounded-[var(--radius-card)] px-5 py-4 text-center text-[16px] text-[var(--text-secondary)]"
           >
             <span className="block">
-              {stack.lineas[0]?.resultado}: <span className="tabular-nums line-through">{stack.totalTachado}</span>/año
+              {stack.lineas[0]?.resultado}: <span className="tabular-nums">{stack.totalTachado}</span> al año
             </span>
             {stack.nota && <span className="mt-1 block font-semibold text-[var(--text-primary)]">{stack.nota}</span>}
           </motion.p>

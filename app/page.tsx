@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { HeroPortada } from '@/components/landing/HeroPortada';
+import { DemoMision } from '@/components/landing/DemoMision';
 import { QueRecibes } from '@/components/landing/QueRecibes';
 import { Problema } from '@/components/landing/Problema';
 import { Agitacion } from '@/components/landing/Agitacion';
@@ -64,10 +65,12 @@ export default function PaginaDeVentas() {
   useEventoAlMontar('landing_vista');
 
   return (
-    <div className="min-h-dvh bg-[var(--bg)] text-[var(--text-primary)] [font-family:var(--font-body)]">
+    <div className="paleta-portada min-h-dvh bg-[var(--bg)] text-[var(--text-primary)] [font-family:var(--font-body)]">
       <HeroPortada ctaHref={CTA_HREF} loginHref="/login" />
 
       <QueRecibes />
+
+      <DemoMision />
 
       <Problema
         titulo="¿Te suena [acento]alguna de estas noches[/acento]?"
@@ -129,9 +132,9 @@ export default function PaginaDeVentas() {
         tituloMarked="Empieza gratis. Sigue por [acento]$0.22 al día[/acento]"
         trialDias={7}
         stack={{
-          lineas: [{ resultado: 'Mes a mes', valor: '$119.88' }],
+          lineas: [{ resultado: 'Pagando mes a mes por un año', valor: '$119.88' }],
           totalTachado: '$119.88',
-          nota: 'Anual: $79.99',
+          nota: `Plan anual: $79.99 · ahorras ${AHORRO_ANUAL}`,
         }}
         anual={{
           nombre: 'Anual',
@@ -231,7 +234,7 @@ export default function PaginaDeVentas() {
         ]}
       />
 
-      <StickyCtaMobile labelComercial={CTA_LABEL} href={CTA_HREF} />
+      <StickyCtaMobile labelComercial={CTA_LABEL} href={CTA_HREF} labelPre="Empezar mis 7 días gratis" />
     </div>
   );
 }

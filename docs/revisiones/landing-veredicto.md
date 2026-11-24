@@ -1,9 +1,9 @@
-# VEREDICTO revisor-visual — landing (portada completa: hero + bloque "Qué recibes")
-Fecha: 2026-11-24 14:00
+# VEREDICTO revisor-visual — landing (portada completa: hero + qué recibes + demo + problema + planes)
+Fecha: 2026-11-24 16:00
 Screenshot: docs/revisiones/landing-375.png
-Usabilidad: 29/40
-Craft: 14/20
-Copy (si vende): 14/20
+Usabilidad: 32/40
+Craft: 15/20
+Copy (si vende): 16/20
 Fidelidad (si hubo referencia): FIEL
 Veredicto: NO LISTA
-Top defectos: 1) La oferta se contradice en dos lugares: "Empieza gratis", "Primera pieza gratis" y "Prueba de 7 días" no dicen si hay que poner tarjeta ni cuándo se cobra, y la garantía de 15 días no tiene nombre. 2) El microcopy del hero son 3 bloques apilados con huérfanos ("quieras", corte "una / pieza de tu negocio"), que cargan el borde del botón con más texto que el propio botón. 3) Hay dos amarillos distintos (#FACC15 del hero y #FFC23D del eyebrow y del botón fijo) y dos textos de acción ("Materializar mi idea hoy" y "Ver plan y precios"), lo que rompe la consistencia. 4) El bloque "Qué recibes" es una lista genérica de 4 íconos en chips, sin una captura de la app que enseñe la misión en acción. 5) En el hero no hay una escena de dolor con la hoja en blanco de las 7 PM. La agitación empieza recién en la sección 3.
+Top defectos: 1) El separador "·" queda colgando al final de la línea ("sin cobro hoy ·") en el hero y en el encabezado de planes, así que la frase parte la idea pero deja un punto huérfano. 2) El ahorro de $39.89 aparece tres veces en la misma pantalla de planes (caja de comparación, "Ahorras" y plan anual), lo que repite y diluye. 3) La tarjeta de comparación y la tarjeta anual duplican precio ($79.99 y $6.67/mes y $0.22/día), con demasiados números compitiendo por ser el dato héroe. 4) Craft sin un detalle firma extra más allá del personaje: el resto (chips de ícono, tarjetas) es intercambiable con otra app oscura con acento amarillo. 5) El "Probar gratis" de la cabecera sigue duplicando el CTA principal (decisión de la dueña, solo anotado).

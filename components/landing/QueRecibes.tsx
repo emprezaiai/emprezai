@@ -1,11 +1,12 @@
 // Justo debajo de la portada: qué es EMPREZAI y qué recibe la persona, en 4 datos claros.
+import { FRASE_OFERTA } from './ofertaFrase';
 import { CalendarRange, Clock, Gift, Sparkles } from 'lucide-react';
 
 const DATOS = [
   { icono: CalendarRange, titulo: 'Una ruta de 30 días', detalle: 'Te guía paso a paso, desde tu idea hasta tu negocio armado.' },
   { icono: Clock, titulo: '5 minutos al día', detalle: 'Una misión corta desde el celular. Sin cursos largos.' },
   { icono: Sparkles, titulo: 'La IA arma tus piezas', detalle: 'Tu oferta, tu nombre y tus textos se crean dentro de la app: no copias nada.' },
-  { icono: Gift, titulo: 'Pruébala sin riesgo', detalle: 'Primera pieza gratis, 7 días de prueba y garantía de 15 días.' },
+  { icono: Gift, titulo: 'Pruébala sin riesgo', detalle: FRASE_OFERTA + '.' },
 ];
 
 export function QueRecibes() {

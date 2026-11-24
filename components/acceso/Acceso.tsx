@@ -15,6 +15,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import Image from 'next/image';
+import { FraseOferta } from '@/components/landing/FraseOferta';
 import { ArrowRight, Check, Mail, CheckCircle2, CircleAlert, Copy, KeyRound, LoaderCircle, MailCheck, RotateCcw, ShieldCheck } from 'lucide-react';
 import { Marca } from '@/components/app/Marca';
 import { CheckCustom, EASE_SALIDA, RutaMini, TituloAcento, vibrar } from '@/components/onboarding/piezas';
@@ -317,7 +318,7 @@ export function Acceso() {
   });
 
   return (
-    <main className="fondo-recorrido min-h-dvh overflow-x-clip">
+    <main className="fondo-recorrido paleta-portada min-h-dvh overflow-x-clip">
       <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-4 pb-8">
         <motion.header {...entrar(0)} className="flex h-16 items-center">
           <Link href="/" className="flex min-h-11 items-center gap-2" aria-label="EMPREZAI, ir al inicio">
@@ -526,14 +527,14 @@ export function Acceso() {
               <motion.div {...entrar(1)} className="text-center">
                 <p className="text-xs font-semibold tracking-[0.16em] text-ink-2 uppercase">Tu primer paso</p>
                 <h1 className="mt-3 font-display text-pregunta font-extrabold text-ink-1">Tu idea te espera.</h1>
-                <p className="mt-2 text-base font-semibold text-ink-1">Te enviamos un enlace directo a tu correo, sin contraseñas.</p>
-                <div className="relative mx-auto mt-2 aspect-square w-full max-w-44">
+                <p className="mt-2 text-base font-semibold text-ink-1">Entra con un enlace a tu correo.</p>
+                <div className="relative mx-auto mt-2 aspect-square w-full max-w-36">
                   <Image
                     src="/images/jaguar-login.webp"
                     alt=""
                     fill
                     priority
-                    sizes="176px"
+                    sizes="144px"
                     style={reduce ? undefined : { animation: 'personaje-flota 3.2s ease-in-out infinite' }}
                     className="object-contain [mask-image:radial-gradient(closest-side,#000_72%,transparent_100%)]"
                   />
@@ -606,11 +607,12 @@ export function Acceso() {
                   aria-invalid={Boolean(errorCampo)}
                   aria-describedby={errorCampo ? `${idCampo}-error` : undefined}
                   key={intentos}
-                  className={`h-14 w-full rounded-[var(--radius-pill)] border bg-[var(--portada-campo)] pr-5 pl-12 text-base text-ink-1 placeholder:text-ink-3 focus:outline-none ${
+                  className={`h-14 w-full rounded-[var(--radius-pill)] border bg-[var(--surface)] shadow-[inset_0_1px_0_rgb(255_255_255/0.06)] pr-5 pl-12 text-base text-ink-1 placeholder:text-ink-3 focus:outline-none ${
                     errorCampo ? 'sacudir border-danger' : 'border-[var(--portada-borde)] focus:border-[var(--portada-verde)]'
                   }`}
                 />
                 </div>
+                <p className="text-caption text-ink-2">Usa el correo con el que pagaste en Hotmart.</p>
                 {errorCampo && (
                   <p id={`${idCampo}-error`} role="alert" className="text-caption text-danger">
                     {errorCampo}
@@ -696,8 +698,8 @@ export function Acceso() {
                 </p>
               </motion.form>
 
-              <motion.p {...entrar(3)} className="mt-6 text-balance text-center text-caption font-semibold text-ink-1">
-                Primera pieza gratis · 7 días de prueba · Garantía de 15 días
+              <motion.p {...entrar(3)} className="mt-6 text-balance text-center text-caption font-semibold text-ink-2">
+                <FraseOferta />
               </motion.p>
 
               {!tienePieza && (
