@@ -333,7 +333,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
             <ol className="flex flex-col">
               {[
                 { titulo: <>Hoy: empiezas gratis</>, texto: 'Hotmart te pide tu tarjeta, pero hoy no se cobra nada.', tono: 'oro' as const },
-                { titulo: <>{fechaAviso}: te avisamos</>, texto: 'Te escribimos antes de cualquier cobro.', tono: 'aviso' as const },
+                { titulo: <>{fechaAviso}: te avisamos</>, texto: 'Te escribimos antes de tu primer cobro.', tono: 'aviso' as const },
                 {
                   titulo: (
                     <>
@@ -466,7 +466,7 @@ function Planes({ planInicial }: { planInicial?: Plan }) {
               </span>
             ) : (
               <>
-                Hoy <strong className="font-semibold text-ink-1">$0</strong> con tarjeta · luego <Monto valor={p.monto} /> {p.periodo}, se renueva solo · cancelas cuando quieras
+                Hoy <strong className="font-semibold text-ink-1">$0</strong> con tarjeta · luego <Monto valor={p.monto} /> {p.periodo}, <span className="whitespace-nowrap">se renueva solo{p.periodo === 'al año' ? ' (te avisamos antes)' : ''}</span> · cancelas cuando quieras
               </>
             )}
           </p>

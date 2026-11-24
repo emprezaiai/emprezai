@@ -129,7 +129,7 @@ export default function Privacidad() {
         <ul>
           <li>
             <strong>Borrarlo todo, tú mismo:</strong> en la app, <strong>Perfil → Borrar mi cuenta y mis datos</strong>. Se borran tu cuenta, tu correo, tus piezas y tus registros de uso, y no se puede deshacer.{' '}
-            <strong>Borrar tu cuenta no cancela el cobro de la suscripción:</strong> eso se hace en Hotmart (mira <Link href="/cancelar" className={enlace}>cómo cancelar</Link>).
+            <strong>Importante: borrar tu cuenta en EMPREZAI borra tus datos de la app, pero NO cancela tu suscripción en Hotmart.</strong> Si tienes un plan activo, cancélalo primero en Hotmart (mira <Link href="/cancelar" className={enlace}>Cómo cancelar</Link>) para evitar futuros cobros.
           </li>
           <li>
             <strong>Llevarte tus piezas:</strong> en Perfil → Descargar todo lo que armé.
@@ -162,7 +162,7 @@ export default function Privacidad() {
           La fecha y la versión de la última actualización están siempre arriba. Si hacemos un cambio importante, te avisamos por correo antes de que entre en vigor y, si cambia para qué usamos tus datos, te pedimos de nuevo tu permiso.
         </p>
         <p className="mt-2 text-sm text-ink-3">
-          Historial: v1.3 (nov 2026): borrado real de cuenta, cookies y almacenamiento, plazos de conservación y lista completa de proveedores · v1.2 (oct 2026): versión anterior.
+          Historial: v1.4 (24 nov 2026): aviso más visible de que borrar la cuenta no cancela la suscripción y recordatorio por correo antes de cada renovación anual · v1.3 (nov 2026): borrado real de cuenta, cookies y almacenamiento, plazos de conservación y lista completa de proveedores · v1.2 (oct 2026): versión anterior.
         </p>
       </section>
     </PaginaLegal>

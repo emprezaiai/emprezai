@@ -11,7 +11,8 @@ import crypto from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { darAccesoTrasCompra } from '@/lib/servidor/accesos';
 import { leerVariable, supabaseConfigurado } from '@/lib/servidor/config';
-import { alertarDuena, enviarAvisoDeCobro } from '@/lib/servidor/correo';
+import { alertarDuena, enviarAvisoDeCobro, enviarAvisoRenovacionAnual } from '@/lib/servidor/correo';
+import { GRACIA_COBRO_DIAS } from '@/lib/servidor/hotmart';
 import { clienteAdmin } from '@/lib/servidor/supabase';
 import { MARGEN_PRUEBA_MS } from '@/lib/membresia';
 
@@ -80,6 +81,34 @@ export async function GET(req: Request) {
     } catch (e) {
       resumen.avisosFallidos += 1;
       console.error('[cron/aviso]', e instanceof Error ? e.name : 'error');
+    }
+  }
+
+  // 3) Aviso antes de la renovación ANUAL (47/58 · California: 15-45 días antes). access_until = próximo
+  //    cobro + gracia, así que la renovación es access_until − gracia. Se avisa entre 15 y 30 días antes,
+  //    una sola vez por renovación (aviso_renovacion_para guarda la fecha avisada).
+  const graciaMs = GRACIA_COBRO_DIAS * 86_400_000;
+  const desdeRenov = new Date(Date.now() + 15 * 86_400_000 + graciaMs).toISOString();
+  const hastaRenov = new Date(Date.now() + 30 * 86_400_000 + graciaMs).toISOString();
+  const { data: porRenovar, error: errorRenov } = await db
+    .from('profiles')
+    .select('id, email, access_until')
+    .eq('status', 'active')
+    .eq('plan', 'anual')
+    .gte('access_until', desdeRenov)
+    .lte('access_until', hastaRenov)
+    .or(`aviso_renovacion_para.is.null,aviso_renovacion_para.lt.${new Date().toISOString()}`)
+    .limit(200);
+  if (errorRenov) return NextResponse.json({ error: 'interno' }, { status: 500 });
+  for (const p of porRenovar ?? []) {
+    try {
+      const renovacion = new Date(new Date(p.access_until as string).getTime() - graciaMs).toISOString();
+      await enviarAvisoRenovacionAnual(p.email as string, fechaLarga(renovacion));
+      await db.from('profiles').update({ aviso_renovacion_para: renovacion }).eq('id', p.id);
+      resumen.avisosEnviados += 1;
+    } catch (e) {
+      resumen.avisosFallidos += 1;
+      console.error('[cron/renovacion]', e instanceof Error ? e.name : 'error');
     }
   }
 

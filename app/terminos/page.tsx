@@ -46,6 +46,9 @@ export default function Terminos() {
             La suscripción <strong>se renueva automáticamente</strong> cada mes o cada año, al mismo precio, hasta que la canceles.
           </li>
           <li>
+            <strong>Plan anual:</strong> te enviamos un recordatorio por correo entre 15 y 30 días antes de cada renovación, con la fecha y el monto, para que decidas si sigues o cancelas antes del cobro.
+          </li>
+          <li>
             Cancelas cuando quieras desde tu cuenta de comprador en Hotmart: en <Link href="/cancelar" className={enlace}>Cómo cancelar</Link> te mostramos los pasos. Mantienes el acceso hasta el final del periodo que ya pagaste.
           </li>
           <li>

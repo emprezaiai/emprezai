@@ -136,6 +136,23 @@ export async function enviarAvisoDeCobro(para: string, fechaCobro: string, plan:
   );
 }
 
+/** Aviso antes de la renovación anual (entre 15 y 30 días antes): fecha, monto y cómo cancelar. */
+export async function enviarAvisoRenovacionAnual(para: string, fechaRenovacion: string) {
+  const sitio = requerida('NEXT_PUBLIC_SITE_URL').replace(/\/+$/, '');
+  await enviar(
+    para,
+    'Tu plan anual se renueva pronto',
+    plantilla({
+      titulo: 'Te avisamos antes de renovar',
+      parrafos: [
+        `Tu plan anual de EMPREZAI se renueva solo el ${fechaRenovacion}. Ese día Hotmart cobra $79.99 USD por un año más.`,
+        'Si quieres seguir, no tienes que hacer nada. Si no, cancela antes de esa fecha desde tu cuenta de comprador de Hotmart: conservas el acceso hasta el final del año que ya pagaste.',
+      ],
+      boton: { texto: 'Ver cómo cancelar', url: `${sitio}/cancelar` },
+    }),
+  );
+}
+
 /** Alerta interna a la dueña (tope de gasto de IA, pagos sin acceso). */
 export async function alertarDuena(asunto: string, detalle: string) {
   await enviar(RESPONSABLE.emailContacto, `[EMPREZAI] ${asunto}`, plantilla({ titulo: asunto, parrafos: [detalle] }));

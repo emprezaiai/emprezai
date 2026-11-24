@@ -148,7 +148,7 @@ export default function PaginaDeVentas() {
           ctaHref: CTA_MENSUAL,
           features: FEATURES_MENSUAL,
         }}
-        microcopyCompra="Pagas seguro por Hotmart · Garantía sin preguntas de 15 días desde tu primer pago · te avisamos antes de cobrar"
+        microcopyCompra="Pagas seguro por Hotmart · Garantía sin preguntas de 15 días desde tu primer pago · te avisamos antes del primer cobro"
       />
 
       <Garantia

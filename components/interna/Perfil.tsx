@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { Bus, ChevronRight, Download, LifeBuoy, LogOut, Moon, SunMedium, Trash2 } from 'lucide-react';
+import { Bus, ChevronRight, Download, LifeBuoy, LogOut, Moon, SunMedium, Trash2, TriangleAlert } from 'lucide-react';
 import { borrarMisDatos, cerrarSesion, guardarCuenta, estadoRuta } from '@/lib/cuenta';
 import { borrarEnServidor, guardarMomentoEnServidor, salirDelServidor } from '@/lib/sincronizar';
 import { NOMBRE_MOMENTO, type IdMomento } from '@/lib/onboarding';
@@ -231,13 +231,16 @@ function ConfirmarBorrado({ onCancelar, onBorrar }: { onCancelar: () => void; on
         <p id="texto-borrar" className="mt-2 text-ayuda text-ink-2">
           Borramos tu cuenta, tu correo, tus piezas y tu registro de uso. No se puede deshacer. Si quieres guardar tus piezas, descárgalas antes.
         </p>
-        <p className="mt-2 text-caption text-ink-2">
-          <strong className="font-semibold text-ink-1">Ojo:</strong> esto no cancela el cobro de tu suscripción.{' '}
-          <Link href="/cancelar" className="font-semibold text-ink-1 underline underline-offset-4">
-            Mira cómo cancelarla en Hotmart
-          </Link>{' '}
-          antes o después de borrar.
-        </p>
+        <div role="note" className="mt-4 flex items-start gap-3 rounded-[var(--radius-chip)] border border-[color-mix(in_oklab,var(--warning)_45%,transparent)] bg-[color-mix(in_oklab,var(--warning)_10%,transparent)] p-3">
+          <TriangleAlert size={20} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />
+          <p className="text-caption text-ink-1">
+            <strong className="font-semibold">Importante:</strong> borrar tu cuenta en EMPREZAI borra tus datos de la app, pero <strong className="font-semibold">NO cancela tu suscripción en Hotmart</strong>. Si tienes un plan activo, cancélalo primero en Hotmart (
+            <Link href="/cancelar" className="font-semibold underline underline-offset-4">
+              ver Cómo cancelar
+            </Link>
+            ) para evitar futuros cobros.
+          </p>
+        </div>
         <button type="button" onClick={onBorrar} className="mt-6 flex h-12 w-full items-center justify-center rounded-[var(--radius-pill)] bg-danger font-display text-base font-bold text-[var(--surface-base)]">
           Sí, borrar mi cuenta
         </button>
