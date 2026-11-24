@@ -526,7 +526,7 @@ export function Acceso() {
               <motion.div {...entrar(1)} className="text-center">
                 <p className="text-xs font-semibold tracking-[0.16em] text-ink-2 uppercase">Tu primer paso</p>
                 <h1 className="mt-3 font-display text-pregunta font-extrabold text-ink-1">Tu idea te espera.</h1>
-                <p className="mt-2 text-base font-semibold text-ink-1">Te enviamos un enlace a tu correo para entrar.</p>
+                <p className="mt-2 text-base font-semibold text-ink-1">Te enviamos un enlace directo a tu correo, sin contraseñas.</p>
                 <div className="relative mx-auto mt-2 aspect-square w-full max-w-44">
                   <Image
                     src="/images/jaguar-login.webp"
@@ -538,17 +538,6 @@ export function Acceso() {
                     className="object-contain [mask-image:radial-gradient(closest-side,#000_72%,transparent_100%)]"
                   />
                 </div>
-                <p className="text-base text-ink-2">
-                  {tienePieza ? (
-                    <>
-                      Usa el <strong className="font-semibold text-ink-1">mismo correo con el que pagaste en Hotmart</strong>: así guardas tu pieza 1 y tu plan.
-                    </>
-                  ) : (
-                    <>
-                      Usa el <strong className="font-semibold text-ink-1">correo con el que pagaste en Hotmart</strong>.
-                    </>
-                  )}
-                </p>
               </motion.div>
 
               {avisoUrl === 'enlace-vencido' && (
@@ -688,7 +677,7 @@ export function Acceso() {
                   <ShieldCheck size={16} className="mt-0.5 shrink-0 text-ink-3" aria-hidden="true" />
                   <span>
                     {ACCESO_REAL || demoPermitida()
-                      ? 'Sin contraseñas: te llega un enlace de un solo uso. '
+                      ? 'El enlace es de un solo uso. '
                       : 'Sin contraseñas: cuando abra el acceso, te llegará un enlace de un solo uso. '}
                     <strong className="font-semibold text-ink-1">Tu idea es tuya:</strong> no se usa para entrenar IA
                     ni se comparte.
@@ -707,29 +696,15 @@ export function Acceso() {
                 </p>
               </motion.form>
 
-              <motion.div {...entrar(3)} className="mt-10">
-                <RutaMini
-                  destacada
-                  titulo={tienePieza ? 'Tu ruta te espera' : 'Lo que te espera adentro'}
-                  respuestas={
-                    tienePieza
-                      ? [
-                          { texto: 'Pieza 1 lista', tipo: 'logro' },
-                          { texto: 'Mañana: tu cliente ideal · 5 min', tipo: 'freno' },
-                        ]
-                      : [{ texto: '5 minutos al día', tipo: 'freno' }]
-                  }
-                />
-                {!tienePieza && (
-                  <p className="mt-4 text-center text-caption text-ink-2">Tu primera pieza es gratis y no pide tarjeta.</p>
-                )}
-              </motion.div>
+              <motion.p {...entrar(3)} className="mt-6 text-balance text-center text-caption font-semibold text-ink-1">
+                Primera pieza gratis · 7 días de prueba · Garantía de 15 días
+              </motion.p>
 
               {!tienePieza && (
-                <motion.p {...entrar(4)} className="mt-6 text-center text-caption text-ink-2">
-                  ¿Aún no armas tu pieza 1?{' '}
-                  <Link href="/onboarding" className="font-semibold text-ink-1 underline underline-offset-4">
-                    Empieza gratis aquí
+                <motion.p {...entrar(4)} className="mt-2 text-center text-caption text-ink-2">
+                  ¿Aún no tienes cuenta?{' '}
+                  <Link href="/onboarding" className="inline-flex min-h-11 items-center font-semibold text-ink-1 underline underline-offset-4">
+                    Prueba gratis
                   </Link>
                 </motion.p>
               )}

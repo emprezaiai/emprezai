@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { HeroPortada } from '@/components/landing/HeroPortada';
+import { QueRecibes } from '@/components/landing/QueRecibes';
 import { Problema } from '@/components/landing/Problema';
 import { Agitacion } from '@/components/landing/Agitacion';
 import { Solucion } from '@/components/landing/Solucion';
@@ -66,6 +67,8 @@ export default function PaginaDeVentas() {
     <div className="min-h-dvh bg-[var(--bg)] text-[var(--text-primary)] [font-family:var(--font-body)]">
       <HeroPortada ctaHref={CTA_HREF} loginHref="/login" />
 
+      <QueRecibes />
+
       <Problema
         titulo="¿Te suena [acento]alguna de estas noches[/acento]?"
         preguntas={[
@@ -77,7 +80,8 @@ export default function PaginaDeVentas() {
         ]}
       />
 
-      <Agitacion
+      <div className="border-y border-[var(--line)] bg-[color-mix(in_oklab,var(--ink-1)_4%,transparent)]">
+        <Agitacion
         frases={[
           'Y cada noche así es [b]tiempo que no vuelve[/b]:',
           'Y otro curso no lo arregla: [b]más información no es más avance[/b].',
@@ -89,6 +93,7 @@ export default function PaginaDeVentas() {
         ]}
       />
 
+      </div>
       <Solucion
         tituloMarked="Te falta [acento]el paso de hoy[/acento]"
         mecanismo="el Método Pieza a Pieza"
@@ -106,7 +111,8 @@ export default function PaginaDeVentas() {
         }}
       />
 
-      <AppPorDentro
+      <div className="border-y border-[var(--line)] bg-[color-mix(in_oklab,var(--ink-1)_4%,transparent)]">
+        <AppPorDentro
         tituloMarked="Tu negocio, [acento]pieza a pieza[/acento]"
         frames={[
           { label: 'Tu misión de hoy, en 5 minutos', src: '/landing/app-hoy-v2.png', alt: 'Captura de la app: pantalla Hoy con la misión del día 8 y la racha' },
@@ -117,6 +123,7 @@ export default function PaginaDeVentas() {
         ctaLabel={CTA_LABEL}
         ctaHref={CTA_HREF}
       />
+      </div>
 
       <Oferta
         tituloMarked="Empieza gratis. Sigue por [acento]$0.22 al día[/acento]"
