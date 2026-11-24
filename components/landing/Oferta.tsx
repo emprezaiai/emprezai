@@ -8,8 +8,9 @@
 // la card recomendada (el uso canónico de la técnica) · checkmarks custom.
 // El destino de los CTAs sigue al MODELO de 02C (checkout vs /onboarding).
 
+import { FraseOferta } from './FraseOferta';
 import { motion } from 'motion/react';
-import { ShieldCheck, Star } from 'lucide-react';
+import { ShieldCheck, Zap } from 'lucide-react';
 import { CheckCustom, CtaButton, Hairline, Kicker, SectionShell, useReveal, VIEWPORT_ONCE, EnlaceCta } from './ui';
 import { MarkedCopy, warnCopy, warnRango } from './MarkedCopy';
 
@@ -56,7 +57,7 @@ export interface OfertaProps {
 function TrialBadge({ dias }: { dias: number }) {
   return (
     <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-[color-mix(in_oklab,var(--accent)_13%,transparent)] px-2.5 py-1 text-[12px] font-bold uppercase tracking-[0.06em] text-[var(--accent)]">
-      <Star size={12} strokeWidth={2.5} aria-hidden="true" />
+      <Zap size={12} fill="currentColor" strokeWidth={0} aria-hidden="true" />
       {dias} días gratis
     </span>
   );
@@ -114,6 +115,7 @@ export function Oferta({
           <h2 className="text-balance text-[30px] font-bold leading-[1.15] text-[var(--text-primary)] [font-family:var(--font-display)] md:text-[40px]">
             <MarkedCopy text={tituloMarked} />
           </h2>
+          <p className="mt-3 text-balance text-center text-[16px] font-semibold text-[var(--text-primary)]"><FraseOferta /></p>
         </motion.div>
 
         {/* Stack de valor Hormozi — ARRIBA de los planes; el tachado es del TOTAL
@@ -124,7 +126,7 @@ export function Oferta({
             className="tarjeta-relieve mx-auto mt-8 max-w-[560px] rounded-[var(--radius-card)] px-5 py-4 text-center text-[16px] text-[var(--text-secondary)]"
           >
             <span className="block">
-              {stack.lineas[0]?.resultado}: <span className="tabular-nums line-through">{stack.totalTachado}</span>/año
+              {stack.lineas[0]?.resultado}: <span className="tabular-nums">{stack.totalTachado}</span> al año
             </span>
             {stack.nota && <span className="mt-1 block font-semibold text-[var(--text-primary)]">{stack.nota}</span>}
           </motion.p>
@@ -162,6 +164,7 @@ export function Oferta({
           <motion.div variants={item} className="relative md:-translate-y-2">
             {anual.badge && (
               <span className="absolute -top-[10px] left-1/2 z-10 -translate-x-1/2 rounded-full border border-[color-mix(in_oklab,var(--accent)_25%,transparent)] bg-[var(--accent)] px-3 py-1 text-[12px] font-bold uppercase tracking-[0.06em] text-[var(--bg)]">
+                <Zap size={12} fill="currentColor" strokeWidth={0} aria-hidden="true" className="mr-1 inline" />
                 {anual.badge}
               </span>
             )}
@@ -175,7 +178,10 @@ export function Oferta({
                   <Precio plan={anual} />
                   {/* El total anual SIEMPRE visible — regla de oro de 02C */}
                   <p className="mt-1 text-[13px] text-[var(--text-secondary)]">{anual.totalAnual}</p>
-                  <p className="mt-2 text-[16px] font-semibold text-[var(--accent)]">{anual.ahorro}</p>
+                  <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[color-mix(in_oklab,var(--accent)_14%,transparent)] px-3 py-1 text-[14px] font-bold text-[var(--accent)]">
+                    <Zap size={14} fill="currentColor" strokeWidth={0} aria-hidden="true" />
+                    {anual.ahorro}
+                  </p>
                 </div>
                 <Features items={anual.features} origen="Oferta → anual" />
                 <div className="mt-6">

@@ -6,10 +6,8 @@
 
 import {
   BookX,
-  CalendarCheck,
   CalendarRange,
   CalendarX2,
-  Gift,
   Hourglass,
   Lightbulb,
   Lock,
@@ -17,7 +15,6 @@ import {
   MessageSquareOff,
   MessageSquareText,
   MonitorPlay,
-  Moon,
   Puzzle,
   Search,
   ShieldCheck,
@@ -28,7 +25,9 @@ import {
   Zap,
 } from 'lucide-react';
 import Image from 'next/image';
-import { Hero } from '@/components/landing/Hero';
+import { HeroPortada } from '@/components/landing/HeroPortada';
+import { DemoMision } from '@/components/landing/DemoMision';
+import { QueRecibes } from '@/components/landing/QueRecibes';
 import { Problema } from '@/components/landing/Problema';
 import { Agitacion } from '@/components/landing/Agitacion';
 import { Solucion } from '@/components/landing/Solucion';
@@ -39,7 +38,6 @@ import { Faq } from '@/components/landing/Faq';
 import { CtaFinal } from '@/components/landing/CtaFinal';
 import { FooterLegal } from '@/components/landing/FooterLegal';
 import { StickyCtaMobile } from '@/components/landing/ui';
-import { DemoMisionHero } from '@/components/app/DemoMisionHero';
 import { Marca } from '@/components/app/Marca';
 import { useEventoAlMontar } from '@/lib/eventos';
 import { RESPONSABLE } from '@/lib/legal';
@@ -67,40 +65,12 @@ export default function PaginaDeVentas() {
   useEventoAlMontar('landing_vista');
 
   return (
-    <div className="min-h-dvh bg-[var(--bg)] text-[var(--text-primary)] [font-family:var(--font-body)]">
-      <Hero
-        loginHref="/login"
-        appName="EMPREZAI"
-        marca={<Marca tamano="md" />}
-        gancho={
-          <span className="inline-flex items-center gap-2 rounded-full bg-[color-mix(in_oklab,var(--gold)_8%,transparent)] py-1.5 pr-3 pl-1.5 text-[13px] font-semibold text-ink-1">
-            <span className="relieve-noche flex size-7 items-center justify-center rounded-full">
-              <Moon size={14} fill="currentColor" strokeWidth={0} aria-hidden="true" />
-            </span>
-            ¿Otra noche en blanco frente a ChatGPT?
-          </span>
-        }
-        h1Marked="[acento]Tu negocio armado[/acento] en 30 días, pieza a pieza"
-        subtitleMarked="[b]Esta noche, en 5 minutos,[/b] la IA arma tu primera pieza. Sin cursos."
-        ctaLabel={CTA_LABEL}
-        ctaHref={CTA_HREF}
-        socialProof={
-          <ul className="grid grid-cols-3 gap-2">
-            {[
-              { icono: Gift, texto: '7 días gratis' },
-              { icono: ShieldCheck, texto: 'Garantía 15 días' },
-              { icono: CalendarCheck, texto: 'Sin permanencia' },
-            ].map(({ icono: Icono, texto }) => (
-              // Datos, no botones: ícono plano en el acento (una ficha en relieve se ve tocable).
-              <li key={texto} className="flex flex-col items-center gap-1.5 text-center text-[12px] leading-tight whitespace-nowrap">
-                <Icono size={16} strokeWidth={2.2} className="text-[var(--accent)]" aria-hidden="true" />
-                {texto}
-              </li>
-            ))}
-          </ul>
-        }
-        visual={<DemoMisionHero />}
-      />
+    <div className="paleta-portada min-h-dvh bg-[var(--bg)] text-[var(--text-primary)] [font-family:var(--font-body)]">
+      <HeroPortada ctaHref={CTA_HREF} loginHref="/login" />
+
+      <QueRecibes />
+
+      <DemoMision />
 
       <Problema
         titulo="¿Te suena [acento]alguna de estas noches[/acento]?"
@@ -113,7 +83,8 @@ export default function PaginaDeVentas() {
         ]}
       />
 
-      <Agitacion
+      <div className="border-y border-[var(--line)] bg-[color-mix(in_oklab,var(--ink-1)_4%,transparent)]">
+        <Agitacion
         frases={[
           'Y cada noche así es [b]tiempo que no vuelve[/b]:',
           'Y otro curso no lo arregla: [b]más información no es más avance[/b].',
@@ -125,6 +96,7 @@ export default function PaginaDeVentas() {
         ]}
       />
 
+      </div>
       <Solucion
         tituloMarked="Te falta [acento]el paso de hoy[/acento]"
         mecanismo="el Método Pieza a Pieza"
@@ -142,7 +114,8 @@ export default function PaginaDeVentas() {
         }}
       />
 
-      <AppPorDentro
+      <div className="border-y border-[var(--line)] bg-[color-mix(in_oklab,var(--ink-1)_4%,transparent)]">
+        <AppPorDentro
         tituloMarked="Tu negocio, [acento]pieza a pieza[/acento]"
         frames={[
           { label: 'Tu misión de hoy, en 5 minutos', src: '/landing/app-hoy-v2.png', alt: 'Captura de la app: pantalla Hoy con la misión del día 8 y la racha' },
@@ -153,22 +126,17 @@ export default function PaginaDeVentas() {
         ctaLabel={CTA_LABEL}
         ctaHref={CTA_HREF}
       />
+      </div>
 
       <Oferta
         tituloMarked="Empieza gratis. Sigue por [acento]$0.22 al día[/acento]"
         trialDias={7}
-        stack={{
-          lineas: [{ resultado: 'Mes a mes', valor: '$119.88' }],
-          totalTachado: '$119.88',
-          nota: 'Anual: $79.99',
-        }}
         anual={{
           nombre: 'Anual',
           badge: 'MEJOR VALOR',
           precioMes: '$6.67',
           totalAnual: 'Se cobra $79.99 al año',
           ahorro: `Ahorras ${AHORRO_ANUAL}`,
-          descomposicionDia: '$0.22 al día',
           ctaLabel: 'Empezar mis 7 días gratis',
           ctaHref: CTA_ANUAL,
           features: FEATURES_ANUAL,
@@ -176,12 +144,11 @@ export default function PaginaDeVentas() {
         mensual={{
           nombre: 'Mensual',
           precioMes: '$9.99',
-          descomposicionDia: '$0.33 al día',
           ctaLabel: 'Empezar mis 7 días gratis',
           ctaHref: CTA_MENSUAL,
           features: FEATURES_MENSUAL,
         }}
-        microcopyCompra="Pagas seguro por Hotmart · 15 días de garantía desde tu primer pago · te avisamos antes de cobrar"
+        microcopyCompra="Pagas seguro por Hotmart · Garantía sin preguntas de 15 días desde tu primer pago · te avisamos antes de cobrar"
       />
 
       <Garantia
@@ -260,7 +227,7 @@ export default function PaginaDeVentas() {
         ]}
       />
 
-      <StickyCtaMobile labelComercial={CTA_LABEL} href={CTA_HREF} />
+      <StickyCtaMobile labelComercial={CTA_LABEL} href={CTA_HREF} labelPre="Empezar mis 7 días gratis" />
     </div>
   );
 }

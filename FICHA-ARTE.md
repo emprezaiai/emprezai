@@ -70,3 +70,7 @@
 - Modo oscuro DERIVADO por: elección explícita del usuario (colores de la C) + momento de uso nocturno del avatar (7 PM)
 
 ## Idioma UI: español LATAM neutro (tuteo) · Fecha de cierre: 2026-09-30 · Aprobada por el usuario: SÍ
+
+
+## EXCEPCIÓN DE LA DUEÑA (2026-11-24) — Portada y pantalla Entrar
+Solo en la portada (HeroPortada) y en Entrar rige una paleta propia pedida por la dueña: fondo #0B0D12, campos #11151C, borde #1F242D, verde #22C55E, amarillo #FACC15 (sombra #B8860B) con texto negro, y el personaje 3D (public/images/jaguar-*.webp). Tokens: --portada-* en globals.css. El resto de la app mantiene la paleta de esta ficha hasta que la dueña decida otra cosa.
