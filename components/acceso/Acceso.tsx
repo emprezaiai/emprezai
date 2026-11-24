@@ -528,7 +528,7 @@ export function Acceso() {
                 <p className="text-xs font-semibold tracking-[0.16em] text-ink-2 uppercase">Tu primer paso</p>
                 <h1 className="mt-3 font-display text-pregunta font-extrabold text-ink-1">Tu idea te espera.</h1>
                 <p className="mt-2 text-base font-semibold text-ink-1">Entra con un enlace a tu correo.</p>
-                <div className="relative mx-auto mt-2 aspect-square w-full max-w-36">
+                <div className="relative mx-auto -mt-2 -mb-6 aspect-square w-full max-w-36">
                   <Image
                     src="/images/jaguar-login.webp"
                     alt=""
@@ -576,7 +576,7 @@ export function Acceso() {
                   </div>
                 </motion.div>
               )}
-              <motion.form {...entrar(2)} onSubmit={enviar} noValidate className="mt-8 flex flex-col gap-2">
+              <motion.form {...entrar(2)} onSubmit={enviar} noValidate className="mt-6 flex flex-col gap-2 rounded-[var(--radius-card)] border border-[var(--portada-borde)] bg-[var(--surface)] p-4 shadow-[var(--shadow-2)]">
                 <label htmlFor={idCampo} className="text-caption font-semibold text-ink-1">
                   Tu correo
                 </label>
@@ -607,7 +607,7 @@ export function Acceso() {
                   aria-invalid={Boolean(errorCampo)}
                   aria-describedby={errorCampo ? `${idCampo}-error` : undefined}
                   key={intentos}
-                  className={`h-14 w-full rounded-[var(--radius-pill)] border bg-[var(--surface)] shadow-[inset_0_1px_0_rgb(255_255_255/0.06)] pr-5 pl-12 text-base text-ink-1 placeholder:text-ink-3 focus:outline-none ${
+                  className={`h-14 w-full rounded-[var(--radius-pill)] border bg-[var(--bg)] pr-5 pl-12 text-base text-ink-1 placeholder:text-ink-3 focus:outline-none ${
                     errorCampo ? 'sacudir border-danger' : 'border-[var(--portada-borde)] focus:border-[var(--portada-verde)]'
                   }`}
                 />
@@ -685,7 +685,7 @@ export function Acceso() {
                     ni se comparte.
                   </span>
                 </p>
-                <p className="mt-2 text-xs text-ink-3">
+                <p className="mt-2 text-caption text-ink-3">
                   Al entrar aceptas los{' '}
                   <Link href="/terminos" className="underline underline-offset-4 hover:text-ink-2">
                     Términos

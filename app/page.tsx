@@ -131,18 +131,12 @@ export default function PaginaDeVentas() {
       <Oferta
         tituloMarked="Empieza gratis. Sigue por [acento]$0.22 al día[/acento]"
         trialDias={7}
-        stack={{
-          lineas: [{ resultado: 'Pagando mes a mes por un año', valor: '$119.88' }],
-          totalTachado: '$119.88',
-          nota: `Plan anual: $79.99 · ahorras ${AHORRO_ANUAL}`,
-        }}
         anual={{
           nombre: 'Anual',
           badge: 'MEJOR VALOR',
           precioMes: '$6.67',
           totalAnual: 'Se cobra $79.99 al año',
           ahorro: `Ahorras ${AHORRO_ANUAL}`,
-          descomposicionDia: '$0.22 al día',
           ctaLabel: 'Empezar mis 7 días gratis',
           ctaHref: CTA_ANUAL,
           features: FEATURES_ANUAL,
@@ -150,12 +144,11 @@ export default function PaginaDeVentas() {
         mensual={{
           nombre: 'Mensual',
           precioMes: '$9.99',
-          descomposicionDia: '$0.33 al día',
           ctaLabel: 'Empezar mis 7 días gratis',
           ctaHref: CTA_MENSUAL,
           features: FEATURES_MENSUAL,
         }}
-        microcopyCompra="Pagas seguro por Hotmart · 15 días de garantía desde tu primer pago · te avisamos antes de cobrar"
+        microcopyCompra="Pagas seguro por Hotmart · Garantía sin preguntas de 15 días desde tu primer pago · te avisamos antes de cobrar"
       />
 
       <Garantia
