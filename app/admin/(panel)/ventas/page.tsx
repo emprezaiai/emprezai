@@ -102,7 +102,7 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
       <div className="mb-4 grid grid-cols-2 gap-3">
         <Tarjeta indice={2}>
           <Dato
-            etiqueta="Suscripciones al mes"
+            etiqueta="Suscripciones al mes" glosario="suscripciones"
             numero={pagando > 0 ? mrr : null}
             formato="dinero"
             decimales={2}
@@ -111,7 +111,7 @@ export default async function VentasPanel({ searchParams }: { searchParams: Prom
         </Tarjeta>
         <Tarjeta indice={3}>
           <Dato
-            etiqueta="Pruebas que pagaron"
+            etiqueta="Pruebas que pagaron" glosario="conversionPrueba"
             numero={conversion}
             formato="pct"
             tono={conversion !== null && conversion >= 40 && pruebasTerminadas >= 10 ? 'bien' : 'neutro'}

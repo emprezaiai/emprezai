@@ -53,7 +53,7 @@ export default async function CanalesPanel({ searchParams }: { searchParams: Pro
         </Tarjeta>
         <Tarjeta indice={2}>
           <Dato
-            etiqueta="Costo por cliente"
+            etiqueta="Costo por cliente" glosario="cac"
             numero={cacGeneral}
             formato="dinero"
             decimales={2}
@@ -62,7 +62,7 @@ export default async function CanalesPanel({ searchParams }: { searchParams: Pro
         </Tarjeta>
         <Tarjeta indice={3} className="col-span-2 lg:col-span-1">
           <Dato
-            etiqueta="Lo que deja un cliente"
+            etiqueta="Lo que deja un cliente" glosario="ltv"
             numero={vida ? vida.ltv : null}
             formato="dinero"
             decimales={2}

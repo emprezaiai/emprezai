@@ -2,6 +2,8 @@
 // insight en palabras. Si no hay dato, "Sin datos" con el porqué — nunca un cero inventado.
 // Dorado SOLO en el dato principal y el botón principal (FICHA-ARTE); verde = bien, rojo = mal.
 
+import { Ayuda } from '@/components/admin/Ayuda';
+import type { ClaveGlosario } from '@/lib/panel-glosario';
 import Link from 'next/link';
 import { ArrowRight, ChevronLeft, ChevronRight, CircleAlert, CircleCheck, Info, TriangleAlert } from 'lucide-react';
 import type { Aviso, PeriodoElegido } from '@/lib/servidor/panel';
@@ -134,6 +136,7 @@ export function Dato({
   tono = 'neutro',
   estimado = false,
   reservar = false,
+  glosario,
 }: {
   etiqueta: string;
   /** Texto ya formateado (para valores que no son un número, como una fecha). */
@@ -147,11 +150,13 @@ export function Dato({
   estimado?: boolean;
   /** Reserva 2 líneas para la etiqueta (alinea los números en cuadrículas de 2 columnas). */
   reservar?: boolean;
+  /** Clave del glosario: muestra un ⓘ que explica qué significa el número. */
+  glosario?: ClaveGlosario;
 }) {
   const sinDato = numero === null || (numero === undefined && (valor === null || valor === undefined));
   return (
     <div className="flex min-w-0 flex-col">
-      <p className={`line-clamp-2 text-caption font-semibold text-ink-2 ${reservar ? 'min-h-[2lh]' : ''}`}>{etiqueta}</p>
+      <p className={`line-clamp-2 text-caption font-semibold text-ink-2 ${reservar ? 'min-h-[2lh]' : ''}`}>{etiqueta}{glosario && <> <Ayuda clave={glosario} /></>}</p>
       {sinDato ? (
         <p className="mt-1 font-display text-precio font-extrabold text-ink-3">Sin datos</p>
       ) : (

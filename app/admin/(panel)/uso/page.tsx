@@ -51,11 +51,11 @@ export default async function UsoPanel({ searchParams }: { searchParams: Promise
 
       <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Tarjeta indice={1}>
-          <Dato etiqueta="Activos hoy" numero={uso.con_piezas > 0 ? uso.activos_hoy : null} detalle={uso.con_piezas > 0 ? `${entero(uso.activos_7)} esta semana · ${entero(uso.activos_30)} este mes` : 'Aún nadie arma piezas en la app'} />
+          <Dato etiqueta="Activos hoy" glosario="activosHoy" numero={uso.con_piezas > 0 ? uso.activos_hoy : null} detalle={uso.con_piezas > 0 ? `${entero(uso.activos_7)} esta semana · ${entero(uso.activos_30)} este mes` : 'Aún nadie arma piezas en la app'} />
         </Tarjeta>
         <Tarjeta indice={2}>
           <Dato
-            etiqueta="Activación"
+            etiqueta="Activación" glosario="activacion"
             numero={activacion}
             formato="pct"
             tono={activacion !== null && activacion >= 50 ? 'bien' : 'neutro'}
@@ -64,7 +64,7 @@ export default async function UsoPanel({ searchParams }: { searchParams: Promise
         </Tarjeta>
         <Tarjeta indice={3} href={uso.fantasmas > 0 ? '/admin/usuarios?estado=fantasma' : undefined}>
           <Dato
-            etiqueta="Pagan y no entran"
+            etiqueta="Pagan y no entran" glosario="fantasmas"
             numero={uso.con_piezas > 0 ? uso.fantasmas : null}
             tono={uso.fantasmas > 0 ? 'mal' : 'bien'}
             detalle={
@@ -73,7 +73,7 @@ export default async function UsoPanel({ searchParams }: { searchParams: Promise
           />
         </Tarjeta>
         <Tarjeta indice={4}>
-          <Dato etiqueta="Llegaron al día 30" numero={uso.con_piezas > 0 ? terminaronRuta : null} detalle={`De ${entero(uso.con_piezas)} que usan la app`} />
+          <Dato etiqueta="Llegaron al día 30" glosario="dia30" numero={uso.con_piezas > 0 ? terminaronRuta : null} detalle={`De ${entero(uso.con_piezas)} que usan la app`} />
         </Tarjeta>
       </div>
 

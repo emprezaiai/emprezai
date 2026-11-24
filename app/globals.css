@@ -504,3 +504,12 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .panel-plegable[open] > :not(summary) { animation: none; }
 }
+
+/* Explicación ⓘ del panel */
+@keyframes ayuda-caja {
+  from { opacity: 0; transform: translateY(4px); }
+}
+.ayuda-caja { animation: ayuda-caja 180ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .ayuda-caja { animation: none; }
+}

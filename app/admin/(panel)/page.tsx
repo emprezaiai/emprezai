@@ -107,14 +107,14 @@ export default async function InicioPanel({ searchParams }: { searchParams: Prom
       <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Tarjeta indice={3} href="/admin/usuarios?estado=activo">
           <Dato
-            etiqueta="Con acceso hoy"
+            etiqueta="Con acceso hoy" glosario="conAcceso"
             numero={clientes.total > 0 ? activos : null}
             detalle={clientes.total > 0 ? `${entero(pagando)} pagando · ${entero(clientes.en_prueba)} en prueba` : 'Aún nadie compró'}
           />
         </Tarjeta>
         <Tarjeta indice={4} href={`/admin/ventas?mes=${periodo.param}`}>
           <Dato
-            etiqueta="Suscripciones al mes"
+            etiqueta="Suscripciones al mes" glosario="suscripciones"
             numero={pagando > 0 ? mrr : null}
             formato="dinero"
             decimales={2}
@@ -123,7 +123,7 @@ export default async function InicioPanel({ searchParams }: { searchParams: Prom
         </Tarjeta>
         <Tarjeta indice={5} href={`/admin/ia?mes=${periodo.param}`}>
           <Dato
-            etiqueta="Gasto en IA"
+            etiqueta="Gasto en IA" glosario="gastoIa"
             numero={ia.llamadas > 0 ? ia.total_usd : null}
             formato="dinero"
             decimales={2}
@@ -133,7 +133,7 @@ export default async function InicioPanel({ searchParams }: { searchParams: Prom
         </Tarjeta>
         <Tarjeta indice={6} href={`/admin/ventas?mes=${periodo.param}`}>
           <Dato
-            etiqueta="Se fueron"
+            etiqueta="Se fueron" glosario="seFueron"
             numero={churn.total}
             formato="pct"
             decimales={1}

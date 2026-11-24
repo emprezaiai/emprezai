@@ -68,7 +68,7 @@ export default async function IaPanel({ searchParams }: { searchParams: Promise<
       <div className="mb-4 grid grid-cols-2 gap-3">
         <Tarjeta indice={2}>
           <Dato
-            etiqueta="IA por cliente"
+            etiqueta="IA por cliente" glosario="iaPorCliente"
             numero={porUsuario}
             formato="dinero"
             decimales={3}
