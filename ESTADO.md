@@ -1,6 +1,7 @@
 # ESTADO — EMPREZAI
 Última actualización: 2026-11-24 | Sesión actual: seguridad etapa 2 hecha (topes de enlaces y piezas) · siguiente: dominio → Resend → Hotmart
 
+⏸️ CHECKPOINT (2026-11-26): Supabase Auth configurado por API (scripts/configurar-auth-supabase.ps1, clave personal pedida oculta en la terminal de la dueña): Site URL https://emprezai.vercel.app · Redirect URLs https://emprezai.vercel.app/** (antes la lista estaba VACÍA) · dueña debe revocar el token sbp_ usado.
 ⏸️ CHECKPOINT (2026-11-24): portada nueva publicada (34/40 aceptado por la dueña) · legal v1.4 en vivo (aviso de Hotmart al borrar + recordatorio real de renovación anual) · admin emprezaiai@gmail.com en public.admins · seguridad etapa 1 (0 críticos) + etapa 2 (topes) publicadas · falta: la dueña apaga el registro público en Supabase · Resend espera a que la dueña diga si tiene dominio · Hotmart sin conectar (webhook 503).
 
 🔎 AUDITORÍA 2026-10-23 (--exhaustivo, SOLO diagnóstico, cero cambios de código): reporte completo en docs/revisiones/auditoria-2026-10-23/REPORTE.md · puntaje 6/10 · 5 críticos (acceso sin fecha de fin por eventos de Hotmart, tope de gasto de IA se rompe a las 1000 llamadas/mes, Next 16.3.7 con vulnerabilidad crítica → 16.4.3, promesas sin cumplir: recordatorio diario/cancelar en 1 toque/rutas cada mes/IA, servicios sin conectar) · Revisor: landing NO LISTA 34·17·17 · onboarding NO LISTA 34·16·18 · paywall LISTA 36·16·18 · Entrar NO LISTA 29·15 · Hoy LISTA 36·17 (13ª). Ejecutar SOLO lo que la dueña apruebe, por capas.
